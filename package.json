@@ -1,0 +1,25 @@
+{
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "name": "bipquantum",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "prebuild": "npm run prebuild --workspaces --if-present",
+    "pretest": "npm run prebuild --workspaces --if-present",
+    "start": "npm start --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
+    "tw:generate": " npx tailwindcss -i ./src/bipquantum_frontend/src/index.css -o ./src/bipquantum_frontend/src/output.css --watch"
+  },
+  "type": "module",
+  "workspaces": [
+    "src/bipquantum_frontend"
+  ],
+  "dependencies": {
+    "@internet-identity-labs/react-ic-ii-auth": "^0.0.19"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.3"
+  }
+}
