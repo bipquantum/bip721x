@@ -64,7 +64,11 @@ const DropdownComponent = ({
         <label
           htmlFor={id}
           className="text-white w-full"
-          style={{ fontSize: "1rem", marginBottom: 0 }}
+          style={{
+            color: "black",
+            fontSize: "1rem",
+            marginBottom: 0,
+          }}
         >
           {label}
         </label>
@@ -76,7 +80,7 @@ const DropdownComponent = ({
           input={<BootstrapInput />}
           style={{
             background: "transparent",
-            color: "white",
+            color: "black",
           }}
         >
           {options.map((option, index) => (

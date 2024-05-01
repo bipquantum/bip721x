@@ -20,6 +20,7 @@ const TextField = ({ id, label, value = "", subtext = "", handleChange }) => {
           htmlFor={id}
           className="text-white w-full"
           style={{
+            color: "black",
             fontSize: "1rem",
             marginBottom: ".4rem",
           }}

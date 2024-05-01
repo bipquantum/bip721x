@@ -1,11 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import IPListTable from "../../components/IPListTable";
 import { bipquantum_backend } from "declarations/bipquantum_backend";
 import { useDispatch, useSelector } from "react-redux";
 import { create } from "../../store/IPReducer";
+import { Box, CircularProgress } from "@mui/material";
 
 const Home = () => {
   const dispatch = useDispatch();
+  const [fetching, setFetching] = useState(true);
   const IPState = useSelector((reducers) => reducers.ipReducer);
 
   useEffect(() => {
@@ -15,32 +17,30 @@ const Home = () => {
   const fetchAllIPs = async () => {
     const fetchedIPs = await bipquantum_backend.getAllIPs();
     dispatch(create({ list: fetchedIPs }));
+    setFetching(false);
   };
 
   return (
-    <div
+    <Box
+      sx={{ bgcolor: "background.default" }}
       style={{
-        marginBottom: "auto",
-        minHeight: "74vh",
-        width: "100%",
-        marginTop: "5rem",
-        display: "flex",
-        justifyContent: "center",
-        marginLeft: "auto",
+        minHeight: "50vh",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          alignItems: "center",
-          marginTop: "2rem",
-        }}
-      >
+      {fetching ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
         <IPListTable ipList={IPState.ipList} />
-      </div>
-    </div>
+      )}
+    </Box>
   );
 };
 

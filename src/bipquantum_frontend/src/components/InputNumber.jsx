@@ -22,6 +22,7 @@ const InputNumberField = ({ id, label, value, onChange }) => {
           style={{
             fontSize: "1rem",
             marginBottom: ".4rem",
+            color: "black",
           }}
         >
           {label}
