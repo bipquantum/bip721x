@@ -27,3 +27,5 @@ dist/
 /*/node_modules
 /tmp
 .vessel
+
+.mops
