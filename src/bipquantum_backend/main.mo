@@ -1,30 +1,65 @@
 import Result "mo:base/Result";
 import Map "mo:map/Map";
+import Principal "mo:base/Principal";
+import Debug "mo:base/Debug";
+import Option "mo:base/Option";
+import Time "mo:base/Time";
 
 import Types "Types";
 import Controller "Controller";
 
-shared actor class Backend(){
+import ICRC7 "mo:icrc7-mo";
 
+shared({ caller = admin; }) actor class Backend() = this {
+
+  type UserArgs = Types.UserArgs;
   type User = Types.User;
-  type UserRegister = Types.UserRegister;
+  type IntPropArgs = Types.IntPropArgs;
   type Result<Ok, Err> = Result.Result<Ok, Err>;
 
   stable var _data = {
     users = {
       var index = 0;
-      map_users = Map.new<Principal, User>();
+      mapUsers = Map.new<Principal, User>();
+    };
+    intProps = {
+      var index = 0;
+      e8sIcpPrices = Map.new<Nat, Nat>();
     };
   };
 
-  let _controller = Controller.Controller(_data.users);
+  var _controller : ?Controller.Controller = null; 
 
-  public shared({caller}) func setUser(user: User): async Result<(), Text> {
-    _controller.setUser(caller, user);
+  public shared({caller}) func init_controller() : async () {
+
+    if (not Principal.equal(caller, admin)) {
+      Debug.trap("Only the admin can initialize the facade");
+    };
+
+    if (Option.isSome(_controller)) {
+      Debug.trap("The facade is already initialized");
+    };
+    
+    _controller := ?Controller.Controller({_data with owner = Principal.fromActor(this);});
   };
 
-  public query func getUser(principal: Principal): async ?User {
-    _controller.getUser(principal);
+  public shared({caller}) func set_user(args: UserArgs): async Result<(), Text> {
+    getController().setUser({ args with caller;} );
+  };
+
+  public query func get_user(principal: Principal): async ?User {
+    getController().getUser(principal);
+  };
+
+  public shared({caller}) func create_int_prop(args: IntPropArgs) : async Result<[ICRC7.SetNFTResult], Text> {
+    await getController().createIntProp({ args with caller; time = Time.now(); });
+  };
+
+  func getController() : Controller.Controller {
+    switch(_controller){
+      case(?ctrl) { ctrl; };
+      case(null) { Debug.trap("Controller not initialized"); };
+    };
   };
   
 };

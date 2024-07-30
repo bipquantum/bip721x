@@ -1,80 +1,62 @@
 import Map "mo:map/Map";
+import Principal "mo:base/Principal";
 
 module {
-    // enums
-    public type ERROR_ENUM = {
-        #NotFound;
-        #AlreadyExists;
-        #NotAuthorized;
-    };
 
-    public type IP_TYPE_ENUM = {
-        #COPYRIGHT;
-        #PATENT;
-        #IP_CERTIFICATE;
-    };
+  type Time = Int;
 
-    public type IP_LICENSES_TYPE_ENUM = {
-        #SAAS;
-        #REPRODUCTION;
-        #GAAME_FI;
-        #META_USE;
-        #PHYSICAL_REPRODUCTION;
-        #ADVERTISEMENT;
-        #NOT_APPLICABLE;
-    };
+  public type IntPropType = {
+    #COPYRIGHT;
+    #PATENT;
+    #IP_CERTIFICATE;
+  };
 
-    // IP types
-    public type IPEntryInputType = {
-        title : Text;
-        description : Text;
-        ipType : IP_TYPE_ENUM;
-        ipLicense : IP_LICENSES_TYPE_ENUM;
-        ipPrice : Float;
-        ipPriceCurrency : Text;
-    };
+  public type IntPropLicense = {
+    #SAAS;
+    #REPRODUCTION;
+    #GAAME_FI;
+    #META_USE;
+    #PHYSICAL_REPRODUCTION;
+    #ADVERTISEMENT;
+    #NOT_APPLICABLE;
+  };
 
-    public type IPEntryType = {
-        id : Nat;
-        title : Text;
-        description : Text;
-        ipType : IP_TYPE_ENUM;
-        ipLicense : IP_LICENSES_TYPE_ENUM;
-        ipPrice : Float;
-        ipPriceCurrency : Text;
-        createdBy : Principal;
-    };
+  public type IntPropArgs = {
+    title: Text;
+    description: Text;
+    intPropType: IntPropType;
+    intPropLicense: IntPropLicense;
+    e8sIcpPrice: Nat;
+  };
 
-    // user types
-    public type UserIdType = Principal;
-    public type User = {
-        firstName: Text;
-        lastName: Text;
-        nickName: Text;
-        speciality: Text;
-        country: Text;
-    };
+  public type IntPropRegister = {
+    var index: Nat;
+    e8sIcpPrices: Map.Map<Nat, Nat>;
+  };
+  
+  public type UserArgs = {
+    firstName: Text;
+    lastName: Text;
+    nickName: Text;
+    speciality: Text;
+    country: Text;
+  };
 
-    public type UserRegister = {
-        var index: Nat;
-        map_users: Map.Map<Principal, User>;
+  public type User = {
+    firstName: Text;
+    lastName: Text;
+    nickName: Text;
+    speciality: Text;
+    country: Text;
+    account: {
+      owner: Principal;
+      subaccount: ?Blob;
     };
+  };
 
-    public type UpdateProfileDetailsParams = {
-        name : ?Text;
-        familyName : ?Text;
-        nickName : ?Text;
-        speciality : ?Text;
-        country : ?Text;
-    };
+  public type UserRegister = {
+    var index: Nat;
+    mapUsers: Map.Map<Principal, User>;
+  };
 
-    public type StableUserDataType = {
-        userId : UserIdType;
-        userDetails : User;
-    };
-
-    public type StableIPDataType = {
-        ipID : Nat;
-        ipDetails : IPEntryType;
-    };
 };

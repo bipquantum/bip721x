@@ -6,6 +6,8 @@ import Time "mo:base/Time";
 import Nat64 "mo:base/Nat64";
 
 import Types "Types";
+import Subaccount "utils/Subaccount";
+import Conversions "utils/Conversions";
 
 import ICRC7 "mo:icrc7-mo";
 
@@ -14,65 +16,96 @@ import Icrc7Canister "canister:icrc7";
 module {
 
   type User = Types.User;
+  type UserArgs = Types.UserArgs;
   type UserRegister = Types.UserRegister;
   type Result<Ok, Err> = Result.Result<Ok, Err>;
+  type IntPropRegister = Types.IntPropRegister;
+  type IntPropArgs = Types.IntPropArgs;
+  type Time = Int;
 
-  public class Controller(users: UserRegister) {
+  type Account = ICRC7.Account;
 
-    public func setUser(caller: Principal, user: User) : Result<(), Text> {
+  let BIP721X_TAG = "bip721x";
 
-      if (Principal.isAnonymous(caller)){
+  public class Controller({
+    owner: Principal;
+    users: UserRegister;
+    intProps: IntPropRegister;
+  }) {
+
+    public func setUser(
+      args: UserArgs and {
+        caller: Principal;
+    }) : Result<(), Text> {
+
+      if (Principal.isAnonymous(args.caller)){
         return #err("Anonymous user not allowed");
       };
 
-      Map.set(users.map_users, Map.phash, caller, user);
+      let user = { args with account = getUserAccount(args.caller) };
+
+      Map.set(users.mapUsers, Map.phash, args.caller, user);
       #ok;
     };
 
     public func getUser(principal: Principal) : ?User {
-      Map.get(users.map_users, Map.phash, principal)
+      Map.get(users.mapUsers, Map.phash, principal)
     };
 
-    public func createIP({
-      caller: Principal; 
-      ipEntryInput: Types.IPEntryInputType;
-    }) : async [ICRC7.SetNFTResult] {
+    // @todo: return a better result
+    public func createIntProp(
+      args: IntPropArgs and {
+        caller: Principal;
+        time: Time;
+    }) : async Result<[ICRC7.SetNFTResult], Text> {
 
-      let metadata = #Map([
-        ("title",           #Text(ipEntryInput.title)),
-        ("description",     #Text(ipEntryInput.description)),
-        ("ipType",          #Nat(ipTypeEnumToNat(ipEntryInput.ipType))),
-        ("ipLicense",       #Nat(ipLicenseTypeEnumToNat(ipEntryInput.ipLicense))),
-      ]); 
+      if (Principal.isAnonymous(args.caller)){
+        return #err("Anonymous user not allowed");
+      };
 
-      await Icrc7Canister.icrcX_mint([{
-        token_id: Nat = 0; // @todo: what to put ?
-        metadata;
-        owner: ?ICRC7.Account = null; // @todo: put the account of the user ?
-        override: Bool = false; // @todo: what to put ?
-        memo: ?Blob = null;
-        created_at_time: ?Nat64 = ?Nat64.fromNat(Int.abs(Time.now()));
+      // Get the ID from the index then increment the index
+      let token_id = intProps.index;
+      intProps.index += 1;
+
+      let mint_operation = await Icrc7Canister.icrcX_mint([{
+        token_id;
+        metadata = 
+          #Class([
+            {
+              name = BIP721X_TAG;
+              immutable = true;
+              value = #Map([
+                ("title",           #Text(args.title)),
+                ("description",     #Text(args.description)),
+                ("intPropType",     #Nat(Conversions.intPropTypeToNat(args.intPropType))),
+                ("intPropLicense",  #Nat(Conversions.intPropLicenseToNat(args.intPropLicense))),
+              ])
+            }
+          ]);
+        owner = ?getUserAccount(args.caller);
+        override = false; // @todo: does false mean that the token shall be new ?
+        memo = null;
+        created_at_time = ?Nat64.fromNat(Int.abs(args.time));
       }]);
+
+      // Set the price of the token
+      Map.set(intProps.e8sIcpPrices, Map.nhash, token_id, args.e8sIcpPrice);
+
+      #ok(mint_operation);
     };
 
-    func ipTypeEnumToNat(ipType: Types.IP_TYPE_ENUM) : Nat {
-      switch (ipType) {
-        case(#COPYRIGHT)      { 0; };
-        case(#PATENT)         { 1; };
-        case(#IP_CERTIFICATE) { 2; };
-      };
+    // icrc7_token_metadata : shared query (TokenMetadataRequest) -> async TokenMetadataResponse;
+
+    public func getIntProp(prev: ?Nat, take: ?Nat) : async [Nat] {
+      await Icrc7Canister.icrc7_tokens(prev, take);
     };
 
-    func ipLicenseTypeEnumToNat(ipLicense: Types.IP_LICENSES_TYPE_ENUM) : Nat {
-      switch (ipLicense) {
-        case(#SAAS)                  { 0; };
-        case(#REPRODUCTION)          { 1; };
-        case(#GAAME_FI)              { 2; };
-        case(#META_USE)              { 3; };
-        case(#PHYSICAL_REPRODUCTION) { 4; };
-        case(#ADVERTISEMENT)         { 5; };
-        case(#NOT_APPLICABLE)        { 6; };
-      };
+    public func getIntPropOf(principal: Principal, prev: ?Nat, take: ?Nat) : async [Nat] {
+      await Icrc7Canister.icrc7_tokens_of(getUserAccount(principal), prev, take);
+    };
+
+    func getUserAccount(principal: Principal) : Account {
+      { owner; subaccount = ?Subaccount.fromPrincipal(principal); };
     };
 
   };
