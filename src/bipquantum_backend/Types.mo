@@ -1,9 +1,4 @@
-import Principal "mo:base/Principal";
-import Nat "mo:base/Nat";
-import ListTypesLib "mo:base/List";
-import Array "mo:base/Array";
-import Float "mo:base/Float";
-import Text "mo:base/Text";
+import Map "mo:map/Map";
 
 module {
     // enums
@@ -52,15 +47,19 @@ module {
 
     // user types
     public type UserIdType = Principal;
-    public type UserProfileDetailsType = {
-        id : Nat;
-        name : Text;
-        familyName : Text;
-        nickName : Text;
-        speciality : Text;
-        country : Text;
-        identityPrincipal : Principal;
+    public type User = {
+        firstName: Text;
+        lastName: Text;
+        nickName: Text;
+        speciality: Text;
+        country: Text;
     };
+
+    public type UserRegister = {
+        var index: Nat;
+        map_users: Map.Map<Principal, User>;
+    };
+
     public type UpdateProfileDetailsParams = {
         name : ?Text;
         familyName : ?Text;
@@ -71,7 +70,7 @@ module {
 
     public type StableUserDataType = {
         userId : UserIdType;
-        userDetails : UserProfileDetailsType;
+        userDetails : User;
     };
 
     public type StableIPDataType = {
