@@ -1,4 +1,4 @@
-import { canisterId, createActor } from "../../declarations/bipquantum_backend";
+import { canisterId, createActor } from "../../declarations/backend";
 import { HttpAgent } from "@dfinity/agent";
 
 const getActor = async (identity) => {

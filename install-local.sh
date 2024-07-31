@@ -5,11 +5,11 @@ ADMIN_PRINCIPAL=$(dfx identity get-principal)
 # Create all canisters
 dfx canister create --all
 
-MARKET_CANISTER=$(dfx canister id bipquantum_backend)
+BACKEND_CANISTER=$(dfx canister id backend)
 
 # Deploy all canisters
 dfx deploy icrc7 --mode reinstall --argument 'record {
-  icrc7_args = opt record {
+  icrc7_args = opt opt record {
     symbol = opt "IP" : opt text;
     name = opt "Intellectual Property" : opt text;
     description = opt "A Collection of Intellectual Property by BipQuantum" : opt text;
@@ -24,9 +24,13 @@ dfx deploy icrc7 --mode reinstall --argument 'record {
     permitted_drift = null : opt nat;
     tx_window = null : opt nat;
     burn_account = null;
-    deployer = principal "'${MARKET_CANISTER}'";
+    deployer = principal "'${BACKEND_CANISTER}'";
     supported_standards = null;
   };
   icrc37_args = null;
-  icrc3_args = null;
+  icrc3_args = null; 
 }'
+
+dfx deploy backend
+
+dfx canister call backend init_controller

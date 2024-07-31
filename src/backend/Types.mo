@@ -1,5 +1,4 @@
 import Map "mo:map/Map";
-import Principal "mo:base/Principal";
 
 module {
 
@@ -14,18 +13,21 @@ module {
   public type IntPropLicense = {
     #SAAS;
     #REPRODUCTION;
-    #GAAME_FI;
+    #GAME_FI;
     #META_USE;
     #PHYSICAL_REPRODUCTION;
     #ADVERTISEMENT;
     #NOT_APPLICABLE;
   };
 
-  public type IntPropArgs = {
+  public type IntProp = {
     title: Text;
     description: Text;
     intPropType: IntPropType;
     intPropLicense: IntPropLicense;
+  };
+
+  public type IntPropArgs = IntProp and {
     e8sIcpPrice: Nat;
   };
 
@@ -42,16 +44,13 @@ module {
     country: Text;
   };
 
-  public type User = {
-    firstName: Text;
-    lastName: Text;
-    nickName: Text;
-    speciality: Text;
-    country: Text;
-    account: {
-      owner: Principal;
-      subaccount: ?Blob;
-    };
+  type Account = {
+    owner: Principal;
+    subaccount: ?Blob;
+  };
+
+  public type User = UserArgs and {
+    account: Account;
   };
 
   public type UserRegister = {

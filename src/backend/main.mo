@@ -55,6 +55,10 @@ shared({ caller = admin; }) actor class Backend() = this {
     await getController().createIntProp({ args with caller; time = Time.now(); });
   };
 
+  public shared func get_int_props({principal: Principal; prev: ?Nat; take: ?Nat}) : async [Types.IntProp] {
+    await getController().getIntProps({ principal; prev; take; });
+  };
+
   func getController() : Controller.Controller {
     switch(_controller){
       case(?ctrl) { ctrl; };
