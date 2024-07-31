@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import IPListTable from "../../components/IPListTable";
-import { bipquantum_backend } from "declarations/bipquantum_backend";
+import { backend } from "declarations/backend";
 import { useDispatch, useSelector } from "react-redux";
 import { create } from "../../store/IPReducer";
 import { Box, CircularProgress } from "@mui/material";
@@ -15,7 +15,7 @@ const Home = () => {
   }, []);
 
   const fetchAllIPs = async () => {
-    const fetchedIPs = await bipquantum_backend.getAllIPs();
+    const fetchedIPs = await backend.getAllIPs();
     dispatch(create({ list: fetchedIPs }));
     setFetching(false);
   };

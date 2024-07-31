@@ -10,11 +10,11 @@
     "pretest": "npm run prebuild --workspaces --if-present",
     "start": "npm start --workspaces --if-present",
     "test": "npm test --workspaces --if-present",
-    "tw:generate": " npx tailwindcss -i ./src/bipquantum_frontend/src/index.css -o ./src/bipquantum_frontend/src/output.css --watch"
+    "tw:generate": " npx tailwindcss -i ./src/frontend/src/index.css -o ./src/frontend/src/output.css --watch"
   },
   "type": "module",
   "workspaces": [
-    "src/bipquantum_frontend"
+    "src/frontend"
   ],
   "dependencies": {
     "@internet-identity-labs/react-ic-ii-auth": "^0.0.19"

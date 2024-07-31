@@ -21,6 +21,7 @@ module {
   type Result<Ok, Err> = Result.Result<Ok, Err>;
   type IntPropRegister = Types.IntPropRegister;
   type IntPropArgs = Types.IntPropArgs;
+  type IntProp = Types.IntProp;
   type Time = Int;
 
   type Account = ICRC7.Account;
@@ -69,19 +70,12 @@ module {
 
       let mint_operation = await Icrc7Canister.icrcX_mint([{
         token_id;
-        metadata = 
-          #Class([
-            {
-              name = BIP721X_TAG;
-              immutable = true;
-              value = #Map([
-                ("title",           #Text(args.title)),
-                ("description",     #Text(args.description)),
-                ("intPropType",     #Nat(Conversions.intPropTypeToNat(args.intPropType))),
-                ("intPropLicense",  #Nat(Conversions.intPropLicenseToNat(args.intPropLicense))),
-              ])
-            }
-          ]);
+        // @todo: somehow compilation fails if we use Conversions.intPropToInputMetadata 
+        metadata = #Class([{
+          name = BIP721X_TAG;
+          immutable = true;
+          value = Conversions.intPropToValue(args);
+        }]);
         owner = ?getUserAccount(args.caller);
         override = false; // @todo: does false mean that the token shall be new ?
         memo = null;
@@ -94,14 +88,9 @@ module {
       #ok(mint_operation);
     };
 
-    // icrc7_token_metadata : shared query (TokenMetadataRequest) -> async TokenMetadataResponse;
-
-    public func getIntProp(prev: ?Nat, take: ?Nat) : async [Nat] {
-      await Icrc7Canister.icrc7_tokens(prev, take);
-    };
-
-    public func getIntPropOf(principal: Principal, prev: ?Nat, take: ?Nat) : async [Nat] {
-      await Icrc7Canister.icrc7_tokens_of(getUserAccount(principal), prev, take);
+    public func getIntProps({principal: Principal; prev: ?Nat; take: ?Nat}) : async [IntProp] {
+      let tokenIds = await Icrc7Canister.icrc7_tokens_of(getUserAccount(principal), prev, take);
+      Conversions.outputMetadataToIntProps(await Icrc7Canister.icrc7_token_metadata(tokenIds));
     };
 
     func getUserAccount(principal: Principal) : Account {

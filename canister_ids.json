@@ -1,8 +1,8 @@
 {
-  "bipquantum_backend": {
+  "backend": {
     "ic": "yq6wu-3iaaa-aaaap-ahdea-cai"
   },
-  "bipquantum_frontend": {
+  "frontend": {
     "ic": "yx7qa-wqaaa-aaaap-ahdeq-cai"
   }
 }

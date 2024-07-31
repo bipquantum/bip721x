@@ -4,22 +4,22 @@
       "main": "src/icrc7/main.mo",
       "type": "motoko"
     },
-    "bipquantum_backend": {
-      "main": "src/bipquantum_backend/main.mo",
+    "backend": {
+      "main": "src/backend/main.mo",
       "type": "motoko",
       "dependencies": [
         "icrc7"
       ]
     },
-    "bipquantum_frontend": {
+    "frontend": {
       "dependencies": [
-        "bipquantum_backend"
+        "backend"
       ],
       "source": [
-        "src/bipquantum_frontend/dist"
+        "src/frontend/dist"
       ],
       "type": "assets",
-      "workspace": "bipquantum_frontend"
+      "workspace": "frontend"
     },
     "internet_identity": {
       "type": "custom",

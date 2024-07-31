@@ -4,7 +4,7 @@ import TextField from "../../components/TextField";
 import Dropdown from "../../components/Dropdown";
 import InputNumberField from "../../components/InputNumber";
 import { useInternetIdentity } from "@internet-identity-labs/react-ic-ii-auth";
-import { bipquantum_backend } from "../../../../declarations/bipquantum_backend";
+import { backend } from "../../../../declarations/backend";
 import getActor from "../../../utils/getActor";
 import { useNavigate } from "react-router-dom";
 
@@ -31,7 +31,7 @@ const CreateIPForm = () => {
   const IPLicensesTypeOptions = [
     { title: "SAAS", value: "SAAS" },
     { title: "Reproduction", value: "REPRODUCTION" },
-    { title: "Gaame FI", value: "GAAME_FI" },
+    { title: "Gaame FI", value: "GAME_FI" },
     { title: "Meta use", value: "META_USE" },
     { title: "Physical Reproduction", value: "PHYSICAL_REPRODUCTION" },
     { title: "Advertisement", value: "ADVERTISEMENT" },
