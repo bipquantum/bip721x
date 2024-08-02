@@ -1,20 +1,20 @@
-import Result "mo:base/Result";
-import Map "mo:map/Map";
-import Principal "mo:base/Principal";
-import Debug "mo:base/Debug";
-import Option "mo:base/Option";
-import Time "mo:base/Time";
+import Result     "mo:base/Result";
+import Map        "mo:map/Map";
+import Principal  "mo:base/Principal";
+import Debug      "mo:base/Debug";
+import Option     "mo:base/Option";
+import Time       "mo:base/Time";
 
-import Types "Types";
+import Types      "Types";
 import Controller "Controller";
 
-import ICRC7 "mo:icrc7-mo";
+import ICRC7      "mo:icrc7-mo";
 
 shared({ caller = admin; }) actor class Backend() = this {
 
-  type UserArgs = Types.UserArgs;
-  type User = Types.User;
-  type IntPropArgs = Types.IntPropArgs;
+  type UserArgs        = Types.UserArgs;
+  type User            = Types.User;
+  type IntPropArgs     = Types.IntPropArgs;
   type Result<Ok, Err> = Result.Result<Ok, Err>;
 
   stable var _data = {

@@ -1,7 +1,7 @@
 import Principal "mo:base/Principal";
-import Blob "mo:base/Blob";
-import Buffer "mo:base/Buffer";
-import Debug "mo:base/Debug";
+import Blob      "mo:base/Blob";
+import Buffer    "mo:base/Buffer";
+import Debug     "mo:base/Debug";
 
 module {
 

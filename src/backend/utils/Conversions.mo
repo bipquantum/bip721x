@@ -1,18 +1,18 @@
-import Debug "mo:base/Debug";
-import Array "mo:base/Array";
+import Debug  "mo:base/Debug";
+import Array  "mo:base/Array";
 import Buffer "mo:base/Buffer";
 
-import ICRC7 "mo:icrc7-mo";
+import ICRC7  "mo:icrc7-mo";
 
-import Types "../Types";
+import Types  "../Types";
 
 module {
 
-  let BIP721X_TAG = "bip721x";
+  let BIP721X_TAG     = Types.BIP721X_TAG;
 
-  type IntPropType = Types.IntPropType;
+  type IntPropType    = Types.IntPropType;
   type IntPropLicense = Types.IntPropLicense;
-  type IntProp = Types.IntProp;
+  type IntProp        = Types.IntProp;
 
   public func intPropTypeToNat(intPropType: IntPropType) : Nat {
     switch (intPropType) {
@@ -34,7 +34,7 @@ module {
     };
   };
 
-  public func intPropTypeFromValue(value: Nat) : IntPropType {
+  public func intPropTypeFromNat(value: Nat) : IntPropType {
     switch (value) {
       case(0) { #COPYRIGHT; };
       case(1) { #PATENT; };
@@ -43,7 +43,7 @@ module {
     };
   };
 
-  public func intPropLicenseFromValue(value: Nat) : IntPropLicense {
+  public func intPropLicenseFromNat(value: Nat) : IntPropLicense {
     switch (value) {
       case(0) { #SAAS; };
       case(1) { #REPRODUCTION; };
@@ -79,7 +79,7 @@ module {
     ]);
   };
 
-  public func intPropToInputMetadata(intProp: IntProp) : ICRC7.NFTInput {
+  public func intPropToMetadata(intProp: IntProp) : ICRC7.NFTInput {
     #Class([{
       name = BIP721X_TAG;
       immutable = true;
@@ -87,7 +87,7 @@ module {
     }]);
   };
 
-  public func outputMetadataToIntProps(vecMetaData: [?[(Text, ICRC7.Value)]]) : [IntProp] {
+  public func metadataToIntProps(vecMetaData: [?[(Text, ICRC7.Value)]]) : [IntProp] {
     let buffer = Buffer.Buffer<IntProp>(vecMetaData.size());
     for (optMetaData: ?[(Text, ICRC7.Value)] in Array.vals(vecMetaData)) {
       switch(optMetaData){
@@ -114,8 +114,8 @@ module {
           switch(k){
             case("title"){ title := ?unwrapText(v); };
             case("description"){ description := ?unwrapText(v); };
-            case("intPropType"){ intPropType := ?intPropTypeFromValue(unwrapNat(v)); };
-            case("intPropLicense"){ intPropLicense := ?intPropLicenseFromValue(unwrapNat(v)); };
+            case("intPropType"){ intPropType := ?intPropTypeFromNat(unwrapNat(v)); };
+            case("intPropLicense"){ intPropLicense := ?intPropLicenseFromNat(unwrapNat(v)); };
             case(_){ Debug.trap("Unexpected value"); };
           };
         };

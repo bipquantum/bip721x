@@ -3,3 +3,7 @@ base = "0.11.1"
 map = "9.0.1"
 icrc37-mo = "0.4.1"
 icrc3-mo = "0.2.6"
+test = "2.0.0"
+
+[toolchain]
+moc = "0.12.0"

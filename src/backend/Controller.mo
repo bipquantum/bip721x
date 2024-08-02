@@ -1,32 +1,32 @@
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Map "mo:map/Map";
-import Int "mo:base/Int";
-import Time "mo:base/Time";
-import Nat64 "mo:base/Nat64";
+import Principal     "mo:base/Principal";
+import Result        "mo:base/Result";
+import Map           "mo:map/Map";
+import Int           "mo:base/Int";
+import Time          "mo:base/Time";
+import Nat64         "mo:base/Nat64";
 
-import Types "Types";
-import Subaccount "utils/Subaccount";
-import Conversions "utils/Conversions";
+import Types         "Types";
+import Subaccount    "utils/Subaccount";
+import Conversions   "utils/Conversions";
 
-import ICRC7 "mo:icrc7-mo";
+import ICRC7         "mo:icrc7-mo";
 
 import Icrc7Canister "canister:icrc7";
 
 module {
 
-  type User = Types.User;
-  type UserArgs = Types.UserArgs;
-  type UserRegister = Types.UserRegister;
+  let BIP721X_TAG      = Types.BIP721X_TAG;
+
+  type User            = Types.User;
+  type UserArgs        = Types.UserArgs;
+  type UserRegister    = Types.UserRegister;
   type Result<Ok, Err> = Result.Result<Ok, Err>;
   type IntPropRegister = Types.IntPropRegister;
-  type IntPropArgs = Types.IntPropArgs;
-  type IntProp = Types.IntProp;
-  type Time = Int;
+  type IntPropArgs     = Types.IntPropArgs;
+  type IntProp         = Types.IntProp;
+  type Time            = Int;
 
-  type Account = ICRC7.Account;
-
-  let BIP721X_TAG = "bip721x";
+  type Account         = ICRC7.Account;
 
   public class Controller({
     owner: Principal;
@@ -70,7 +70,7 @@ module {
 
       let mint_operation = await Icrc7Canister.icrcX_mint([{
         token_id;
-        // @todo: somehow compilation fails if we use Conversions.intPropToInputMetadata 
+        // @todo: somehow compilation fails if we use Conversions.intPropToMetadata 
         metadata = #Class([{
           name = BIP721X_TAG;
           immutable = true;
@@ -90,7 +90,7 @@ module {
 
     public func getIntProps({principal: Principal; prev: ?Nat; take: ?Nat}) : async [IntProp] {
       let tokenIds = await Icrc7Canister.icrc7_tokens_of(getUserAccount(principal), prev, take);
-      Conversions.outputMetadataToIntProps(await Icrc7Canister.icrc7_token_metadata(tokenIds));
+      Conversions.metadataToIntProps(await Icrc7Canister.icrc7_token_metadata(tokenIds));
     };
 
     func getUserAccount(principal: Principal) : Account {

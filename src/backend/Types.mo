@@ -4,6 +4,8 @@ module {
 
   type Time = Int;
 
+  public let BIP721X_TAG = "bip721x";
+
   public type IntPropType = {
     #COPYRIGHT;
     #PATENT;
