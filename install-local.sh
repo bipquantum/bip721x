@@ -33,4 +33,10 @@ dfx deploy icrc7 --argument 'record {
 
 dfx deploy backend
 
+dfx deploy internet_identity
+
+dfx deploy frontend
+
+dfx generate
+
 dfx canister call backend init_controller
