@@ -8,7 +8,7 @@ dfx canister create --all
 BACKEND_CANISTER=$(dfx canister id backend)
 
 # Deploy all canisters
-dfx deploy icrc7 --mode reinstall --argument 'record {
+dfx deploy icrc7 --argument 'record {
   icrc7_args = opt opt record {
     symbol = opt "IP" : opt text;
     name = opt "Intellectual Property" : opt text;
