@@ -1,4 +1,3 @@
-#!/bin/bash
 set -ex
 
 ADMIN_PRINCIPAL=$(dfx identity get-principal)
