@@ -2,7 +2,7 @@ import ICRC3 "mo:icrc3-mo";
 
 module{
 
-  // @todo: verify parameters
+  // TODO sardariuss 2024-08-07: verify parameters
   public let defaultConfig = func(_: Principal) : ICRC3.InitArgs {
     ?{
       maxActiveRecords = 4000;

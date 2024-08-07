@@ -1,8 +1,12 @@
 import Map "mo:map/Map";
 
+import Result "mo:base/Result";
+
 module {
 
   type Time = Int;
+
+  type Result<Ok, Err> = Result.Result<Ok, Err>;
 
   public let BIP721X_TAG = "bip721x";
 
@@ -58,6 +62,25 @@ module {
   public type UserRegister = {
     var index: Nat;
     mapUsers: Map.Map<Principal, User>;
+  };
+
+  public type CreateIntPropResultError = {
+    // Specific to Bip721X
+    #NotAuthorized;
+    #MintError;
+    // From ICRC7
+    #NonExistingTokenId;
+    #TokenExists;
+    #GenericError : { error_code : Nat; message : Text };
+    #TooOld;
+    #CreatedInFuture : { ledger_time: Nat64 };
+  };
+
+  public type CreateIntPropResult = Result<Nat, CreateIntPropResultError>;
+
+  public type BuyIntPropResult = {
+    icp_transfer: Result<Nat, Text>;
+    icrc7_transfer: ?Result<Nat, Text>;
   };
 
 };

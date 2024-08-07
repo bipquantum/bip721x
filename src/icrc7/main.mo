@@ -17,7 +17,7 @@ import ICRC37Default "./initial_state/icrc37";
 import ICRC3Default "./initial_state/icrc3";
 
 // This class has been imported from https://github.com/PanIndustrial-Org/icrc_nft.mo/blob/main/example/main.mo
-// @todo: verify what is really done in this class
+// TODO sardariuss 2024-08-07: verify the correctness of this implementation
 shared(_init_msg) actor class Example(_args : {
   icrc7_args: ?ICRC7.InitArgs;
   icrc37_args: ?ICRC37.InitArgs;
