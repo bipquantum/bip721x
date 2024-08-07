@@ -2,13 +2,13 @@ import ICRC7 "mo:icrc7-mo";
 
 module{
 
-  // @todo: verify parameters
+  // TODO sardariuss 2024-08-07: verify parameters
   public let defaultConfig = func(caller: Principal) : ICRC7.InitArgs{
     ?{
       symbol = ?"IP";
       name = ?"Intellectual Property";
       description = ?"A Collection of Intellectual Property by BipQuantum";
-      logo = null; // @todo: add logo
+      logo = null; // TODO sardariuss 2024-08-07: add logo
       supply_cap = null;
       allow_transfers = null;
       max_query_batch_size = ?100;

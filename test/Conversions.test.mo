@@ -53,7 +53,7 @@ suite("Conversions", func(){
       }]
     );
 
-    // @todo: Testify.metadata.equal is tricky to implement, there is no Candy comparison for #Map
+    // TODO sardariuss 2024-08-07: Testify.metadata.equal is tricky to implement, there is no Candy comparison for #Map
     //verify(Conversions.intPropToMetadata(actual), expected, Testify.metadata.equal);
   });
 

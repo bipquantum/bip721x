@@ -2,7 +2,7 @@ import ICRC37 "mo:icrc37-mo";
 
 module{
 
-  // @todo: verify parameters
+  // TODO sardariuss 2024-08-07: verify parameters
   public let defaultConfig = func(caller: Principal) : ICRC37.InitArgs{
     ?{
       max_approvals_per_token_or_collection = ?10;
