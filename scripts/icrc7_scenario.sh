@@ -12,9 +12,7 @@ dfx identity use bob
 
 BOB_PRINCIPAL=$(dfx identity get-principal)
 
-dfx identity new icrc7_deployer --storage-mode=plaintext || true
-
-dfx identity use icrc7_deployer
+dfx identity use default
 
 ADMIN_PRINCIPAL=$(dfx identity get-principal)
 
@@ -29,7 +27,7 @@ ICRC7_CANISTER=$(dfx canister id icrc7)
 echo $ICRC7_CANISTER
 
 #init the canister
-dfx canister call icrc7 init
+#dfx canister call icrc7 init
 
 # Get Name
 dfx canister call icrc7 icrc7_name  --query 

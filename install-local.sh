@@ -50,4 +50,6 @@ dfx deploy backend
 
 dfx deploy internet_identity
 
+dfx canister call backend init_controller
+
 dfx deploy frontend
