@@ -50,7 +50,7 @@ module {
     country: Text;
   };
 
-  type Account = {
+  public type Account = {
     owner: Principal;
     subaccount: ?Blob;
   };
@@ -80,7 +80,7 @@ module {
 
   public type BuyIntPropResult = {
     icp_transfer: Result<Nat, Text>;
-    icrc7_transfer: ?Result<Nat, Text>;
+    ip_transfer: ?Result<Nat, Text>;
   };
 
 };

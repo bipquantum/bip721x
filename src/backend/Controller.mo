@@ -9,6 +9,7 @@ import Iter              "mo:base/Iter";
 
 import Types             "Types";
 import Conversions       "utils/Conversions";
+import Subaccount        "utils/Subaccount";
 
 import ICRC7             "mo:icrc7-mo";
 
@@ -35,6 +36,7 @@ module {
   public class Controller({
     users: UserRegister;
     intProps: IntPropRegister;
+    backend_id: Principal;
   }) {
 
     public func setUser(
@@ -46,7 +48,7 @@ module {
         return #err("Anonymous user not allowed");
       };
 
-      let user = { args with account = getUserAccount(args.caller) };
+      let user = { args with account = GetUserAccount(args.caller) };
 
       Map.set(users.mapUsers, Map.phash, args.caller, user);
       #ok;
@@ -66,9 +68,7 @@ module {
         return #err(#NotAuthorized);
       };
 
-      // Get the ID from the index then increment the index
       let token_id = intProps.index;
-      intProps.index += 1;
 
       let mint_operation = await Icrc7Canister.icrcX_mint([{
         token_id;
@@ -78,8 +78,12 @@ module {
           immutable = true;
           value = Conversions.intPropToValue(args);
         }]);
-        owner = ?getUserAccount(args.caller);
-        override = false; // TODO sardariuss 2024-08-07: verify that false mean that the token_id shall not exist yet
+        owner = ?GetUserAccount(args.caller);
+        // We have the guarentee that the token_id will not already exist because:
+        // - only the backend can mint tokens
+        // - if the minting is successful, the index will always be increased
+        // Hence override can be set to false
+        override = false;
         memo = null;
         created_at_time = ?Nat64.fromNat(Int.abs(args.time));
       }]);
@@ -88,7 +92,6 @@ module {
         return #err(#MintError);
       };
 
-      // TODO sardariuss 2024-08-07: improve error handling
       switch(mint_operation[0]){
         case(#Err(err)){
           return #err(err);
@@ -96,22 +99,14 @@ module {
         case(#GenericError(err)){
           return #err(#GenericError(err));
         };
-        case(#Ok(opt_mint)){
-          switch(opt_mint){
-            case(null) {
-              return #err(#MintError);
-            };
-            case(?mint_id){
-              if (mint_id != token_id){
-                return #err(#MintError);
-              };
-            };
-          };
-        };
+        case(#Ok(_)){};
       };
 
       // Set the price of the token
       Map.set(intProps.e8sIcpPrices, Map.nhash, token_id, args.e8sIcpPrice);
+
+      // Increase the token ID index
+      intProps.index += 1;
 
       #ok(token_id);
     };
@@ -119,7 +114,7 @@ module {
     public func getIntProps({owner: Principal; prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {
 
       // Retrieve the token IDs and metadata
-      let tokenIds = await Icrc7Canister.icrc7_tokens_of(getUserAccount(owner), prev, take);
+      let tokenIds = await Icrc7Canister.icrc7_tokens_of(GetUserAccount(owner), prev, take);
       let listIntProps = Conversions.metadataToIntProps(await Icrc7Canister.icrc7_token_metadata(tokenIds));
 
       // Verify that the token IDs and metadata match
@@ -151,6 +146,9 @@ module {
         case(null) { return #err("Owner not found"); };
         case(?account) { account; };
       };
+      if(seller_account.owner != backend_id){
+        return #err("Cannot transfer IP that does not belong to the backend");
+      };
 
       // Retrieve the price of the IP
       let e8sPrice = switch(Map.get(intProps.e8sIcpPrices, Map.nhash, token_id)){
@@ -158,43 +156,40 @@ module {
         case(?price) { price; };
       };
 
-      let buyer_account = getUserAccount(buyer);
-
       // Transfer the ICP
       let icp_transfer = await transferIcp({
-        from = buyer_account;
+        from_subaccount = ?Subaccount.fromPrincipal(buyer);
         to = seller_account;
         amount = e8sPrice;
         time;
       });
 
-      // Transfer the IP if the ICP transfer was successful
+      // If the ICP transfer was successful, transfer the IP
       // TODO sardariuss 2024-08-07: add a reimburse mechanism if the IP transfer failed
-      let icrc7_transfer = switch(icp_transfer){
+      let ip_transfer = switch(icp_transfer){
         case(#err(_)){ null; };
         case(#ok(_)){
-          ?(await transferFromIcrc37({
-            from = seller_account;
-            to = buyer_account;
+          ?(await transferIp({
+            from_subaccount = seller_account.subaccount;
+            to = GetUserAccount(buyer);
             token_id;
             time;
           }));
         };
       };
 
-      #ok({ icp_transfer; icrc7_transfer; });
+      #ok({ icp_transfer; ip_transfer; });
     };
 
     func transferIcp({
-      from: Account;
+      from_subaccount: ?Blob;
       to: Account;
       amount: Nat;
       time: Time;
     }) : async Result<Nat, Text> {
 
-      let icp_transfer_args = {
-        spender_subaccount = null;
-        from;
+      let transfer_args = {
+        from_subaccount;
         to;
         amount;
         fee = null;
@@ -202,7 +197,7 @@ module {
         created_at_time = ?Nat64.fromNat(Int.abs(time));
       };
 
-      let icp_transfer = await IcpLedgerCanister.icrc2_transfer_from(icp_transfer_args);
+      let icp_transfer = await IcpLedgerCanister.icrc1_transfer(transfer_args);
 
       switch(icp_transfer){
         case(#Err(err)){ #err("Transfer of ICP failed: " # debug_show(err)); };
@@ -210,23 +205,22 @@ module {
       };
     };
 
-    func transferFromIcrc37({
-      from: Account;
+    func transferIp({
+      from_subaccount: ?Blob;
       to: Account;
       token_id: Nat;
       time: Time;
     }) : async Result<Nat, Text> {
 
-      let icrc37_transfer_args = {
-        spender_subaccount = null;
-        from;
+      let transfer_args = {
+        from_subaccount;
         to;
         token_id;
         memo = null;
         created_at_time = ?Nat64.fromNat(Int.abs(time));
       };
 
-      let icrc7_transfers = await Icrc7Canister.icrc37_transfer_from([icrc37_transfer_args]);
+      let icrc7_transfers = await Icrc7Canister.icrc7_transfer([transfer_args]);
 
       if (icrc7_transfers.size() != 1){
         return #err("Transfer of IP failed");
@@ -243,8 +237,8 @@ module {
       };
     };
 
-    func getUserAccount(principal: Principal) : Account {
-      { owner = principal; subaccount = null; };
+    public func GetUserAccount(user: Principal) : Account {
+      { owner = backend_id; subaccount = ?Subaccount.fromPrincipal(user); };
     };
 
   };
