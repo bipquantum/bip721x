@@ -10,7 +10,6 @@ function IpModal({
   isModalOpen,
   toggleModal,
   bipActor,
-  userPrincipal,
   fetchEntries,
 }) {
 
