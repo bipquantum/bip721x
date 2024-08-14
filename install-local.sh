@@ -48,7 +48,10 @@ dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'var
 
 dfx deploy backend
 
-dfx deploy internet_identity
+# Internet identity
+dfx deps pull
+dfx deps init
+dfx deps deploy internet_identity
 
 dfx canister call backend init_controller
 

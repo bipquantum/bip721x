@@ -12,6 +12,7 @@
 
 # generated files
 **/declarations/
+deps/
 
 # rust
 target/
