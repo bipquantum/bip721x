@@ -4,10 +4,12 @@ import { defineConfig } from 'vite';
 import environment from 'vite-plugin-environment';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../../.env' });
+dotenv.config();
 
 export default defineConfig({
+  root: 'src/frontend',
   build: {
+    outDir: 'dist',
     emptyOutDir: true,
   },
   optimizeDeps: {
@@ -31,13 +33,6 @@ export default defineConfig({
     environment("all", { prefix: "DFX_" }),
   ],
   resolve: {
-    alias: [
-      {
-        find: "declarations",
-        replacement: fileURLToPath(
-          new URL("../declarations", import.meta.url)
-        ),
-      },
-    ],
+    preserveSymlinks: true, // this is the fix!
   },
 });

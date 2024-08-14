@@ -1,26 +1,31 @@
 import { useState, useEffect, useCallback } from "react";
 import { AuthClient } from "@dfinity/auth-client";
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory } from "declarations/backend/backend.did.js";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import IpModal from "./components/IpModal";
-import UserModal from "./components/UserModal";
+import { Actor, HttpAgent, Identity } from "@dfinity/agent";
+import { Principal } from "@dfinity/principal";
+import { idlFactory } from "../../declarations/backend/backend.did.js";
+import { backend, createActor } from "../../declarations/backend/index.js";
+import Header from "./Header";
+import Footer from "./Footer";
+import IpModal from "./IpModal";
+import UserModal from "./UserModal";
 
-export { idlFactory };
+//const host = "http://127.0.0.1:4943/";
+const canisterId = process.env.CANISTER_ID_BACKEND;
 
-const host = "http://127.0.0.1:4943/";
-const canisterId = process.env.CANISTER_ID_BIP_QUANTUM_BACKEND;
-
-async function getActor(identity) {
-  const agent = new HttpAgent({ identity });
+async function getActor(identity: Identity) : Promise<typeof backend> {
+  const agent = HttpAgent.createSync({ identity });
   await agent.fetchRootKey();
-  const actor = Actor.createActor(idlFactory, {
-    agent,
+  const actor = createActor(
     canisterId,
-    agentOptions: { host: host },
-    verifyQuerySignatures: false,
-  });
+    {
+      agent,
+      agentOptions: { host: process.env.DFX_NETWORK === "ic" ? undefined : "http://localhost:4943" },
+      
+    },
+    
+    //agentOptions: { host: host },
+    //verifyQuerySignatures: false,
+  );
 
   return actor;
 }
@@ -29,13 +34,13 @@ function App() {
   const [entries, setEntries] = useState([]);
   const [newEntry, setNewEntry] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [authClient, setAuthClient] = useState(null);
-  const [userPrincipal, setUserPrincipal] = useState(null);
+  const [authClient, setAuthClient] = useState<AuthClient | null>(null);
+  const [userPrincipal, setUserPrincipal] = useState<Principal | null>(null);
 
   const [loading, setLoading] = useState(true); // Loader state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [bipActor, setbipActor] = useState(null);
+  const [bipActor, setbipActor] = useState<typeof backend | null>(null);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -46,7 +51,7 @@ function App() {
 
       if (authenticated) {
         const identity = await client.getIdentity();
-        setUserPrincipal(identity.getPrincipal().toString());
+        setUserPrincipal(identity.getPrincipal());
         const actor = await getActor(identity);
         setbipActor(actor);
       }
@@ -59,7 +64,7 @@ function App() {
   const fetchEntries = useCallback(async () => {
     if (bipActor) {
       setLoading(true);
-      const entries = await bipActor.getEntries();
+      const entries = await bipActor.get();
       setEntries(entries);
       setLoading(false);
     }
