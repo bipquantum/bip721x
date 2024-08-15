@@ -14,8 +14,7 @@ function App() {
 
   const [entries, setEntries] = useState([]);
 
-  const [loading, setLoading] = useState(true); // Loader state
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [bipActor, setbipActor] = useState<typeof backend | null>(null);
 
@@ -52,7 +51,7 @@ function App() {
       <main>
         <section className="bg-gray-100 dark:bg-gray-900 overflow-y-auto mx-auto max-w-7xl min-h-screen">
           {  
-            authenticated ? <IPList entries={entries} loading={loading} /> : <Login/>
+            authenticated ? <IPList entries={entries} /> : <Login/>
           }
         </section>
       </main>

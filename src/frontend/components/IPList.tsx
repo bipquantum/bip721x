@@ -1,6 +1,14 @@
+import { backendActor } from "./actors/BackendActor"
 
+const IPList = ({entries}) => {
 
-const IPList = ({loading, entries}) => {
+    const { data: entries, loading } = backendActor.useQueryCall({
+        functionName: "get_int_props",
+        args: [{
+            prev: [],
+            take: [BigInt(10)],
+        }],
+    })
 
     return (
         <>

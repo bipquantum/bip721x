@@ -4,8 +4,6 @@ import Map               "mo:map/Map";
 import Int               "mo:base/Int";
 import Time              "mo:base/Time";
 import Nat64             "mo:base/Nat64";
-import Buffer            "mo:base/Buffer";
-import Iter              "mo:base/Iter";
 
 import Types             "Types";
 import Conversions       "utils/Conversions";
@@ -111,26 +109,6 @@ module {
       #ok(token_id);
     };
 
-    public func getIntProps({owner: Principal; prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {
-
-      // Retrieve the token IDs and metadata
-      let tokenIds = await Icrc7Canister.icrc7_tokens_of(GetUserAccount(owner), prev, take);
-      let listIntProps = Conversions.metadataToIntProps(await Icrc7Canister.icrc7_token_metadata(tokenIds));
-
-      // Verify that the token IDs and metadata match
-      if (tokenIds.size() != listIntProps.size()){
-        return #err("Token IDs and metadata mismatch");
-      };
-
-      // Return the token IDs and metadata as a list of tuples
-      let results = Buffer.Buffer<(Nat, IntProp)>(tokenIds.size());
-      for (i in Iter.range(0, tokenIds.size() - 1)){
-        results.add((tokenIds[i], listIntProps[i]));
-      };
-
-      #ok(Buffer.toArray(results));
-    };
-
     public func buyIntProp({
       buyer: Principal;
       token_id: Nat;
@@ -179,6 +157,10 @@ module {
       };
 
       #ok({ icp_transfer; ip_transfer; });
+    };
+
+    public func GetUserAccount(user: Principal) : Account {
+      { owner = backend_id; subaccount = ?Subaccount.fromPrincipal(user); };
     };
 
     func transferIcp({
@@ -235,10 +217,6 @@ module {
         case(#Err(err)){ #err("Transfer of IP failed: " # debug_show(err)); };
         case(#Ok(tx_id)){ #ok(tx_id); };
       };
-    };
-
-    public func GetUserAccount(user: Principal) : Account {
-      { owner = backend_id; subaccount = ?Subaccount.fromPrincipal(user); };
     };
 
   };
