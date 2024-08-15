@@ -7,6 +7,10 @@ import Option     "mo:base/Option";
 
 import Types      "Types";
 import Controller "Controller";
+import Conversions "utils/Conversions";
+
+import Icrc7Canister     "canister:icrc7";
+
 
 shared({ caller = admin; }) actor class Backend() = this {
 
@@ -65,8 +69,14 @@ shared({ caller = admin; }) actor class Backend() = this {
     await getController().createIntProp({ args with caller; time = Time.now(); });
   };
 
-  public shared func get_int_props({owner: Principal; prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {
-    await getController().getIntProps({ owner; prev; take; });
+  public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {
+    let tokenIds = await Icrc7Canister.icrc7_tokens_of(getController().GetUserAccount(owner), prev, take);
+    Conversions.getIntProps(tokenIds, await Icrc7Canister.icrc7_token_metadata(tokenIds));
+  };
+
+  public composite query func get_int_props({prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {
+    let tokenIds = await Icrc7Canister.icrc7_tokens(prev, take);
+    Conversions.getIntProps(tokenIds, await Icrc7Canister.icrc7_token_metadata(tokenIds));
   };
 
   public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<BuyIntPropResult, Text> {
