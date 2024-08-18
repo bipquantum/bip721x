@@ -19,18 +19,19 @@
     "@dfinity/agent": "^1.3",
     "@dfinity/candid": "^1.3",
     "@dfinity/principal": "^1.3",
+    "@dfinity/utils": "^2.4.0",
+    "@napi-rs/lzma": "^1.3.1",
+    "@napi-rs/lzma-linux-x64-gnu": "^1.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-number-format": "^5.3.4",
     "react-tailwind-select": "^1.1.0",
     "react-tailwindcss-select": "^1.8.5",
-    "react-toastify": "^10.0.5",
-    "@napi-rs/lzma": "^1.3.1",
-    "@napi-rs/lzma-linux-x64-gnu": "^1.3.1"
+    "react-toastify": "^10.0.5"
   },
   "devDependencies": {
-    "@ic-reactor/react": "^1.8.2",
     "@dfinity/auth-client": "^1.3",
+    "@ic-reactor/react": "^1.8.2",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@vitejs/plugin-react": "^4.0.1",
