@@ -4,6 +4,7 @@ import Map               "mo:map/Map";
 import Int               "mo:base/Int";
 import Time              "mo:base/Time";
 import Nat64             "mo:base/Nat64";
+import Array             "mo:base/Array";
 
 import Types             "Types";
 import Conversions       "utils/Conversions";
@@ -23,7 +24,7 @@ module {
   type UserRegister        = Types.UserRegister;
   type Result<Ok, Err>     = Result.Result<Ok, Err>;
   type IntPropRegister     = Types.IntPropRegister;
-  type IntPropArgs         = Types.IntPropArgs;
+  type IntPropInput        = Types.IntPropInput;
   type IntProp             = Types.IntProp;
   type CreateIntPropResult = Types.CreateIntPropResult;
   type BuyIntPropResult    = Types.BuyIntPropResult;
@@ -46,9 +47,11 @@ module {
         return #err("Anonymous user not allowed");
       };
 
-      let user = { args with account = GetUserAccount(args.caller) };
+      let subaccount = Subaccount.fromPrincipal(args.caller);
+      let account = { owner = backend_id; subaccount = ?subaccount; };
 
-      Map.set(users.mapUsers, Map.phash, args.caller, user);
+      Map.set(users.mapUsers, Map.phash, args.caller, { args with account; });
+      Map.set(users.subaccToPrincipal, Map.bhash, subaccount, args.caller);
       #ok;
     };
 
@@ -57,13 +60,16 @@ module {
     };
 
     public func createIntProp(
-      args: IntPropArgs and {
+      args: IntPropInput and {
         caller: Principal;
-        time: Time;
+        e8sIcpPrice: Nat;
+        creationTime: Time;
     }) : async CreateIntPropResult {
 
-      if (Principal.isAnonymous(args.caller)){
-        return #err(#NotAuthorized);
+      let account = switch (Map.get(users.mapUsers, Map.phash, args.caller)){
+        // TODO sardariuss 2024-08-16: harmonize error types and messages
+        case(null) { return #err(#GenericError({ error_code = 100; message = "User profile not found"; })); };
+        case(?user) { user.account; };
       };
 
       let token_id = intProps.index;
@@ -76,14 +82,14 @@ module {
           immutable = true;
           value = Conversions.intPropToValue(args);
         }]);
-        owner = ?GetUserAccount(args.caller);
+        owner = ?account;
         // We have the guarentee that the token_id will not already exist because:
         // - only the backend can mint tokens
         // - if the minting is successful, the index will always be increased
         // Hence override can be set to false
         override = false;
         memo = null;
-        created_at_time = ?Nat64.fromNat(Int.abs(args.time));
+        created_at_time = ?Nat64.fromNat(Int.abs(args.creationTime));
       }]);
 
       if (mint_operation.size() != 1){
@@ -107,6 +113,13 @@ module {
       intProps.index += 1;
 
       #ok(token_id);
+    };
+
+    public func getE8sPrice({token_id: Nat}) : Result<Nat, Text> {
+      switch(Map.get(intProps.e8sIcpPrices, Map.nhash, token_id)){
+        case(null) { #err("Price not found"); };
+        case(?price) { #ok(price); };
+      };
     };
 
     public func buyIntProp({
@@ -149,7 +162,7 @@ module {
         case(#ok(_)){
           ?(await transferIp({
             from_subaccount = seller_account.subaccount;
-            to = GetUserAccount(buyer);
+            to = getUserAccount(buyer);
             token_id;
             time;
           }));
@@ -159,7 +172,32 @@ module {
       #ok({ icp_transfer; ip_transfer; });
     };
 
-    public func GetUserAccount(user: Principal) : Account {
+    public func accountsToOwners(accounts: [?Account]) : [?(Principal, User)] {
+      Array.map(accounts, func(opt_account: ?Account) : ?(Principal, User) {
+        let account = switch(opt_account){
+          case(null){ return null; };
+          case(?acc) { acc; };
+        };
+        if (account.owner != backend_id){
+          return null;
+        };
+        let subaccount = switch(account.subaccount){
+          case(null){ return null; };
+          case(?subacc) { subacc; };
+        };
+        let principal = switch(Map.get(users.subaccToPrincipal, Map.bhash, subaccount)){
+          case(null){ return null; };
+          case(?p) { p; };
+        };
+        let user = switch(Map.get(users.mapUsers, Map.phash, principal)){
+          case(null){ return null; };
+          case(?u) { u; };
+        };
+        ?(principal, user);
+      });
+    };
+
+    public func getUserAccount(user: Principal) : Account {
       { owner = backend_id; subaccount = ?Subaccount.fromPrincipal(user); };
     };
 

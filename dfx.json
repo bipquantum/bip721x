@@ -8,7 +8,8 @@
       "main": "src/backend/main.mo",
       "type": "motoko",
       "dependencies": [
-        "icrc7"
+        "icrc7",
+        "icp_ledger"
       ]
     },
     "frontend": {

@@ -26,15 +26,15 @@ module {
     #NOT_APPLICABLE;
   };
 
-  public type IntProp = {
+  public type IntPropInput = {
     title: Text;
     description: Text;
     intPropType: IntPropType;
     intPropLicense: IntPropLicense;
   };
 
-  public type IntPropArgs = IntProp and {
-    e8sIcpPrice: Nat;
+  public type IntProp = IntPropInput and {
+    creationTime: Time;
   };
 
   public type IntPropRegister = {
@@ -62,6 +62,7 @@ module {
   public type UserRegister = {
     var index: Nat;
     mapUsers: Map.Map<Principal, User>;
+    subaccToPrincipal: Map.Map<Blob, Principal>;
   };
 
   public type CreateIntPropResultError = {
