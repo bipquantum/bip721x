@@ -41,7 +41,7 @@ const UserProfile = ({}) => {
         name: [profileDetails.name],
         familyName: [profileDetails.familyName],
         nickName: [profileDetails.nickName],
-        speciality: [profileDetails.speciality],
+        specialty: [profileDetails.specialty],
         country: [profileDetails.country],
       });
       console.log("updated: ", updated);
@@ -141,9 +141,9 @@ const UserProfile = ({}) => {
             handleChange={handleChange}
           />
           <TextField
-            id="speciality"
-            label="Speciality"
-            value={profileDetails.speciality}
+            id="specialty"
+            label="Specialty"
+            value={profileDetails.specialty}
             handleChange={handleChange}
           />
           <TextField

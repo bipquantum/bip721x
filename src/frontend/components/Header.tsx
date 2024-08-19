@@ -2,8 +2,12 @@ import Logo from '../assets/logo.png'
 
 import { useAuth } from '@ic-reactor/react'
 
+type HeaderProps = {
+  toggleModal: () => void;
+  toggleUserModal: () => void;
+}
 
-function Header({ toggleModal, toggleUserModal }) {
+function Header({ toggleModal, toggleUserModal } : HeaderProps) {
 
   const { login, logout, authenticated } = useAuth({});
 
