@@ -26,7 +26,7 @@ function IpModal({
     description: "",
     authorName: "",
     familyName: "",
-    authorSpeciality: "",
+    authorSpecialty: "",
     authorAddress: "",
     publishingDate: "",
     creationDate: formatDate(new Date()),
@@ -92,7 +92,7 @@ function IpModal({
 
   // Handle form submission// Function to check for empty fields using toast for notification
   const isFormValid = () => {
-    const requiredFields = ['title', 'price', 'description', 'authorName', 'familyName', 'authorSpeciality', 'authorAddress', 'publishingDate'];
+    const requiredFields = ['title', 'price', 'description', 'authorName', 'familyName', 'authorSpecialty', 'authorAddress', 'publishingDate'];
     for (let field of requiredFields) {
   
       if (!formData[field] || formData[field].trim() === "") {
@@ -124,7 +124,7 @@ function IpModal({
       //   formData.description,
       //   formData.authorName,
       //   formData.familyName,
-      //   formData.authorSpeciality,
+      //   formData.authorSpecialty,
       //   formData.authorAddress,
       //   formData.publishingDate,
       //   formData.creationDate
@@ -146,7 +146,7 @@ function IpModal({
             formData.description,
             formData.authorName,
             formData.familyName,
-            formData.authorSpeciality,
+            formData.authorSpecialty,
             formData.authorAddress,
             formData.publishingDate,
             formData.creationDate,
@@ -397,10 +397,10 @@ function IpModal({
                         placeholder: "Author Family Name",
                       },
                       {
-                        name: "authorSpeciality",
-                        label: "Author Speciality",
+                        name: "authorSpecialty",
+                        label: "Author Specialty",
                         type: "text",
-                        placeholder: "Author Speciality",
+                        placeholder: "Author Specialty",
                       },
                       {
                         name: "authorAddress",

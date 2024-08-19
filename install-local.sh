@@ -55,4 +55,6 @@ dfx deps deploy internet_identity
 
 dfx canister call backend init_controller
 
+dfx generate
+
 dfx deploy frontend

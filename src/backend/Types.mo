@@ -46,7 +46,7 @@ module {
     firstName: Text;
     lastName: Text;
     nickName: Text;
-    speciality: Text;
+    specialty: Text;
     country: Text;
   };
 

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@ic-reactor/react";
-import { backend } from "../../declarations/backend/index.js";
 import Login from "./Login";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -12,15 +11,8 @@ function App() {
 
   const { authenticated } = useAuth({});
 
-  const [entries, setEntries] = useState([]);
-
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [bipActor, setbipActor] = useState<typeof backend | null>(null);
-
-  const fetchEntries = () => {
-    return 0
-  }
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -39,19 +31,15 @@ function App() {
       <IpModal
         isModalOpen={isModalOpen}
         toggleModal={toggleModal}
-        bipActor={bipActor}
-        fetchEntries={fetchEntries}
       />
       <UserModal
         isModalOpen={isUserModalOpen}
         toggleModal={toggleUserModal}
-        bipActor={bipActor}
-        fetchEntries={fetchEntries}
       />
       <main>
         <section className="bg-gray-100 dark:bg-gray-900 overflow-y-auto mx-auto max-w-7xl min-h-screen">
           {  
-            authenticated ? <IPList entries={entries} /> : <Login/>
+            authenticated ? <IPList/> : <Login/>
           }
         </section>
       </main>

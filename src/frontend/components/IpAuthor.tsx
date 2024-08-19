@@ -42,8 +42,8 @@ const IPAuthor = ({ intPropId }: IPAuthorArgs) => {
               <div className="text-lg font-bold text-gray-800 dark:text-gray-100">{fromNullable(owners[0])?.[1].lastName}</div>
             </div>
             <div>
-              <div className="text-sm font-semibold text-gray-600 dark:text-gray-400">Speciality</div>
-              <div className="text-lg font-bold text-gray-800 dark:text-gray-100">{fromNullable(owners[0])?.[1].speciality}</div>
+              <div className="text-sm font-semibold text-gray-600 dark:text-gray-400">Specialty</div>
+              <div className="text-lg font-bold text-gray-800 dark:text-gray-100">{fromNullable(owners[0])?.[1].specialty}</div>
             </div>
             <div>
               <div className="text-sm font-semibold text-gray-600 dark:text-gray-400">Country</div>
