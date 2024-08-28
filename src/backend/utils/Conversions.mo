@@ -86,7 +86,8 @@ module {
       ("description",     #Text(intProp.description)),
       ("intPropType",     #Nat(intPropTypeToNat(intProp.intPropType))),
       ("intPropLicense",  #Nat(intPropLicenseToNat(intProp.intPropLicense))),
-      ("creationTime",    #Int(intProp.creationTime)),
+      ("creationDate",    #Int(intProp.creationDate)),
+      ("publishingDate",  #Int(intProp.publishingDate)),
     ]);
   };
 
@@ -121,20 +122,22 @@ module {
         var description : ?Text = null;
         var intPropType : ?IntPropType = null;
         var intPropLicense : ?IntPropLicense = null;
-        var creationTime : ?Int = null;
+        var creationDate : ?Int = null;
+        var publishingDate : ?Int = null;
         for ((k, v) in Array.vals(map)){
           switch(k){
-            case("title"){ title := ?unwrapText(v); };
-            case("description"){ description := ?unwrapText(v); };
-            case("intPropType"){ intPropType := ?intPropTypeFromNat(unwrapNat(v)); };
+            case("title")         { title := ?unwrapText(v);                                };
+            case("description")   { description := ?unwrapText(v);                          };
+            case("intPropType")   { intPropType := ?intPropTypeFromNat(unwrapNat(v));       };
             case("intPropLicense"){ intPropLicense := ?intPropLicenseFromNat(unwrapNat(v)); };
-            case("creationTime"){ creationTime := ?unwrapInt(v); };
+            case("creationDate")  { creationDate := ?unwrapInt(v);                          };
+            case("publishingDate"){ publishingDate := ?unwrapInt(v);                        };
             case(_){ Debug.trap("Unexpected value"); };
           };
         };
-        switch(title, description, intPropType, intPropLicense, creationTime){
-          case(?title, ?description, ?intPropType, ?intPropLicense, ?creationTime){
-            return { title; description; intPropType; intPropLicense; creationTime; };
+        switch(title, description, intPropType, intPropLicense, creationDate, publishingDate){
+          case(?title, ?description, ?intPropType, ?intPropLicense, ?creationDate, ?publishingDate){
+            return { title; description; intPropType; intPropLicense; creationDate; publishingDate; };
           };
           case(_){
             Debug.trap("Unexpected intProp metadata");
