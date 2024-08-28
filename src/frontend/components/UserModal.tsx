@@ -1,7 +1,7 @@
 import { useAuth } from '@ic-reactor/react';
 import { useEffect, useState } from 'react';
 import { backendActor } from './actors/BackendActor';
-import { User, UserArgs } from '../../declarations/backend/backend.did';
+import { UserArgs } from '../../declarations/backend/backend.did';
 import { fromNullable } from '@dfinity/utils';
 
 const EMPTY_USER = {
@@ -19,9 +19,9 @@ type UserModalProps = {
 
 function UserModal({ isModalOpen, toggleModal } : UserModalProps) {
 
-  const { identity } = useAuth({});
+  const { authenticated, identity } = useAuth({});
 
-  if (!identity) {
+  if (!authenticated || !identity) {
     return <></>;
   }
 

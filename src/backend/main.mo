@@ -1,27 +1,27 @@
-import Result     "mo:base/Result";
-import Map        "mo:map/Map";
-import Principal  "mo:base/Principal";
-import Time       "mo:base/Time";
-import Debug      "mo:base/Debug";
-import Option     "mo:base/Option";
+import Result        "mo:base/Result";
+import Map           "mo:map/Map";
+import Principal     "mo:base/Principal";
+import Time          "mo:base/Time";
+import Debug         "mo:base/Debug";
+import Option        "mo:base/Option";
 
-import Types      "Types";
-import Controller "Controller";
-import Conversions "utils/Conversions";
+import Types         "Types";
+import Controller    "Controller";
+import Conversions   "utils/Conversions";
 
-import Icrc7Canister     "canister:icrc7";
+import Icrc7Canister "canister:icrc7";
 
 
 shared({ caller = admin; }) actor class Backend() = this {
 
-  type UserArgs            = Types.UserArgs;
-  type User                = Types.User;
-  type Account             = Types.Account;
-  type IntPropInput        = Types.IntPropInput;
-  type IntProp             = Types.IntProp;
-  type Result<Ok, Err>     = Result.Result<Ok, Err>;
-  type CreateIntPropResult = Types.CreateIntPropResult;
-  type BuyIntPropResult    = Types.BuyIntPropResult;
+  type UserArgs              = Types.UserArgs;
+  type User                  = Types.User;
+  type Account               = Types.Account;
+  type IntPropInputWithPrice = Types.IntPropInputWithPrice;
+  type IntProp               = Types.IntProp;
+  type Result<Ok, Err>       = Result.Result<Ok, Err>;
+  type CreateIntPropResult   = Types.CreateIntPropResult;
+  type BuyIntPropResult      = Types.BuyIntPropResult;
 
   stable var _data = {
     users = {
@@ -66,8 +66,8 @@ shared({ caller = admin; }) actor class Backend() = this {
     getController().getUser(principal);
   };
 
-  public shared({caller}) func create_int_prop(args: IntPropInput and { e8sIcpPrice: Nat }) : async CreateIntPropResult {
-    await getController().createIntProp({ args with caller; creationTime = Time.now(); });
+  public shared({caller}) func create_int_prop(args: IntPropInputWithPrice) : async CreateIntPropResult {
+    await getController().createIntProp({ args with caller; publishingDate = Time.now(); });
   };
 
   public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {

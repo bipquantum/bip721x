@@ -64,7 +64,7 @@ const IPList = () => {
                     </div>
                     <div className="text-lg font-bold text-black dark:text-white">
                       {" "}
-                      { nsToStrDate(intProp.creationTime) }{" "}
+                      { (new Date(Number(intProp.creationDate))).toLocaleDateString() }{" "}
                     </div>
                   </div>
                 </div>

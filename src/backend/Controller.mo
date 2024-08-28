@@ -63,7 +63,7 @@ module {
       args: IntPropInput and {
         caller: Principal;
         e8sIcpPrice: Nat;
-        creationTime: Time;
+        publishingDate: Time;
     }) : async CreateIntPropResult {
 
       let account = switch (Map.get(users.mapUsers, Map.phash, args.caller)){
@@ -89,7 +89,7 @@ module {
         // Hence override can be set to false
         override = false;
         memo = null;
-        created_at_time = ?Nat64.fromNat(Int.abs(args.creationTime));
+        created_at_time = ?Nat64.fromNat(Int.abs(args.publishingDate));
       }]);
 
       if (mint_operation.size() != 1){

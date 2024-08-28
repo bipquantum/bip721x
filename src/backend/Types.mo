@@ -31,10 +31,15 @@ module {
     description: Text;
     intPropType: IntPropType;
     intPropLicense: IntPropLicense;
+    creationDate: Time;
+  };
+
+  public type IntPropInputWithPrice = IntPropInput and {
+    e8sIcpPrice: Nat;
   };
 
   public type IntProp = IntPropInput and {
-    creationTime: Time;
+    publishingDate: Time;
   };
 
   public type IntPropRegister = {
