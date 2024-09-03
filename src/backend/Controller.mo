@@ -61,13 +61,13 @@ module {
 
     public func createIntProp(
       args: IntPropInput and {
-        caller: Principal;
+        author: Principal;
         e8sIcpPrice: Nat;
         publishingDate: Time;
     }) : async CreateIntPropResult {
 
-      let account = switch (Map.get(users.mapUsers, Map.phash, args.caller)){
-        // TODO sardariuss 2024-08-16: harmonize error types and messages
+      let account = switch (Map.get(users.mapUsers, Map.phash, args.author)){
+        // TODO sardariuss 2024-AUG-16: harmonize error types and messages
         case(null) { return #err(#GenericError({ error_code = 100; message = "User profile not found"; })); };
         case(?user) { user.account; };
       };
@@ -76,7 +76,7 @@ module {
 
       let mint_operation = await Icrc7Canister.icrcX_mint([{
         token_id;
-        // TODO sardariuss 2024-08-07: somehow compilation fails if we use Conversions.intPropToMetadata
+        // TODO sardariuss 2024-AUG-07: somehow compilation fails if we use Conversions.intPropToMetadata
         metadata = #Class([{
           name = BIP721X_TAG;
           immutable = true;
@@ -133,12 +133,23 @@ module {
       if (owners.size() != 1){
         return #err("Owner not found");
       };
-      let seller_account = switch(owners[0]){
+
+      // Get the seller account
+      let sellerAccount = switch(owners[0]){
         case(null) { return #err("Owner not found"); };
         case(?account) { account; };
       };
-      if(seller_account.owner != backend_id){
+
+      // Verify the seller account is owned by the backend
+      if(sellerAccount.owner != backend_id){
         return #err("Cannot transfer IP that does not belong to the backend");
+      };
+
+      // Get the buyer account (assumed to be the same for ICPs and IPs)
+      // TODO: sardariuss 2024-SEP-03: allow to have different accounts for ICPs and IPs
+      let buyerAccount = getUserAccount(buyer);
+      if (buyerAccount.subaccount == sellerAccount.subaccount){
+        return #err("Cannot buy IP from yourself");
       };
 
       // Retrieve the price of the IP
@@ -147,22 +158,22 @@ module {
         case(?price) { price; };
       };
 
-      // Transfer the ICP
+      // Transfer the ICP to the seller account, assumed to be the same for ICP for now
       let icp_transfer = await transferIcp({
-        from_subaccount = ?Subaccount.fromPrincipal(buyer);
-        to = seller_account;
+        from_subaccount = buyerAccount.subaccount;
+        to = sellerAccount;
         amount = e8sPrice;
         time;
       });
 
       // If the ICP transfer was successful, transfer the IP
-      // TODO sardariuss 2024-08-07: add a reimburse mechanism if the IP transfer failed
+      // TODO sardariuss 2024-AUG-07: add a reimburse mechanism if the IP transfer failed
       let ip_transfer = switch(icp_transfer){
         case(#err(_)){ null; };
         case(#ok(_)){
           ?(await transferIp({
-            from_subaccount = seller_account.subaccount;
-            to = getUserAccount(buyer);
+            from_subaccount = sellerAccount.subaccount;
+            to = buyerAccount;
             token_id;
             time;
           }));

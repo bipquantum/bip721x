@@ -30,7 +30,7 @@ const IPPrice = ({intPropId} : IPPriceProps) => {
           </div>
         ) : 
           <div className="text-lg font-bold text-green-400">
-            ICP { fromE8s(e8sPrice.ok).toFixed(3) }
+            ICP { fromE8s(e8sPrice.ok).toFixed(2) }
           </div>
       }
       </div>

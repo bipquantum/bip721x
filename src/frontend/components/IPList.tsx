@@ -1,7 +1,8 @@
 import { backendActor } from "./actors/BackendActor"
-import { intPropLicenseToString, intPropTypeToString, nsToStrDate } from "../utils/conversions"
+import { intPropLicenseToString, intPropTypeToString } from "../utils/conversions"
 import IPPrice from "./IPPrice"
-import IPAuthor from "./IpAuthor"
+import UserDetails from "./UserDetails"
+import IpOwner from "./IpOwner"
 
 const IPList = () => {
 
@@ -12,6 +13,25 @@ const IPList = () => {
       take: [BigInt(10)],
     }],
   })
+
+  const { call: buyIntProp } = backendActor.useUpdateCall({
+    functionName: "buy_int_prop"
+  })
+
+  const triggerBuy = (intPropId: bigint) => {
+    buyIntProp([{token_id: intPropId}]).then((result) =>{
+      if (!result){
+        console.error("Failed to buy: undefined error")
+      } else {
+        if ('ok' in result) {
+          console.log("Buy succeeded")
+        } else {
+          console.log("Buy failed")
+        }
+        console.log(result)
+      }
+    })
+  }
 
   return (
     <>
@@ -83,8 +103,22 @@ const IPList = () => {
                         </h3>
                       </div>
                     </div>
-                  </div>                      
-                  <IPAuthor intPropId={intPropId} />
+                  </div>  
+                  <div>
+                    Author
+                  </div>            
+                  <UserDetails principal={intProp.author} />
+                  <div>
+                    Owner
+                  </div>
+                  <IpOwner intPropId={intPropId} />
+                  <button
+                    onClick={() => { triggerBuy(intPropId) }}
+                    className="block text-white dark:text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    type="button"
+                  >
+                    Buy
+                  </button>
                 </div>
               </li>
             ))

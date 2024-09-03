@@ -3,6 +3,7 @@ import Array  "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
 import Iter   "mo:base/Iter";
+import Principal "mo:base/Principal";
 
 import ICRC7  "mo:icrc7-mo";
 
@@ -88,6 +89,7 @@ module {
       ("intPropLicense",  #Nat(intPropLicenseToNat(intProp.intPropLicense))),
       ("creationDate",    #Int(intProp.creationDate)),
       ("publishingDate",  #Int(intProp.publishingDate)),
+      ("author",          #Text(Principal.toText(intProp.author))),
     ]);
   };
 
@@ -124,6 +126,7 @@ module {
         var intPropLicense : ?IntPropLicense = null;
         var creationDate : ?Int = null;
         var publishingDate : ?Int = null;
+        var author : ?Principal = null;
         for ((k, v) in Array.vals(map)){
           switch(k){
             case("title")         { title := ?unwrapText(v);                                };
@@ -132,12 +135,13 @@ module {
             case("intPropLicense"){ intPropLicense := ?intPropLicenseFromNat(unwrapNat(v)); };
             case("creationDate")  { creationDate := ?unwrapInt(v);                          };
             case("publishingDate"){ publishingDate := ?unwrapInt(v);                        };
+            case("author")        { author := ?Principal.fromText(unwrapText(v));           };
             case(_){ Debug.trap("Unexpected value"); };
           };
         };
-        switch(title, description, intPropType, intPropLicense, creationDate, publishingDate){
-          case(?title, ?description, ?intPropType, ?intPropLicense, ?creationDate, ?publishingDate){
-            return { title; description; intPropType; intPropLicense; creationDate; publishingDate; };
+        switch(title, description, intPropType, intPropLicense, creationDate, publishingDate, author){
+          case(?title, ?description, ?intPropType, ?intPropLicense, ?creationDate, ?publishingDate, ?author){
+            return { title; description; intPropType; intPropLicense; creationDate; publishingDate; author; };
           };
           case(_){
             Debug.trap("Unexpected intProp metadata");

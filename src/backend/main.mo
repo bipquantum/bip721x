@@ -67,7 +67,7 @@ shared({ caller = admin; }) actor class Backend() = this {
   };
 
   public shared({caller}) func create_int_prop(args: IntPropInputWithPrice) : async CreateIntPropResult {
-    await getController().createIntProp({ args with caller; publishingDate = Time.now(); });
+    await getController().createIntProp({ args with author = caller; publishingDate = Time.now(); });
   };
 
   public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {

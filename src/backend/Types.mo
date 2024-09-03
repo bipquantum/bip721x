@@ -40,6 +40,7 @@ module {
 
   public type IntProp = IntPropInput and {
     publishingDate: Time;
+    author: Principal;
   };
 
   public type IntPropRegister = {
