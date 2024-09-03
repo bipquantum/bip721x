@@ -28,7 +28,17 @@ mops test
 ```
 
 ## Misc TODOs
- - force the creation of user when logged in for the first time (the first page one lands on shall be the creation of the user, and it shouldn't be possible to close it)
- - create a nicer user page than the modal one, add to it the list of owned IPs
- - fix routes
- - removed unused code in the frontend
+- to discuss:
+    - either make the current UI fully fonctionnal:
+        - be able to click on bipquantum / create new IP / profile (header buttons) even when popup active or put another color in background when popactive to show it's inactive
+        -
+    - or bring UI from current bipquantum app ?
+- remove deadcode in UI, fix Typescript build 
+- make the user creation mandatory: 
+    - ask for user creation after logged in for the first time (i.e. if backend.get_user returns null)
+    - modify button so that once created, it's only written update user
+- once the IP is submitted, automatically go back to the list of IPs and refresh
+- add a copy/paste icon in the UI that copies the account so that it can be pasted somewhere else
+- create a test which: creates a user, creates an IP, create another user, buy the IP
+- create a script (in typescript?) that mints ICP for you when you give your principal 
+- fix routes
