@@ -53,6 +53,7 @@ dfx canister call backend create_int_prop "(
     description = \"This IP is just awesome.\";
     intPropType = variant { IP_CERTIFICATE };
     intPropLicense = variant { GAME_FI };
+    creationDate = 1_725_454_315_245_000_000 : nat;
   },
 )"
 
