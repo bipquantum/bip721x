@@ -39,6 +39,5 @@ mops test
     - modify button so that once created, it's only written update user
 - once the IP is submitted, automatically go back to the list of IPs and refresh
 - add a copy/paste icon in the UI that copies the account so that it can be pasted somewhere else
-- create a test which: creates a user, creates an IP, create another user, buy the IP
-- create a script (in typescript?) that mints ICP for you when you give your principal 
+- transform the script/ip_transfer_scenario.sh into a real test in typescript or motoko
 - fix routes
