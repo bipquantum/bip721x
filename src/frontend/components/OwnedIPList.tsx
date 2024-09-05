@@ -9,6 +9,7 @@ import {
 import IPPrice from "./IPPrice";
 import UserDetails from "./UserDetails";
 import IpOwner from "./IpOwner";
+import { toast } from "react-toastify";
 
 type IPListProps = {
   ownerPrincipal?: Principal;
@@ -35,12 +36,12 @@ const OwnedIPList = ({ ownerPrincipal }: IPListProps) => {
   const triggerBuy = (intPropId: bigint) => {
     buyIntProp([{ token_id: intPropId }]).then((result) => {
       if (!result) {
-        console.error("Failed to buy: undefined error");
+        toast.warn("Failed to buy: undefined error");
       } else {
         if ("ok" in result) {
-          console.log("Buy succeeded");
+          toast.success("Success");
         } else {
-          console.log("Buy failed");
+          toast.warn("Failed to buy");
         }
         console.log(result);
       }
