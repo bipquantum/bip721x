@@ -6,6 +6,7 @@ import { backendActor } from "./actors/BackendActor";
 import { UserArgs } from "../../declarations/backend/backend.did";
 
 import CopySvg from "../assets/copy.svg";
+import { toast } from "react-toastify";
 
 const EMPTY_USER = {
   firstName: "",
@@ -77,7 +78,7 @@ function UserModal({ isModalOpen, toggleModal }: UserModalProps) {
                   navigator.clipboard.writeText(
                     identity?.getPrincipal().toString()
                   );
-                  alert("Copied successfully!");
+                  toast.success("Copied successfully!");
                 }}
                 className="mr-2"
               >

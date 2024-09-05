@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Select from "react-tailwindcss-select";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-tailwindcss-select/dist/index.css";
 import { NumericFormat } from "react-number-format";
@@ -349,7 +349,6 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
             </form>
           </div>
         </div>
-        <ToastContainer />
       </div>
     </>
   );
