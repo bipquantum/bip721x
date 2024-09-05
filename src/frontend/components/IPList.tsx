@@ -79,7 +79,7 @@ const IPList = () => {
                       CATEGORY
                     </div>
                     <div className="text-lg font-bold text-black dark:text-white">
-                      {intPropTypeToString(intProp.intPropType)}{" "}
+                      {intPropTypeToString(intProp.intPropType)}
                     </div>
                   </div>
                   <IPPrice intPropId={intPropId} />
@@ -88,8 +88,7 @@ const IPList = () => {
                       IP License
                     </div>
                     <div className="text-lg font-bold text-black dark:text-white">
-                      {" "}
-                      {intPropLicenseToString(intProp.intPropLicense)}{" "}
+                      {intPropLicenseToString(intProp.intPropLicense)}
                     </div>
                   </div>
                   <div>
