@@ -9,6 +9,7 @@ import IpModal from "./IpModal";
 import UserModal from "./UserModal";
 import IPList from "./IPList.js";
 import Router from "./Router";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const { authenticated } = useAuth({});
@@ -33,6 +34,7 @@ function App() {
           isModalOpen={isUserModalOpen}
           toggleModal={toggleUserModal}
         />
+        <ToastContainer />
         <main>
           <section className="bg-gray-100 dark:bg-gray-900 overflow-y-auto mx-auto max-w-7xl min-h-screen">
             <Router />
