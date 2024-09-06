@@ -27,7 +27,8 @@
     "react-number-format": "^5.3.4",
     "react-tailwind-select": "^1.1.0",
     "react-tailwindcss-select": "^1.8.5",
-    "react-toastify": "^10.0.5"
+    "react-toastify": "^10.0.5",
+    "react-router-dom" : "^6.26.1"
   },
   "devDependencies": {
     "@dfinity/auth-client": "^1.3",
