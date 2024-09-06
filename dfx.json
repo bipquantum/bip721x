@@ -13,14 +13,10 @@
       ]
     },
     "frontend": {
-      "dependencies": [
-        "backend"
-      ],
       "source": [
         "src/frontend/dist"
       ],
-      "type": "assets",
-      "workspace": "frontend"
+      "type": "assets"
     },
     "icp_ledger": {
       "type": "custom",
