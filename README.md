@@ -29,14 +29,15 @@ mops test
 
 ## Misc TODOs
 
-### Right now
-- add a page (with new route) with the list of owned IPs
-- once the IP is submitted, automatically go back to the list of IPs and refresh
-- add a copy/paste icon in the UI that copies the account so that it can be pasted somewhere else
-- create a single IP page (with route with IP index) for each IP, be able to click on an IP in the list and rerouted to that IP
-- popup if error on buy else reroute to IP page with that index
+### To improve
+- why return ok when there's an actual error on transfer_ip ?
 
 ### Soon
+- once the IP is submitted, automatically go back to the list of owned IPs and refresh
+- once the IP is bought:
+    - do not display the IP in the list of public IPs
+    - reroute to your list of IPs
+    - to discuss: one should not put the price of the IP at the creation, it forces to put it right away on the market. We should rather have a button to sell it in the owned IP user page.
 - to discuss:
     - either make the current UI fully fonctionnal:
         - be able to click on bipquantum / create new IP / profile (header buttons) even when popup active or put another color in background when popactive to show it's inactive

@@ -1,10 +1,13 @@
 import { useAuth } from "@ic-reactor/react";
 import { Principal } from "@dfinity/principal";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
+import WalletSvg from "../assets/wallet.svg";
 import { backendActor } from "./actors/BackendActor";
 
 import Balance from "./Balance";
+import { getEncodedAccount } from "../utils/accountUtils";
 
 type LoggedInProps = {
   toggleModal: () => void;
@@ -13,8 +16,6 @@ type LoggedInProps = {
 };
 
 function LoggedIn({ toggleModal, toggleUserModal, principal }: LoggedInProps) {
-  // TODO sardariuss 2024-SEP-03: remove log
-  console.log(principal.toText());
 
   const { logout } = useAuth({});
 
@@ -39,6 +40,17 @@ function LoggedIn({ toggleModal, toggleUserModal, principal }: LoggedInProps) {
         My Ip
       </Link>
       {user_account ? <Balance account={user_account} /> : <></>}
+      <button
+        onClick={() => {
+          navigator.clipboard.writeText(
+            user_account !== undefined ? getEncodedAccount(user_account) : ""
+          );
+          toast.success("Wallet address copied");
+        }}
+        className="mr-2"
+      >
+        <img src={WalletSvg} className="flex h-6" alt="wallet"/>
+      </button>
       <button
         onClick={toggleUserModal}
         type="button"
