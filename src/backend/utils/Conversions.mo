@@ -1,8 +1,6 @@
 import Debug  "mo:base/Debug";
 import Array  "mo:base/Array";
-import Buffer "mo:base/Buffer";
 import Result "mo:base/Result";
-import Iter   "mo:base/Iter";
 import Principal "mo:base/Principal";
 
 import ICRC7  "mo:icrc7-mo";
@@ -102,20 +100,15 @@ module {
     }]);
   };
 
-  public func metadataToIntProps(vecMetaData: [?[(Text, ICRC7.Value)]]) : [IntProp] {
-    let buffer = Buffer.Buffer<IntProp>(vecMetaData.size());
-    for (optMetaData: ?[(Text, ICRC7.Value)] in Array.vals(vecMetaData)) {
-      switch(optMetaData){
-        case(null){};
-        case(?metaData){
-          for ((key, value) : (Text, ICRC7.Value) in Array.vals(metaData)){
-            assert(key == BIP721X_TAG);
-            buffer.add(valueToIntProp(value));
-          };
-        };
+  public func metadataToIntProp(optMetaData: ?[(Text, ICRC7.Value)]) : IntProp {
+    switch(optMetaData){
+      case(null){ Debug.trap("Missing metadata"); };
+      case(?metaData){
+        assert (metaData.size() == 1);
+        assert (metaData[0].0 == BIP721X_TAG);
+        return valueToIntProp(metaData[0].1);
       };
     };
-    Buffer.toArray(buffer);
   };
 
   func valueToIntProp(value: ICRC7.Value) : IntProp {
@@ -138,7 +131,7 @@ module {
             case("creationDate")  { creationDate := ?unwrapInt(v);                          };
             case("publishingDate"){ publishingDate := ?unwrapInt(v);                        };
             case("author")        { author := ?Principal.fromText(unwrapText(v));           };
-            case("dataUri")           { dataUri := ?unwrapText(v);                                  };
+            case("dataUri")       { dataUri := ?unwrapText(v);                              };
             case(_){ Debug.trap("Unexpected value"); };
           };
         };
@@ -153,25 +146,6 @@ module {
       };
       case(_){ Debug.trap("Unexpected value"); };
     };
-  };
-
-  public func getIntProps(tokenIds: [Nat], vecMetaData: [?[(Text, ICRC7.Value)]]) : Result<[(Nat, IntProp)], Text> {
-    
-    // Retrieve the metadata of the associated tokens
-    let listIntProps = metadataToIntProps(vecMetaData);
-
-    // Verify that the token IDs and metadata match
-    if (tokenIds.size() != listIntProps.size()){
-      return #err("Token IDs and metadata mismatch");
-    };
-
-    // Return the token IDs and metadata as a list of tuples
-    let results = Buffer.Buffer<(Nat, IntProp)>(tokenIds.size());
-    for (i in Iter.range(0, tokenIds.size() - 1)){
-      results.add((tokenIds[i], listIntProps[i]));
-    };
-
-    #ok(Buffer.toArray(results));
   };
 
 };

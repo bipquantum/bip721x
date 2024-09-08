@@ -29,19 +29,18 @@ mops test
 
 ## Misc TODOs
 
+### To do now:
+- bring UI from current bipquantum app (Tope)
+- once the IP is submitted, automatically go to the IP item page
+
 ### To improve
 - why return ok when there's an actual error on transfer_ip ?
 
-### Soon
-- once the IP is submitted, automatically go back to the list of owned IPs and refresh
+### To dicuss / confirm
 - once the IP is bought:
     - do not display the IP in the list of public IPs
     - reroute to your list of IPs
-    - to discuss: one should not put the price of the IP at the creation, it forces to put it right away on the market. We should rather have a button to sell it in the owned IP user page.
-- to discuss:
-    - either make the current UI fully fonctionnal:
-        - be able to click on bipquantum / create new IP / profile (header buttons) even when popup active or put another color in background when popactive to show it's inactive
-    - or bring UI from current bipquantum app ?
+    - to confirm: one should not put the price of the IP at the creation, it forces to put it right away on the market. We should rather have a button to sell it in the owned IP user page.
 - make the user creation mandatory: 
     - ask for user creation after logged in for the first time (i.e. if backend.get_user returns null)
     - modify button so that once created, it's only written update user
@@ -51,5 +50,4 @@ mops test
 
 ### Later
  - transform the script/ip_transfer_scenario.sh into a real test in typescript or motoko
- - choose file: shall be able to preview image
  - discussion CID

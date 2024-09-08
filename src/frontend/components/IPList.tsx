@@ -34,23 +34,14 @@ const IPList: React.FC<IPListProps> = ({ owner }) => {
         <div className="text-center text-white p-24">
           Loading...
         </div>
-      ) : "err" in entries ? (
-        <div>
-          <h1>Error</h1>
-          <p>{entries.err}</p>
-        </div>
-      ) : entries.ok.length === 0 ? (
-        <div className="text-center text-black dark:text-white p-24">
-          Please add your First IP.
-        </div>
       ) : (
         <ul>
-          {entries.ok.map(([intPropId, intProp]) => (
+          {entries.map((intPropId) => (
             <li
               className="w-full m-12 bg-white dark:bg-gray-800 p-8 shadow-lg rounded-lg max-w-8xl my-4 mx-auto"
               key={intPropId}
             >
-              <IPItem intProp={intProp} intPropId={intPropId} />
+              <IPItem intPropId={intPropId} />
             </li>
           ))}
         </ul>

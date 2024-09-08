@@ -31,30 +31,30 @@ dfx deploy icrc7 --argument 'record {
   };
   icrc37_args = null;
   icrc3_args = null; 
-}'
+}' --mode=reinstall --yes
 
-dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'variant {
-  Init = record {
-    minting_account = "'${DEPLOYER_ACCOUNT_ID}'";
-    initial_values = vec {};
-    send_whitelist = vec {};
-    transfer_fee = opt record {
-      e8s = 10_000 : nat64;
-    };
-    token_symbol = opt "ICP";
-    token_name = opt "Internet Computer Protocol";
-  }
-}'
+#dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'variant {
+#  Init = record {
+#    minting_account = "'${DEPLOYER_ACCOUNT_ID}'";
+#    initial_values = vec {};
+#    send_whitelist = vec {};
+#    transfer_fee = opt record {
+#      e8s = 10_000 : nat64;
+#    };
+#    token_symbol = opt "ICP";
+#    token_name = opt "Internet Computer Protocol";
+#  }
+#}'
 
-dfx deploy backend
+dfx deploy backend --mode=reinstall --yes
 
-# Internet identity
-dfx deps pull
-dfx deps init
-dfx deps deploy internet_identity
+## Internet identity
+#dfx deps pull
+#dfx deps init
+#dfx deps deploy internet_identity
 
 dfx canister call backend init_controller
 
-dfx deploy frontend
+#dfx deploy frontend
 
 dfx generate

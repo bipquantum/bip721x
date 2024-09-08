@@ -70,14 +70,17 @@ shared({ caller = admin; }) actor class Backend() = this {
     await getController().createIntProp({ args with author = caller; publishingDate = Time.now(); });
   };
 
-  public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {
-    let tokenIds = await Icrc7Canister.icrc7_tokens_of(getController().getUserAccount(owner), prev, take);
-    Conversions.getIntProps(tokenIds, await Icrc7Canister.icrc7_token_metadata(tokenIds));
+  public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async [Nat] {
+    await Icrc7Canister.icrc7_tokens_of(getController().getUserAccount(owner), prev, take);
   };
 
-  public composite query func get_int_props({prev: ?Nat; take: ?Nat}) : async Result<[(Nat, IntProp)], Text> {
-    let tokenIds = await Icrc7Canister.icrc7_tokens(prev, take);
-    Conversions.getIntProps(tokenIds, await Icrc7Canister.icrc7_token_metadata(tokenIds));
+  public composite query func get_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
+    await Icrc7Canister.icrc7_tokens(prev, take);
+  };
+
+  public composite query func get_int_prop({token_id: Nat}) : async Result<IntProp, Text> {
+    let metadata = await Icrc7Canister.icrc7_token_metadata([token_id]);
+    #ok(Conversions.metadataToIntProp(metadata[0])); // TODO sardariuss 2024-09-07: better error handling
   };
 
   public composite query func owners_of({token_ids: [Nat]}) : async [?(Principal, User)] {
