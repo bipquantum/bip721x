@@ -12,7 +12,7 @@ interface IPListProps {
 }
 
 const IPList: React.FC<IPListProps> = ({ owner }) => {
-  const functionName = owner === undefined ? "get_int_props" : "get_int_props_of";
+  const functionName = owner === undefined ? "get_listed_int_props" : "get_int_props_of";
   
   // Use declared tuple types
   const args: GetIntPropsArgs | GetIntPropsOfArgs = owner === undefined

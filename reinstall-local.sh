@@ -1,14 +1,9 @@
 set -ex
 
 dfx identity use default
-DEPLOYER_ACCOUNT_ID=$(dfx ledger account-id)
-
-# Create all canisters
-dfx canister create --all
 
 BACKEND_CANISTER=$(dfx canister id backend)
 
-# Deploy all canisters
 dfx deploy icrc7 --argument 'record {
   icrc7_args = opt opt record {
     symbol = opt "IP" : opt text;
@@ -30,30 +25,10 @@ dfx deploy icrc7 --argument 'record {
   };
   icrc37_args = null;
   icrc3_args = null; 
-}'
+}' --mode=reinstall --yes
 
-dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'variant {
-  Init = record {
-    minting_account = "'${DEPLOYER_ACCOUNT_ID}'";
-    initial_values = vec {};
-    send_whitelist = vec {};
-    transfer_fee = opt record {
-      e8s = 10_000 : nat64;
-    };
-    token_symbol = opt "ICP";
-    token_name = opt "Internet Computer Protocol";
-  }
-}'
-
-dfx deploy backend
-
-# Internet identity
-dfx deps pull
-dfx deps init
-dfx deps deploy internet_identity
+dfx deploy backend --mode=reinstall --yes
 
 dfx canister call backend init_controller
-
-dfx deploy frontend
 
 dfx generate

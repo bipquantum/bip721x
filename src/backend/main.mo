@@ -17,7 +17,7 @@ shared({ caller = admin; }) actor class Backend() = this {
   type UserArgs              = Types.UserArgs;
   type User                  = Types.User;
   type Account               = Types.Account;
-  type IntPropInputWithPrice = Types.IntPropInputWithPrice;
+  type IntPropInput          = Types.IntPropInput;
   type IntProp               = Types.IntProp;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
   type CreateIntPropResult   = Types.CreateIntPropResult;
@@ -66,16 +66,25 @@ shared({ caller = admin; }) actor class Backend() = this {
     getController().getUser(principal);
   };
 
-  public shared({caller}) func create_int_prop(args: IntPropInputWithPrice) : async CreateIntPropResult {
+  public shared({caller}) func create_int_prop(args: IntPropInput) : async CreateIntPropResult {
     await getController().createIntProp({ args with author = caller; publishingDate = Time.now(); });
+  };
+
+  public shared({caller}) func list_int_prop({ token_id: Nat; e8s_icp_price: Nat; }) : async Result<(), Text> {
+    await getController().listIntProp({ caller; intPropId = token_id; e8sIcpPrice = e8s_icp_price; });
+  };
+
+  public shared({caller}) func delist_int_prop({token_id: Nat;}) : async Result<(), Text> {
+    await getController().delistIntProp({ caller; intPropId = token_id; });
   };
 
   public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async [Nat] {
     await Icrc7Canister.icrc7_tokens_of(getController().getUserAccount(owner), prev, take);
   };
 
-  public composite query func get_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
-    await Icrc7Canister.icrc7_tokens(prev, take);
+  public composite query func get_listed_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
+    let intPropIds = await Icrc7Canister.icrc7_tokens(prev, take);
+    getController().filterListedIntProps({ intPropIds });
   };
 
   public composite query func get_int_prop({token_id: Nat}) : async Result<IntProp, Text> {
@@ -89,11 +98,11 @@ shared({ caller = admin; }) actor class Backend() = this {
   };
 
   public query func get_e8s_price({token_id: Nat}) : async Result<Nat, Text> {
-    getController().getE8sPrice({token_id});
+    getController().getE8sPrice({ intPropId = token_id });
   };
 
   public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<BuyIntPropResult, Text> {
-    await getController().buyIntProp({ token_id; buyer = caller; time = Time.now(); });
+    await getController().buyIntProp({ intPropId = token_id; buyer = caller; time = Time.now(); });
   };
 
   public query func get_user_account({user: Principal}) : async Account {

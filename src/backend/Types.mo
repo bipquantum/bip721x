@@ -35,10 +35,6 @@ module {
     dataUri: Text;
   };
 
-  public type IntPropInputWithPrice = IntPropInput and {
-    e8sIcpPrice: Nat;
-  };
-
   public type IntProp = IntPropInput and {
     publishingDate: Time;
     author: Principal;
