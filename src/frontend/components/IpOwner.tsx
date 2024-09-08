@@ -16,7 +16,6 @@ const IpOwner = ({ intPropId }: IpOwnerArgs) => {
 
   return (
     <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 mb-6">
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-300 mb-4">Author Details</h3>
       {
         owners === undefined ? (
           <div className="text-center text-white" style={{ 

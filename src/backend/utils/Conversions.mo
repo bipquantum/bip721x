@@ -90,6 +90,7 @@ module {
       ("creationDate",    #Int(intProp.creationDate)),
       ("publishingDate",  #Int(intProp.publishingDate)),
       ("author",          #Text(Principal.toText(intProp.author))),
+      ("dataUri",         #Text(intProp.dataUri)),
     ]);
   };
 
@@ -127,6 +128,7 @@ module {
         var creationDate : ?Int = null;
         var publishingDate : ?Int = null;
         var author : ?Principal = null;
+        var dataUri : ?Text = null;
         for ((k, v) in Array.vals(map)){
           switch(k){
             case("title")         { title := ?unwrapText(v);                                };
@@ -136,12 +138,13 @@ module {
             case("creationDate")  { creationDate := ?unwrapInt(v);                          };
             case("publishingDate"){ publishingDate := ?unwrapInt(v);                        };
             case("author")        { author := ?Principal.fromText(unwrapText(v));           };
+            case("dataUri")           { dataUri := ?unwrapText(v);                                  };
             case(_){ Debug.trap("Unexpected value"); };
           };
         };
-        switch(title, description, intPropType, intPropLicense, creationDate, publishingDate, author){
-          case(?title, ?description, ?intPropType, ?intPropLicense, ?creationDate, ?publishingDate, ?author){
-            return { title; description; intPropType; intPropLicense; creationDate; publishingDate; author; };
+        switch(title, description, intPropType, intPropLicense, creationDate, publishingDate, author, dataUri){
+          case(?title, ?description, ?intPropType, ?intPropLicense, ?creationDate, ?publishingDate, ?author, ?dataUri){
+            return { title; description; intPropType; intPropLicense; creationDate; publishingDate; author; dataUri; };
           };
           case(_){
             Debug.trap("Unexpected intProp metadata");

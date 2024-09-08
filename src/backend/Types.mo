@@ -32,6 +32,7 @@ module {
     intPropType: IntPropType;
     intPropLicense: IntPropLicense;
     creationDate: Time;
+    dataUri: Text;
   };
 
   public type IntPropInputWithPrice = IntPropInput and {
