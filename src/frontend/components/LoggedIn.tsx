@@ -14,7 +14,7 @@ type LoggedInProps = {
 
 function LoggedIn({ toggleModal, toggleUserModal, principal }: LoggedInProps) {
   // TODO sardariuss 2024-SEP-03: remove log
-  console.log(principal.toText());
+  // console.log(principal.toText());
 
   const { logout } = useAuth({});
 
@@ -27,13 +27,13 @@ function LoggedIn({ toggleModal, toggleUserModal, principal }: LoggedInProps) {
     <div className="flex flex-row gap-x-3">
       <button
         onClick={toggleModal}
-        className="block text-white dark:text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         type="button"
       >
         Create New IP
       </button>
       <Link
-        className="block text-white dark:text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         to="/myip"
       >
         My Ip
@@ -42,7 +42,7 @@ function LoggedIn({ toggleModal, toggleUserModal, principal }: LoggedInProps) {
       <button
         onClick={toggleUserModal}
         type="button"
-        className="flex text-sm bg-gray-800 px-2 items-center rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+        className="flex items-center rounded-full bg-gray-800 px-2 text-sm focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 md:me-0"
         id="user-menu-button"
         aria-expanded="false"
         data-dropdown-toggle="user-dropdown"
@@ -50,7 +50,7 @@ function LoggedIn({ toggleModal, toggleUserModal, principal }: LoggedInProps) {
       >
         <span className="sr-only">Open user menu</span>
         <svg
-          className="w-6 h-6 text-white dark:text-gray-800 dark:text-white"
+          className="h-6 w-6 text-white dark:text-gray-800"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -70,10 +70,10 @@ function LoggedIn({ toggleModal, toggleUserModal, principal }: LoggedInProps) {
           logout();
         }}
         type="button"
-        className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+        className="rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-medium text-white hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
       >
         <svg
-          className="w-6 h-6 text-white dark:text-gray-800 "
+          className="h-6 w-6 text-white dark:text-gray-800"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"

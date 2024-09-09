@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 
 import MenuSvg from "../../../assets/menu.svg";
 import HomeSvg from "../../../assets/home.svg";
@@ -8,6 +8,7 @@ import WindowSvg from "../../../assets/window.svg";
 import ProfileSvg from "../../../assets/profile.png";
 import HelpCenterSvg from "../../../assets/help-center.svg";
 import SideBar from "./SideBar";
+import { useAuth } from "@ic-reactor/react";
 
 const NavBarItems = [
   {
@@ -45,6 +46,12 @@ const NavBarItems = [
 function NavBar() {
   const location = useLocation();
   const { pathname } = location;
+
+  const { authenticated } = useAuth({});
+
+  if (!authenticated) {
+    return null;
+  }
 
   return (
     <>
