@@ -29,18 +29,16 @@ mops test
 
 ## Misc TODOs
 
-### Right now
-- add a page (with new route) with the list of owned IPs
-- once the IP is submitted, automatically go back to the list of IPs and refresh
-- add a copy/paste icon in the UI that copies the account so that it can be pasted somewhere else
-- create a single IP page (with route with IP index) for each IP, be able to click on an IP in the list and rerouted to that IP
-- popup if error on buy else reroute to IP page with that index
+### To do now:
+- bring UI from current bipquantum app (Tope)
+- Button to list or unlist the IP does not work if the user has not been created yet
+- Right after listing/unlisting the IP, the button to list/unlist or the price is not updated
+- Buttons for my IPs / list all IPs does not always refresh the list
 
-### Soon
-- to discuss:
-    - either make the current UI fully fonctionnal:
-        - be able to click on bipquantum / create new IP / profile (header buttons) even when popup active or put another color in background when popactive to show it's inactive
-    - or bring UI from current bipquantum app ?
+### To improve
+- why return ok when there's an actual error on transfer_ip ?
+
+### To dicuss / confirm
 - make the user creation mandatory: 
     - ask for user creation after logged in for the first time (i.e. if backend.get_user returns null)
     - modify button so that once created, it's only written update user
@@ -50,5 +48,4 @@ mops test
 
 ### Later
  - transform the script/ip_transfer_scenario.sh into a real test in typescript or motoko
- - choose file: shall be able to preview image
  - discussion CID

@@ -5,9 +5,6 @@ import { fromNullable } from "@dfinity/utils";
 import { backendActor } from "./actors/BackendActor";
 import { UserArgs } from "../../declarations/backend/backend.did";
 
-import CopySvg from "../assets/copy.svg";
-import { toast } from "react-toastify";
-
 const EMPTY_USER = {
   firstName: "",
   lastName: "",
@@ -73,17 +70,6 @@ function UserModal({ isModalOpen, toggleModal }: UserModalProps) {
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {identity?.getPrincipal().toString()}
               </h3>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    identity?.getPrincipal().toString()
-                  );
-                  toast.success("Copied successfully!");
-                }}
-                className="mr-2"
-              >
-                <img src={CopySvg} />
-              </button>
               <button
                 type="button"
                 onClick={toggleModal}

@@ -5,6 +5,7 @@ import Int               "mo:base/Int";
 import Time              "mo:base/Time";
 import Nat64             "mo:base/Nat64";
 import Array             "mo:base/Array";
+import Buffer            "mo:base/Buffer";
 
 import Types             "Types";
 import Conversions       "utils/Conversions";
@@ -62,7 +63,6 @@ module {
     public func createIntProp(
       args: IntPropInput and {
         author: Principal;
-        e8sIcpPrice: Nat;
         publishingDate: Time;
     }) : async CreateIntPropResult {
 
@@ -72,10 +72,10 @@ module {
         case(?user) { user.account; };
       };
 
-      let token_id = intProps.index;
+      let intPropId = intProps.index;
 
       let mint_operation = await Icrc7Canister.icrcX_mint([{
-        token_id;
+        token_id = intPropId;
         // TODO sardariuss 2024-AUG-07: somehow compilation fails if we use Conversions.intPropToMetadata
         metadata = #Class([{
           name = BIP721X_TAG;
@@ -83,7 +83,7 @@ module {
           value = Conversions.intPropToValue(args);
         }]);
         owner = ?account;
-        // We have the guarentee that the token_id will not already exist because:
+        // We have the guarentee that the intPropId will not already exist because:
         // - only the backend can mint tokens
         // - if the minting is successful, the index will always be increased
         // Hence override can be set to false
@@ -106,43 +106,76 @@ module {
         case(#Ok(_)){};
       };
 
-      // Set the price of the token
-      Map.set(intProps.e8sIcpPrices, Map.nhash, token_id, args.e8sIcpPrice);
-
       // Increase the token ID index
       intProps.index += 1;
 
-      #ok(token_id);
+      #ok(intPropId);
     };
 
-    public func getE8sPrice({token_id: Nat}) : Result<Nat, Text> {
-      switch(Map.get(intProps.e8sIcpPrices, Map.nhash, token_id)){
-        case(null) { #err("Price not found"); };
+    public func listIntProp({
+      caller: Principal;
+      intPropId: Nat;
+      e8sIcpPrice: Nat;
+    }) : async Result<(), Text> {
+      
+      let ownerAccount = switch(await getOwnerAccount(intPropId)){
+        case(#err(err)){ return #err(err); };
+        case(#ok(acc)){ acc; };
+      };
+
+      if (ownerAccount.subaccount != ?Subaccount.fromPrincipal(caller)){
+        return #err("Caller is not the owner of the IP");
+      };
+
+      Map.set(intProps.e8sIcpPrices, Map.nhash, intPropId, e8sIcpPrice);
+      #ok;
+    };
+
+    public func unlistIntProp({
+      caller: Principal;
+      intPropId: Nat;
+    }) : async Result<(), Text> {
+
+      let ownerAccount = switch(await getOwnerAccount(intPropId)){
+        case(#err(err)){ return #err(err); };
+        case(#ok(acc)){ acc; };
+      };
+
+      if (ownerAccount.subaccount != ?Subaccount.fromPrincipal(caller)){
+        return #err("Caller is not the owner of the IP");
+      };
+
+      Map.delete(intProps.e8sIcpPrices, Map.nhash, intPropId);
+      #ok;
+    };
+
+    public func filterListedIntProps({intPropIds: [Nat]}) : [Nat] {
+      let buffer = Buffer.Buffer<Nat>(0);
+      for (intPropId in Array.vals(intPropIds)){
+        if (Map.has(intProps.e8sIcpPrices, Map.nhash, intPropId)){
+          buffer.add(intPropId);
+        };
+      };
+      Buffer.toArray(buffer);
+    };
+
+    public func getE8sPrice({intPropId: Nat}) : Result<Nat, Text> {
+      switch(Map.get(intProps.e8sIcpPrices, Map.nhash, intPropId)){
+        case(null) { #err("IP is not listed"); };
         case(?price) { #ok(price); };
       };
     };
 
     public func buyIntProp({
       buyer: Principal;
-      token_id: Nat;
+      intPropId: Nat;
       time: Time;
     }) : async Result<BuyIntPropResult, Text> {
 
       // Find the seller of the IP
-      let owners = await Icrc7Canister.icrc7_owner_of([token_id]);
-      if (owners.size() != 1){
-        return #err("Owner not found");
-      };
-
-      // Get the seller account
-      let sellerAccount = switch(owners[0]){
-        case(null) { return #err("Owner not found"); };
-        case(?account) { account; };
-      };
-
-      // Verify the seller account is owned by the backend
-      if(sellerAccount.owner != backend_id){
-        return #err("Cannot transfer IP that does not belong to the backend");
+      let sellerAccount = switch(await getOwnerAccount(intPropId)){
+        case(#err(err)){ return #err(err); };
+        case(#ok(acc)){ acc; };
       };
 
       // Get the buyer account (assumed to be the same for ICPs and IPs)
@@ -153,7 +186,7 @@ module {
       };
 
       // Retrieve the price of the IP
-      let e8sPrice = switch(Map.get(intProps.e8sIcpPrices, Map.nhash, token_id)){
+      let e8sPrice = switch(Map.get(intProps.e8sIcpPrices, Map.nhash, intPropId)){
         case(null) { return #err("Price not found"); };
         case(?price) { price; };
       };
@@ -174,7 +207,7 @@ module {
           ?(await transferIp({
             from_subaccount = sellerAccount.subaccount;
             to = buyerAccount;
-            token_id;
+            token_id = intPropId;
             time;
           }));
         };
@@ -266,6 +299,26 @@ module {
         case(#Err(err)){ #err("Transfer of IP failed: " # debug_show(err)); };
         case(#Ok(tx_id)){ #ok(tx_id); };
       };
+    };
+
+    func getOwnerAccount(intPropId: Nat) : async Result<Account, Text> {
+      
+      // Find the account of the owner of the IP
+      let owners = await Icrc7Canister.icrc7_owner_of([intPropId]);
+      if (owners.size() != 1){
+        return #err("Owner not found");
+      };
+      let account = switch(owners[0]){
+        case(null) { return #err("Owner not found"); };
+        case(?acc) { acc; };
+      };
+
+      // Verify the seller account is owned by the backend
+      if(account.owner != backend_id){
+        return #err("Cannot transfer IP that does not belong to the backend");
+      };
+
+      #ok(account);
     };
 
   };

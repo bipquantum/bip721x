@@ -2,12 +2,10 @@ import React, { useState } from "react";
 import { useAuth } from "@ic-reactor/react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 
-import Login from "./Login";
 import Header from "./Header";
 import Footer from "./Footer";
 import IpModal from "./IpModal";
 import UserModal from "./UserModal";
-import IPList from "./IPList.js";
 import Router from "./Router";
 import { ToastContainer } from "react-toastify";
 

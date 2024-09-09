@@ -1,10 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import { useAuth } from "@ic-reactor/react";
 
-import IPList from "../IPList";
+import IPList, { FilterType } from "../IPList";
 import Login from "../Login";
 import PrivateRoute from "./PrivateRoute";
-import OwnedIPList from "../OwnedIPList";
 import IP from "../pages/IP";
 import Dashboard from "../pages/Dashboard";
 import NewIP from "../pages/AddNewIP";

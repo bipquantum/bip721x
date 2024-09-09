@@ -3,10 +3,9 @@ import Select from "react-tailwindcss-select";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-tailwindcss-select/dist/index.css";
-import { NumericFormat } from "react-number-format";
 import { useAuth } from "@ic-reactor/react";
 import { backendActor } from "./actors/BackendActor";
-import { IntPropInputWithPrice } from "../../declarations/backend/backend.did";
+import { IntPropInput } from "../../declarations/backend/backend.did";
 import {
   intPropLicenseToIndex,
   intPropTypeFromIndex,
@@ -14,13 +13,12 @@ import {
   intPropLicenseFromIndex,
   intPropTypeToString,
   intPropLicenseToString,
-  fromE8s,
-  toE8s,
 } from "../utils/conversions";
 import {
   Option,
   SelectValue,
 } from "react-tailwindcss-select/dist/components/type";
+import FileUploader from "./FileUploader";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -70,9 +68,9 @@ const IP_LICENSE_OPTIONS: Option[] = [
   },
 ];
 
-const INITIAL_INT_PROP_INPUT: IntPropInputWithPrice = {
+const INITIAL_INT_PROP_INPUT: IntPropInput = {
+  dataUri: "",
   title: "",
-  e8sIcpPrice: BigInt(10_000_000_000), // 100 ICP
   intPropLicense: { NOT_APPLICABLE: null },
   intPropType: { PATENT: null },
   description: "",
@@ -85,13 +83,14 @@ type IpModalProps = {
 };
 
 function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
+
   const { identity, authenticated } = useAuth({});
 
   if (!authenticated || !identity) {
     return <></>;
   }
 
-  const [intPropInput, setIntPropInput] = useState<IntPropInputWithPrice>(
+  const [intPropInput, setIntPropInput] = useState<IntPropInput>(
     INITIAL_INT_PROP_INPUT
   );
 
@@ -203,29 +202,6 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                     }}
                   ></textarea>
                 </div>
-                <div key="e8sIcpPrice" className="col-span-2">
-                  <label
-                    htmlFor="e8sIcpPrice"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Price (ICP)
-                  </label>
-                  <NumericFormat
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    thousandSeparator=","
-                    decimalScale={2}
-                    value={fromE8s(intPropInput.e8sIcpPrice)}
-                    onValueChange={(e) => {
-                      setIntPropInput({
-                        ...intPropInput,
-                        e8sIcpPrice: toE8s(
-                          parseFloat(e.value.replace(/,/g, ""))
-                        ),
-                      });
-                      console.log(intPropInput);
-                    }}
-                  />
-                </div>
                 <div key="ipType" className="sm:col-span-2">
                   <label
                     htmlFor="ipType"
@@ -332,12 +308,13 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                   >
                     Upload Image
                   </label>
-                  <input
-                    type="file"
-                    id="ipImage"
-                    name="ipImage"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                  />
+                  <FileUploader dataUri={intPropInput.dataUri} setDataUri={(dataUri) => {
+                      setIntPropInput({
+                        ...intPropInput,
+                        dataUri: dataUri?? "",
+                      });
+                    }
+                  } />
                 </div>
                 <button
                   type="submit"
