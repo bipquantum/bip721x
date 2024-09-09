@@ -59,7 +59,7 @@ function NavBar() {
             <div className="flex flex-grow flex-col items-center justify-center gap-12">
               {NavBarItems.map((item) => (
                 <Link
-                  className={`flex flex-col items-center justify-center gap-2 ${pathname !== item.name && "/profile" !== item.name && "opacity-40"}`}
+                  className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.name && "profile" !== item.name && "opacity-40"}`}
                   to={item.name}
                 >
                   <img
