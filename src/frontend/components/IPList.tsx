@@ -3,30 +3,30 @@ import { backendActor } from "./actors/BackendActor";
 import IPItem from "./IPItem";
 import { useEffect } from "react";
 
-// Declare tuple types for useQueryCall args
-type GetIntPropsArgs = [{ prev: [] | [bigint]; take: [] | [bigint] }];
-type GetIntPropsOfArgs = [{ owner: Principal; prev: [] | [bigint]; take: [] | [bigint] }];
-
-interface IPListProps {
-  owner: Principal | undefined;
+export enum FilterType {
+  LISTED,
+  OWNED,
 }
 
-const IPList: React.FC<IPListProps> = ({ owner }) => {
-  const functionName = owner === undefined ? "get_listed_int_props" : "get_int_props_of";
-  
-  // Use declared tuple types
-  const args: GetIntPropsArgs | GetIntPropsOfArgs = owner === undefined
-    ? [{ prev: [], take: [BigInt(10)] }]
-    : [{ owner, prev: [], take: [BigInt(10)] }];
+interface IPListProps {
+  principal: Principal | undefined;
+  filterBy: FilterType;
+}
 
+const IPList: React.FC<IPListProps> = ({ principal, filterBy }) => {
+
+  // TODO sardariuss 2024-SEP-09: be able to scroll through the list
+  var prev : [] | [bigint] = [];
+  var take : [] | [bigint] = [BigInt(10)];
+    
   const { data: entries, call: fetchEntries } = backendActor.useQueryCall({
-    functionName,
-    args,
+    functionName: filterBy === FilterType.OWNED ? "get_int_props_of" : "get_listed_int_props",
+    args: principal && filterBy === FilterType.OWNED ? [{ owner: principal, prev, take }] : [{ prev, take }],
   });
 
   useEffect(() => {
-    fetchEntries(args);
-  }, [owner]);
+    fetchEntries();
+  }, [principal]);
 
   return (
     <>
@@ -41,7 +41,7 @@ const IPList: React.FC<IPListProps> = ({ owner }) => {
               className="w-full m-12 bg-white dark:bg-gray-800 p-8 shadow-lg rounded-lg max-w-8xl my-4 mx-auto"
               key={intPropId}
             >
-              <IPItem intPropId={intPropId} />
+              <IPItem principal={principal} intPropId={intPropId} />
             </li>
           ))}
         </ul>

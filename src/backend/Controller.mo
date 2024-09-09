@@ -131,7 +131,7 @@ module {
       #ok;
     };
 
-    public func delistIntProp({
+    public func unlistIntProp({
       caller: Principal;
       intPropId: Nat;
     }) : async Result<(), Text> {

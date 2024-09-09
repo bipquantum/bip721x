@@ -1,49 +1,24 @@
-import { useNavigate } from "react-router-dom";
-
 import {
   intPropLicenseToString,
   intPropTypeToString,
 } from "../utils/conversions";
 import { backendActor } from "./actors/BackendActor";
-import { toast } from "react-toastify";
-import IPPrice from "./IPPrice";
 import UserDetails from "./UserDetails";
 import FilePreview from "./FilePreview";
+import { Principal } from "@dfinity/principal";
+import ListingDetails from "./ListingDetails";
 
 interface IPItemProps {
+  principal: Principal | undefined;
   intPropId: bigint;
 }
 
-const IPItem : React.FC<IPItemProps> = ({intPropId}) => {
-
-  const navigate = useNavigate();
+const IPItem : React.FC<IPItemProps> = ({principal, intPropId}) => {
 
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
-    args: [{
-      token_id: intPropId,
-    }]
+    args: [{token_id: intPropId}],
   });
-
-  const { call: buyIntProp } = backendActor.useUpdateCall({
-    functionName: "buy_int_prop",
-  });
-
-  const triggerBuy = (intPropId: bigint) => {
-    buyIntProp([{ token_id: intPropId }]).then((result) => {
-      if (!result) {
-        toast.warn("Failed to buy: undefined error");
-      } else {
-        if ("ok" in result) {
-          toast.success("Success");
-          navigate(`/ip/${intPropId.toString()}`);
-        } else {
-          toast.warn("Failed to buy");
-        }
-        console.log(result);
-      }
-    });
-  };
 
   return (
     <div>
@@ -68,7 +43,6 @@ const IPItem : React.FC<IPItemProps> = ({intPropId}) => {
               { intPropTypeToString(intProp.ok.intPropType) }
             </div>
           </div>
-          <IPPrice intPropId={intPropId} />
           <div>
             <div className="text-sm font-semibold text-black dark:text-white">
               IP License
@@ -104,23 +78,7 @@ const IPItem : React.FC<IPItemProps> = ({intPropId}) => {
           </div>
           <h3>Author</h3>
           <UserDetails principal={intProp.ok.author} />
-          <div className="flex gap-4">
-            <button
-              onClick={() => { triggerBuy(intPropId); }}
-              className="block text-white dark:text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              type="button"
-            >
-              Buy
-            </button>
-            <button
-              className="block text-white dark:text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              onClick={() => {
-                navigate(`/ip/${intPropId.toString()}`);
-              }}
-            >
-              View
-            </button>
-          </div>
+          <ListingDetails principal={principal} intPropId={intPropId} />
         </div>
       </div>
       )

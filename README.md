@@ -31,16 +31,14 @@ mops test
 
 ### To do now:
 - bring UI from current bipquantum app (Tope)
-- once the IP is submitted, automatically go to the IP item page
+- Button to list or unlist the IP does not work if the user has not been created yet
+- Right after listing/unlisting the IP, the button to list/unlist or the price is not updated
+- Buttons for my IPs / list all IPs does not always refresh the list
 
 ### To improve
 - why return ok when there's an actual error on transfer_ip ?
 
 ### To dicuss / confirm
-- once the IP is bought:
-    - do not display the IP in the list of public IPs
-    - reroute to your list of IPs
-    - to confirm: one should not put the price of the IP at the creation, it forces to put it right away on the market. We should rather have a button to sell it in the owned IP user page.
 - make the user creation mandatory: 
     - ask for user creation after logged in for the first time (i.e. if backend.get_user returns null)
     - modify button so that once created, it's only written update user

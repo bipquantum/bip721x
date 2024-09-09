@@ -74,8 +74,8 @@ shared({ caller = admin; }) actor class Backend() = this {
     await getController().listIntProp({ caller; intPropId = token_id; e8sIcpPrice = e8s_icp_price; });
   };
 
-  public shared({caller}) func delist_int_prop({token_id: Nat;}) : async Result<(), Text> {
-    await getController().delistIntProp({ caller; intPropId = token_id; });
+  public shared({caller}) func unlist_int_prop({token_id: Nat;}) : async Result<(), Text> {
+    await getController().unlistIntProp({ caller; intPropId = token_id; });
   };
 
   public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async [Nat] {
