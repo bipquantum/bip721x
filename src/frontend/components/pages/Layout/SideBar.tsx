@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-import LayoutCollapseLeftSvg from "../assets/layout-collapse-left.svg";
-import LayoutCollapseRightSvg from "../assets/layout-collapse-right.svg";
-import EditSvg from "../assets/edit.svg";
-import TrashSvg from "../assets/trash.svg";
+import LayoutCollapseLeftSvg from "../../../assets/layout-collapse-left.svg";
+import LayoutCollapseRightSvg from "../../../assets/layout-collapse-right.svg";
+import EditSvg from "../../../assets/edit.svg";
+import TrashSvg from "../../../assets/trash.svg";
 
-import Logo from "../assets/logo.png";
+import Logo from "../../../assets/logo.png";
+import { Link } from "react-router-dom";
 
 function SideBar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -24,7 +25,9 @@ function SideBar() {
       {isCollapsed && (
         <>
           <div className="flex cursor-pointer items-center justify-center">
-            <img src={Logo} className="h-12 invert" alt="Logo" />
+            <Link to={"/"}>
+              <img src={Logo} className="h-12 invert" alt="Logo" />
+            </Link>
             <img
               src={LayoutCollapseLeftSvg}
               className="h-8 invert"

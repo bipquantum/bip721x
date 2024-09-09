@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import Logo from "../assets/logo.png";
-import AIBotImg from "../assets/ai-bot.jpeg";
-import FilterSvg from "../assets/filter.svg";
-import FavoriteHeartFilledSvg from "../assets/favourite-heart-filled.svg";
-import FavoriteHeartOutlineSvg from "../assets/favourite-heart-outline.svg";
+import { useState } from "react";
+import Logo from "../../../assets/logo.png";
+import AIBotImg from "../../../assets/ai-bot.jpeg";
+import FilterSvg from "../../../assets/filter.svg";
+import FavoriteHeartFilledSvg from "../../../assets/favourite-heart-filled.svg";
+import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
 import BipDetails from "./BipDetails";
 
 function Bips() {
@@ -13,7 +13,7 @@ function Bips() {
       <img src={Logo} className="h-12 invert" alt="Logo" />
       <div className="flex w-full items-center justify-between px-4">
         <button>
-          <img src={FilterSvg} className="h-12 invert" alt="Logo" />
+          <img src={FilterSvg} className="h-8 invert" alt="Logo" />
         </button>
         <input className="rounded-xl border-[2px] border-white border-opacity-45 bg-blue-400 px-4 text-white outline-none" />
       </div>

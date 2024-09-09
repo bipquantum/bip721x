@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-import LampSvg from "../assets/lamp.svg";
-import UserHandUpSvg from "../assets/user-hand-up.svg";
-import CheckCircleSvg from "../assets/check-circle.svg";
-import CheckVerifiedSvg from "../assets/check-verified.svg";
-import AIBotImg from "../assets/ai-bot.jpeg";
+import LampSvg from "../../../assets/lamp.svg";
+import UserHandUpSvg from "../../../assets/user-hand-up.svg";
+import CheckCircleSvg from "../../../assets/check-circle.svg";
+import CheckVerifiedSvg from "../../../assets/check-verified.svg";
+import AIBotImg from "../../../assets/ai-bot.jpeg";
 
 function NewIP() {
   const [step, setStep] = useState(0);

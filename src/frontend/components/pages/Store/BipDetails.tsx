@@ -1,7 +1,4 @@
-import React, { useState } from "react";
-import Logo from "../assets/logo.png";
-import AIBotImg from "../assets/ai-bot.jpeg";
-import FilterSvg from "../assets/filter.svg";
+import AIBotImg from "../../../assets/ai-bot.jpeg";
 
 function BipDetails() {
   return (

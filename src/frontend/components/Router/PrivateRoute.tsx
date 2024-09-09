@@ -7,11 +7,11 @@ type PrivateRouteProps = {
 };
 
 function PrivateRoute({ element }: PrivateRouteProps) {
-  // const { authenticated } = useAuth({});
+  const { authenticated } = useAuth({});
 
-  // if (!authenticated) {
-  //   return <Navigate to="/login" />;
-  // }
+  if (!authenticated) {
+    return <Navigate to="/login" />;
+  }
 
   return <>{element}</>;
 }

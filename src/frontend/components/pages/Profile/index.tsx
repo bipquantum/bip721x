@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-
-import ProfileSvg from "../assets/profile.png";
+import ProfileSvg from "../../../assets/profile.png";
 
 const ProfileFields = [
   { label: "Name", name: "name", placeholder: "Sam" },

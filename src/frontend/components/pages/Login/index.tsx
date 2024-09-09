@@ -1,8 +1,19 @@
+import { useAuth } from "@ic-reactor/react";
+import { Navigate } from "react-router-dom";
+
 import Logo from "../../../assets/logo.png";
 import Dfinity from "../../../assets/dfinity.svg";
 import Nfid from "../../../assets/nfid-logo.svg";
 
-function Login() {
+const APP_NAME = "BIP QUANTUM";
+const APP_LOGO = "https://nfid.one/icons/favicon-96x96.png";
+const CONFIG_QUERY = `?applicationName=${APP_NAME}&applicationLogo=${APP_LOGO}`;
+
+function LoginV2() {
+  const { login, authenticated } = useAuth({});
+
+  if (authenticated) return <Navigate to="/" />;
+
   return (
     <div className="min-h-screen w-full bg-blue-400">
       <div className="flex items-center justify-between p-16 text-base text-white">
@@ -16,18 +27,30 @@ function Login() {
           Computer blockchain.
         </div>
         <div className="flex flex-col items-center justify-center gap-y-3 pt-6 text-sm">
-          <div className="flex w-72 items-center justify-center gap-x-2 rounded-xl border border-blue-600 py-2 uppercase">
+          <button
+            className="flex w-72 items-center justify-center gap-x-2 rounded-xl border border-blue-600 py-2 uppercase"
+            onClick={() => {
+              login();
+            }}
+          >
             Connect with
             <img src={Dfinity} className="h-4" alt="Logo" />
-          </div>
-          <div className="flex w-72 items-center justify-center gap-x-2 rounded-xl border border-blue-600 py-2 uppercase">
+          </button>
+          <button
+            className="flex w-72 items-center justify-center gap-x-2 rounded-xl border border-blue-600 py-2 uppercase"
+            onClick={() => {
+              login({
+                identityProvider: `https://nfid.one/authenticate${CONFIG_QUERY}`,
+              });
+            }}
+          >
             Connect with
             <img src={Nfid} className="h-4" alt="Logo" />
-          </div>
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default LoginV2;

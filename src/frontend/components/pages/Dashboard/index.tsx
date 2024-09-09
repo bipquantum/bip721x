@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import SearchSvg from "../assets/search.svg";
+import SearchSvg from "../../../assets/search.svg";
 
 function Dashboard() {
   return (
