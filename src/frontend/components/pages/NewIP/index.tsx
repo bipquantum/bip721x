@@ -152,18 +152,8 @@ const NewIP = () => {
           </div>
           {step === 1 && (
             <>
-              <div className="flex w-2/3 items-end justify-between gap-12">
-                <div className="flex w-1/2 flex-col gap-8">
-                  <div className="flex flex-col gap-1">
-                    <div className="px-4 font-semibold">
-                      IP File (FILE SIZE LIMITED TO 1 GB)
-                    </div>
-                    <input
-                      className="rounded-full px-4 py-2 text-gray-600 outline-none"
-                      type="file"
-                      placeholder="Drag and drop or click to uploadYou may change this after deploying your contract."
-                    />
-                  </div>
+              <div className="flex w-1/3 items-end justify-between gap-12">
+                <div className="flex w-full flex-col gap-8">
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Title of the IP</div>
                     <input
@@ -213,6 +203,11 @@ const NewIP = () => {
                       placeholder="Select an option"
                       noOptionsMessage="No options found"
                       primaryColor="#ffffff"
+                      classNames={{
+                        menuButton: () =>
+                          "rounded-full border border-gray-300 bg-white text-gray-600 flex items-center justify-between px-4",
+                        menu: "border border-gray-300 bg-white text-gray-600 flex items-center justify-between absolute z-10 mx-4",
+                      }}
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -240,14 +235,23 @@ const NewIP = () => {
                           ),
                         })
                       }
-                      options={IP_LICENSE_OPTIONS}
+                      options={IP_LICENSE_OPTIONS.filter(
+                        (option) =>
+                          option.value !==
+                          intPropLicenseToIndex(
+                            intPropInput.intPropLicense,
+                          ).toString(),
+                      )}
                       placeholder="Select an option"
                       noOptionsMessage="No options found"
                       primaryColor="#ffffff"
+                      classNames={{
+                        menuButton: () =>
+                          "rounded-full border border-gray-300 bg-white text-gray-600 flex items-center justify-between px-4",
+                        menu: "border border-gray-300 bg-white text-gray-600 flex items-center justify-between absolute z-10 mx-4",
+                      }}
                     />
                   </div>
-                </div>
-                <div className="flex w-1/2 flex-col gap-8">
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">
                       Upload Preview IP File (Preview SIZE LIMITED TO 1 GB)
@@ -280,20 +284,7 @@ const NewIP = () => {
                           ),
                         });
                       }}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="px-4 font-semibold">Publication Date</div>
-                    <input
-                      className="rounded-full px-4 py-2 text-gray-600 outline-none"
-                      placeholder=""
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="px-4 font-semibold">Country</div>
-                    <input
-                      className="rounded-full px-4 py-2 text-gray-600 outline-none"
-                      placeholder="Select Option"
+                      type="date"
                     />
                   </div>
                 </div>
