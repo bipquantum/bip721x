@@ -22,6 +22,7 @@ import UserHandUpSvg from "../../../assets/user-hand-up.svg";
 import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.jpeg";
+import FileUploader from "../../FileUploader";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -93,14 +94,21 @@ const NewIP = () => {
         toast.error("Failed to create new IP: no data returned");
       } else if ("err" in data) {
         toast.error("Failed to create new IP: " + data["err"]);
+        console.log("error", data);
       } else {
         toast.success("Created new IP (identifier=" + data["ok"] + ")");
       }
     },
     onError: (error) => {
+      console.log("error", error);
       toast.error("Failed to create new IP: " + error);
     },
   });
+
+  const createIp = async () => {
+    await createIntProp([intPropInput]);
+    setStep(3);
+  };
 
   return (
     <div
@@ -244,10 +252,14 @@ const NewIP = () => {
                     <div className="px-4 font-semibold">
                       Upload Preview IP File (Preview SIZE LIMITED TO 1 GB)
                     </div>
-                    <input
-                      className="rounded-full px-4 py-2 text-gray-600 outline-none"
-                      type="file"
-                      placeholder=""
+                    <FileUploader
+                      dataUri={intPropInput.dataUri}
+                      setDataUri={(dataUri) => {
+                        setIntPropInput({
+                          ...intPropInput,
+                          dataUri: dataUri ?? "",
+                        });
+                      }}
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -335,7 +347,7 @@ const NewIP = () => {
               </div>
               <button
                 className="w-72 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
-                onClick={() => setStep(3)}
+                onClick={() => void createIp()}
               >
                 Add Author(s) Details
               </button>

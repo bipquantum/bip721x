@@ -1,15 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAuth } from "@ic-reactor/react";
-import { BrowserRouter, useLocation } from "react-router-dom";
-
-import Header from "./Header";
-import Footer from "./Footer";
-import IpModal from "./IpModal";
-import UserModal from "./UserModal";
-import Router from "./Router";
+import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
+import Router from "./Router";
 import NavBar from "./pages/Layout/NavBar";
+
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const { authenticated } = useAuth({});
@@ -28,6 +25,7 @@ function App() {
   return (
     <div className="flex min-h-screen w-full">
       <BrowserRouter>
+        <ToastContainer />
         <NavBar />
         <Router />
       </BrowserRouter>
