@@ -20,8 +20,8 @@ function Profile() {
         dfyro-v2ila-oawun-kvjhr-xmtvk-msujr-axgx2-3s7lo-phya3-lry2v-pqe
       </div>
       <div className="mt-16 flex w-80 flex-col gap-2 bg-blue-400 px-6 py-4 text-base text-white">
-        {ProfileFields.map((field) => (
-          <div className="flex w-full flex-col justify-start gap-1">
+        {ProfileFields.map((field, index) => (
+          <div className="flex w-full flex-col justify-start gap-1" key={index}>
             <div className="text-sm">{field.label}</div>
             <input
               className="w-full rounded-md border-[1px] border-white border-opacity-35 bg-blue-300 bg-opacity-35 px-2 py-1 placeholder-white outline-none"

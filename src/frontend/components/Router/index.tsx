@@ -6,16 +6,16 @@ import Login from "../Login";
 import PrivateRoute from "./PrivateRoute";
 import IP from "../pages/IP";
 import Dashboard from "../pages/Dashboard";
-import NewIP from "../pages/AddNewIP";
+import NewIP from "../pages/NewIP";
 import Copyright from "../Copyright";
 import Profile from "../pages/Profile";
-import Bips from "../pages/Store";
+import Bips from "../pages/Bips";
 import LoginV2 from "../pages/Login";
 import Main from "../pages/Main";
 import About from "../pages/About";
 
 const Router = () => {
-  // const { identity } = useAuth({});
+  const { identity } = useAuth({});
 
   return (
     <Routes>
@@ -33,7 +33,19 @@ const Router = () => {
         path={"/profile"}
         element={<PrivateRoute element={<Profile />} />}
       />
-      <Route path={"/store"} element={<PrivateRoute element={<Bips />} />} />
+      <Route
+        path={"/bips"}
+        element={
+          <PrivateRoute
+            element={
+              <Bips
+                principal={identity?.getPrincipal()}
+                filterBy={FilterType.LISTED}
+              />
+            }
+          />
+        }
+      />
       <Route path={"/about"} element={<PrivateRoute element={<About />} />} />
       <Route path={"/login"} element={<LoginV2 />} />
     </Routes>

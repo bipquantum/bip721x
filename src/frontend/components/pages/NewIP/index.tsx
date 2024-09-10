@@ -1,4 +1,21 @@
 import { useState } from "react";
+import Select from "react-tailwindcss-select";
+import { toast } from "react-toastify";
+
+import { backendActor } from "../../actors/BackendActor";
+import {
+  Option,
+  SelectValue,
+} from "react-tailwindcss-select/dist/components/type";
+import {
+  intPropLicenseFromIndex,
+  intPropLicenseToIndex,
+  intPropLicenseToString,
+  intPropTypeFromIndex,
+  intPropTypeToIndex,
+  intPropTypeToString,
+} from "../../../utils/conversions";
+import { IntPropInput } from "../../../../declarations/backend/backend.did";
 
 import LampSvg from "../../../assets/lamp.svg";
 import UserHandUpSvg from "../../../assets/user-hand-up.svg";
@@ -6,8 +23,84 @@ import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.jpeg";
 
-function NewIP() {
+// TODO sardariuss 2024-AUG-28: Use for loop to generate options
+const IP_TYPE_OPTIONS: Option[] = [
+  {
+    label: intPropTypeToString({ PATENT: null }),
+    value: intPropTypeToIndex({ PATENT: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ IP_CERTIFICATE: null }),
+    value: intPropTypeToIndex({ IP_CERTIFICATE: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ COPYRIGHT: null }),
+    value: intPropTypeToIndex({ COPYRIGHT: null }).toString(),
+  },
+];
+
+// TODO sardariuss 2024-AUG-28: Use for loop to generate options
+const IP_LICENSE_OPTIONS: Option[] = [
+  {
+    label: intPropLicenseToString({ GAME_FI: null }),
+    value: intPropLicenseToIndex({ GAME_FI: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ SAAS: null }),
+    value: intPropLicenseToIndex({ SAAS: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ ADVERTISEMENT: null }),
+    value: intPropLicenseToIndex({ ADVERTISEMENT: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ META_USE: null }),
+    value: intPropLicenseToIndex({ META_USE: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ REPRODUCTION: null }),
+    value: intPropLicenseToIndex({ REPRODUCTION: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ PHYSICAL_REPRODUCTION: null }),
+    value: intPropLicenseToIndex({ PHYSICAL_REPRODUCTION: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ NOT_APPLICABLE: null }),
+    value: intPropLicenseToIndex({ NOT_APPLICABLE: null }).toString(),
+  },
+];
+
+const INITIAL_INT_PROP_INPUT: IntPropInput = {
+  dataUri: "",
+  title: "",
+  intPropLicense: { NOT_APPLICABLE: null },
+  intPropType: { PATENT: null },
+  description: "",
+  creationDate: BigInt(new Date().getTime()),
+};
+
+const NewIP = () => {
   const [step, setStep] = useState(0);
+  const [intPropInput, setIntPropInput] = useState<IntPropInput>(
+    INITIAL_INT_PROP_INPUT,
+  );
+
+  const { call: createIntProp } = backendActor.useUpdateCall({
+    functionName: "create_int_prop",
+    onSuccess: (data) => {
+      if (data === undefined) {
+        toast.error("Failed to create new IP: no data returned");
+      } else if ("err" in data) {
+        toast.error("Failed to create new IP: " + data["err"]);
+      } else {
+        toast.success("Created new IP (identifier=" + data["ok"] + ")");
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to create new IP: " + error);
+    },
+  });
 
   return (
     <div
@@ -68,20 +161,81 @@ function NewIP() {
                     <input
                       className="rounded-full px-4 py-2 text-gray-600 outline-none"
                       placeholder="Title of the IP"
+                      value={intPropInput.title}
+                      onChange={(e) => {
+                        setIntPropInput({
+                          ...intPropInput,
+                          title: e.target.value,
+                        });
+                      }}
                     />
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">IP Type</div>
-                    <input
-                      className="rounded-full px-4 py-2 text-gray-600 outline-none"
-                      placeholder="Select Option"
+                    <Select
+                      value={
+                        IP_TYPE_OPTIONS.find(
+                          (option) =>
+                            option.value ===
+                            intPropTypeToIndex(
+                              intPropInput.intPropType,
+                            ).toString(),
+                        ) ||
+                        (() => {
+                          throw new Error(
+                            `Invalid intPropType: ${intPropInput.intPropType}`,
+                          );
+                        })()
+                      }
+                      onChange={(selectedOptions: SelectValue) =>
+                        setIntPropInput({
+                          ...intPropInput,
+                          intPropType: intPropTypeFromIndex(
+                            Number((selectedOptions as Option).value),
+                          ),
+                        })
+                      }
+                      options={IP_TYPE_OPTIONS.filter(
+                        (type) =>
+                          type.value !==
+                          intPropTypeToIndex(
+                            intPropInput.intPropType,
+                          ).toString(),
+                      )}
+                      placeholder="Select an option"
+                      noOptionsMessage="No options found"
+                      primaryColor="#ffffff"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">IP License</div>
-                    <input
-                      className="rounded-full px-4 py-2 text-gray-600 outline-none"
-                      placeholder="IP License"
+                    <Select
+                      value={
+                        IP_LICENSE_OPTIONS.find(
+                          (option) =>
+                            option.value ===
+                            intPropLicenseToIndex(
+                              intPropInput.intPropLicense,
+                            ).toString(),
+                        ) ||
+                        (() => {
+                          throw new Error(
+                            `Invalid intPropType: ${intPropInput.intPropLicense}`,
+                          );
+                        })()
+                      }
+                      onChange={(selectedOptions: SelectValue) =>
+                        setIntPropInput({
+                          ...intPropInput,
+                          intPropLicense: intPropLicenseFromIndex(
+                            Number((selectedOptions as Option).value),
+                          ),
+                        })
+                      }
+                      options={IP_LICENSE_OPTIONS}
+                      placeholder="Select an option"
+                      noOptionsMessage="No options found"
+                      primaryColor="#ffffff"
                     />
                   </div>
                 </div>
@@ -101,6 +255,19 @@ function NewIP() {
                     <input
                       className="rounded-full px-4 py-2 text-gray-600 outline-none"
                       placeholder=""
+                      value={
+                        new Date(Number(intPropInput.creationDate))
+                          .toISOString()
+                          .split("T")[0]
+                      }
+                      onChange={(e) => {
+                        setIntPropInput({
+                          ...intPropInput,
+                          creationDate: BigInt(
+                            new Date(e.target.value).getTime(),
+                          ),
+                        });
+                      }}
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -195,6 +362,6 @@ function NewIP() {
       )}
     </div>
   );
-}
+};
 
 export default NewIP;

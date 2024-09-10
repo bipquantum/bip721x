@@ -18,7 +18,7 @@ const IPList: React.FC<IPListProps> = ({ principal, filterBy }) => {
   // TODO sardariuss 2024-SEP-09: be able to scroll through the list
   var prev : [] | [bigint] = [];
   var take : [] | [bigint] = [BigInt(10)];
-    
+
   const { data: entries, call: fetchEntries } = backendActor.useQueryCall({
     functionName: filterBy === FilterType.OWNED ? "get_int_props_of" : "get_listed_int_props",
     args: principal && filterBy === FilterType.OWNED ? [{ owner: principal, prev, take }] : [{ prev, take }],

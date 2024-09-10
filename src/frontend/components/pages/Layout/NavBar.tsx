@@ -14,32 +14,32 @@ const NavBarItems = [
   {
     svg: HomeSvg,
     label: "Dashboard",
-    name: "dashboard",
+    link: "dashboard",
   },
   {
     svg: EditSvg,
     label: "New",
-    name: "new",
+    link: "new",
   },
   {
     svg: CopyRightSvg,
     label: "Copyright",
-    name: "copyright",
+    link: "copyright",
   },
   {
     svg: WindowSvg,
-    label: "biPs",
-    name: "store",
+    label: "Bips",
+    link: "bips",
   },
   {
     svg: ProfileSvg,
     label: "",
-    name: "profile",
+    link: "profile",
   },
   {
     svg: HelpCenterSvg,
     label: "Help Center",
-    name: "about",
+    link: "about",
   },
 ];
 
@@ -47,10 +47,10 @@ function NavBar() {
   const location = useLocation();
   const { pathname } = location;
 
-  const { authenticated } = useAuth({});
+  const { authenticated, logout } = useAuth({});
 
   if (!authenticated) {
-    return null;
+    return <></>;
   }
 
   return (
@@ -64,18 +64,20 @@ function NavBar() {
               className="mt-2 h-6 cursor-pointer invert"
             />
             <div className="flex flex-grow flex-col items-center justify-center gap-12">
-              {NavBarItems.map((item) => (
+              {NavBarItems.map((item, index) => (
                 <Link
-                  className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.name && "profile" !== item.name && "opacity-40"}`}
-                  to={item.name}
+                  className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "profile" !== item.link && "opacity-40"}`}
+                  to={item.link}
+                  key={index}
                 >
                   <img
                     src={item.svg}
-                    className={`h-8 w-8 ${item.name === "profile" ? "rounded-full" : "invert"}`}
+                    className={`h-8 w-8 ${item.link === "profile" ? "rounded-full" : "invert"}`}
                   />
                   <p className={`text-sm text-gray-50`}>{item.label}</p>
                 </Link>
               ))}
+              <button onClick={() => logout()}>Logout</button>
             </div>
           </div>
           <SideBar />

@@ -26,8 +26,8 @@ function Copyright() {
       <div className="mb-1 flex w-1/2 flex-col items-center gap-10">
         <div className="relative flex justify-center gap-20">
           <div className="absolute z-0 mt-5 h-0.5 w-full bg-gray-500"></div>
-          {data.map((item) => (
-            <div className="z-50 flex flex-col items-center gap-2">
+          {data.map((item, index) => (
+            <div className="z-50 flex flex-col items-center gap-2" key={index}>
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full ${item.name === "type" ? "bg-blue-800" : "bg-gray-500"}`}
               >
