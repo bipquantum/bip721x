@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { useAuth } from "@ic-reactor/react";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -8,8 +8,42 @@ import NavBar from "./pages/Layout/NavBar";
 
 import "react-toastify/dist/ReactToastify.css";
 
+interface ThemeContextProps {
+  theme: string;
+  setTheme: (theme: string) => void;
+}
+
+export const ThemeContext = createContext<ThemeContextProps>({
+  theme: "light",
+  setTheme: (theme) => console.warn("no theme provider"),
+});
+
 function App() {
   const { authenticated } = useAuth({});
+
+  const [theme, setTheme] = useState("light");
+
+  const rawSetTheme = (rawTheme: string) => {
+    const root = window.document.documentElement;
+    const isDark = rawTheme === "dark";
+
+    root.classList.remove(isDark ? "light" : "dark");
+    root.classList.add(rawTheme);
+    setTheme(rawTheme);
+  };
+
+  if (typeof window !== "undefined") {
+    useEffect(() => {
+      const initialTheme = window.localStorage.getItem("color-theme");
+      window.matchMedia("(prefers-color-scheme: dark)").matches && !initialTheme
+        ? rawSetTheme("dark")
+        : rawSetTheme(initialTheme || "light");
+    }, []);
+
+    useEffect(() => {
+      window.localStorage.setItem("color-theme", theme);
+    }, [theme]);
+  }
 
   // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   // const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -23,13 +57,15 @@ function App() {
   // };
 
   return (
-    <div className="flex min-h-screen w-full">
-      <BrowserRouter>
-        <ToastContainer />
-        <NavBar />
-        <Router />
-      </BrowserRouter>
-    </div>
+    <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
+      <div className="flex min-h-screen w-full">
+        <BrowserRouter>
+          <ToastContainer />
+          <NavBar />
+          <Router />
+        </BrowserRouter>
+      </div>
+    </ThemeContext.Provider>
 
     // <div className="flex h-auto flex-col bg-gray-100 dark:bg-gray-900">
     //   <BrowserRouter>

@@ -1,3 +1,4 @@
+import React, { useContext, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
 import MenuSvg from "../../../assets/menu.svg";
@@ -8,8 +9,11 @@ import WindowSvg from "../../../assets/window.svg";
 import ProfileSvg from "../../../assets/profile.png";
 import HelpCenterSvg from "../../../assets/help-center.svg";
 import LogoutSvg from "../../../assets/logout.svg";
+import MoonSvg from "../../../assets/moon.svg";
+import SunSvg from "../../../assets/sun.svg";
 import SideBar from "./SideBar";
 import { useAuth } from "@ic-reactor/react";
+import { ThemeContext } from "../../App";
 
 const NavBarItems = [
   {
@@ -43,6 +47,28 @@ const NavBarItems = [
     link: "about",
   },
 ];
+
+const DarkModeToggle = () => {
+  const { theme, setTheme } = useContext(ThemeContext);
+
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className={`flex w-32 items-center justify-between rounded-full bg-blue-900 bg-opacity-45 px-4 py-2 text-base font-bold uppercase text-white transition-colors duration-500 dark:bg-gray-200 dark:text-gray-800 ${theme === "dark" ? "flex-row-reverse" : "flex-row"}`}
+    >
+      <div
+        className={`${theme === "dark" ? "-mr-2" : "-ml-2"} flex h-10 w-10 items-center justify-center rounded-full bg-white`}
+      >
+        <img
+          src={theme === "dark" ? SunSvg : MoonSvg}
+          alt=""
+          className="h-6 cursor-pointer"
+        />
+      </div>
+      {theme === "dark" ? "light" : "night"}
+    </button>
+  );
+};
 
 function NavBar() {
   const location = useLocation();
@@ -92,6 +118,9 @@ function NavBar() {
             </div>
           </div>
           <SideBar />
+          <div className="absolute right-4 top-2">
+            <DarkModeToggle />
+          </div>
         </>
       )}
     </>
