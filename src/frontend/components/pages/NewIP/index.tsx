@@ -112,10 +112,10 @@ const NewIP = () => {
 
   return (
     <div
-      className={`flex min-h-screen w-full flex-1 flex-col items-center justify-center gap-4 ${step !== 0 && "bg-blue-400"}`}
+      className={`flex min-h-screen w-full flex-1 flex-col items-center justify-start gap-4 pt-32 ${step !== 0 && "bg-blue-400"}`}
     >
       {step === 0 ? (
-        <>
+        <div className="flex h-full flex-col items-center justify-center gap-4 pb-32">
           <div className="w-96 text-center text-blue-400">
             Unlock the full potential of your intellectual property by listing
             it on bIPQuantum, where innovation meets opportunity.
@@ -126,7 +126,7 @@ const NewIP = () => {
           >
             Create New IP
           </button>
-        </>
+        </div>
       ) : (
         <div className="flex w-full flex-col items-center gap-8 text-base text-white">
           <div className="flex flex-col gap-8">
@@ -289,12 +289,20 @@ const NewIP = () => {
                   </div>
                 </div>
               </div>
-              <button
-                className="w-72 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
-                onClick={() => setStep(2)}
-              >
-                Add Author Details
-              </button>
+              <div className="flex items-center justify-center gap-x-4">
+                <button
+                  className="w-32 rounded-full bg-gray-500 py-2 text-xl font-semibold text-white"
+                  onClick={() => setStep(0)}
+                >
+                  Back
+                </button>
+                <button
+                  className="w-64 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
+                  onClick={() => setStep(2)}
+                >
+                  Add Author Details
+                </button>
+              </div>
             </>
           )}
           {step === 2 && (
@@ -336,12 +344,20 @@ const NewIP = () => {
                   />
                 </div>
               </div>
-              <button
-                className="w-72 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
-                onClick={() => void createIp()}
-              >
-                Add Author(s) Details
-              </button>
+              <div className="flex items-center justify-center gap-x-4">
+                <button
+                  className="w-32 rounded-full bg-gray-500 py-2 text-xl font-semibold text-white"
+                  onClick={() => setStep(1)}
+                >
+                  Back
+                </button>
+                <button
+                  className="w-64 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
+                  onClick={() => void createIp()}
+                >
+                  Add Author(s) Details
+                </button>
+              </div>
             </>
           )}
           {step === 3 && (
