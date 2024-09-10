@@ -7,6 +7,7 @@ import CopyRightSvg from "../../../assets/copyright.svg";
 import WindowSvg from "../../../assets/window.svg";
 import ProfileSvg from "../../../assets/profile.png";
 import HelpCenterSvg from "../../../assets/help-center.svg";
+import LogoutSvg from "../../../assets/logout.svg";
 import SideBar from "./SideBar";
 import { useAuth } from "@ic-reactor/react";
 
@@ -77,7 +78,17 @@ function NavBar() {
                   <p className={`text-sm text-gray-50`}>{item.label}</p>
                 </Link>
               ))}
-              <button onClick={() => logout()}>Logout</button>
+              <button
+                onClick={() => logout()}
+                className="flex flex-col items-center justify-center gap-2"
+              >
+                <img
+                  src={LogoutSvg}
+                  alt=""
+                  className="mt-2 h-8 cursor-pointer invert"
+                />
+                <p className={`text-sm text-gray-50`}>Logout</p>
+              </button>
             </div>
           </div>
           <SideBar />
