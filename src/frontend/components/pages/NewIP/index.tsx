@@ -112,7 +112,7 @@ const NewIP = () => {
 
   return (
     <div
-      className={`flex min-h-screen w-full flex-1 flex-col items-center justify-start gap-4 pt-32 ${step !== 0 && "bg-blue-400"}`}
+      className={`flex h-full w-full flex-1 flex-col items-center justify-start gap-4 overflow-auto pt-32 ${step !== 0 && "bg-blue-400"}`}
     >
       {step === 0 ? (
         <div className="flex h-full flex-col items-center justify-center gap-4 pb-32">

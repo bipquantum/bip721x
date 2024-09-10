@@ -38,7 +38,7 @@ const Bips: React.FC<BipsProps> = ({ principal, filterBy }) => {
   }, [principal]);
 
   return (
-    <div className="flex min-h-screen w-full flex-1 flex-col items-start justify-start gap-4 gap-y-8 bg-blue-400 py-4">
+    <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-4 gap-y-8 overflow-auto bg-blue-400 py-4">
       <img src={Logo} className="h-12 invert" alt="Logo" />
       <div className="flex w-full items-center justify-between px-4">
         <button>

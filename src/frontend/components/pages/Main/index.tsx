@@ -4,7 +4,7 @@ import Profile from "../../../assets/profile.png";
 
 function Main() {
   return (
-    <div className="min-h-screen w-full bg-blue-400">
+    <div className="h-full w-full overflow-auto bg-blue-400">
       <div className="flex items-center justify-between p-16 text-base text-white">
         <img src={Logo} className="h-10 invert" alt="Logo" />
         <div className="flex items-center justify-center gap-x-16">

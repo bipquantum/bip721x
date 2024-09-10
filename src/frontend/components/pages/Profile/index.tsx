@@ -66,7 +66,7 @@ function Profile() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-1 flex-col items-center justify-center gap-8">
+    <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-8 overflow-auto">
       <img src={ProfileSvg} className={`h-24 w-24 rounded-full`} />
       <div className="text-sm text-blue-400">
         {identity?.getPrincipal().toString()}

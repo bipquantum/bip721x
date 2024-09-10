@@ -15,7 +15,7 @@ function LoginV2() {
   if (authenticated) return <Navigate to="/" />;
 
   return (
-    <div className="min-h-screen w-full bg-blue-400">
+    <div className="h-full w-full overflow-auto bg-blue-400">
       <div className="flex items-center justify-between p-16 text-base text-white">
         <img src={Logo} className="h-10 invert" alt="Logo" />
         <div className="font-semibold underline">Learn Home</div>

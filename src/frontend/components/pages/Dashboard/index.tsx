@@ -2,7 +2,7 @@ import SearchSvg from "../../../assets/search.svg";
 
 function Dashboard() {
   return (
-    <div className="flex w-full flex-1 flex-col justify-between">
+    <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
       <div className="flex h-full flex-col items-start justify-center px-16 text-blue-900">
         <div className="flex flex-col items-center gap-8 py-16 text-3xl font-bold uppercase tracking-wider">
           Meet ArtizBot, Your Intellectual Property Guardian.

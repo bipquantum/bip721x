@@ -58,7 +58,7 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex min-h-screen w-full">
+      <div className="flex h-screen w-full">
         <BrowserRouter>
           <ToastContainer />
           <NavBar />
@@ -77,7 +77,7 @@ function App() {
     //     />
     //     <ToastContainer />
     //     <main>
-    //       <section className="mx-auto min-h-screen max-w-7xl overflow-y-auto bg-gray-100 dark:bg-gray-900">
+    //       <section className="mx-auto min-h-full overflow-auto max-w-7xl overflow-y-auto bg-gray-100 dark:bg-gray-900">
     //         <Router />
     //       </section>
     //     </main>

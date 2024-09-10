@@ -84,7 +84,7 @@ function NavBar() {
     <>
       {!(pathname === "/" || pathname === "login") && (
         <>
-          <div className="flex w-32 flex-col items-center border-r-2 border-white bg-blue-400 p-5">
+          <div className="flex h-full w-32 flex-col items-center overflow-auto border-r-2 border-white bg-blue-400 p-5">
             <img
               src={MenuSvg}
               alt=""
