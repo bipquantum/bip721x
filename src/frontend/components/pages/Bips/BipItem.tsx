@@ -1,5 +1,9 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 import { backendActor } from "../../actors/BackendActor";
 import {
+  fromE8s,
   intPropLicenseToString,
   intPropTypeToString,
 } from "../../../utils/conversions";
@@ -12,10 +16,23 @@ interface IPItemProps {
 }
 
 const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
+  const [price, setPrice] = useState("");
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
   });
+
+  const { data: e8sPrice } = backendActor.useQueryCall({
+    functionName: "get_e8s_price",
+    args: [{ token_id: intPropId }],
+  });
+
+  useEffect(() => {
+    if (e8sPrice && "ok" in e8sPrice) {
+      const price = fromE8s(e8sPrice.ok).toFixed(2);
+      setPrice(price);
+    } else setPrice("N/A");
+  }, [e8sPrice]);
 
   return (
     <>
@@ -34,7 +51,10 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-4 justify-between gap-8 px-4">
+        <Link
+          className="grid grid-cols-4 justify-between gap-8 px-4"
+          to={`/bip/${intPropId}`}
+        >
           <div className="flex w-72 flex-col gap-y-1 rounded-xl bg-white p-4 text-base">
             <img
               src={AIBotImg}
@@ -52,7 +72,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
               license: {intPropLicenseToString(intProp.ok.intPropLicense)}
             </div>
             <div className="flex items-center justify-between">
-              <div className="font-bold text-blue-600">$200 000,00</div>
+              <div className="font-bold text-blue-600">{price} ICP</div>
               <button>
                 <img
                   src={FavoriteHeartOutlineSvg}
@@ -62,7 +82,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
               </button>
             </div>
           </div>
-        </div>
+        </Link>
       )}
     </>
   );

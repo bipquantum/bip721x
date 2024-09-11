@@ -13,6 +13,7 @@ import Bips from "../pages/Bips";
 import LoginV2 from "../pages/Login";
 import Main from "../pages/Main";
 import About from "../pages/About";
+import BipDetails from "../pages/Bips/BipDetails";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -43,6 +44,14 @@ const Router = () => {
                 filterBy={FilterType.LISTED}
               />
             }
+          />
+        }
+      />
+      <Route
+        path={"/bip/:ipId"}
+        element={
+          <PrivateRoute
+            element={<BipDetails principal={identity?.getPrincipal()} />}
           />
         }
       />

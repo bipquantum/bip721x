@@ -1,49 +1,116 @@
-import AIBotImg from "../../../assets/ai-bot.jpeg";
+import React, { useEffect, useState } from "react";
+import { Principal } from "@dfinity/principal";
+import { useParams } from "react-router-dom";
+import { fromNullable } from "@dfinity/utils";
 
-function BipDetails() {
-  return (
-    <div className="m-auto flex w-2/3 flex-col gap-y-4 rounded-3xl bg-white px-12 py-4">
-      <div className="flex w-full gap-x-12">
-        <img
-          src={AIBotImg}
-          className="h-48 w-1/2 rounded-2xl object-cover"
-          alt="Logo"
-        />
-        <img
-          src={AIBotImg}
-          className="h-48 w-1/2 rounded-2xl object-cover"
-          alt="Logo"
-        />
-      </div>
-      <div className="text-sm">
-        <div className="py-2 text-base font-bold">Ovni Car</div>
-        <div>
-          Type: Pre-Patent
-          <br /> License: Reproduction
-          <br />
-          <br /> Création Date: 15-01-2024
-          <br />
-          <br /> Publication Date: 20-02-2024
-          <br />
-          <br /> Author(s) Details:
-          <br /> Name + Family Name
-          <br /> Address
-          <br /> Specialty
-          <br />
-          <br /> Owner(s) Details
-          <br /> Name + Family Name
-          <br /> Address
-          <br />
-        </div>
-      </div>
-      <div className="flex w-full items-center justify-between">
-        <div className="text-base text-blue-400">$ 200 000,00</div>
-        <button className="rounded-full bg-blue-400 px-4 py-2 text-xl font-semibold uppercase text-white">
-          Buy now
-        </button>
-      </div>
-    </div>
-  );
+import { backendActor } from "../../actors/BackendActor";
+import {
+  fromE8s,
+  intPropLicenseToString,
+  intPropTypeToString,
+} from "../../../utils/conversions";
+
+import AIBotImg from "../../../assets/ai-bot.jpeg";
+import FilePreview from "../../FilePreview";
+import UserDetails from "../../UserDetails";
+
+interface IPItemProps {
+  principal: Principal | undefined;
 }
+
+const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
+  const [price, setPrice] = useState("");
+  const [owner, setOwner] = useState<Principal | undefined>(undefined);
+  const { ipId: intPropId } = useParams();
+  if (!intPropId) return <></>;
+
+  const { data: intProp } = backendActor.useQueryCall({
+    functionName: "get_int_prop",
+    args: [{ token_id: BigInt(intPropId) }],
+  });
+
+  const { data: owners } = backendActor.useQueryCall({
+    functionName: "owners_of",
+    args: [{ token_ids: [BigInt(intPropId)] }],
+  });
+
+  const { data: e8sPrice } = backendActor.useQueryCall({
+    functionName: "get_e8s_price",
+    args: [{ token_id: BigInt(intPropId) }],
+  });
+
+  useEffect(() => {
+    if (e8sPrice && "ok" in e8sPrice) {
+      const price = fromE8s(e8sPrice.ok).toFixed(2);
+      setPrice(price);
+    } else setPrice("N/A");
+  }, [e8sPrice]);
+
+  useEffect(() => {
+    const owner =
+      owners?.length === 1 ? fromNullable(owners[0])?.[0] : undefined;
+    setOwner(owner);
+  }, [owners]);
+
+  return (
+    <>
+      {intProp === undefined ? (
+        <div
+          className="text-center text-white"
+          style={{
+            padding: "100px",
+          }}
+        >
+          Loading...
+        </div>
+      ) : "err" in intProp ? (
+        <div>
+          <h1>Error</h1>
+          <p>{"Cannot find IP"}</p>
+        </div>
+      ) : (
+        <div className="m-auto flex w-2/3 flex-col gap-y-4 rounded-3xl bg-white px-12 py-4">
+          <div className="w-full">
+            <p> Preview </p>
+            <FilePreview dataUri={intProp.ok.dataUri} />
+          </div>
+          <div className="text-sm">
+            <div className="py-2 text-base font-bold">{intProp.ok.title}</div>
+            <div className="text-lg">
+              <p> Type: {intPropTypeToString(intProp.ok.intPropType)}</p>
+              <p>
+                License: {intPropLicenseToString(intProp.ok.intPropLicense)}{" "}
+              </p>
+              <p>
+                Creation Date:{" "}
+                {
+                  new Date(Number(intProp.ok.creationDate.toString()))
+                    .toISOString()
+                    .split("T")[0]
+                }
+              </p>
+              <UserDetails
+                principal={intProp.ok.author}
+                title="Owner(s) Details"
+              />
+              {owner && (
+                <UserDetails
+                  principal={intProp.ok.author}
+                  title="Owner(s) Details"
+                />
+              )}
+            </div>
+          </div>
+          <div className="flex w-full items-center justify-between">
+            <p className="text-lg text-blue-400">{price} ICP</p>
+            <button className="rounded-full bg-blue-400 px-4 py-2 text-xl font-semibold uppercase text-white">
+              Buy now
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
 export default BipDetails;

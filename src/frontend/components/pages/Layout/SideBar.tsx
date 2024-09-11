@@ -56,8 +56,11 @@ function SideBar() {
                 onClick={() => setIsCollapsed(!isCollapsed)}
               />
             </div>
-            {list.map((item) => (
-              <div className="mt-4 flex items-center justify-between px-4 text-white">
+            {list.map((item, index) => (
+              <div
+                className="mt-4 flex items-center justify-between px-4 text-white"
+                key={index}
+              >
                 {item.name}
                 <div className="flex items-center gap-x-2">
                   <img
