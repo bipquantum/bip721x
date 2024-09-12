@@ -67,7 +67,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
             ) : (
               <img
                 src={AIBotImg}
-                className="mb-2 h-[272px] w-[272px] rounded-xl object-cover"
+                className="mb-2 h-[272px] w-[272px] rounded-xl border border-gray-300 object-cover shadow-md"
                 alt="Logo"
               />
             )}
