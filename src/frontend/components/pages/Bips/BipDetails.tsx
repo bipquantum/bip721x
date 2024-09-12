@@ -94,13 +94,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               </p>
               <UserDetails
                 principal={intProp.ok.author}
-                title="Owner(s) Details"
+                title="Author(s) Details"
               />
               {owner && (
-                <UserDetails
-                  principal={intProp.ok.author}
-                  title="Owner(s) Details"
-                />
+                <UserDetails principal={owner} title="Owner(s) Details" />
               )}
             </div>
           </div>
