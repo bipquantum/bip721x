@@ -3,7 +3,7 @@ import { useAuth } from "@ic-reactor/react";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import Router from "./Router";
+import Router from "./router";
 import NavBar from "./layout/NavBar";
 
 import "react-toastify/dist/ReactToastify.css";

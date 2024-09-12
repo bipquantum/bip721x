@@ -2,15 +2,15 @@ import { Route, Routes } from "react-router-dom";
 import { useAuth } from "@ic-reactor/react";
 
 import PrivateRoute from "./PrivateRoute";
-import Dashboard from "../pages/Dashboard";
-import NewIP from "../pages/NewIP";
+import Dashboard from "../pages/dashboard";
+import NewIP from "../pages/newIP";
 import Copyright from "../Copyright";
-import Profile from "../pages/Profile";
-import Bips from "../pages/Bips";
-import LoginV2 from "../pages/Login";
-import Main from "../pages/Main";
-import About from "../pages/About";
-import BipDetails from "../pages/Bips/BipDetails";
+import Profile from "../pages/profile";
+import Bips from "../pages/bips";
+import LoginV2 from "../pages/login";
+import Main from "../pages/main";
+import About from "../pages/about";
+import BipDetails from "../pages/bips/BipDetails";
 
 const Router = () => {
   const { identity } = useAuth({});
