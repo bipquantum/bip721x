@@ -32,11 +32,11 @@ module {
     intPropType: IntPropType;
     intPropLicense: IntPropLicense;
     creationDate: Time;
+    publishingDate: Time;
     dataUri: Text;
   };
 
   public type IntProp = IntPropInput and {
-    publishingDate: Time;
     author: Principal;
   };
 

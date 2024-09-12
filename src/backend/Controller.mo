@@ -63,7 +63,6 @@ module {
     public func createIntProp(
       args: IntPropInput and {
         author: Principal;
-        publishingDate: Time;
     }) : async CreateIntPropResult {
 
       let account = switch (Map.get(users.mapUsers, Map.phash, args.author)){
@@ -89,7 +88,7 @@ module {
         // Hence override can be set to false
         override = false;
         memo = null;
-        created_at_time = ?Nat64.fromNat(Int.abs(args.publishingDate));
+        created_at_time = null;
       }]);
 
       if (mint_operation.size() != 1){
