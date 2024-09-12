@@ -21,9 +21,9 @@ const ProfileFields: {
   placeholder: string;
   name: keyof UserArgs;
 }[] = [
-  { label: "First Name", name: "firstName", placeholder: "Sam" },
-  { label: "Last Name", name: "lastName", placeholder: "Drissi" },
-  { label: "Nick Name", name: "nickName", placeholder: "Samlee" },
+  { label: "First Name", name: "firstName", placeholder: "John" },
+  { label: "Last Name", name: "lastName", placeholder: "Doe" },
+  { label: "Nick Name", name: "nickName", placeholder: "JohnDoe" },
   {
     label: "Speciality",
     name: "specialty",
