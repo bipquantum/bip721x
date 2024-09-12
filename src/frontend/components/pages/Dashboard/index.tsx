@@ -23,7 +23,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chats }) => {
 
   return (
     <div
-      className="flex w-full flex-col gap-2 overflow-y-auto px-4 py-2 text-lg"
+      className="flex h-full w-full flex-col gap-2 overflow-y-auto bg-white px-4 py-2 text-lg dark:bg-blue-400"
       ref={messagesContainerRef}
     >
       {chats.map((chat, index) => (
@@ -75,10 +75,10 @@ function Dashboard() {
       {isChatting ? (
         <ChatBox chats={chats} />
       ) : (
-        <div className="flex h-full flex-col items-start justify-center px-16 text-blue-900">
+        <div className="flex h-full flex-col items-start justify-center bg-white px-16 text-blue-900 dark:bg-blue-400 dark:text-white">
           <div className="flex flex-col items-center gap-8 py-16 text-3xl font-bold uppercase tracking-wider">
             Meet ArtizBot, Your Intellectual Property Guardian.
-            <div className="h-1 w-96 bg-blue-900"></div>
+            <div className="h-1 w-96 bg-blue-900 dark:bg-white"></div>
           </div>
           <div className="flex flex-col items-start justify-start gap-16 text-xl">
             <div>

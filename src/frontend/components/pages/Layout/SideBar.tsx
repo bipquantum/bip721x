@@ -61,7 +61,7 @@ function SideBar() {
                 className="mt-4 flex items-center justify-between px-4 text-white"
                 key={index}
               >
-                {item.name}
+                <p className="cursor-pointer text-xl">{item.name}</p>
                 <div className="flex items-center gap-x-2">
                   <img
                     src={EditSvg}

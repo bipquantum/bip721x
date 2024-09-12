@@ -54,18 +54,18 @@ const DarkModeToggle = () => {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={`flex w-32 items-center justify-between rounded-full bg-blue-900 bg-opacity-45 px-4 py-2 text-base font-bold uppercase text-white transition-colors duration-500 dark:bg-gray-200 dark:text-gray-800 ${theme === "dark" ? "flex-row-reverse" : "flex-row"}`}
+      className={`flex w-32 items-center justify-between rounded-full bg-gray-400 bg-opacity-45 px-4 py-2 text-base font-bold uppercase text-gray-800 transition-colors duration-500 dark:bg-blue-600 dark:text-white ${theme === "dark" ? "flex-row" : "flex-row-reverse"}`}
     >
       <div
-        className={`${theme === "dark" ? "-mr-2" : "-ml-2"} flex h-10 w-10 items-center justify-center rounded-full bg-white`}
+        className={`${theme === "dark" ? "-ml-2" : "-mr-2"} flex h-10 w-10 items-center justify-center rounded-full bg-white`}
       >
         <img
-          src={theme === "dark" ? SunSvg : MoonSvg}
+          src={theme === "dark" ? MoonSvg : SunSvg}
           alt=""
           className="h-6 cursor-pointer"
         />
       </div>
-      {theme === "dark" ? "light" : "night"}
+      {theme === "dark" ? "night" : "light"}
     </button>
   );
 };
