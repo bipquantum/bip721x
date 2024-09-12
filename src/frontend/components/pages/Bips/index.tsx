@@ -6,6 +6,7 @@ import { backendActor } from "../../actors/BackendActor";
 
 import Logo from "../../../assets/logo.png";
 import FilterSvg from "../../../assets/filter.svg";
+import ToggleSwitch from "../../common/ToggleSwitch";
 
 export enum FilterType {
   LISTED,
@@ -14,13 +15,14 @@ export enum FilterType {
 
 interface BipsProps {
   principal: Principal | undefined;
-  filterBy: FilterType;
 }
 
-const Bips: React.FC<BipsProps> = ({ principal, filterBy }) => {
-  // TODO sardariuss 2024-SEP-09: be able to scroll through the list
-  var prev: [] | [bigint] = [];
-  var take: [] | [bigint] = [BigInt(10)];
+const prev: [] | [bigint] = [];
+const take: [] | [bigint] = [BigInt(10)];
+
+const Bips: React.FC<BipsProps> = ({ principal }) => {
+  const [isListedIPs, setIsListedIPs] = useState(true);
+  const [filterBy, setFilterBy] = useState<FilterType>(FilterType.LISTED);
 
   const { data: entries, call: fetchEntries } = backendActor.useQueryCall({
     functionName:
@@ -35,7 +37,12 @@ const Bips: React.FC<BipsProps> = ({ principal, filterBy }) => {
 
   useEffect(() => {
     fetchEntries();
-  }, [principal]);
+  }, [principal, filterBy]);
+
+  useEffect(() => {
+    if (isListedIPs) setFilterBy(FilterType.LISTED);
+    else setFilterBy(FilterType.OWNED);
+  }, [isListedIPs]);
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-4 gap-y-8 overflow-auto bg-blue-400 py-4">
@@ -44,11 +51,16 @@ const Bips: React.FC<BipsProps> = ({ principal, filterBy }) => {
         <button>
           <img src={FilterSvg} className="h-8 invert" alt="Logo" />
         </button>
-        <input className="rounded-xl border-[2px] border-white border-opacity-45 bg-blue-400 px-4 text-white outline-none" />
+        <div className="flex items-center justify-center gap-3 text-white">
+          <p className="">{isListedIPs ? "Listed IPs" : "My IPs"}</p>
+          <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />
+        </div>
       </div>
-      {entries?.map((intPropId, index) => (
-        <BipItem intPropId={intPropId} key={index} />
-      ))}
+      <div className="flex flex-wrap">
+        {entries?.map((intPropId, index) => (
+          <BipItem intPropId={intPropId} key={index} />
+        ))}
+      </div>
     </div>
   );
 };

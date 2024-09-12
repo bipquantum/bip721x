@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-tailwindcss-select";
 import { toast } from "react-toastify";
-
-import { backendActor } from "../../actors/BackendActor";
 import {
   Option,
   SelectValue,
 } from "react-tailwindcss-select/dist/components/type";
+import { Principal } from "@dfinity/principal";
+import { fromNullable } from "@dfinity/utils";
+import { useNavigate } from "react-router-dom";
+
+import { backendActor } from "../../actors/BackendActor";
+import FileUploader from "../../common/FileUploader";
 import {
   intPropLicenseFromIndex,
   intPropLicenseToIndex,
@@ -15,14 +19,16 @@ import {
   intPropTypeToIndex,
   intPropTypeToString,
 } from "../../../utils/conversions";
-import { IntPropInput } from "../../../../declarations/backend/backend.did";
+import {
+  IntPropInput,
+  UserArgs,
+} from "../../../../declarations/backend/backend.did";
 
 import LampSvg from "../../../assets/lamp.svg";
 import UserHandUpSvg from "../../../assets/user-hand-up.svg";
 import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.jpeg";
-import FileUploader from "../../FileUploader";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -81,11 +87,31 @@ const INITIAL_INT_PROP_INPUT: IntPropInput = {
   creationDate: BigInt(new Date().getTime()),
 };
 
-const NewIP = () => {
+const EMPTY_USER = {
+  firstName: "",
+  lastName: "",
+  nickName: "",
+  specialty: "",
+  country: "",
+};
+
+interface NewIPProps {
+  principal: Principal | undefined;
+}
+
+const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   const [step, setStep] = useState(0);
+  const [user, setUser] = useState<UserArgs>(EMPTY_USER);
+  const navigate = useNavigate();
+
   const [intPropInput, setIntPropInput] = useState<IntPropInput>(
     INITIAL_INT_PROP_INPUT,
   );
+
+  const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
+    functionName: "get_user",
+    args: (principal ? [principal] : []) as [Principal],
+  });
 
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
@@ -110,6 +136,23 @@ const NewIP = () => {
     setStep(3);
   };
 
+  useEffect(() => {
+    queryUser();
+  }, [principal]);
+
+  useEffect(() => {
+    setUser(fromNullable(queriedUser || []) || EMPTY_USER);
+  }, [queriedUser]);
+
+  const onCreateIPBtnClicked = () => {
+    if (queriedUser === undefined || queriedUser?.length === 0) {
+      toast.warn("Please add user");
+      navigate("/profile");
+      return;
+    }
+    setStep(1);
+  };
+
   return (
     <div
       className={`flex h-full w-full flex-1 flex-col items-center justify-start gap-4 overflow-auto pt-32 ${step !== 0 && "bg-blue-400"}`}
@@ -122,7 +165,7 @@ const NewIP = () => {
           </div>
           <button
             className="w-72 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
-            onClick={() => setStep(1)}
+            onClick={() => onCreateIPBtnClicked()}
           >
             Create New IP
           </button>
@@ -309,24 +352,30 @@ const NewIP = () => {
             <>
               <div className="flex w-80 flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">Author Name</div>
+                  <div className="px-4 font-semibold">First Name</div>
                   <input
                     className="rounded-full px-4 py-2 text-gray-600 outline-none"
                     placeholder="Name"
+                    defaultValue={user.firstName}
+                    disabled
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">Author Family Name</div>
+                  <div className="px-4 font-semibold">Last Name</div>
                   <input
                     className="rounded-full px-4 py-2 text-gray-600 outline-none"
                     placeholder="Family Name"
+                    defaultValue={user.lastName}
+                    disabled
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">Author Nick Name</div>
+                  <div className="px-4 font-semibold">Nick Name</div>
                   <input
                     className="rounded-full px-4 py-2 text-gray-600 outline-none"
                     placeholder="Nick Name"
+                    defaultValue={user.nickName}
+                    disabled
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -334,13 +383,17 @@ const NewIP = () => {
                   <input
                     className="rounded-full px-4 py-2 text-gray-600 outline-none"
                     placeholder="Speciality"
+                    defaultValue={user.specialty}
+                    disabled
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">Postal Address</div>
+                  <div className="px-4 font-semibold">Country</div>
                   <input
                     className="rounded-full px-4 py-2 text-gray-600 outline-none"
                     placeholder="Complete Postal Address"
+                    defaultValue={user.country}
+                    disabled
                   />
                 </div>
               </div>

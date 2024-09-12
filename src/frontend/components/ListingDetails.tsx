@@ -55,7 +55,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       } else {
         if ("ok" in result) {
           toast.success("Success");
-          navigate(`/ip/${intPropId.toString()}`);
+          navigate(`/bip/${intPropId.toString()}`);
         } else {
           toast.warn("Failed to buy");
         }
@@ -71,7 +71,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         } else {
           if ("ok" in result) {
             toast.success("Success");
-            navigate(`/ip/${intPropId.toString()}`);
+            navigate(`/bip/${intPropId.toString()}`);
           } else {
             toast.warn("Failed to list");
           }
@@ -87,7 +87,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       } else {
         if ("ok" in result) {
           toast.success("Success");
-          navigate(`/ip/${intPropId.toString()}`);
+          navigate(`/bip/${intPropId.toString()}`);
         } else {
           toast.warn("Failed to unlist");
         }
@@ -161,8 +161,8 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   const price = getListedPrice();
 
   return (
-    <div>
-      <div className="text-lg font-bold text-green-400">
+    <div className="flex w-full items-center justify-between">
+      <div className="text-lg font-bold text-blue-600">
         ICP {price ? fromE8s(price).toFixed(2) : "N/A"}
       </div>
       <button

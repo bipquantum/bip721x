@@ -53,7 +53,7 @@ function Profile() {
 
   useEffect(() => {
     queryUser();
-  }, []);
+  }, [identity]);
 
   useEffect(() => {
     setUser(fromNullable(queriedUser || []) || EMPTY_USER);

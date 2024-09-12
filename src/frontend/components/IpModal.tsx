@@ -18,7 +18,7 @@ import {
   Option,
   SelectValue,
 } from "react-tailwindcss-select/dist/components/type";
-import FileUploader from "./FileUploader";
+import FileUploader from "./common/FileUploader";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -83,7 +83,6 @@ type IpModalProps = {
 };
 
 function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
-
   const { identity, authenticated } = useAuth({});
 
   if (!authenticated || !identity) {
@@ -91,7 +90,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
   }
 
   const [intPropInput, setIntPropInput] = useState<IntPropInput>(
-    INITIAL_INT_PROP_INPUT
+    INITIAL_INT_PROP_INPUT,
   );
 
   const { call: createIntProp } = backendActor.useUpdateCall({
@@ -126,20 +125,20 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
         aria-hidden={!isModalOpen}
         className={`${
           isModalOpen ? "flex" : "hidden"
-        } fixed overflow-y-auto overflow-x-hidden top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full`}
+        } fixed left-0 right-0 top-0 z-50 h-[calc(100%-1rem)] max-h-full w-full items-center justify-center overflow-y-auto overflow-x-hidden md:inset-0`}
       >
-        <div className="relative p-4 w-full max-w-md max-h-full">
-          <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+        <div className="relative max-h-full w-full max-w-md p-4">
+          <div className="relative rounded-lg bg-white shadow dark:bg-gray-700">
+            <div className="flex items-center justify-between rounded-t border-b p-4 dark:border-gray-600 md:p-5">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Create New IP
               </h3>
               <button
                 type="button"
                 onClick={toggleModal}
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                className="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
               >
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 14 14">
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 14 14">
                   <path
                     stroke="currentColor"
                     strokeLinecap="round"
@@ -157,11 +156,11 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
               }}
               className="p-4 md:p-5"
             >
-              <div className="grid gap-4 mb-4 grid-cols-2">
+              <div className="mb-4 grid grid-cols-2 gap-4">
                 <div key="title" className="col-span-2">
                   <label
                     htmlFor="title"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Title
                   </label>
@@ -169,7 +168,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                     id="title"
                     type="text"
                     name="title"
-                    className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     placeholder="Enter title here"
                     value={intPropInput.title}
                     onChange={(e) => {
@@ -183,7 +182,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                 <div key="description" className="col-span-2">
                   <label
                     htmlFor="description"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Description
                   </label>
@@ -191,7 +190,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                     id="description"
                     rows={4}
                     name="description"
-                    className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                     placeholder="Enter description here"
                     value={intPropInput.description}
                     onChange={(e) => {
@@ -205,7 +204,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                 <div key="ipType" className="sm:col-span-2">
                   <label
                     htmlFor="ipType"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                   >
                     IP Type
                   </label>
@@ -215,12 +214,12 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                         (option) =>
                           option.value ===
                           intPropTypeToIndex(
-                            intPropInput.intPropType
-                          ).toString()
+                            intPropInput.intPropType,
+                          ).toString(),
                       ) ||
                       (() => {
                         throw new Error(
-                          `Invalid intPropType: ${intPropInput.intPropType}`
+                          `Invalid intPropType: ${intPropInput.intPropType}`,
                         );
                       })()
                     }
@@ -228,7 +227,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                       setIntPropInput({
                         ...intPropInput,
                         intPropType: intPropTypeFromIndex(
-                          Number((selectedOptions as Option).value)
+                          Number((selectedOptions as Option).value),
                         ),
                       })
                     }
@@ -241,7 +240,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                 <div key="ipLicense" className="sm:col-span-2">
                   <label
                     htmlFor="ipLicense"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                   >
                     IP License
                   </label>
@@ -251,12 +250,12 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                         (option) =>
                           option.value ===
                           intPropLicenseToIndex(
-                            intPropInput.intPropLicense
-                          ).toString()
+                            intPropInput.intPropLicense,
+                          ).toString(),
                       ) ||
                       (() => {
                         throw new Error(
-                          `Invalid intPropType: ${intPropInput.intPropLicense}`
+                          `Invalid intPropType: ${intPropInput.intPropLicense}`,
                         );
                       })()
                     }
@@ -264,7 +263,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                       setIntPropInput({
                         ...intPropInput,
                         intPropLicense: intPropLicenseFromIndex(
-                          Number((selectedOptions as Option).value)
+                          Number((selectedOptions as Option).value),
                         ),
                       })
                     }
@@ -277,7 +276,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                 <div key="creationDate" className="col-span-2">
                   <label
                     htmlFor="creationDate"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Creation Date
                   </label>
@@ -285,7 +284,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                     type="date"
                     id="creationDate"
                     name="creationDate"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
                     value={
                       new Date(Number(intPropInput.creationDate))
                         .toISOString()
@@ -295,7 +294,7 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                       setIntPropInput({
                         ...intPropInput,
                         creationDate: BigInt(
-                          new Date(e.target.value).getTime()
+                          new Date(e.target.value).getTime(),
                         ),
                       });
                     }}
@@ -304,21 +303,23 @@ function IpModal({ isModalOpen, toggleModal }: IpModalProps) {
                 <div key="ipImage" className="col-span-2">
                   <label
                     htmlFor="ipImage"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Upload Image
                   </label>
-                  <FileUploader dataUri={intPropInput.dataUri} setDataUri={(dataUri) => {
+                  <FileUploader
+                    dataUri={intPropInput.dataUri}
+                    setDataUri={(dataUri) => {
                       setIntPropInput({
                         ...intPropInput,
-                        dataUri: dataUri?? "",
+                        dataUri: dataUri ?? "",
                       });
-                    }
-                  } />
+                    }}
+                  />
                 </div>
                 <button
                   type="submit"
-                  className="w-30 text-white inline-flex bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  className="w-30 inline-flex rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                 >
                   Submit IP
                 </button>

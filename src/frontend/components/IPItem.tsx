@@ -6,7 +6,7 @@ import {
 } from "../utils/conversions";
 import { backendActor } from "./actors/BackendActor";
 import UserDetails from "./UserDetails";
-import FilePreview from "./FilePreview";
+import FilePreview from "./common/FilePreview";
 import ListingDetails from "./ListingDetails";
 
 interface IPItemProps {

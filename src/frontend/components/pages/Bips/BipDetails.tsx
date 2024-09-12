@@ -11,8 +11,9 @@ import {
 } from "../../../utils/conversions";
 
 import AIBotImg from "../../../assets/ai-bot.jpeg";
-import FilePreview from "../../FilePreview";
+import FilePreview from "../../common/FilePreview";
 import UserDetails from "../../UserDetails";
+import ListingDetails from "../../ListingDetails";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -70,10 +71,12 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
         </div>
       ) : (
         <div className="m-auto flex w-2/3 flex-col gap-y-4 rounded-3xl bg-white px-12 py-4">
-          <div className="w-full">
-            <p> Preview </p>
-            <FilePreview dataUri={intProp.ok.dataUri} />
-          </div>
+          {intProp.ok.dataUri && (
+            <div className="w-full">
+              <p> Preview </p>
+              <FilePreview dataUri={intProp.ok.dataUri} />
+            </div>
+          )}
           <div className="text-sm">
             <div className="py-2 text-base font-bold">{intProp.ok.title}</div>
             <div className="text-lg">
@@ -101,12 +104,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               )}
             </div>
           </div>
-          <div className="flex w-full items-center justify-between">
-            <p className="text-lg text-blue-400">{price} ICP</p>
-            <button className="rounded-full bg-blue-400 px-4 py-2 text-xl font-semibold uppercase text-white">
-              Buy now
-            </button>
-          </div>
+          <ListingDetails principal={principal} intPropId={BigInt(intPropId)} />
         </div>
       )}
     </>

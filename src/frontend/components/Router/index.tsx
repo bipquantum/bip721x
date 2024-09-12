@@ -1,10 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { useAuth } from "@ic-reactor/react";
 
-import IPList, { FilterType } from "../IPList";
-import Login from "../Login";
 import PrivateRoute from "./PrivateRoute";
-import IP from "../pages/IP";
 import Dashboard from "../pages/Dashboard";
 import NewIP from "../pages/NewIP";
 import Copyright from "../Copyright";
@@ -25,7 +22,14 @@ const Router = () => {
         path={"/dashboard"}
         element={<PrivateRoute element={<Dashboard />} />}
       />
-      <Route path={"/new"} element={<PrivateRoute element={<NewIP />} />} />
+      <Route
+        path={"/new"}
+        element={
+          <PrivateRoute
+            element={<NewIP principal={identity?.getPrincipal()} />}
+          />
+        }
+      />
       <Route
         path={"/copyright"}
         element={<PrivateRoute element={<Copyright />} />}
@@ -38,12 +42,7 @@ const Router = () => {
         path={"/bips"}
         element={
           <PrivateRoute
-            element={
-              <Bips
-                principal={identity?.getPrincipal()}
-                filterBy={FilterType.LISTED}
-              />
-            }
+            element={<Bips principal={identity?.getPrincipal()} />}
           />
         }
       />
@@ -58,19 +57,6 @@ const Router = () => {
       <Route path={"/about"} element={<PrivateRoute element={<About />} />} />
       <Route path={"/login"} element={<LoginV2 />} />
     </Routes>
-    // <Routes>
-    //   <Route path={"/"} element={<PrivateRoute element={<IPList />} />} />
-    //   <Route
-    //     path={"/myip"}
-    //     element={
-    //       <PrivateRoute
-    //         element={<OwnedIPList ownerPrincipal={identity?.getPrincipal()} />}
-    //       />
-    //     }
-    //   />
-    //   <Route path={"/ip/:id"} element={<PrivateRoute element={<IP />} />} />
-    //   <Route path={"/login"} element={<Login />} />
-    // </Routes>
   );
 };
 

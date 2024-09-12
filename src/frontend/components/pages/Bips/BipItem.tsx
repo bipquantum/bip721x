@@ -10,6 +10,7 @@ import {
 
 import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
 import AIBotImg from "../../../assets/ai-bot.jpeg";
+import FilePreview from "../../common/FilePreview";
 
 interface IPItemProps {
   intPropId: bigint;
@@ -52,20 +53,23 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
         </div>
       ) : (
         <Link
-          className="grid grid-cols-4 justify-between gap-8 px-4"
+          className="grid justify-between gap-8 px-4"
           to={`/bip/${intPropId}`}
         >
           <div className="flex w-72 flex-col gap-y-1 rounded-xl bg-white p-4 text-base">
-            <img
-              src={AIBotImg}
-              className="mb-2 h-[272px] w-[272px] rounded-xl object-cover"
-              alt="Logo"
-            />
+            {intProp.ok.dataUri ? (
+              <div className="w-full">
+                <FilePreview dataUri={intProp.ok.dataUri} />
+              </div>
+            ) : (
+              <img
+                src={AIBotImg}
+                className="mb-2 h-[272px] w-[272px] rounded-xl object-cover"
+                alt="Logo"
+              />
+            )}
             <div className="flex items-center justify-between font-bold">
               <div className="text-xl">{intProp.ok.title}</div>
-              <div className="rounded-full bg-violet-600 px-2 text-sm text-white">
-                Buy
-              </div>
             </div>
             <div>Type: {intPropTypeToString(intProp.ok.intPropType)}</div>
             <div>
