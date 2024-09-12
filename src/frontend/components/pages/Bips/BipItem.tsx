@@ -53,7 +53,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
         </div>
       ) : (
         <Link
-          className="grid justify-between gap-8 px-4"
+          className="grid justify-between gap-8 p-2"
           to={`/bip/${intPropId}`}
         >
           <div className="flex w-72 flex-col gap-y-1 rounded-xl bg-white p-4 text-base">

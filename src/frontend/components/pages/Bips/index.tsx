@@ -56,7 +56,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />
         </div>
       </div>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap gap-4 p-4">
         {entries?.map((intPropId, index) => (
           <BipItem intPropId={intPropId} key={index} />
         ))}
