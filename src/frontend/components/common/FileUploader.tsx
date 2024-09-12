@@ -107,8 +107,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
           }}
         >
           <p className="text-gray-500">
-            Drag and drop or click to uploadYou may change this after deploying
-            your contract.
+            Drag and drop or click to upload. You may change this after
+            deploying your contract.
           </p>
         </div>
       )}
