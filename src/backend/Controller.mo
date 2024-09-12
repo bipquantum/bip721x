@@ -213,6 +213,9 @@ module {
         };
       };
 
+      // Remove the IP from the list of listed IPs
+      Map.delete(intProps.e8sIcpPrices, Map.nhash, intPropId);
+
       #ok({ icp_transfer; ip_transfer; });
     };
 
