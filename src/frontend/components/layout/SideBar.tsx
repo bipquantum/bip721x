@@ -1,12 +1,12 @@
 import { useState } from "react";
 
-import LayoutCollapseLeftSvg from "../../../assets/layout-collapse-left.svg";
-import LayoutCollapseRightSvg from "../../../assets/layout-collapse-right.svg";
-import EditSvg from "../../../assets/edit.svg";
-import TrashSvg from "../../../assets/trash.svg";
-import AddPlusSvg from "../../../assets/add-plus.svg";
+import LayoutCollapseLeftSvg from "../../assets/layout-collapse-left.svg";
+import LayoutCollapseRightSvg from "../../assets/layout-collapse-right.svg";
+import EditSvg from "../../assets/edit.svg";
+import TrashSvg from "../../assets/trash.svg";
+import AddPlusSvg from "../../assets/add-plus.svg";
 
-import Logo from "../../../assets/logo.png";
+import Logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 

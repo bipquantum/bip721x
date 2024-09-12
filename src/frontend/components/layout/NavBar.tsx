@@ -1,19 +1,19 @@
 import React, { useContext, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 
-import MenuSvg from "../../../assets/menu.svg";
-import HomeSvg from "../../../assets/home.svg";
-import EditSvg from "../../../assets/edit.svg";
-import CopyRightSvg from "../../../assets/copyright.svg";
-import WindowSvg from "../../../assets/window.svg";
-import ProfileSvg from "../../../assets/profile.png";
-import HelpCenterSvg from "../../../assets/help-center.svg";
-import LogoutSvg from "../../../assets/logout.svg";
-import MoonSvg from "../../../assets/moon.svg";
-import SunSvg from "../../../assets/sun.svg";
+import MenuSvg from "../../assets/menu.svg";
+import HomeSvg from "../../assets/home.svg";
+import EditSvg from "../../assets/edit.svg";
+import CopyRightSvg from "../../assets/copyright.svg";
+import WindowSvg from "../../assets/window.svg";
+import ProfileSvg from "../../assets/profile.png";
+import HelpCenterSvg from "../../assets/help-center.svg";
+import LogoutSvg from "../../assets/logout.svg";
+import MoonSvg from "../../assets/moon.svg";
+import SunSvg from "../../assets/sun.svg";
 import SideBar from "./SideBar";
 import { useAuth } from "@ic-reactor/react";
-import { ThemeContext } from "../../App";
+import { ThemeContext } from "../App";
 
 const NavBarItems = [
   {

@@ -1,6 +1,6 @@
-import { Account } from "../../declarations/backend/backend.did";
-import { icpLedgerActor } from "./actors/IcpLedgerActor";
-import { fromE8s } from "../utils/conversions";
+import { Account } from "../../../declarations/backend/backend.did";
+import { icpLedgerActor } from "../actors/IcpLedgerActor";
+import { fromE8s } from "../../utils/conversions";
 
 type BalanceProps = {
   account: Account;

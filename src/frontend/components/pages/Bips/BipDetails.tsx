@@ -12,8 +12,8 @@ import {
 
 import AIBotImg from "../../../assets/ai-bot.jpeg";
 import FilePreview from "../../common/FilePreview";
-import UserDetails from "../../UserDetails";
-import ListingDetails from "../../ListingDetails";
+import UserDetails from "../../common/UserDetails";
+import ListingDetails from "../../common/ListingDetails";
 
 interface IPItemProps {
   principal: Principal | undefined;

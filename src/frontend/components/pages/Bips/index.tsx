@@ -3,7 +3,7 @@ import { Principal } from "@dfinity/principal";
 
 import BipItem from "./BipItem";
 import { backendActor } from "../../actors/BackendActor";
-import Balance from "../../Balance";
+import Balance from "../../common/Balance";
 
 import Logo from "../../../assets/logo.png";
 import FilterSvg from "../../../assets/filter.svg";

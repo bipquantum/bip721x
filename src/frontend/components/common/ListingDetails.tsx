@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { backendActor } from "./actors/BackendActor";
+import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
 import { Principal } from "@dfinity/principal";
 import { fromNullable } from "@dfinity/utils";
 import { NumericFormat } from "react-number-format";
-import { fromE8s, toE8s } from "../utils/conversions";
+import { fromE8s, toE8s } from "../../utils/conversions";
 import { useState } from "react";
 
 interface ListingDetailsProps {

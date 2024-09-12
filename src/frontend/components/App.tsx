@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import Router from "./Router";
-import NavBar from "./pages/Layout/NavBar";
+import NavBar from "./layout/NavBar";
 
 import "react-toastify/dist/ReactToastify.css";
 
