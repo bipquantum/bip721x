@@ -1,6 +1,7 @@
 import { fromNullable } from "@dfinity/utils";
-import { backendActor } from "../actors/BackendActor";
 import { Principal } from "@dfinity/principal";
+
+import { backendActor } from "../actors/BackendActor";
 
 type UserDetailsArgs = {
   principal: Principal;

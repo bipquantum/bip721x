@@ -9,8 +9,6 @@ import {
   intPropLicenseToString,
   intPropTypeToString,
 } from "../../../utils/conversions";
-
-import AIBotImg from "../../../assets/ai-bot.jpeg";
 import FilePreview from "../../common/FilePreview";
 import UserDetails from "../../common/UserDetails";
 import ListingDetails from "../../common/ListingDetails";

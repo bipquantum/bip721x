@@ -70,7 +70,7 @@ const DarkModeToggle = () => {
   );
 };
 
-function NavBar() {
+const NavBar = () => {
   const location = useLocation();
   const { pathname } = location;
 
@@ -125,6 +125,6 @@ function NavBar() {
       )}
     </>
   );
-}
+};
 
 export default NavBar;

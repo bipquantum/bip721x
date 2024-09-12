@@ -3,14 +3,14 @@ import { useAuth } from "@ic-reactor/react";
 
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/dashboard";
-import NewIP from "../pages/newIP";
-import Copyright from "../Copyright";
+import NewIP from "../pages/new-ip";
 import Profile from "../pages/profile";
 import Bips from "../pages/bips";
-import LoginV2 from "../pages/login";
+import Login from "../pages/login";
 import Main from "../pages/main";
 import About from "../pages/about";
 import BipDetails from "../pages/bips/BipDetails";
+import Copyright from "../pages/copyright";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -55,7 +55,7 @@ const Router = () => {
         }
       />
       <Route path={"/about"} element={<PrivateRoute element={<About />} />} />
-      <Route path={"/login"} element={<LoginV2 />} />
+      <Route path={"/login"} element={<Login />} />
     </Routes>
   );
 };

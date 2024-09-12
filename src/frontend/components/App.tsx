@@ -19,8 +19,6 @@ export const ThemeContext = createContext<ThemeContextProps>({
 });
 
 function App() {
-  const { authenticated } = useAuth({});
-
   const [theme, setTheme] = useState("light");
 
   const rawSetTheme = (rawTheme: string) => {
@@ -45,17 +43,6 @@ function App() {
     }, [theme]);
   }
 
-  // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  // const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-
-  // const toggleModal = () => {
-  //   setIsModalOpen(!isModalOpen);
-  // };
-
-  // const toggleUserModal = () => {
-  //   setIsUserModalOpen(!isUserModalOpen);
-  // };
-
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
       <div className="flex h-screen w-full">
@@ -66,24 +53,6 @@ function App() {
         </BrowserRouter>
       </div>
     </ThemeContext.Provider>
-
-    // <div className="flex h-auto flex-col bg-gray-100 dark:bg-gray-900">
-    //   <BrowserRouter>
-    //     <Header toggleModal={toggleModal} toggleUserModal={toggleUserModal} />
-    //     <IpModal isModalOpen={isModalOpen} toggleModal={toggleModal} />
-    //     <UserModal
-    //       isModalOpen={isUserModalOpen}
-    //       toggleModal={toggleUserModal}
-    //     />
-    //     <ToastContainer />
-    //     <main>
-    //       <section className="mx-auto min-h-full overflow-auto max-w-7xl overflow-y-auto bg-gray-100 dark:bg-gray-900">
-    //         <Router />
-    //       </section>
-    //     </main>
-    //     {authenticated && <Footer />}
-    //   </BrowserRouter>
-    // </div>
   );
 }
 

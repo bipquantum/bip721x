@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import UserSvg from "../assets/user.svg";
+
+import UserSvg from "../../../assets/user.svg";
 
 const data = [
   {
@@ -20,7 +21,7 @@ const data = [
   },
 ];
 
-function Copyright() {
+const Copyright = () => {
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-end">
       <div className="mb-1 flex w-1/2 flex-col items-center gap-10">
@@ -97,6 +98,6 @@ function Copyright() {
       </div>
     </div>
   );
-}
+};
 
 export default Copyright;

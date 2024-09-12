@@ -15,7 +15,7 @@ interface ListInterface {
   name: string;
 }
 
-function SideBar() {
+const SideBar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [list, setList] = useState<ListInterface[]>([
     { id: uuidv4(), name: "Nft ai" },
@@ -93,6 +93,6 @@ function SideBar() {
       )}
     </div>
   );
-}
+};
 
 export default SideBar;

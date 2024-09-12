@@ -9,7 +9,7 @@ const APP_NAME = "BIP QUANTUM";
 const APP_LOGO = "https://nfid.one/icons/favicon-96x96.png";
 const CONFIG_QUERY = `?applicationName=${APP_NAME}&applicationLogo=${APP_LOGO}`;
 
-function LoginV2() {
+const Login = () => {
   const { login, authenticated } = useAuth({});
 
   if (authenticated) return <Navigate to="/" />;
@@ -51,6 +51,6 @@ function LoginV2() {
       </div>
     </div>
   );
-}
+};
 
-export default LoginV2;
+export default Login;

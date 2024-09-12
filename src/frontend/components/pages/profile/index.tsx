@@ -32,7 +32,7 @@ const ProfileFields: {
   { label: "Country", name: "country", placeholder: "Canada" },
 ];
 
-function Profile() {
+const Profile = () => {
   const { authenticated, identity } = useAuth({});
 
   if (!authenticated || !identity) {
@@ -96,6 +96,6 @@ function Profile() {
       </button>
     </div>
   );
-}
+};
 
 export default Profile;

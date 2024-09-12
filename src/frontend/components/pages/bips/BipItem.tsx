@@ -7,10 +7,10 @@ import {
   intPropLicenseToString,
   intPropTypeToString,
 } from "../../../utils/conversions";
+import FilePreview from "../../common/FilePreview";
 
 import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
 import AIBotImg from "../../../assets/ai-bot.jpeg";
-import FilePreview from "../../common/FilePreview";
 
 interface IPItemProps {
   intPropId: bigint;

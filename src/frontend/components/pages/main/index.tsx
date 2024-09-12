@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
+
 import Logo from "../../../assets/logo.png";
 import Profile from "../../../assets/profile.png";
 
-function Main() {
+const Main = () => {
   return (
     <div className="h-full w-full overflow-auto bg-blue-400">
       <div className="flex items-center justify-between p-16 text-base text-white">
@@ -28,6 +29,6 @@ function Main() {
       </div>
     </div>
   );
-}
+};
 
 export default Main;
