@@ -18,13 +18,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
 
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
-        setErrorMessage(`File size exceeds the 1.5MB limit. Selected file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`);
+        setErrorMessage(
+          `File size exceeds the 1.5MB limit. Selected file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`,
+        );
         setDataUri(null); // Clear previous file data if any
         return;
       }
 
       const reader = new FileReader();
-      
+
       reader.onloadend = () => {
         setDataUri(reader.result as string); // Use setDataUri from the parent
         setFileName(file.name);

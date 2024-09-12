@@ -59,7 +59,10 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
           <div className="flex w-72 flex-col gap-y-1 rounded-xl bg-white p-4 text-base">
             {intProp.ok.dataUri ? (
               <div className="w-full">
-                <FilePreview dataUri={intProp.ok.dataUri} />
+                <FilePreview
+                  dataUri={intProp.ok.dataUri}
+                  className="h-[272px] w-[272px] rounded-xl object-cover"
+                />
               </div>
             ) : (
               <img
