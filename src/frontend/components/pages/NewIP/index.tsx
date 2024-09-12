@@ -85,6 +85,7 @@ const INITIAL_INT_PROP_INPUT: IntPropInput = {
   intPropType: { PATENT: null },
   description: "",
   creationDate: BigInt(new Date().getTime()),
+  publishingDate: BigInt(new Date().getTime()),
 };
 
 const EMPTY_USER = {
@@ -323,6 +324,27 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                         setIntPropInput({
                           ...intPropInput,
                           creationDate: BigInt(
+                            new Date(e.target.value).getTime(),
+                          ),
+                        });
+                      }}
+                      type="date"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="px-4 font-semibold">Publish Date</div>
+                    <input
+                      className="rounded-full px-4 py-2 text-gray-600 outline-none"
+                      placeholder=""
+                      value={
+                        new Date(Number(intPropInput.publishingDate))
+                          .toISOString()
+                          .split("T")[0]
+                      }
+                      onChange={(e) => {
+                        setIntPropInput({
+                          ...intPropInput,
+                          publishingDate: BigInt(
                             new Date(e.target.value).getTime(),
                           ),
                         });

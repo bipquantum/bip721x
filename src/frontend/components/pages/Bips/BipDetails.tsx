@@ -92,6 +92,14 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     .split("T")[0]
                 }
               </p>
+              <p>
+                Publish Date:{" "}
+                {
+                  new Date(Number(intProp.ok.publishingDate.toString()))
+                    .toISOString()
+                    .split("T")[0]
+                }
+              </p>
               <UserDetails
                 principal={intProp.ok.author}
                 title="Author(s) Details"
