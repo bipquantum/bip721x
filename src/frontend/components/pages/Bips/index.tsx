@@ -3,6 +3,7 @@ import { Principal } from "@dfinity/principal";
 
 import BipItem from "./BipItem";
 import { backendActor } from "../../actors/BackendActor";
+import Balance from "../../Balance";
 
 import Logo from "../../../assets/logo.png";
 import FilterSvg from "../../../assets/filter.svg";
@@ -24,6 +25,8 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   const [isListedIPs, setIsListedIPs] = useState(true);
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.LISTED);
 
+  if (!principal) return <></>;
+
   const { data: entries, call: fetchEntries } = backendActor.useQueryCall({
     functionName:
       filterBy === FilterType.OWNED
@@ -33,6 +36,11 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
       principal && filterBy === FilterType.OWNED
         ? [{ owner: principal, prev, take }]
         : [{ prev, take }],
+  });
+
+  const { data: user_account } = backendActor.useQueryCall({
+    functionName: "get_user_account",
+    args: [{ user: principal }],
   });
 
   useEffect(() => {
@@ -52,6 +60,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           <img src={FilterSvg} className="h-8 invert" alt="Logo" />
         </button>
         <div className="flex items-center justify-center gap-3 text-white">
+          {user_account && <Balance account={user_account} />}
           <p className="">{isListedIPs ? "Listed IPs" : "My IPs"}</p>
           <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />
         </div>
