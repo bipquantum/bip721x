@@ -67,7 +67,7 @@ shared({ caller = admin; }) actor class Backend() = this {
   };
 
   public shared({caller}) func create_int_prop(args: IntPropInput) : async CreateIntPropResult {
-    await getController().createIntProp({ args with author = caller; publishingDate = Time.now(); });
+    await getController().createIntProp({ args with author = caller; });
   };
 
   public shared({caller}) func list_int_prop({ token_id: Nat; e8s_icp_price: Nat; }) : async Result<(), Text> {
