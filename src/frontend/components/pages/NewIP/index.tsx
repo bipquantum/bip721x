@@ -179,18 +179,22 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
               <div>Step {step} of 3</div>
             </div>
             <div className="flex w-full items-center justify-between gap-1">
-              <img src={LampSvg} alt="" className="h-6 cursor-pointer invert" />
+              <img
+                src={LampSvg}
+                alt=""
+                className={`h-6 cursor-pointer invert ${step === 1 ? "opacity-100" : "opacity-40"}`}
+              />
               <div className="h-0 w-full border-b-[1px] border-t-[1px] border-dashed"></div>
               <img
                 src={UserHandUpSvg}
                 alt=""
-                className="h-6 cursor-pointer opacity-40 invert"
+                className={`h-6 cursor-pointer invert ${step === 2 ? "opacity-100" : "opacity-40"}`}
               />
               <div className="h-0 w-full border-b-[1px] border-t-[1px] border-dashed"></div>
               <img
                 src={CheckCircleSvg}
                 alt=""
-                className="h-6 cursor-pointer opacity-40 invert"
+                className={`h-6 cursor-pointer invert ${step === 3 ? "opacity-100" : "opacity-40"}`}
               />
             </div>
           </div>
