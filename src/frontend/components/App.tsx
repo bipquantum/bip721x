@@ -1,46 +1,58 @@
-import { useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { useAuth } from "@ic-reactor/react";
 import { BrowserRouter } from "react-router-dom";
-
-import Header from "./Header";
-import Footer from "./Footer";
-import IpModal from "./IpModal";
-import UserModal from "./UserModal";
-import Router from "./Router";
 import { ToastContainer } from "react-toastify";
 
+import Router from "./router";
+import NavBar from "./layout/NavBar";
+
+import "react-toastify/dist/ReactToastify.css";
+
+interface ThemeContextProps {
+  theme: string;
+  setTheme: (theme: string) => void;
+}
+
+export const ThemeContext = createContext<ThemeContextProps>({
+  theme: "light",
+  setTheme: (theme) => console.warn("no theme provider"),
+});
+
 function App() {
-  const { authenticated } = useAuth({});
+  const [theme, setTheme] = useState("light");
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const rawSetTheme = (rawTheme: string) => {
+    const root = window.document.documentElement;
+    const isDark = rawTheme === "dark";
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
+    root.classList.remove(isDark ? "light" : "dark");
+    root.classList.add(rawTheme);
+    setTheme(rawTheme);
   };
 
-  const toggleUserModal = () => {
-    setIsUserModalOpen(!isUserModalOpen);
-  };
+  if (typeof window !== "undefined") {
+    useEffect(() => {
+      const initialTheme = window.localStorage.getItem("color-theme");
+      window.matchMedia("(prefers-color-scheme: dark)").matches && !initialTheme
+        ? rawSetTheme("dark")
+        : rawSetTheme(initialTheme || "light");
+    }, []);
+
+    useEffect(() => {
+      window.localStorage.setItem("color-theme", theme);
+    }, [theme]);
+  }
 
   return (
-    <div className="flex flex-col bg-gray-100 dark:bg-gray-900 h-auto ">
-      <BrowserRouter>
-        <Header toggleModal={toggleModal} toggleUserModal={toggleUserModal} />
-        <IpModal isModalOpen={isModalOpen} toggleModal={toggleModal} />
-        <UserModal
-          isModalOpen={isUserModalOpen}
-          toggleModal={toggleUserModal}
-        />
-        <ToastContainer />
-        <main>
-          <section className="bg-gray-100 dark:bg-gray-900 overflow-y-auto mx-auto max-w-7xl min-h-screen">
-            <Router />
-          </section>
-        </main>
-        {authenticated && <Footer />}
-      </BrowserRouter>
-    </div>
+    <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
+      <div className="flex h-screen w-full">
+        <BrowserRouter>
+          <ToastContainer />
+          <NavBar />
+          <Router />
+        </BrowserRouter>
+      </div>
+    </ThemeContext.Provider>
   );
 }
 
