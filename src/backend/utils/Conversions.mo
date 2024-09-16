@@ -1,6 +1,7 @@
 import Debug  "mo:base/Debug";
 import Array  "mo:base/Array";
 import Result "mo:base/Result";
+import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 
 import ICRC7  "mo:icrc7-mo";
@@ -72,6 +73,17 @@ module {
     };
   };
 
+  public func unwrapOptInt(value: ICRC7.Value) : ?Int {
+    switch (value) {
+      case(#Array(array)) { 
+        if (array.size() == 0) { return null; };
+        if (array.size() == 1) { return ?unwrapInt(array[0]); };
+        Debug.trap("Unexpected array size");
+      };
+      case(_) { Debug.trap("Unexpected value"); };
+    };
+  };
+
   public func unwrapNat(value: ICRC7.Value) : Nat {
     switch (value) {
       case(#Nat(nat)) { nat; };
@@ -86,7 +98,7 @@ module {
       ("intPropType",     #Nat(intPropTypeToNat(intProp.intPropType))),
       ("intPropLicense",  #Nat(intPropLicenseToNat(intProp.intPropLicense))),
       ("creationDate",    #Int(intProp.creationDate)),
-      ("publishingDate",  #Int(intProp.publishingDate)),
+      ("publishingDate",  #Array(Option.getMapped<Int,[ICRC7.Value]>(intProp.publishingDate, func(d: Int) { [#Int(d)]; }, []))),
       ("author",          #Text(Principal.toText(intProp.author))),
       ("dataUri",         #Text(intProp.dataUri)),
     ]);
@@ -119,7 +131,7 @@ module {
         var intPropType : ?IntPropType = null;
         var intPropLicense : ?IntPropLicense = null;
         var creationDate : ?Int = null;
-        var publishingDate : ?Int = null;
+        var publishingDate : ??Int = null;
         var author : ?Principal = null;
         var dataUri : ?Text = null;
         for ((k, v) in Array.vals(map)){
@@ -129,7 +141,7 @@ module {
             case("intPropType")   { intPropType := ?intPropTypeFromNat(unwrapNat(v));       };
             case("intPropLicense"){ intPropLicense := ?intPropLicenseFromNat(unwrapNat(v)); };
             case("creationDate")  { creationDate := ?unwrapInt(v);                          };
-            case("publishingDate"){ publishingDate := ?unwrapInt(v);                        };
+            case("publishingDate"){ publishingDate := ?unwrapOptInt(v);                     };
             case("author")        { author := ?Principal.fromText(unwrapText(v));           };
             case("dataUri")       { dataUri := ?unwrapText(v);                              };
             case(_){ Debug.trap("Unexpected value"); };

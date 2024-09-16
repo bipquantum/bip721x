@@ -32,7 +32,7 @@ module {
     intPropType: IntPropType;
     intPropLicense: IntPropLicense;
     creationDate: Time;
-    publishingDate: Time;
+    publishingDate: ?Time;
     dataUri: Text;
   };
 
