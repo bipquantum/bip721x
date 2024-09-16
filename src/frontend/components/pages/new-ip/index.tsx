@@ -302,7 +302,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">
-                      Upload Preview IP File (Preview SIZE LIMITED TO 1 GB)
+                      Upload Preview IP File (SIZE LIMITED TO 1.5 MB)
                     </div>
                     <FileUploader
                       dataUri={intPropInput.dataUri}

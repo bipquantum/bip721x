@@ -27,22 +27,23 @@ npm run start
 mops test
 ```
 
+## Requirements
+- The user creation is mandatory for creating new IP
+- Users can buy/sell/own IPs without having a user profile
+
+
 ## Misc TODOs
 
 ### To do now:
-- bring UI from current bipquantum app (Tope)
-- Button to list or unlist the IP does not work if the user has not been created yet
-- Right after listing/unlisting the IP, the button to list/unlist or the price is not updated
+- When creating a new IP, one should be able to edit the user information. If a change is made, the user shall be updated.
+- If the owner of the IP has not created a user, the Owner details shall be hidden instead of an error
+- Right after listing/unlisting the IP, the button to list/unlist or the label of the price is not updated, one need to press f5 it shoudn't be the case
 - Buttons for my IPs / list all IPs does not always refresh the list
 
 ### To improve
 - why return ok when there's an actual error on transfer_ip ?
 
 ### To dicuss / confirm
-- make the user creation mandatory: 
-    - ask for user creation after logged in for the first time (i.e. if backend.get_user returns null)
-    - modify button so that once created, it's only written update user
-    --> Buyer can stay anonymous (simply using NFID or II)
 - creation date: validate that it is before the publication date
 - publication date: should pick yes or no, if yes user can pick it!
 
