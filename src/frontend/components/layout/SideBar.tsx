@@ -32,12 +32,12 @@ const SideBar = () => {
 
   return (
     <div
-      className={`${isCollapsed ? "w-64" : "w-12"} h-full overflow-auto border-r-2 border-gray-300 bg-white text-black transition-all duration-200 dark:border-white dark:bg-blue-400 dark:text-white`}
+      className={`${isCollapsed ? "w-64" : "w-8"} h-full overflow-auto border-r-2 border-gray-300 bg-white text-black transition-all duration-200 dark:border-white dark:bg-blue-400 dark:text-white`}
     >
       {!isCollapsed && (
         <img
           src={LayoutCollapseRightSvg}
-          className="h-8 cursor-pointer dark:invert"
+          className="mt-6 w-8 cursor-pointer dark:invert"
           alt="LayoutCollapseRight"
           onClick={() => setIsCollapsed(!isCollapsed)}
         />
