@@ -23,10 +23,10 @@ const data = [
 
 const Copyright = () => {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-end bg-white text-blue-400 dark:bg-blue-400 dark:text-white">
+    <div className="flex w-full flex-1 flex-col items-center justify-end overflow-auto bg-white text-blue-400 dark:bg-blue-400 dark:text-white">
       <div className="mb-1 flex w-1/2 flex-col items-center gap-10">
         <div className="relative flex justify-center gap-20">
-          <div className="absolute z-0 mt-5 h-0.5 w-full bg-gray-500"></div>
+          <div className="absolute z-0 mt-5 h-0.5 w-11/12 bg-gray-500 dark:bg-white"></div>
           {data.map((item, index) => (
             <div className="z-50 flex flex-col items-center gap-2" key={index}>
               <div
