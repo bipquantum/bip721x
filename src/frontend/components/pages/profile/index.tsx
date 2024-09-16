@@ -7,6 +7,7 @@ import { backendActor } from "../../actors/BackendActor";
 import ProfileSvg from "../../../assets/profile.png";
 import { toast } from "react-toastify";
 import { fromNullable } from "@dfinity/utils";
+import CopyToClipboard from "../../common/CopyToClipboard";
 
 const EMPTY_USER = {
   firstName: "",
@@ -68,7 +69,11 @@ const Profile = () => {
   return (
     <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-8 overflow-auto bg-white text-blue-400 dark:bg-blue-400 dark:text-white">
       <img src={ProfileSvg} className={`h-24 w-24 rounded-full`} />
-      <div className="text-sm">{identity?.getPrincipal().toString()}</div>
+      <div className="flex gap-1 text-sm">
+        {identity?.getPrincipal().toString()}
+        <CopyToClipboard copiedText={identity?.getPrincipal().toString()} />
+      </div>
+
       <div className="mt-16 flex w-80 flex-col gap-2 rounded-xl border border-gray-300 bg-white px-6 py-4 text-base dark:border-blue-400 dark:bg-blue-400">
         {ProfileFields.map((field, index) => (
           <div className="flex w-full flex-col justify-start gap-1" key={index}>
