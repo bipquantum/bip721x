@@ -120,10 +120,10 @@ function Dashboard() {
           </div>
         </div>
       )}
-      <div className="w-full bg-gray-400 px-10 py-6">
-        <div className="flex w-full items-center justify-between gap-4 rounded-md bg-white p-2">
+      <div className="w-full border-t-2 border-gray-300 bg-white px-10 py-4 dark:border-white dark:bg-blue-400">
+        <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-2">
           <textarea
-            className="w-full text-lg text-blue-900 outline-none"
+            className="h-32 w-full text-lg outline-none"
             placeholder="What do want to protect?"
             value={prompt}
             onChange={(e) => {
