@@ -119,11 +119,16 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     );
   }
 
+  const price = getListedPrice();
+
   if (principal !== undefined) {
     if (getOwner()?.compareTo(principal) == "eq") {
       if (getListedPrice()) {
         return (
-          <div>
+          <div className="flex w-full items-center justify-between">
+            <div className="text-lg font-bold text-blue-600">
+              ICP {price ? fromE8s(price).toFixed(2) : "N/A"}
+            </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
               className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -163,8 +168,6 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       }
     }
   }
-
-  const price = getListedPrice();
 
   return (
     <div className="flex w-full items-center justify-between">
