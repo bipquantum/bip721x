@@ -113,11 +113,13 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               )}
             </div>
           </div>
-          <ListingDetails
-            principal={principal}
-            intPropId={BigInt(intPropId)}
-            updateBipDetails={updateBipDetails}
-          />
+          {owner && (
+            <ListingDetails
+              principal={principal}
+              intPropId={BigInt(intPropId)}
+              updateBipDetails={updateBipDetails}
+            />
+          )}
         </div>
       )}
     </div>

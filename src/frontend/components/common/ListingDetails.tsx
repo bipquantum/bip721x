@@ -163,7 +163,13 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               decimalScale={2}
               value={Number(fromE8s(sellPrice))}
               onValueChange={(e) => {
-                setSellPrice(toE8s(parseFloat(e.value.replace(/,/g, ""))));
+                setSellPrice(
+                  toE8s(
+                    parseFloat(
+                      e.value === "" ? "0" : e.value.replace(/,/g, ""),
+                    ),
+                  ),
+                );
               }}
             />
             <button
