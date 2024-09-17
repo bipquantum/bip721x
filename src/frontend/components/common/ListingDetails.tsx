@@ -11,11 +11,13 @@ import { fromE8s, toE8s } from "../../utils/conversions";
 interface ListingDetailsProps {
   principal: Principal | undefined;
   intPropId: bigint;
+  updateBipDetails: () => void;
 }
 
 const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
   intPropId,
+  updateBipDetails,
 }) => {
   const navigate = useNavigate();
 
@@ -56,6 +58,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       } else {
         if ("ok" in result) {
           toast.success("Success");
+          updateBipDetails();
           navigate(`/bip/${intPropId.toString()}`);
         } else {
           toast.warn("Failed to buy");
@@ -72,6 +75,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         } else {
           if ("ok" in result) {
             toast.success("Success");
+            updateBipDetails();
             navigate(`/bip/${intPropId.toString()}`);
           } else {
             toast.warn("Failed to list");
@@ -88,6 +92,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       } else {
         if ("ok" in result) {
           toast.success("Success");
+          updateBipDetails();
           navigate(`/bip/${intPropId.toString()}`);
         } else {
           toast.warn("Failed to unlist");
