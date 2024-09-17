@@ -27,7 +27,7 @@ npm run start
 mops test
 ```
 
-## Requirements
+## MVP Requirements
 
 ### IP transfer
 - Users can buy/sell/own IPs without having a user profile
@@ -45,20 +45,27 @@ mops test
 
 ## Misc TODOs
 
-### To do now:
-- When creating a new IP
-    - if the user is not created yet, it shall not be redirected to the user page, but to the IP details as usual
-    - on the second page, if the user already exist, the button shall be "Validate Author Details"
-    - on the second page, if the user does not already exist, the button shall be "Add Author Details"
-    - the user details can always be edited; if there is an edit the user shall be updated.
-- If the owner of the IP has not created a user, the Owner details shall be hidden instead of an error.
-- Right after listing/unlisting the IP, the button to list/unlist or the label of the price is not updated, one need to press f5 it shoudn't be the case
-- Buttons for my IPs / list all IPs does not always refresh the list
-- The publication date shall be optional, but if given it shall be after the creation date
+### Frontend:
+- after logged in, if user does not exist redirect to /profile
+- keep the redirect to /profile if creating in IP and user does not exist
+- have a button to redirect to market once IP successfully minted
+- remove copyright tab (but keep the .tsx, we'll use it later)
+- remove 2x "Nft ai" in the left bar
+- Make "Title of the IP" mandatory in the create IP page (shouldn't be allowed to left unset)
+- Do not show "N/A ICP" on the IP card if not listed, just show nothing
+- In the number input "List for (ICP)", allow to input a decimal number (e.g. 10.53)
+- if the owner of the IP does not exist, do not show it in the IP details
+- once an IP is submitted, the list button shall change to unlist
+- Add the current price, e.g. "123.00 ICP" at the left of the unlist button
+- make sure the list/unlist/buy button is always refreshed properly (rn a f5 is sometimes required)
+- when clicking on a button that perform update call to the backend (e.g. for creation of IP, list/unlist of IP, buying of IP):
+  - the button shall be disabled during the call
+  - a spinner shall replace the text in the button during the call
+- make sure the placement of the price unit "ICP" is consistent, always on the right (for wallet balance and price)
 
-### To improve
-- why return ok when there's an actual error on transfer_ip ?
-
-### Later
+### Backend:
+ - fix return ok if there's an actual error on transfer_ip
+ - have user friendly messages
+ - check IP Type and IP licence are up to date with Ankur's webapp
+ - add migrations
  - transform the script/ip_transfer_scenario.sh into a real test in typescript or motoko
- - discussion CID

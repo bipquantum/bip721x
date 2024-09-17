@@ -97,7 +97,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
         FilePreview({ dataUri })
       ) : (
         <div
-          className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-2xl bg-white p-4"
+          className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-gray-300 bg-white p-4"
           onDrop={handleDrop}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}

@@ -18,7 +18,9 @@ const Login = () => {
     <div className="h-full w-full overflow-auto bg-blue-400">
       <div className="flex items-center justify-between p-16 text-base text-white">
         <img src={Logo} className="h-10 invert" alt="Logo" />
-        <div className="font-semibold underline">Learn Home</div>
+        <div className="cursor-pointer font-semibold underline underline-offset-4">
+          Learn Home
+        </div>
       </div>
       <div className="m-auto mt-32 w-[480px] rounded-3xl bg-white p-8 text-base text-blue-600">
         <div className="font-bold">100% on-chain governance</div>
