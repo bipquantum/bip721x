@@ -7,7 +7,7 @@ import {
 } from "react-tailwindcss-select/dist/components/type";
 import { Principal } from "@dfinity/principal";
 import { fromNullable } from "@dfinity/utils";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { backendActor } from "../../actors/BackendActor";
 import FileUploader from "../../common/FileUploader";
@@ -440,20 +440,25 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
             </>
           )}
           {step === 3 && (
-            <div className="flex items-center gap-32">
-              <img className="h-60 w-60 rounded-full" src={AIBotImg} alt="" />
-              <div className="flex flex-col gap-6">
-                <img
-                  className="h-24 opacity-40 invert"
-                  src={CheckVerifiedSvg}
-                  alt=""
-                />
-                <p className="w-[320px] text-3xl uppercase text-white">
-                  “Congratulations!
-                  <br /> Your IP has been successfully minted and listed on the
-                  bIPQuantum marketplace“
-                </p>
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex items-center gap-32">
+                <img className="h-60 w-60 rounded-full" src={AIBotImg} alt="" />
+                <div className="flex flex-col gap-6">
+                  <img
+                    className="h-24 opacity-40 invert"
+                    src={CheckVerifiedSvg}
+                    alt=""
+                  />
+                  <p className="w-[320px] text-3xl uppercase text-white">
+                    “Congratulations!
+                    <br /> Your IP has been successfully minted and listed on
+                    the bIPQuantum marketplace“
+                  </p>
+                </div>
               </div>
+              <Link to="/bips" className="text-xl">
+                Back to marketplace
+              </Link>
             </div>
           )}
         </div>
