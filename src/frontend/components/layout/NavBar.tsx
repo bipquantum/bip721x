@@ -26,11 +26,11 @@ const NavBarItems = [
     label: "New",
     link: "new",
   },
-  {
-    svg: CopyRightSvg,
-    label: "Copyright",
-    link: "copyright",
-  },
+  // {
+  //   svg: CopyRightSvg,
+  //   label: "Copyright",
+  //   link: "copyright",
+  // },
   {
     svg: WindowSvg,
     label: "Bips",
