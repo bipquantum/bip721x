@@ -136,7 +136,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         return (
           <div className="flex w-full items-center justify-between">
             <div className="text-lg font-bold text-blue-600">
-              ICP {price ? fromE8s(price).toFixed(2) : "N/A"}
+              {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
             </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
@@ -183,7 +183,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   return (
     <div className="flex w-full items-center justify-between">
       <div className="text-lg font-bold text-blue-600">
-        ICP {price ? fromE8s(price).toFixed(2) : "N/A"}
+        {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
       </div>
       <button
         onClick={() => triggerBuy(intPropId)}
