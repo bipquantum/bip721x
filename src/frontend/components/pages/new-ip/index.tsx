@@ -214,6 +214,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                           title: e.target.value,
                         });
                       }}
+                      required
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -367,7 +368,13 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 </button>
                 <button
                   className="w-64 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
-                  onClick={() => setStep(2)}
+                  onClick={() => {
+                    if (intPropInput.title === "") {
+                      toast.warn("Please add title of the IP");
+                      return;
+                    }
+                    setStep(2);
+                  }}
                 >
                   Add Author Details
                 </button>
