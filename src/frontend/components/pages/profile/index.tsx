@@ -5,6 +5,7 @@ import { fromNullable } from "@dfinity/utils";
 
 import { UserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
+import CopyToClipboard from "../../common/CopyToClipboard";
 
 import ProfileSvg from "../../../assets/profile.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
@@ -70,17 +71,19 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-8 overflow-auto">
+    <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-8 overflow-auto bg-white text-blue-400 dark:bg-blue-400 dark:text-white">
       <img src={ProfileSvg} className={`h-24 w-24 rounded-full`} />
-      <div className="text-sm text-blue-400">
+      <div className="flex gap-1 text-sm">
         {identity?.getPrincipal().toString()}
+        <CopyToClipboard copiedText={identity?.getPrincipal().toString()} />
       </div>
-      <div className="mt-16 flex w-80 flex-col gap-2 bg-blue-400 px-6 py-4 text-base text-white">
+
+      <div className="mt-16 flex w-80 flex-col gap-2 rounded-xl border border-gray-300 bg-white px-6 py-4 text-base dark:border-blue-400 dark:bg-blue-400">
         {ProfileFields.map((field, index) => (
           <div className="flex w-full flex-col justify-start gap-1" key={index}>
             <div className="text-sm">{field.label}</div>
             <input
-              className="w-full rounded-md border-[1px] border-white border-opacity-35 bg-blue-300 bg-opacity-35 px-2 py-1 placeholder-white outline-none"
+              className="w-full rounded-md border border-gray-300 border-opacity-35 bg-white bg-opacity-35 px-4 py-2 text-gray-600 placeholder-white outline-none"
               placeholder={field.placeholder}
               defaultValue={user[field.name]}
               onChange={(e) => {

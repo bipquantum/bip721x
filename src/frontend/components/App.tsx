@@ -19,7 +19,7 @@ export const ThemeContext = createContext<ThemeContextProps>({
 });
 
 function App() {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
 
   const rawSetTheme = (rawTheme: string) => {
     const root = window.document.documentElement;

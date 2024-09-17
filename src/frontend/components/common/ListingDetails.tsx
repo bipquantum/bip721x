@@ -150,15 +150,15 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         );
       } else {
         return (
-          <div className="flex flex-row">
+          <div className="flex flex-row gap-2">
             <label
               htmlFor="e8sIcpPrice"
-              className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+              className="flex items-center justify-center text-nowrap text-sm font-medium"
             >
               List for (ICP)
             </label>
             <NumericFormat
-              className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
+              className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
               thousandSeparator=","
               decimalScale={2}
               value={Number(fromE8s(sellPrice))}

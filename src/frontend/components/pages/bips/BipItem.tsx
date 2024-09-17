@@ -56,7 +56,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
           className="grid justify-between gap-8 p-2"
           to={`/bip/${intPropId}`}
         >
-          <div className="flex w-72 flex-col gap-y-1 rounded-xl bg-white p-4 text-base">
+          <div className="flex w-72 flex-col gap-y-1 rounded-xl border-2 border-gray-300 bg-white p-4 text-base text-blue-400 shadow-lg dark:border-white">
             {intProp.ok.dataUri ? (
               <div className="w-full">
                 <FilePreview

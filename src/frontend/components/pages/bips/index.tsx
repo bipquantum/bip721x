@@ -53,13 +53,13 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   }, [isListedIPs]);
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-4 gap-y-8 overflow-auto bg-blue-400 py-4">
-      <img src={Logo} className="h-12 invert" alt="Logo" />
+    <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-4 gap-y-8 overflow-auto bg-white py-4 text-blue-400 dark:bg-blue-400 dark:text-white">
+      <img src={Logo} className="h-12 dark:invert" alt="Logo" />
       <div className="flex w-full items-center justify-between px-4">
         <button>
-          <img src={FilterSvg} className="h-8 invert" alt="Logo" />
+          <img src={FilterSvg} className="h-8 dark:invert" alt="Logo" />
         </button>
-        <div className="flex items-center justify-center gap-3 text-white">
+        <div className="flex items-center justify-center gap-3">
           {user_account && <Balance account={user_account} />}
           <p className="">{isListedIPs ? "Listed IPs" : "My IPs"}</p>
           <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />

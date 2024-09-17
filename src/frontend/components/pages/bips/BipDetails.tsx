@@ -58,7 +58,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   }, [owners]);
 
   return (
-    <>
+    <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto bg-white text-blue-400 dark:bg-blue-400 dark:text-white">
       {intProp === undefined ? (
         <div
           className="text-center text-white"
@@ -74,7 +74,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
-        <div className="m-auto flex w-2/3 flex-col gap-y-4 rounded-3xl bg-white px-12 py-4">
+        <div className="flex w-2/3 flex-col gap-y-4 rounded-3xl px-12 py-4">
           {intProp.ok.dataUri && (
             <div className="w-full">
               <p> Preview </p>
@@ -83,7 +83,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
           )}
           <div className="text-sm">
             <div className="py-2 text-base font-bold">{intProp.ok.title}</div>
-            <div className="text-lg">
+            <div className="flex flex-col gap-2 text-lg">
               <p> Type: {intPropTypeToString(intProp.ok.intPropType)}</p>
               <p>
                 License: {intPropLicenseToString(intProp.ok.intPropLicense)}{" "}
@@ -120,7 +120,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
