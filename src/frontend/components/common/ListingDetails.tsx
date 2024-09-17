@@ -8,6 +8,8 @@ import { useState } from "react";
 import { backendActor } from "../actors/BackendActor";
 import { fromE8s, toE8s } from "../../utils/conversions";
 
+import SpinnerSvg from "../../assets/spinner.svg";
+
 interface ListingDetailsProps {
   principal: Principal | undefined;
   intPropId: bigint;
@@ -19,6 +21,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   intPropId,
   updateBipDetails,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
@@ -52,6 +55,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     !e8sPrice ? undefined : "ok" in e8sPrice ? e8sPrice.ok : null;
 
   const triggerBuy = (intPropId: bigint) => {
+    setIsLoading(true);
     buyIntProp([{ token_id: intPropId }]).then((result) => {
       if (!result) {
         toast.warn("Failed to buy: undefined error");
@@ -64,10 +68,12 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
           toast.warn("Failed to buy");
         }
       }
+      setIsLoading(false);
     });
   };
 
   const triggerList = (intPropId: bigint, sellPrice: bigint) => {
+    setIsLoading(true);
     listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
       (result) => {
         if (!result) {
@@ -81,11 +87,13 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             toast.warn("Failed to list");
           }
         }
+        setIsLoading(false);
       },
     );
   };
 
   const triggerUnlist = (intPropId: bigint) => {
+    setIsLoading(true);
     unlistIntProp([{ token_id: intPropId }]).then((result) => {
       if (!result) {
         toast.warn("Failed to unlist: undefined error");
@@ -98,6 +106,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
           toast.warn("Failed to unlist");
         }
       }
+      setIsLoading(false);
     });
   };
 
@@ -131,10 +140,11 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
-              className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               type="button"
+              disabled={isLoading}
             >
-              Unlist
+              {isLoading ? <img src={SpinnerSvg} alt="" /> : "Unlist"}
             </button>
           </div>
         );
@@ -158,10 +168,11 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             />
             <button
               onClick={() => triggerList(intPropId, sellPrice)}
-              className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               type="button"
+              disabled={isLoading}
             >
-              List
+              {isLoading ? <img src={SpinnerSvg} alt="" /> : "List"}
             </button>
           </div>
         );
@@ -176,10 +187,11 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       </div>
       <button
         onClick={() => triggerBuy(intPropId)}
-        className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         type="button"
+        disabled={isLoading}
       >
-        Buy
+        {isLoading ? <img src={SpinnerSvg} alt="" /> : "Buy"}
       </button>
     </div>
   );

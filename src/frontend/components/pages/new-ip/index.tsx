@@ -29,6 +29,7 @@ import UserHandUpSvg from "../../../assets/user-hand-up.svg";
 import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.jpeg";
+import SpinnerSvg from "../../../assets/spinner.svg";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -103,6 +104,8 @@ interface NewIPProps {
 const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   const [step, setStep] = useState(0);
   const [user, setUser] = useState<UserArgs>(EMPTY_USER);
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const [intPropInput, setIntPropInput] = useState<IntPropInput>(
@@ -133,7 +136,9 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   });
 
   const createIp = async () => {
+    setIsLoading(true);
     await createIntProp([intPropInput]);
+    setIsLoading(false);
     setStep(3);
   };
 
@@ -438,10 +443,15 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   Back
                 </button>
                 <button
-                  className="w-64 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
+                  className="flex w-64 items-center justify-center rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
                   onClick={() => void createIp()}
+                  disabled={isLoading}
                 >
-                  Add Author(s) Details
+                  {isLoading ? (
+                    <img src={SpinnerSvg} alt="" />
+                  ) : (
+                    "Add Author(s) Details"
+                  )}
                 </button>
               </div>
             </>
