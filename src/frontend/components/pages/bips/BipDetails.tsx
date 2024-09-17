@@ -23,20 +23,26 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
 
-  const { data: intProp } = backendActor.useQueryCall({
+  const { data: intProp, call: getIntProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: BigInt(intPropId) }],
   });
 
-  const { data: owners } = backendActor.useQueryCall({
+  const { data: owners, call: getOwners } = backendActor.useQueryCall({
     functionName: "owners_of",
     args: [{ token_ids: [BigInt(intPropId)] }],
   });
 
-  const { data: e8sPrice } = backendActor.useQueryCall({
+  const { data: e8sPrice, call: getPrice } = backendActor.useQueryCall({
     functionName: "get_e8s_price",
     args: [{ token_id: BigInt(intPropId) }],
   });
+
+  const updateBipDetails = () => {
+    getIntProp();
+    getOwners();
+    getPrice();
+  };
 
   useEffect(() => {
     if (e8sPrice && "ok" in e8sPrice) {
@@ -107,7 +113,13 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               )}
             </div>
           </div>
-          <ListingDetails principal={principal} intPropId={BigInt(intPropId)} />
+          {owner && (
+            <ListingDetails
+              principal={principal}
+              intPropId={BigInt(intPropId)}
+              updateBipDetails={updateBipDetails}
+            />
+          )}
         </div>
       )}
     </div>

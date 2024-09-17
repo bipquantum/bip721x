@@ -32,7 +32,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
     if (e8sPrice && "ok" in e8sPrice) {
       const price = fromE8s(e8sPrice.ok).toFixed(2);
       setPrice(price);
-    } else setPrice("N/A");
+    } else setPrice("");
   }, [e8sPrice]);
 
   return (
@@ -79,7 +79,11 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
               license: {intPropLicenseToString(intProp.ok.intPropLicense)}
             </div>
             <div className="flex items-center justify-between">
-              <div className="font-bold text-blue-600">{price} ICP</div>
+              {price !== "" ? (
+                <div className="font-bold text-blue-600">{price} ICP</div>
+              ) : (
+                <div></div>
+              )}
               <button>
                 <img
                   src={FavoriteHeartOutlineSvg}

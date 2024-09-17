@@ -18,8 +18,8 @@ interface ListInterface {
 const SideBar = () => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [list, setList] = useState<ListInterface[]>([
-    { id: uuidv4(), name: "Nft ai" },
-    { id: uuidv4(), name: "Nft ai" },
+    // { id: uuidv4(), name: "Nft ai" },
+    // { id: uuidv4(), name: "Nft ai" },
   ]);
 
   const deleteItem = (uuid: string) => {

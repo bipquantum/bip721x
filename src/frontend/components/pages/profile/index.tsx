@@ -1,13 +1,14 @@
-import { useAuth } from "@ic-reactor/react";
 import { useEffect, useState } from "react";
+import { useAuth } from "@ic-reactor/react";
+import { toast } from "react-toastify";
+import { fromNullable } from "@dfinity/utils";
 
 import { UserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
+import CopyToClipboard from "../../common/CopyToClipboard";
 
 import ProfileSvg from "../../../assets/profile.png";
-import { toast } from "react-toastify";
-import { fromNullable } from "@dfinity/utils";
-import CopyToClipboard from "../../common/CopyToClipboard";
+import SpinnerSvg from "../../../assets/spinner.svg";
 
 const EMPTY_USER = {
   firstName: "",
@@ -34,6 +35,7 @@ const ProfileFields: {
 ];
 
 const Profile = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const { authenticated, identity } = useAuth({});
 
   if (!authenticated || !identity) {
@@ -61,9 +63,11 @@ const Profile = () => {
   }, [queriedUser]);
 
   const onUpdateBtnClicked = async () => {
+    setIsLoading(true);
     await updateUser();
     queryUser();
     toast.success("User information added/updated!");
+    setIsLoading(false);
   };
 
   return (
@@ -92,10 +96,11 @@ const Profile = () => {
         ))}
       </div>
       <button
-        className="w-72 rounded-full bg-blue-800 py-2 text-center text-lg text-white"
+        className="flex w-[340px] items-center justify-center rounded-full bg-blue-600 py-2 text-lg text-white"
         onClick={() => onUpdateBtnClicked()}
+        disabled={isLoading}
       >
-        +Add/Update User
+        {isLoading ? <img src={SpinnerSvg} alt="" /> : "+Add/Update User"}
       </button>
     </div>
   );

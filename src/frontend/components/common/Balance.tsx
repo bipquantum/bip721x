@@ -12,7 +12,7 @@ const Balance = ({ account }: BalanceProps) => {
     args: [account],
   });
 
-  return <span> ICP {fromE8s(balance ?? 0n).toFixed(2)} </span>;
+  return <span>{fromE8s(balance ?? 0n).toFixed(2)} ICP</span>;
 };
 
 export default Balance;

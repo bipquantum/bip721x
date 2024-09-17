@@ -8,15 +8,20 @@ import { useState } from "react";
 import { backendActor } from "../actors/BackendActor";
 import { fromE8s, toE8s } from "../../utils/conversions";
 
+import SpinnerSvg from "../../assets/spinner.svg";
+
 interface ListingDetailsProps {
   principal: Principal | undefined;
   intPropId: bigint;
+  updateBipDetails: () => void;
 }
 
 const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
   intPropId,
+  updateBipDetails,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
@@ -50,21 +55,25 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     !e8sPrice ? undefined : "ok" in e8sPrice ? e8sPrice.ok : null;
 
   const triggerBuy = (intPropId: bigint) => {
+    setIsLoading(true);
     buyIntProp([{ token_id: intPropId }]).then((result) => {
       if (!result) {
         toast.warn("Failed to buy: undefined error");
       } else {
         if ("ok" in result) {
           toast.success("Success");
+          updateBipDetails();
           navigate(`/bip/${intPropId.toString()}`);
         } else {
           toast.warn("Failed to buy");
         }
       }
+      setIsLoading(false);
     });
   };
 
   const triggerList = (intPropId: bigint, sellPrice: bigint) => {
+    setIsLoading(true);
     listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
       (result) => {
         if (!result) {
@@ -72,27 +81,32 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         } else {
           if ("ok" in result) {
             toast.success("Success");
+            updateBipDetails();
             navigate(`/bip/${intPropId.toString()}`);
           } else {
             toast.warn("Failed to list");
           }
         }
+        setIsLoading(false);
       },
     );
   };
 
   const triggerUnlist = (intPropId: bigint) => {
+    setIsLoading(true);
     unlistIntProp([{ token_id: intPropId }]).then((result) => {
       if (!result) {
         toast.warn("Failed to unlist: undefined error");
       } else {
         if ("ok" in result) {
           toast.success("Success");
+          updateBipDetails();
           navigate(`/bip/${intPropId.toString()}`);
         } else {
           toast.warn("Failed to unlist");
         }
       }
+      setIsLoading(false);
     });
   };
 
@@ -114,17 +128,23 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     );
   }
 
+  const price = getListedPrice();
+
   if (principal !== undefined) {
     if (getOwner()?.compareTo(principal) == "eq") {
       if (getListedPrice()) {
         return (
-          <div>
+          <div className="flex w-full items-center justify-between">
+            <div className="text-lg font-bold text-blue-600">
+              {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
+            </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
-              className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               type="button"
+              disabled={isLoading}
             >
-              Unlist
+              {isLoading ? <img src={SpinnerSvg} alt="" /> : "Unlist"}
             </button>
           </div>
         );
@@ -143,15 +163,22 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               decimalScale={2}
               value={Number(fromE8s(sellPrice))}
               onValueChange={(e) => {
-                setSellPrice(toE8s(parseFloat(e.value.replace(/,/g, ""))));
+                setSellPrice(
+                  toE8s(
+                    parseFloat(
+                      e.value === "" ? "0" : e.value.replace(/,/g, ""),
+                    ),
+                  ),
+                );
               }}
             />
             <button
               onClick={() => triggerList(intPropId, sellPrice)}
-              className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               type="button"
+              disabled={isLoading}
             >
-              List
+              {isLoading ? <img src={SpinnerSvg} alt="" /> : "List"}
             </button>
           </div>
         );
@@ -159,19 +186,18 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     }
   }
 
-  const price = getListedPrice();
-
   return (
     <div className="flex w-full items-center justify-between">
       <div className="text-lg font-bold text-blue-600">
-        ICP {price ? fromE8s(price).toFixed(2) : "N/A"}
+        {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
       </div>
       <button
         onClick={() => triggerBuy(intPropId)}
-        className="block rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         type="button"
+        disabled={isLoading}
       >
-        Buy
+        {isLoading ? <img src={SpinnerSvg} alt="" /> : "Buy"}
       </button>
     </div>
   );

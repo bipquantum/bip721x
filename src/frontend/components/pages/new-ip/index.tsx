@@ -7,7 +7,7 @@ import {
 } from "react-tailwindcss-select/dist/components/type";
 import { Principal } from "@dfinity/principal";
 import { fromNullable } from "@dfinity/utils";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { backendActor } from "../../actors/BackendActor";
 import FileUploader from "../../common/FileUploader";
@@ -29,6 +29,7 @@ import UserHandUpSvg from "../../../assets/user-hand-up.svg";
 import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.jpeg";
+import SpinnerSvg from "../../../assets/spinner.svg";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -103,6 +104,8 @@ interface NewIPProps {
 const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   const [step, setStep] = useState(0);
   const [user, setUser] = useState<UserArgs>(EMPTY_USER);
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const [intPropInput, setIntPropInput] = useState<IntPropInput>(
@@ -133,7 +136,9 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   });
 
   const createIp = async () => {
+    setIsLoading(true);
     await createIntProp([intPropInput]);
+    setIsLoading(false);
     setStep(3);
   };
 
@@ -214,6 +219,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                           title: e.target.value,
                         });
                       }}
+                      required
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -348,7 +354,9 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                       onChange={(e) => {
                         setIntPropInput({
                           ...intPropInput,
-                          publishingDate: [BigInt(new Date(e.target.value).getTime())],
+                          publishingDate: [
+                            BigInt(new Date(e.target.value).getTime()),
+                          ],
                         });
                       }}
                       type="date"
@@ -365,7 +373,13 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 </button>
                 <button
                   className="w-64 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
-                  onClick={() => setStep(2)}
+                  onClick={() => {
+                    if (intPropInput.title === "") {
+                      toast.warn("Please add title of the IP");
+                      return;
+                    }
+                    setStep(2);
+                  }}
                 >
                   Add Author Details
                 </button>
@@ -429,29 +443,39 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   Back
                 </button>
                 <button
-                  className="w-64 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
+                  className="flex w-64 items-center justify-center rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
                   onClick={() => void createIp()}
+                  disabled={isLoading}
                 >
-                  Add Author(s) Details
+                  {isLoading ? (
+                    <img src={SpinnerSvg} alt="" />
+                  ) : (
+                    "Add Author(s) Details"
+                  )}
                 </button>
               </div>
             </>
           )}
           {step === 3 && (
-            <div className="flex items-center gap-32">
-              <img className="h-60 w-60 rounded-full" src={AIBotImg} alt="" />
-              <div className="flex flex-col gap-6">
-                <img
-                  className="h-24 opacity-40 dark:invert"
-                  src={CheckVerifiedSvg}
-                  alt=""
-                />
-                <p className="w-[320px] text-3xl uppercase">
-                  “Congratulations!
-                  <br /> Your IP has been successfully minted and listed on the
-                  bIPQuantum marketplace“
-                </p>
+            <div className="flex flex-col items-center gap-6">
+              <div className="flex items-center gap-32">
+                <img className="h-60 w-60 rounded-full" src={AIBotImg} alt="" />
+                <div className="flex flex-col gap-6">
+                  <img
+                    className="h-24 opacity-40 invert"
+                    src={CheckVerifiedSvg}
+                    alt=""
+                  />
+                  <p className="w-[320px] text-3xl uppercase text-white">
+                    “Congratulations!
+                    <br /> Your IP has been successfully minted and listed on
+                    the bIPQuantum marketplace“
+                  </p>
+                </div>
               </div>
+              <Link to="/bips" className="text-xl">
+                Back to marketplace
+              </Link>
             </div>
           )}
         </div>
