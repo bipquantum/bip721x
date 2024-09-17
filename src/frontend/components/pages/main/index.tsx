@@ -1,9 +1,33 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import { useAuth } from "@ic-reactor/react";
+import { Link, useNavigate } from "react-router-dom";
 
 import Logo from "../../../assets/logo.png";
 import Profile from "../../../assets/profile.png";
+import { backendActor } from "../../actors/BackendActor";
 
 const Main = () => {
+  const navigate = useNavigate();
+
+  const { authenticated, identity } = useAuth({});
+
+  if (!authenticated || !identity) {
+    return <></>;
+  }
+
+  const { data: queriedUser } = backendActor.useQueryCall({
+    functionName: "get_user",
+    args: [identity?.getPrincipal()],
+  });
+
+  useEffect(() => {
+    if (queriedUser?.length === 0) {
+      navigate("/profile");
+      toast.warn("Please add user");
+    }
+  }, [queriedUser]);
+
   return (
     <div className="h-full w-full overflow-auto bg-blue-400">
       <div className="flex items-center justify-between p-16 text-base text-white">
