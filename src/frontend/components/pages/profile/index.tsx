@@ -28,7 +28,7 @@ const ProfileFields: {
   {
     label: "Speciality",
     name: "specialty",
-    placeholder: "Blockchain stratgic architect",
+    placeholder: "Blockchain strategic architect",
   },
   { label: "Country", name: "country", placeholder: "Canada" },
 ];

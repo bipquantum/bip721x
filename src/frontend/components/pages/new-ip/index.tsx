@@ -85,7 +85,7 @@ const INITIAL_INT_PROP_INPUT: IntPropInput = {
   intPropType: { PATENT: null },
   description: "",
   creationDate: BigInt(new Date().getTime()),
-  publishingDate: BigInt(new Date().getTime()),
+  publishingDate: [BigInt(new Date().getTime())],
 };
 
 const EMPTY_USER = {
@@ -302,7 +302,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">
-                      Upload Preview IP File (Preview SIZE LIMITED TO 1 GB)
+                      Upload IP File (SIZE LIMITED TO 1.5 MB)
                     </div>
                     <FileUploader
                       dataUri={intPropInput.dataUri}
@@ -348,9 +348,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                       onChange={(e) => {
                         setIntPropInput({
                           ...intPropInput,
-                          publishingDate: BigInt(
-                            new Date(e.target.value).getTime(),
-                          ),
+                          publishingDate: [BigInt(new Date(e.target.value).getTime())],
                         });
                       }}
                       type="date"
