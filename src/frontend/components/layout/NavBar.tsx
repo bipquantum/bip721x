@@ -12,6 +12,9 @@ import LogoutSvg from "../../assets/logout.svg";
 import MoonSvg from "../../assets/moon.svg";
 import SunSvg from "../../assets/sun.svg";
 import SideBar from "./SideBar";
+import LogoSvg from "../../assets/logo.png";
+import MessagesSvg from "../../assets/messages.svg";
+
 import { useAuth } from "@ic-reactor/react";
 import { ThemeContext } from "../App";
 
@@ -84,7 +87,7 @@ const NavBar = () => {
     <>
       {!(pathname === "/" || pathname === "login") && (
         <>
-          <div className="flex h-full w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white">
+          <div className="hidden h-full w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
             <img
               src={MenuSvg}
               alt=""
@@ -118,6 +121,11 @@ const NavBar = () => {
                 <p className={`text-sm`}>Logout</p>
               </button>
             </div>
+          </div>
+          <div className="flex h-28 w-full items-center justify-between bg-secondary px-4 sm:hidden">
+            <img src={MenuSvg} alt="" className="h-7 cursor-pointer invert" />
+            <img src={LogoSvg} className="h-14 invert" alt="Logo" />
+            <img src={MessagesSvg} className="h-7" alt="Logo" />
           </div>
           <SideBar />
         </>
