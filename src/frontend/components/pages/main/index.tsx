@@ -3,8 +3,9 @@ import { toast } from "react-toastify";
 import { useAuth } from "@ic-reactor/react";
 import { Link, useNavigate } from "react-router-dom";
 
-import Logo from "../../../assets/logo.png";
-import Profile from "../../../assets/profile.png";
+import LogoSvg from "../../../assets/logo.png";
+import MenuSvg from "../../../assets/menu.svg";
+import ProfileSvg from "../../../assets/profile.png";
 import { backendActor } from "../../actors/BackendActor";
 
 const Main = () => {
@@ -29,27 +30,32 @@ const Main = () => {
   }, [queriedUser]);
 
   return (
-    <div className="dark:bg-primary flex h-full w-full items-center justify-center overflow-auto bg-white text-lg text-black dark:text-white">
+    <div className="flex h-full w-full items-center justify-center overflow-auto bg-primary text-lg text-white">
       <div className="absolute top-0 w-full">
-        <div className="flex items-center justify-between p-16">
-          <img src={Logo} className="h-14 dark:invert" alt="Logo" />
-          <div className="flex items-center justify-center gap-x-16">
+        <div className="flex items-center justify-between py-8 pr-4 sm:p-16">
+          <img src={LogoSvg} className="h-14 dark:invert" alt="Logo" />
+          <img
+            src={MenuSvg}
+            className="block h-8 dark:invert sm:hidden"
+            alt="Logo"
+          />
+          <div className="hidden items-center justify-center gap-x-16 sm:flex">
             <Link to={"/about"}>About</Link>
             <Link to={"/new"}>Add your Intellectual Property</Link>
             <Link to={"/store"}>Store</Link>
           </div>
-          <Link to={"profile"} className="flex items-center gap-4">
+          <Link to={"profile"} className="hidden items-center gap-4 sm:flex">
             Bessie Cooper
-            <img src={Profile} className="h-10 rounded-full" alt="Logo" />
+            <img src={ProfileSvg} className="h-10 rounded-full" alt="Logo" />
           </Link>
         </div>
       </div>
-      <div className="flex h-[188px] w-[414px] flex-col items-center justify-center rounded-2xl bg-white px-8 font-bold text-white">
-        <button className="bg-secondary w-full rounded-2xl py-2 text-center">
+      <div className="mx-4 flex h-[188px] w-full flex-col items-center justify-center rounded-2xl bg-white px-8 font-bold text-white sm:w-[414px]">
+        <button className="w-full rounded-2xl bg-secondary py-2 text-center">
           AI Assisted
         </button>
         <Link to={"/dashboard"} className="w-full">
-          <button className="border-secondary text-secondary mt-8 w-full rounded-2xl border-[2px] bg-white py-2 text-center">
+          <button className="mt-6 w-full rounded-2xl border-[2px] border-secondary bg-white py-2 text-center text-secondary">
             Manual
           </button>
         </Link>
