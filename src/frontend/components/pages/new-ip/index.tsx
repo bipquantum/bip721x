@@ -28,7 +28,7 @@ import LampSvg from "../../../assets/lamp.svg";
 import UserHandUpSvg from "../../../assets/user-hand-up.svg";
 import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
-import AIBotImg from "../../../assets/ai-bot.jpeg";
+import AIBotImg from "../../../assets/ai-bot.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
@@ -161,56 +161,65 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
 
   return (
     <div
-      className={`flex h-full w-full flex-1 flex-col items-center justify-start gap-4 overflow-auto bg-white py-32 text-blue-400 dark:bg-blue-400 dark:text-white`}
+      className={`flex h-full w-full flex-1 flex-col items-center justify-start gap-4 overflow-auto bg-white`}
     >
       {step === 0 ? (
-        <div className="flex h-full flex-col items-center justify-center gap-4 pb-32">
-          <div className="w-96 text-center">
+        <div className="flex h-full flex-col items-center justify-center gap-6 pb-32 text-primary-text">
+          <p className="w-96 text-center text-2xl font-semibold leading-10">
             Unlock the full potential of your intellectual property by listing
             it on bIPQuantum, where innovation meets opportunity.
-          </div>
+          </p>
           <button
-            className="w-72 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
+            className="w-80 rounded-2xl bg-secondary py-2 text-xl font-semibold text-white"
             onClick={() => onCreateIPBtnClicked()}
           >
             Create New IP
           </button>
         </div>
       ) : (
-        <div className="flex w-full flex-col items-center gap-8 text-base">
-          <div className="flex flex-col gap-8">
-            <div className="flex items-end justify-center gap-12">
-              <div className="text-2xl font-bold">Create New IP</div>
+        <div className="flex h-full w-full flex-col items-center justify-start gap-16 border-l-[1px] border-white bg-primary py-6 text-base text-white">
+          <div className="flex w-72 flex-col gap-8">
+            <div className="flex items-end justify-between">
+              <p className="text-2xl font-bold">Name Your IP</p>
               <div>Step {step} of 3</div>
             </div>
             <div className="flex w-full items-center justify-between gap-1">
-              <img
-                src={LampSvg}
-                alt=""
-                className={`h-6 dark:invert ${step === 1 ? "opacity-100" : "opacity-10"}`}
-              />
-              <div className="h-0 w-full border-b-[1px] border-t-[1px] border-dashed"></div>
-              <img
-                src={UserHandUpSvg}
-                alt=""
-                className={`h-6 dark:invert ${step === 2 ? "opacity-100" : "opacity-10"}`}
-              />
-              <div className="h-0 w-full border-b-[1px] border-t-[1px] border-dashed"></div>
-              <img
-                src={CheckCircleSvg}
-                alt=""
-                className={`h-6 dark:invert ${step === 3 ? "opacity-100" : "opacity-10"}`}
-              />
+              <div className="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white">
+                <img
+                  src={LampSvg}
+                  alt=""
+                  className={`h-6 ${step > 0 ? "opacity-100" : "opacity-10"}`}
+                />
+              </div>
+              <div
+                className={`z-10 flex h-10 w-10 items-center justify-center rounded-full ${step > 1 ? "bg-white" : "bg-slate-400"}`}
+              >
+                <img
+                  src={UserHandUpSvg}
+                  alt=""
+                  className={`h-6 ${step > 1 ? "opacity-100" : "opacity-10"}`}
+                />
+              </div>
+              <div
+                className={`z-10 flex h-10 w-10 items-center justify-center rounded-full ${step > 2 ? "bg-white" : "bg-slate-400"}`}
+              >
+                <img
+                  src={CheckCircleSvg}
+                  alt=""
+                  className={`h-6 ${step > 2 ? "opacity-100" : "opacity-10"}`}
+                />
+              </div>
+              <div className="absolute z-0 h-0 w-72 border-b-[1px] border-t-[1px] border-dashed"></div>
             </div>
           </div>
           {step === 1 && (
             <>
               <div className="flex w-1/3 items-end justify-between gap-12">
-                <div className="flex w-full flex-col gap-8">
+                <div className="flex w-full flex-col gap-8 text-base">
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Title of the IP</div>
                     <input
-                      className="rounded-full border border-gray-300 px-4 py-2 text-gray-600 outline-none"
+                      className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
                       placeholder="Title of the IP"
                       value={intPropInput.title}
                       onChange={(e) => {
@@ -259,8 +268,8 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                       primaryColor="#ffffff"
                       classNames={{
                         menuButton: () =>
-                          "rounded-full border border-gray-300 bg-white text-gray-600 flex items-center justify-between px-2",
-                        menu: "border border-gray-300 bg-white text-gray-600 flex items-center justify-between absolute z-10 mx-4",
+                          "rounded-2xl border-none bg-tertiary bg-white text-white flex items-center justify-between px-2",
+                        menu: "border-none bg-white bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
                       }}
                     />
                   </div>
@@ -301,8 +310,8 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                       primaryColor="#ffffff"
                       classNames={{
                         menuButton: () =>
-                          "rounded-full border border-gray-300 bg-white text-gray-600 flex items-center justify-between px-2",
-                        menu: "border border-gray-300 bg-white text-gray-600 flex items-center justify-between absolute z-10 mx-4",
+                          "rounded-2xl border-none bg-tertiary bg-white text-white flex items-center justify-between px-2",
+                        menu: "border-none bg-white bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
                       }}
                     />
                   </div>
@@ -323,7 +332,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Creation Date</div>
                     <input
-                      className="rounded-full border border-gray-300 px-4 py-2 text-gray-600 outline-none"
+                      className="bg-tertiary rounded-2xl border-none px-4 py-2 text-white outline-none"
                       placeholder=""
                       value={
                         new Date(Number(intPropInput.creationDate))
@@ -344,7 +353,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Publish Date</div>
                     <input
-                      className="rounded-full border border-gray-300 px-4 py-2 text-gray-600 outline-none"
+                      className="bg-tertiary rounded-2xl border-none px-4 py-2 text-white outline-none"
                       placeholder=""
                       value={
                         new Date(Number(intPropInput.publishingDate))
@@ -366,13 +375,13 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
               </div>
               <div className="flex items-center justify-center gap-x-4">
                 <button
-                  className="w-32 rounded-full bg-gray-500 py-2 text-xl font-semibold text-white"
+                  className="w-32 rounded-2xl bg-gray-500 py-2 text-lg font-semibold text-white"
                   onClick={() => setStep(0)}
                 >
                   Back
                 </button>
                 <button
-                  className="w-64 rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
+                  className="w-64 rounded-2xl bg-secondary py-2 text-lg font-semibold text-white"
                   onClick={() => {
                     if (intPropInput.title === "") {
                       toast.warn("Please add title of the IP");
@@ -388,11 +397,11 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           )}
           {step === 2 && (
             <>
-              <div className="flex w-80 flex-col gap-4">
+              <div className="flex w-80 flex-col gap-4 text-base">
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">First Name</div>
                   <input
-                    className="rounded-full border border-gray-300 bg-white px-4 py-2 text-gray-600 outline-none"
+                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
                     placeholder="Name"
                     defaultValue={user.firstName}
                     disabled
@@ -401,7 +410,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Last Name</div>
                   <input
-                    className="rounded-full border border-gray-300 bg-white px-4 py-2 text-gray-600 outline-none"
+                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
                     placeholder="Family Name"
                     defaultValue={user.lastName}
                     disabled
@@ -410,7 +419,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Nick Name</div>
                   <input
-                    className="rounded-full border border-gray-300 bg-white px-4 py-2 text-gray-600 outline-none"
+                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
                     placeholder="Nick Name"
                     defaultValue={user.nickName}
                     disabled
@@ -419,7 +428,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Speciality</div>
                   <input
-                    className="rounded-full border border-gray-300 bg-white px-4 py-2 text-gray-600 outline-none"
+                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
                     placeholder="Speciality"
                     defaultValue={user.specialty}
                     disabled
@@ -428,7 +437,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Country</div>
                   <input
-                    className="rounded-full border border-gray-300 bg-white px-4 py-2 text-gray-600 outline-none"
+                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
                     placeholder="Complete Postal Address"
                     defaultValue={user.country}
                     disabled
@@ -437,13 +446,13 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
               </div>
               <div className="flex items-center justify-center gap-x-4">
                 <button
-                  className="w-32 rounded-full bg-gray-500 py-2 text-xl font-semibold text-white"
+                  className="w-32 rounded-2xl bg-gray-500 py-2 text-lg font-semibold text-white"
                   onClick={() => setStep(1)}
                 >
                   Back
                 </button>
                 <button
-                  className="flex w-64 items-center justify-center rounded-full bg-blue-600 py-2 text-xl font-semibold text-white"
+                  className="flex w-64 items-center justify-center rounded-2xl bg-secondary py-2 text-lg font-semibold text-white"
                   onClick={() => void createIp()}
                   disabled={isLoading}
                 >
@@ -458,24 +467,24 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           )}
           {step === 3 && (
             <div className="flex flex-col items-center gap-6">
-              <div className="flex items-center gap-32">
-                <img className="h-60 w-60 rounded-full" src={AIBotImg} alt="" />
+              <div className="flex items-center gap-8">
+                <img
+                  className="h-[462px] w-[447px] rounded-[32px]"
+                  src={AIBotImg}
+                  alt=""
+                />
                 <div className="flex flex-col gap-6">
-                  <img
-                    className="h-24 opacity-40 invert"
-                    src={CheckVerifiedSvg}
-                    alt=""
-                  />
+                  <img className="h-48 w-48" src={CheckVerifiedSvg} alt="" />
                   <p className="w-[320px] text-3xl uppercase text-white">
-                    “Congratulations!
+                    Congratulations!
                     <br /> Your IP has been successfully minted and listed on
-                    the bIPQuantum marketplace“
+                    the bIPQuantum marketplace.
                   </p>
                 </div>
               </div>
-              <Link to="/bips" className="text-xl">
+              {/* <Link to="/bips" className="text-xl">
                 Back to marketplace
-              </Link>
+              </Link> */}
             </div>
           )}
         </div>

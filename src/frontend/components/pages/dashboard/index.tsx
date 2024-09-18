@@ -24,7 +24,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chats }) => {
 
   return (
     <div
-      className="flex h-full w-full flex-col gap-2 overflow-y-auto bg-white px-4 py-2 text-lg dark:bg-blue-400"
+      className="flex h-full w-full flex-col gap-2 overflow-y-auto bg-white px-4 py-2 text-lg"
       ref={messagesContainerRef}
     >
       {chats.map((chat, index) => (
@@ -76,12 +76,12 @@ function Dashboard() {
       {isChatting ? (
         <ChatBox chats={chats} />
       ) : (
-        <div className="flex h-full flex-col items-start justify-center bg-white px-16 text-blue-900 dark:bg-blue-400 dark:text-white">
-          <div className="flex flex-col items-center gap-8 py-16 text-3xl font-bold uppercase tracking-wider">
-            Meet ArtizBot, Your Intellectual Property Guardian.
-            <div className="h-1 w-96 bg-blue-900 dark:bg-white"></div>
+        <div className="flex h-full flex-col items-start justify-center bg-white px-16 text-primary-text">
+          <div className="flex flex-col items-start gap-2 py-16 text-[32px] font-bold tracking-wider">
+            Meet ArtizBot Your Intellectual Property Guardian.
+            <div className="h-1 w-32 bg-primary"></div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-16 text-xl">
+          <div className="flex flex-col items-start justify-start gap-8 text-lg">
             <div>
               <div className="font-semibold">Certify Your Creations</div>
               <div className="list-disc px-2">
@@ -120,10 +120,10 @@ function Dashboard() {
           </div>
         </div>
       )}
-      <div className="w-full border-t-2 border-gray-300 bg-white px-10 py-4 dark:border-white dark:bg-blue-400">
-        <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-2">
+      <div className="w-full bg-gray-300 px-8 py-10">
+        <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
           <textarea
-            className="h-32 w-full text-lg outline-none"
+            className="w-full px-4 text-lg outline-none"
             placeholder="What do want to protect?"
             value={prompt}
             onChange={(e) => {

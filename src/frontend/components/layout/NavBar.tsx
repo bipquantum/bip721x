@@ -23,7 +23,7 @@ const NavBarItems = [
   },
   {
     svg: EditSvg,
-    label: "New",
+    label: "Create New IP",
     link: "new",
   },
   // {
@@ -33,7 +33,7 @@ const NavBarItems = [
   // },
   {
     svg: WindowSvg,
-    label: "Bips",
+    label: "bIPs",
     link: "bips",
   },
   {
@@ -84,26 +84,28 @@ const NavBar = () => {
     <>
       {!(pathname === "/" || pathname === "login") && (
         <>
-          <div className="flex h-full w-32 flex-col items-center overflow-auto border-r-2 border-gray-300 bg-white p-5 font-bold text-black dark:border-white dark:bg-blue-400 dark:text-white">
+          <div className="flex h-full w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white">
             <img
               src={MenuSvg}
               alt=""
-              className="mt-2 h-6 cursor-pointer dark:invert"
+              className="mt-2 h-8 cursor-pointer invert"
             />
-            <div className="flex flex-grow flex-col items-center justify-center gap-12">
-              {NavBarItems.map((item, index) => (
-                <Link
-                  className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "profile" !== item.link && "opacity-40"}`}
-                  to={item.link}
-                  key={index}
-                >
-                  <img
-                    src={item.svg}
-                    className={`h-8 w-8 ${item.link === "profile" ? "rounded-full" : "dark:invert"}`}
-                  />
-                  <p className={`text-sm`}>{item.label}</p>
-                </Link>
-              ))}
+            <div className="flex flex-grow flex-col items-center justify-between py-10">
+              <div className="flex flex-col items-center justify-start gap-12">
+                {NavBarItems.map((item, index) => (
+                  <Link
+                    className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "profile" !== item.link && "opacity-40"}`}
+                    to={item.link}
+                    key={index}
+                  >
+                    <img
+                      src={item.svg}
+                      className={`${item.link === "profile" ? "h-8 rounded-full" : "h-6 invert"}`}
+                    />
+                    <p className={`text-[10px] font-bold`}>{item.label}</p>
+                  </Link>
+                ))}
+              </div>
               <button
                 onClick={() => logout()}
                 className="flex flex-col items-center justify-center gap-2"
@@ -111,7 +113,7 @@ const NavBar = () => {
                 <img
                   src={LogoutSvg}
                   alt=""
-                  className="mt-2 h-8 cursor-pointer dark:invert"
+                  className="mt-2 h-8 cursor-pointer invert"
                 />
                 <p className={`text-sm`}>Logout</p>
               </button>
@@ -120,9 +122,9 @@ const NavBar = () => {
           <SideBar />
         </>
       )}
-      <div className="absolute right-4 top-2">
+      {/* <div className="absolute right-4 top-2 z-50">
         <DarkModeToggle />
-      </div>
+      </div> */}
     </>
   );
 };

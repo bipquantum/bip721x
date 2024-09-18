@@ -135,7 +135,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       if (getListedPrice()) {
         return (
           <div className="flex w-full items-center justify-between">
-            <div className="text-lg font-bold text-blue-600">
+            <div className="text-primary text-lg font-bold">
               {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
             </div>
             <button
@@ -188,7 +188,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 
   return (
     <div className="flex w-full items-center justify-between">
-      <div className="text-lg font-bold text-blue-600">
+      <div className="text-primary text-lg font-bold">
         {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
       </div>
       <button

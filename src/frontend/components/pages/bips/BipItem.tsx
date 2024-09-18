@@ -10,7 +10,7 @@ import {
 import FilePreview from "../../common/FilePreview";
 
 import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
-import AIBotImg from "../../../assets/ai-bot.jpeg";
+import AIBotImg from "../../../assets/ai-bot.png";
 
 interface IPItemProps {
   intPropId: bigint;
@@ -56,38 +56,43 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
           className="grid justify-between gap-8 p-2"
           to={`/bip/${intPropId}`}
         >
-          <div className="flex w-72 flex-col gap-y-1 rounded-xl border-2 border-gray-300 bg-white p-4 text-base text-blue-400 shadow-lg dark:border-white">
+          <div className="bg-tertiary flex w-72 flex-col gap-y-1 rounded-2xl p-4 text-base text-white">
             {intProp.ok.dataUri ? (
               <div className="w-full">
                 <FilePreview
                   dataUri={intProp.ok.dataUri}
-                  className="h-[272px] w-[272px] rounded-xl object-cover"
+                  className="h-[184px] w-[272px] rounded-xl object-cover"
                 />
               </div>
             ) : (
               <img
                 src={AIBotImg}
-                className="mb-2 h-[272px] w-[272px] rounded-xl border border-gray-300 object-cover shadow-md"
+                className="mb-2 h-[184px] w-[272px] rounded-xl border border-gray-300 object-cover shadow-md"
                 alt="Logo"
               />
             )}
-            <div className="flex items-center justify-between font-bold">
-              <div className="text-xl">{intProp.ok.title}</div>
+            <div className="flex items-center justify-between font-semibold">
+              <p className="text-2xl">{intProp.ok.title}</p>
+              <button className="rounded-full bg-[#6d15ff] px-4 py-1 text-sm">
+                Buy
+              </button>
             </div>
-            <div>Type: {intPropTypeToString(intProp.ok.intPropType)}</div>
-            <div>
-              license: {intPropLicenseToString(intProp.ok.intPropLicense)}
-            </div>
-            <div className="flex items-center justify-between">
+            <p className="text-base font-semibold">
+              Type: {intPropTypeToString(intProp.ok.intPropType)}
+            </p>
+            <p className="text-base font-semibold">
+              License: {intPropLicenseToString(intProp.ok.intPropLicense)}
+            </p>
+            <div className="flex items-center justify-between text-[22px] font-bold">
               {price !== "" ? (
-                <div className="font-bold text-blue-600">{price} ICP</div>
+                <div className="font-bold">{price} ICP</div>
               ) : (
                 <div></div>
               )}
               <button>
                 <img
                   src={FavoriteHeartOutlineSvg}
-                  className="h-4 w-4"
+                  className="h-8 w-8"
                   alt="Logo"
                 />
               </button>
