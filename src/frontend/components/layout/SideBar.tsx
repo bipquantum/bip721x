@@ -5,8 +5,8 @@ import LayoutCollapseRightSvg from "../../assets/layout-collapse-right.svg";
 import EditSvg from "../../assets/edit.svg";
 import TrashSvg from "../../assets/trash.svg";
 import AddPlusSvg from "../../assets/add-plus.svg";
+import LogoSvg from "../../assets/logo.png";
 
-import Logo from "../../assets/logo.png";
 import { Link, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
@@ -33,13 +33,13 @@ const SideBar = () => {
 
   return (
     <div
-      className={`h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${pathname.includes("/bip") || pathname === "/about" ? "hidden" : ""}`}
+      className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 sm:block ${pathname.includes("/bip") || pathname === "/about" ? "hidden" : ""}`}
     >
       <div className="flex flex-col justify-between">
         <div className="h-[90vh] overflow-auto px-2 py-4">
           <div className="flex cursor-pointer items-center justify-center">
             <Link to={"/"}>
-              <img src={Logo} className="h-14 invert" alt="Logo" />
+              <img src={LogoSvg} className="h-14 invert" alt="Logo" />
             </Link>
           </div>
           {list.map((item, index) => (

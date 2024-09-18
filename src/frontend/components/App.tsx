@@ -45,7 +45,7 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex h-screen w-full">
+      <div className="flex h-screen w-full flex-col sm:flex-row">
         <BrowserRouter>
           <ToastContainer />
           <NavBar />

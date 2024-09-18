@@ -76,8 +76,8 @@ function Dashboard() {
       {isChatting ? (
         <ChatBox chats={chats} />
       ) : (
-        <div className="flex h-full flex-col items-start justify-center bg-white px-16 text-primary-text">
-          <div className="flex flex-col items-start gap-2 py-16 text-[32px] font-bold tracking-wider">
+        <div className="flex h-full flex-col items-start justify-center bg-white px-4 text-primary-text sm:px-16">
+          <div className="flex flex-col items-center gap-2 py-4 text-center text-[32px] font-bold tracking-wider sm:items-start sm:py-16 sm:text-start">
             Meet ArtizBot Your Intellectual Property Guardian.
             <div className="h-1 w-32 bg-primary"></div>
           </div>
@@ -120,10 +120,10 @@ function Dashboard() {
           </div>
         </div>
       )}
-      <div className="w-full bg-gray-300 px-8 py-10">
+      <div className="w-full bg-gray-300 p-6 sm:px-8 sm:py-10">
         <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
           <textarea
-            className="w-full px-4 text-lg outline-none"
+            className="w-full text-lg outline-none sm:px-4"
             placeholder="What do want to protect?"
             value={prompt}
             onChange={(e) => {
