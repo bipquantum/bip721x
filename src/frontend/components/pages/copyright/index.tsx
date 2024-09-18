@@ -23,7 +23,7 @@ const data = [
 
 const Copyright = () => {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-end overflow-auto bg-white text-blue-400 dark:bg-blue-400 dark:text-white">
+    <div className="dark:bg-primary text-primary flex w-full flex-1 flex-col items-center justify-end overflow-auto bg-white dark:text-white">
       <div className="mb-1 flex w-1/2 flex-col items-center gap-10">
         <div className="relative flex justify-center gap-20">
           <div className="absolute z-0 mt-5 h-0.5 w-11/12 bg-gray-500 dark:bg-white"></div>
@@ -90,7 +90,7 @@ const Copyright = () => {
           </div>
         </div>
       </div>
-      <div className="flex w-full items-center justify-center border-t-2 border-gray-300 bg-white px-16 py-8 text-xl text-black dark:border-white dark:bg-blue-400 dark:text-white">
+      <div className="dark:bg-primary flex w-full items-center justify-center border-t-2 border-gray-300 bg-white px-16 py-8 text-xl text-black dark:border-white dark:text-white">
         <div>SELECTED:&nbsp;</div>
         <div className="font-bold">Single IP Protection&nbsp;</div>
         <div>- TOTAL</div>

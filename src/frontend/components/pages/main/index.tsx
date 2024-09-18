@@ -29,24 +29,27 @@ const Main = () => {
   }, [queriedUser]);
 
   return (
-    <div className="h-full w-full overflow-auto bg-white text-base font-bold text-black dark:bg-blue-400 dark:text-white">
-      <div className="flex items-center justify-between p-16">
-        <img src={Logo} className="h-10 dark:invert" alt="Logo" />
-        <div className="flex items-center justify-center gap-x-16">
-          <Link to={"/about"}>About</Link>
-          <Link to={"/new"}>Add bIP</Link>
-          <Link to={"/store"}>Store</Link>
+    <div className="dark:bg-primary flex h-full w-full items-center justify-center overflow-auto bg-white text-lg text-black dark:text-white">
+      <div className="absolute top-0 w-full">
+        <div className="flex items-center justify-between p-16">
+          <img src={Logo} className="h-14 dark:invert" alt="Logo" />
+          <div className="flex items-center justify-center gap-x-16">
+            <Link to={"/about"}>About</Link>
+            <Link to={"/new"}>Add your Intellectual Property</Link>
+            <Link to={"/store"}>Store</Link>
+          </div>
+          <Link to={"profile"} className="flex items-center gap-4">
+            Bessie Cooper
+            <img src={Profile} className="h-10 rounded-full" alt="Logo" />
+          </Link>
         </div>
-        <Link to={"profile"}>
-          <img src={Profile} className="h-10 rounded-full" alt="Logo" />
-        </Link>
       </div>
-      <div className="m-auto mt-48 w-[320px] font-bold text-white">
-        <button className="w-full rounded-full bg-blue-700 py-2 text-center">
+      <div className="flex h-[188px] w-[414px] flex-col items-center justify-center rounded-2xl bg-white px-8 font-bold text-white">
+        <button className="bg-secondary w-full rounded-2xl py-2 text-center">
           AI Assisted
         </button>
-        <Link to={"/dashboard"}>
-          <button className="mt-8 w-full rounded-full bg-blue-700 py-2 text-center">
+        <Link to={"/dashboard"} className="w-full">
+          <button className="border-secondary text-secondary mt-8 w-full rounded-2xl border-[2px] bg-white py-2 text-center">
             Manual
           </button>
         </Link>

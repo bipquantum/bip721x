@@ -13,6 +13,10 @@ import FilePreview from "../../common/FilePreview";
 import UserDetails from "../../common/UserDetails";
 import ListingDetails from "../../common/ListingDetails";
 
+import Logo from "../../../assets/logo.png";
+import FilterSvg from "../../../assets/filter.svg";
+import ProfileSvg from "../../../assets/profile.png";
+
 interface IPItemProps {
   principal: Principal | undefined;
 }
@@ -58,70 +62,95 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   }, [owners]);
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto bg-white text-blue-400 dark:bg-blue-400 dark:text-white">
-      {intProp === undefined ? (
-        <div
-          className="text-center text-white"
-          style={{
-            padding: "100px",
-          }}
-        >
-          Loading...
+    <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
+      <div className="flex w-full items-center justify-between border-b-[1px] border-white p-4 pr-8">
+        <img src={Logo} className="h-14 invert" alt="Logo" />
+        <div className="flex w-[428px] items-center justify-start rounded-[69px] border-2 border-secondary border-opacity-40 p-2">
+          <div className="mx-1 h-8 w-8 rounded-full bg-secondary"></div>
+          <input
+            className="w-full flex-1 bg-transparent text-base font-medium leading-10 placeholder-slate-300"
+            placeholder="Search Here"
+          />
         </div>
-      ) : "err" in intProp ? (
-        <div>
-          <h1>Error</h1>
-          <p>{"Cannot find IP"}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-lg font-semibold leading-[26px]">Bessie Cooper</p>
+          <img src={ProfileSvg} className={`h-10 rounded-full`} />
         </div>
-      ) : (
-        <div className="flex w-2/3 flex-col gap-y-4 rounded-3xl px-12 py-4">
-          {intProp.ok.dataUri && (
-            <div className="w-full">
-              <p> Preview </p>
-              <FilePreview dataUri={intProp.ok.dataUri} />
+      </div>
+      <div className="flex w-full items-center justify-between px-8">
+        <button>
+          <img src={FilterSvg} className="h-8 invert" alt="Logo" />
+        </button>
+      </div>
+      <div className="h-full w-full p-8">
+        <div className="bg-tertiary flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-3xl">
+          {intProp === undefined ? (
+            <div
+              className="text-center text-white"
+              style={{
+                padding: "100px",
+              }}
+            >
+              Loading...
             </div>
-          )}
-          <div className="text-sm">
-            <div className="py-2 text-base font-bold">{intProp.ok.title}</div>
-            <div className="flex flex-col gap-2 text-lg">
-              <p> Type: {intPropTypeToString(intProp.ok.intPropType)}</p>
-              <p>
-                License: {intPropLicenseToString(intProp.ok.intPropLicense)}{" "}
-              </p>
-              <p>
-                Creation Date:{" "}
-                {
-                  new Date(Number(intProp.ok.creationDate.toString()))
-                    .toISOString()
-                    .split("T")[0]
-                }
-              </p>
-              <p>
-                Publish Date:{" "}
-                {
-                  new Date(Number(intProp.ok.publishingDate.toString()))
-                    .toISOString()
-                    .split("T")[0]
-                }
-              </p>
-              <UserDetails
-                principal={intProp.ok.author}
-                title="Author(s) Details"
-              />
+          ) : "err" in intProp ? (
+            <div>
+              <h1>Error</h1>
+              <p>{"Cannot find IP"}</p>
+            </div>
+          ) : (
+            <div className="flex w-2/3 flex-col gap-y-4 rounded-3xl px-12 py-4">
+              {intProp.ok.dataUri && (
+                <div className="w-full">
+                  <p> Preview </p>
+                  <FilePreview dataUri={intProp.ok.dataUri} />
+                </div>
+              )}
+              <div className="text-sm">
+                <div className="py-2 text-base font-bold">
+                  {intProp.ok.title}
+                </div>
+                <div className="flex flex-col gap-2 text-lg">
+                  <p> Type: {intPropTypeToString(intProp.ok.intPropType)}</p>
+                  <p>
+                    License: {intPropLicenseToString(intProp.ok.intPropLicense)}{" "}
+                  </p>
+                  <p>
+                    Creation Date:{" "}
+                    {
+                      new Date(Number(intProp.ok.creationDate.toString()))
+                        .toISOString()
+                        .split("T")[0]
+                    }
+                  </p>
+                  <p>
+                    Publish Date:{" "}
+                    {
+                      new Date(Number(intProp.ok.publishingDate.toString()))
+                        .toISOString()
+                        .split("T")[0]
+                    }
+                  </p>
+                  <UserDetails
+                    principal={intProp.ok.author}
+                    title="Author(s) Details"
+                  />
+                  {owner && (
+                    <UserDetails principal={owner} title="Owner(s) Details" />
+                  )}
+                </div>
+              </div>
               {owner && (
-                <UserDetails principal={owner} title="Owner(s) Details" />
+                <ListingDetails
+                  principal={principal}
+                  intPropId={BigInt(intPropId)}
+                  updateBipDetails={updateBipDetails}
+                />
               )}
             </div>
-          </div>
-          {owner && (
-            <ListingDetails
-              principal={principal}
-              intPropId={BigInt(intPropId)}
-              updateBipDetails={updateBipDetails}
-            />
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
