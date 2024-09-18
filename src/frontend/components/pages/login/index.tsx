@@ -1,9 +1,10 @@
 import { useAuth } from "@ic-reactor/react";
 import { Navigate } from "react-router-dom";
 
-import Logo from "../../../assets/logo.png";
-import Dfinity from "../../../assets/dfinity.svg";
-import Nfid from "../../../assets/nfid-logo.svg";
+import LogoSvg from "../../../assets/logo.png";
+import DfinitySvg from "../../../assets/dfinity.svg";
+import NfidSvg from "../../../assets/nfid-logo.svg";
+import LoginSvg from "../../../assets/login.svg";
 
 const APP_NAME = "BIP QUANTUM";
 const APP_LOGO = "https://nfid.one/icons/favicon-96x96.png";
@@ -15,33 +16,43 @@ const Login = () => {
   if (authenticated) return <Navigate to="/" />;
 
   return (
-    <div className="bg-primary flex h-full w-full flex-col items-center justify-center overflow-auto">
+    <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">
       <div className="absolute top-0 w-full">
-        <div className="flex items-center justify-between p-16 text-white">
-          <img src={Logo} className="h-14 invert" alt="Logo" />
-          <button className="h-14 w-40 cursor-pointer rounded-xl border border-white text-lg font-bold leading-6">
+        <div className="flex items-center justify-center p-16 text-white sm:justify-between">
+          <img src={LogoSvg} className="h-22 invert sm:h-14" alt="Logo" />
+          <button className="hidden h-14 w-40 cursor-pointer rounded-xl border border-white text-lg font-bold leading-6 sm:block">
             Learn Home
           </button>
         </div>
       </div>
-      <div className="text-primary flex h-[329px] w-[564px] flex-col justify-center gap-4 rounded-2xl bg-white px-8 text-center text-xl">
-        <p className="text-2xl font-bold">100% on-chain governance</p>
-        <p>
+      <div className="flex h-[329px] w-full flex-col justify-center gap-6 rounded-2xl bg-white text-center text-xl text-secondary sm:w-[564px]">
+        <p className="hidden text-2xl font-bold sm:block">
+          100% on-chain governance
+        </p>
+        <p className="hidden px-8 sm:block">
           Manage your IPs, within the BipQuantum, hosted 100% on the Internet
           Computer blockchain.
         </p>
-        <div className="flex flex-col items-center justify-center gap-y-3 pt-6">
+        <img
+          src={LoginSvg}
+          className="block h-16 sm:hidden sm:h-14"
+          alt="Logo"
+        />
+        <p className="block text-2xl font-semibold leading-8 sm:hidden">
+          Login To Your Account
+        </p>
+        <div className="flex w-full flex-col items-center justify-center gap-y-3">
           <button
-            className="border-primary flex w-[350px] items-center justify-center gap-x-2 rounded-2xl border-[2px] py-2 font-medium"
+            className="flex w-11/12 items-center justify-center gap-x-2 rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]"
             onClick={() => {
               login();
             }}
           >
             Connect with
-            <img src={Dfinity} className="h-4" alt="Logo" />
+            <img src={DfinitySvg} className="h-4" alt="Logo" />
           </button>
           <button
-            className="border-primary flex w-[350px] items-center justify-center gap-x-2 rounded-2xl border-[2px] py-2 font-medium"
+            className="flex w-11/12 items-center justify-center gap-x-2 rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]"
             onClick={() => {
               login({
                 identityProvider: `https://nfid.one/authenticate${CONFIG_QUERY}`,
@@ -49,7 +60,7 @@ const Login = () => {
             }}
           >
             Connect with
-            <img src={Nfid} className="h-4" alt="Logo" />
+            <img src={NfidSvg} className="h-4" alt="Logo" />
           </button>
         </div>
       </div>
