@@ -87,7 +87,7 @@ const NavBar = () => {
     <>
       {!(pathname === "/" || pathname === "login") && (
         <>
-          <div className="hidden h-full w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
+          <div className="hidden min-h-full w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
             <img
               src={MenuSvg}
               alt=""

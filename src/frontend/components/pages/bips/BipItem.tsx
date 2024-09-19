@@ -52,38 +52,35 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
-        <Link
-          className="grid justify-between gap-8 p-2"
-          to={`/bip/${intPropId}`}
-        >
-          <div className="bg-tertiary flex w-72 flex-col gap-y-1 rounded-2xl p-4 text-base text-white">
+        <Link className="w-44 sm:w-72 sm:p-2" to={`/bip/${intPropId}`}>
+          <div className="bg-tertiary flex flex-col gap-y-1 rounded-2xl p-3 text-base text-white sm:p-4">
             {intProp.ok.dataUri ? (
               <div className="w-full">
                 <FilePreview
                   dataUri={intProp.ok.dataUri}
-                  className="h-[184px] w-[272px] rounded-xl object-cover"
+                  className="h-[111px] w-full rounded-xl object-cover sm:h-[184px]"
                 />
               </div>
             ) : (
               <img
                 src={AIBotImg}
-                className="mb-2 h-[184px] w-[272px] rounded-xl border border-gray-300 object-cover shadow-md"
+                className="mb-2 h-[111px] w-full rounded-xl border border-gray-300 object-cover shadow-md sm:h-[184px]"
                 alt="Logo"
               />
             )}
             <div className="flex items-center justify-between font-semibold">
-              <p className="text-2xl">{intProp.ok.title}</p>
-              <button className="rounded-full bg-[#6d15ff] px-4 py-1 text-sm">
+              <p className="text-base sm:text-2xl">{intProp.ok.title}</p>
+              <button className="rounded-full bg-[#6d15ff] px-4 py-1 text-xs sm:text-sm">
                 Buy
               </button>
             </div>
-            <p className="text-base font-semibold">
+            <p className="text-sm font-semibold sm:text-base">
               Type: {intPropTypeToString(intProp.ok.intPropType)}
             </p>
-            <p className="text-base font-semibold">
+            <p className="text-sm font-semibold sm:text-base">
               License: {intPropLicenseToString(intProp.ok.intPropLicense)}
             </p>
-            <div className="flex items-center justify-between text-[22px] font-bold">
+            <div className="flex items-center justify-between text-lg font-bold sm:text-[22px]">
               {price !== "" ? (
                 <div className="font-bold">{price} ICP</div>
               ) : (
@@ -92,7 +89,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
               <button>
                 <img
                   src={FavoriteHeartOutlineSvg}
-                  className="h-8 w-8"
+                  className="h-4 w-4 sm:h-8 sm:w-8"
                   alt="Logo"
                 />
               </button>
