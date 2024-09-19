@@ -1,12 +1,13 @@
 import React, { createContext, useState, useEffect } from "react";
 import { useAuth } from "@ic-reactor/react";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import Router from "./router";
 import NavBar from "./layout/NavBar";
 
 import "react-toastify/dist/ReactToastify.css";
+import MobileNavBar from "./layout/MobileNavBar";
 
 interface ThemeContextProps {
   theme: string;
@@ -45,14 +46,28 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex h-screen w-full flex-col sm:flex-row">
+      <div className="flex min-h-screen w-full flex-col sm:flex-row">
         <BrowserRouter>
-          <ToastContainer />
-          <NavBar />
-          <Router />
+          <AppContent />
         </BrowserRouter>
       </div>
     </ThemeContext.Provider>
+  );
+}
+
+function AppContent() {
+  const location = useLocation(); // now that it's inside BrowserRouter, it should work
+  const { pathname } = location;
+
+  return (
+    <>
+      <ToastContainer />
+      <NavBar />
+      <div className="flex min-h-full w-full flex-1 flex-col justify-end">
+        <Router />
+        {pathname !== "/" && pathname !== "/login" && <MobileNavBar />}
+      </div>
+    </>
   );
 }
 

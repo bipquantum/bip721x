@@ -63,7 +63,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
-      <div className="flex w-full items-center justify-between border-b-[1px] border-white p-4 pr-8">
+      <div className="hidden w-full items-center justify-between border-b-[1px] border-white p-4 pr-8 sm:flex">
         <img src={Logo} className="h-14 invert" alt="Logo" />
         <div className="flex w-[428px] items-center justify-start rounded-[69px] border-2 border-secondary border-opacity-40 p-2">
           <div className="mx-1 h-8 w-8 rounded-full bg-secondary"></div>
@@ -77,13 +77,13 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
           <img src={ProfileSvg} className={`h-10 rounded-full`} />
         </div>
       </div>
-      <div className="flex w-full items-center justify-between px-8">
+      <div className="hidden w-full items-center justify-between px-8 sm:flex">
         <button>
           <img src={FilterSvg} className="h-8 invert" alt="Logo" />
         </button>
       </div>
-      <div className="h-full w-full p-8">
-        <div className="bg-tertiary flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-3xl">
+      <div className="h-full w-full p-4 sm:p-8">
+        <div className="bg-tertiary flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl sm:rounded-3xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -99,7 +99,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               <p>{"Cannot find IP"}</p>
             </div>
           ) : (
-            <div className="flex w-2/3 flex-col gap-y-4 rounded-3xl px-12 py-4">
+            <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
               {intProp.ok.dataUri && (
                 <div className="w-full">
                   <p> Preview </p>

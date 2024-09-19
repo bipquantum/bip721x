@@ -33,7 +33,7 @@ const SideBar = () => {
 
   return (
     <div
-      className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 sm:block ${pathname.includes("/bip") || pathname === "/about" ? "hidden" : ""}`}
+      className={`hidden min-h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${pathname.includes("/bip") || pathname === "/about" ? "sm:hidden" : "sm:block"}`}
     >
       <div className="flex flex-col justify-between">
         <div className="h-[90vh] overflow-auto px-2 py-4">

@@ -161,11 +161,11 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
 
   return (
     <div
-      className={`flex h-full w-full flex-1 flex-col items-center justify-start gap-4 overflow-auto bg-white`}
+      className={`flex h-full w-full flex-1 flex-col items-center justify-center gap-4 overflow-auto bg-white sm:justify-start`}
     >
       {step === 0 ? (
-        <div className="flex h-full flex-col items-center justify-center gap-6 pb-32 text-primary-text">
-          <p className="w-96 text-center text-2xl font-semibold leading-10">
+        <div className="flex h-full flex-col items-center justify-center gap-6 text-primary-text">
+          <p className="mx-3 w-96 text-center text-2xl font-semibold leading-10">
             Unlock the full potential of your intellectual property by listing
             it on bIPQuantum, where innovation meets opportunity.
           </p>
@@ -177,7 +177,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           </button>
         </div>
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-start gap-16 border-l-[1px] border-white bg-primary py-6 text-base text-white">
+        <div className="flex h-full w-full flex-col items-center justify-start gap-16 border-white bg-primary py-6 text-base text-white sm:border-l-[1px]">
           <div className="flex w-72 flex-col gap-8">
             <div className="flex items-end justify-between">
               <p className="text-2xl font-bold">Name Your IP</p>
@@ -214,7 +214,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           </div>
           {step === 1 && (
             <>
-              <div className="flex w-1/3 items-end justify-between gap-12">
+              <div className="flex w-11/12 items-end justify-between gap-12 sm:w-1/3">
                 <div className="flex w-full flex-col gap-8 text-base">
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Title of the IP</div>
@@ -375,13 +375,13 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
               </div>
               <div className="flex items-center justify-center gap-x-4">
                 <button
-                  className="w-32 rounded-2xl bg-gray-500 py-2 text-lg font-semibold text-white"
+                  className="w-24 rounded-2xl bg-gray-500 py-2 text-lg font-semibold text-white sm:w-32"
                   onClick={() => setStep(0)}
                 >
                   Back
                 </button>
                 <button
-                  className="w-64 rounded-2xl bg-secondary py-2 text-lg font-semibold text-white"
+                  className="w-56 rounded-2xl bg-secondary py-2 text-lg font-semibold text-white sm:w-64"
                   onClick={() => {
                     if (intPropInput.title === "") {
                       toast.warn("Please add title of the IP");
@@ -467,15 +467,19 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           )}
           {step === 3 && (
             <div className="flex flex-col items-center gap-6">
-              <div className="flex items-center gap-8">
+              <div className="flex flex-col items-center sm:flex-row sm:gap-8">
                 <img
-                  className="h-[462px] w-[447px] rounded-[32px]"
+                  className="h-64 w-11/12 rounded-[32px] sm:h-[462px] sm:w-[447px]"
                   src={AIBotImg}
                   alt=""
                 />
-                <div className="flex flex-col gap-6">
-                  <img className="h-48 w-48" src={CheckVerifiedSvg} alt="" />
-                  <p className="w-[320px] text-3xl uppercase text-white">
+                <div className="flex flex-col items-center sm:items-start sm:gap-6">
+                  <img
+                    className="w-36 sm:h-48 sm:w-48"
+                    src={CheckVerifiedSvg}
+                    alt=""
+                  />
+                  <p className="w-[320px] text-center text-2xl font-semibold text-white sm:text-start sm:text-3xl">
                     Congratulations!
                     <br /> Your IP has been successfully minted and listed on
                     the bIPQuantum marketplace.
