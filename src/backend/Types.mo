@@ -45,7 +45,7 @@ module {
     e8sIcpPrices: Map.Map<Nat, Nat>;
   };
   
-  public type UserArgs = {
+  public type User = {
     firstName: Text;
     lastName: Text;
     nickName: Text;
@@ -58,14 +58,9 @@ module {
     subaccount: ?Blob;
   };
 
-  public type User = UserArgs and {
-    account: Account;
-  };
-
   public type UserRegister = {
     var index: Nat;
     mapUsers: Map.Map<Principal, User>;
-    subaccToPrincipal: Map.Map<Blob, Principal>;
   };
 
   public type CreateIntPropResultError = {

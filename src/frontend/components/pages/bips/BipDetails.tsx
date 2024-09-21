@@ -22,6 +22,9 @@ interface IPItemProps {
 }
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
+
+  console.log("@todo: Issue in that file!")
+
   const [price, setPrice] = useState("");
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
   const { ipId: intPropId } = useParams();
