@@ -1,15 +1,19 @@
-import { Account } from "../../../declarations/backend/backend.did";
 import { icpLedgerActor } from "../actors/IcpLedgerActor";
 import { fromE8s } from "../../utils/conversions";
+import { Principal } from "@dfinity/principal";
 
 type BalanceProps = {
-  account: Account;
+  principal: Principal;
 };
 
-const Balance = ({ account }: BalanceProps) => {
+const Balance = ({ principal }: BalanceProps) => {
+
   const { data: balance } = icpLedgerActor.useQueryCall({
     functionName: "icrc1_balance_of",
-    args: [account],
+    args: [{
+      owner: principal,
+      subaccount: [],
+    }],
   });
 
   return <span>{fromE8s(balance ?? 0n).toFixed(2)} ICP</span>;

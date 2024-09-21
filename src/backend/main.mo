@@ -14,7 +14,6 @@ import Icrc7Canister "canister:icrc7";
 
 shared({ caller = admin; }) actor class Backend() = this {
 
-  type UserArgs              = Types.UserArgs;
   type User                  = Types.User;
   type Account               = Types.Account;
   type IntPropInput          = Types.IntPropInput;
@@ -58,8 +57,8 @@ shared({ caller = admin; }) actor class Backend() = this {
     #ok();
   };
 
-  public shared({caller}) func set_user(args: UserArgs): async Result<(), Text> {
-    getController().setUser({ args with caller;} );
+  public shared({caller}) func set_user(user: User): async Result<(), Text> {
+    getController().setUser({ user with caller;} );
   };
 
   public query func get_user(principal: Principal): async ?User {
@@ -71,20 +70,20 @@ shared({ caller = admin; }) actor class Backend() = this {
   };
 
   public shared({caller}) func list_int_prop({ token_id: Nat; e8s_icp_price: Nat; }) : async Result<(), Text> {
-    await getController().listIntProp({ caller; intPropId = token_id; e8sIcpPrice = e8s_icp_price; });
+    await* getController().listIntProp({ caller; id = token_id; e8sIcpPrice = e8s_icp_price; });
   };
 
   public shared({caller}) func unlist_int_prop({token_id: Nat;}) : async Result<(), Text> {
-    await getController().unlistIntProp({ caller; intPropId = token_id; });
+    await* getController().unlistIntProp({ caller; id = token_id; });
   };
 
   public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async [Nat] {
-    await Icrc7Canister.icrc7_tokens_of(getController().getUserAccount(owner), prev, take);
+    await Icrc7Canister.icrc7_tokens_of({ owner; subaccount = null }, prev, take);
   };
 
   public composite query func get_listed_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
-    let intPropIds = await Icrc7Canister.icrc7_tokens(prev, take);
-    getController().filterListedIntProps({ intPropIds });
+    let ids = await Icrc7Canister.icrc7_tokens(prev, take);
+    getController().filterListedIntProps({ ids });
   };
 
   public composite query func get_int_prop({token_id: Nat}) : async Result<IntProp, Text> {
@@ -92,21 +91,17 @@ shared({ caller = admin; }) actor class Backend() = this {
     #ok(Conversions.metadataToIntProp(metadata[0])); // TODO sardariuss 2024-09-07: better error handling
   };
 
-  public composite query func owners_of({token_ids: [Nat]}) : async [?(Principal, User)] {
+  public composite query func owners_of({token_ids: [Nat]}) : async [?(Principal, ?User)] {
     let accounts = await Icrc7Canister.icrc7_owner_of(token_ids);
     getController().accountsToOwners(accounts);
   };
 
   public query func get_e8s_price({token_id: Nat}) : async Result<Nat, Text> {
-    getController().getE8sPrice({ intPropId = token_id });
+    getController().getE8sPrice({ id = token_id });
   };
 
   public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<BuyIntPropResult, Text> {
-    await getController().buyIntProp({ intPropId = token_id; buyer = caller; time = Time.now(); });
-  };
-
-  public query func get_user_account({user: Principal}) : async Account {
-    getController().getUserAccount(user);
+    await* getController().buyIntProp({ id = token_id; buyer = caller; time = Time.now(); });
   };
 
   func getController() : Controller.Controller {

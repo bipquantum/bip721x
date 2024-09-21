@@ -40,11 +40,6 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
         : [{ prev, take }],
   });
 
-  const { data: user_account } = backendActor.useQueryCall({
-    functionName: "get_user_account",
-    args: [{ user: principal }],
-  });
-
   useEffect(() => {
     fetchEntries();
   }, [principal, filterBy]);
@@ -77,7 +72,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           <img src={FilterSvg} className="h-8 invert" alt="Logo" />
         </button>
         <div className="flex items-center justify-center gap-3">
-          {user_account && <Balance account={user_account} />}
+          <Balance principal={principal}/>
           <p className="">{isListedIPs ? "Listed IPs" : "My IPs"}</p>
           <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />
         </div>
