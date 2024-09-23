@@ -10,33 +10,33 @@ suite("Conversions", func(){
   
   test("Metadata to IntProp", func(){
 
-    let actual = [
-      ?[
-        (Types.BIP721X_TAG, 
-        #Map([
-          ("title", #Text("title")),
-          ("description", #Text("description")),
-          ("intPropType", #Nat(Conversions.intPropTypeToNat(#COPYRIGHT))),
-          ("intPropLicense", #Nat(Conversions.intPropLicenseToNat(#SAAS))),
-          ("creationDate", #Int(0)),
-          ("publishingDate", #Int(1)),
-          ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae"))
-          ])
-        )
-      ]
+    let actual = ?[
+      (Types.BIP721X_TAG, 
+      #Map([
+        ("title", #Text("title")),
+        ("description", #Text("description")),
+        ("intPropType", #Nat(Conversions.intPropTypeToNat(#COPYRIGHT))),
+        ("intPropLicense", #Nat(Conversions.intPropLicenseToNat(#SAAS))),
+        ("creationDate", #Int(0)),
+        ("publishingDate", #Array([#Int(1)])),
+        ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae")),
+        ("dataUri", #Text("dataUri")),
+        ])
+      )
     ];
 
-    let expected = [{
+    let expected : Types.IntProp = {
       title = "title";
       description = "description";
       intPropType = #COPYRIGHT;
       intPropLicense = #SAAS;
       creationDate = 0;
-      publishingDate = 1;
+      publishingDate = ?1;
       author = Principal.fromText("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae");
-    }];
+      dataUri = "dataUri";
+    };
 
-    verify(Conversions.metadataToIntProps(actual), expected, Testify.intProps.equal);
+    verify(Conversions.metadataToIntProp(actual), expected, Testify.intProp.equal);
   });
 
   test("IntProp to Metadata", func(){
