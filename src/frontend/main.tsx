@@ -4,6 +4,7 @@ import App from './components/App';
 import { AgentProvider } from "@ic-reactor/react";
 import { BackendActorProvider } from "./components/actors/BackendActor"
 import { IcpLedgerActorProvider} from "./components/actors/IcpLedgerActor"
+import { Icrc7ActorProvider } from './components/actors/Icrc7Actor';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -11,7 +12,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <AgentProvider withProcessEnv>
       <BackendActorProvider>
         <IcpLedgerActorProvider>
-          <App />
+          <Icrc7ActorProvider>
+            <App />
+          </Icrc7ActorProvider>
         </IcpLedgerActorProvider>
       </BackendActorProvider>
     </AgentProvider>

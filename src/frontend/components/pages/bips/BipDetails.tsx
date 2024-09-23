@@ -5,7 +5,6 @@ import { fromNullable } from "@dfinity/utils";
 
 import { backendActor } from "../../actors/BackendActor";
 import {
-  fromE8s,
   intPropLicenseToString,
   intPropTypeToString,
 } from "../../../utils/conversions";
@@ -23,10 +22,8 @@ interface IPItemProps {
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
 
-  console.log("@todo: Issue in that file!")
-
-  const [price, setPrice] = useState("");
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
+  
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
 
@@ -35,34 +32,19 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     args: [{ token_id: BigInt(intPropId) }],
   });
 
-  const { data: owners, call: getOwners } = backendActor.useQueryCall({
-    functionName: "owners_of",
-    args: [{ token_ids: [BigInt(intPropId)] }],
-  });
-
-  const { data: e8sPrice, call: getPrice } = backendActor.useQueryCall({
-    functionName: "get_e8s_price",
+  const { data: optOwner, call: getOptOwner } = backendActor.useQueryCall({
+    functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
   });
-
+  
   const updateBipDetails = () => {
     getIntProp();
-    getOwners();
-    getPrice();
+    getOptOwner();
   };
 
   useEffect(() => {
-    if (e8sPrice && "ok" in e8sPrice) {
-      const price = fromE8s(e8sPrice.ok).toFixed(2);
-      setPrice(price);
-    } else setPrice("N/A");
-  }, [e8sPrice]);
-
-  useEffect(() => {
-    const owner =
-      owners?.length === 1 ? fromNullable(owners[0])?.[0] : undefined;
-    setOwner(owner);
-  }, [owners]);
+    setOwner(optOwner? fromNullable(optOwner) : undefined);
+  }, [optOwner]);
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
@@ -146,6 +128,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               {owner && (
                 <ListingDetails
                   principal={principal}
+                  owner={owner}
                   intPropId={BigInt(intPropId)}
                   updateBipDetails={updateBipDetails}
                 />

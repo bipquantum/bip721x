@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Principal } from "@dfinity/principal";
-import { fromNullable } from "@dfinity/utils";
 import { NumericFormat } from "react-number-format";
 import { useState } from "react";
 
@@ -9,15 +8,20 @@ import { backendActor } from "../actors/BackendActor";
 import { fromE8s, toE8s } from "../../utils/conversions";
 
 import SpinnerSvg from "../../assets/spinner.svg";
+import { icrc7Actor } from "../actors/Icrc7Actor";
+import { canisterId } from "../../../declarations/backend";
+import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/icrc7/icrc7.did";
 
 interface ListingDetailsProps {
   principal: Principal | undefined;
+  owner: Principal;
   intPropId: bigint;
   updateBipDetails: () => void;
 }
 
 const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
+  owner,
   intPropId,
   updateBipDetails,
 }) => {
@@ -25,11 +29,6 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   const navigate = useNavigate();
 
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
-
-  const { data: owners } = backendActor.useQueryCall({
-    functionName: "owners_of",
-    args: [{ token_ids: [intPropId] }],
-  });
 
   const { data: e8sPrice } = backendActor.useQueryCall({
     functionName: "get_e8s_price",
@@ -40,6 +39,14 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     functionName: "buy_int_prop",
   });
 
+  const { call: approveTransfer } = icrc7Actor.useUpdateCall({
+    functionName: "icrc37_approve_tokens",
+  });
+
+  const { call: revokeTransfer } = icrc7Actor.useUpdateCall({
+    functionName: "icrc37_revoke_token_approvals",
+  });
+
   const { call: listIntProp } = backendActor.useUpdateCall({
     functionName: "list_int_prop",
   });
@@ -47,9 +54,6 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   const { call: unlistIntProp } = backendActor.useUpdateCall({
     functionName: "unlist_int_prop",
   });
-
-  const getOwner = (): Principal | undefined =>
-    owners?.length === 1 ? fromNullable(owners[0])?.[0] : undefined;
 
   const getListedPrice = () =>
     !e8sPrice ? undefined : "ok" in e8sPrice ? e8sPrice.ok : null;
@@ -66,6 +70,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
           navigate(`/bip/${intPropId.toString()}`);
         } else {
           toast.warn("Failed to buy");
+          console.error(result["err"]);
         }
       }
       setIsLoading(false);
@@ -73,40 +78,84 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   };
 
   const triggerList = (intPropId: bigint, sellPrice: bigint) => {
-    setIsLoading(true);
-    listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
-      (result) => {
-        if (!result) {
-          toast.warn("Failed to list: undefined error");
-        } else {
-          if ("ok" in result) {
-            toast.success("Success");
-            updateBipDetails();
-            navigate(`/bip/${intPropId.toString()}`);
-          } else {
-            toast.warn("Failed to list");
-          }
-        }
-        setIsLoading(false);
+  
+    const info : ApprovalInfo = {
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [],
+      spender: {
+        owner: Principal.fromText(canisterId),
+        subaccount: [],
       },
-    );
+      expires_at: [],
+    }
+
+    setIsLoading(true);
+
+    approveTransfer([[{token_id: intPropId, approval_info: info}]]).then((result) => {
+      if (!result || "Err" in result) {
+        setIsLoading(false);
+        toast.warn("Failed to approve IP transfer");
+        console.error(result ? result["Err"] : "No result");
+      } else {
+        listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
+          (result) => {
+            setIsLoading(false);
+            if (!result || "err" in result) {
+              toast.warn("Failed to list IP");
+              console.error(result ? result["err"] : "No result");
+            } else {
+              toast.success("Success");
+              updateBipDetails();
+              navigate(`/bip/${intPropId.toString()}`);
+            }
+          },
+        );
+      }
+    }).catch((e) => {
+      setIsLoading(false);
+      console.error(e);
+      toast.warn("Failed to list");
+    });
+    
   };
 
   const triggerUnlist = (intPropId: bigint) => {
     setIsLoading(true);
-    unlistIntProp([{ token_id: intPropId }]).then((result) => {
-      if (!result) {
-        toast.warn("Failed to unlist: undefined error");
+
+    const info : RevokeTokenApprovalArg = {
+      token_id: intPropId,
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [],
+      spender: [{
+        owner: Principal.fromText(canisterId),
+        subaccount: [],
+      }],
+    }
+
+    revokeTransfer([[info]]).then((result) => {
+      if (!result || "Err" in result) {
+        setIsLoading(false);
+        toast.warn("Failed to revoke IP transfer");
+        console.error(result ? result["Err"] : "No result");
       } else {
-        if ("ok" in result) {
-          toast.success("Success");
-          updateBipDetails();
-          navigate(`/bip/${intPropId.toString()}`);
-        } else {
-          toast.warn("Failed to unlist");
-        }
+        unlistIntProp([{ token_id: intPropId }]).then((result) => {
+          setIsLoading(false);
+          if (!result || "err" in result) {
+            toast.warn("Failed to unlist");
+            console.error(result ? result["err"] : "No result");
+          } else {
+            toast.success("Success");
+            updateBipDetails();
+            navigate(`/bip/${intPropId.toString()}`);
+          }
+        });
       }
+    }).catch((e) => {
       setIsLoading(false);
+      console.error(e);
+      toast.warn("Failed to unlist");
     });
   };
 
@@ -119,19 +168,10 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     );
   }
 
-  if (getOwner() === undefined) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <p>{"Cannot find IP's owner"}</p>
-      </div>
-    );
-  }
-
   const price = getListedPrice();
 
   if (principal !== undefined) {
-    if (getOwner()?.compareTo(principal) == "eq") {
+    if (owner.compareTo(principal) == "eq") {
       if (getListedPrice()) {
         return (
           <div className="flex w-full items-center justify-between">

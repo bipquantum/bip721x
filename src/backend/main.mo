@@ -1,7 +1,6 @@
 import Result        "mo:base/Result";
 import Map           "mo:map/Map";
 import Principal     "mo:base/Principal";
-import Time          "mo:base/Time";
 import Debug         "mo:base/Debug";
 import Option        "mo:base/Option";
 
@@ -10,6 +9,7 @@ import Controller    "Controller";
 import Conversions   "utils/Conversions";
 
 import Icrc7Canister "canister:icrc7";
+import TradeManager "TradeManager";
 
 
 shared({ caller = admin; }) actor class Backend() = this {
@@ -20,7 +20,6 @@ shared({ caller = admin; }) actor class Backend() = this {
   type IntProp               = Types.IntProp;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
   type CreateIntPropResult   = Types.CreateIntPropResult;
-  type BuyIntPropResult      = Types.BuyIntPropResult;
 
   stable var _data = {
     users = {
@@ -35,6 +34,7 @@ shared({ caller = admin; }) actor class Backend() = this {
       var index = 0;
       e8sIcpPrices = Map.new<Nat, Nat>();
     };
+    icpTransferFee = 10;
   };
 
   var _controller : ?Controller.Controller = null;
@@ -52,7 +52,13 @@ shared({ caller = admin; }) actor class Backend() = this {
       return #err("The controller is already initialized");
     };
     
-    _controller := ?Controller.Controller({ _data with backend_id = Principal.fromActor(this) });
+    _controller := ?Controller.Controller({
+      _data with 
+      trade_manager = TradeManager.TradeManager({
+        stage_account = { owner = Principal.fromActor(this); subaccount = null; };
+        fee = _data.icpTransferFee;
+      });
+    });
     
     #ok();
   };
@@ -91,17 +97,22 @@ shared({ caller = admin; }) actor class Backend() = this {
     #ok(Conversions.metadataToIntProp(metadata[0])); // TODO sardariuss 2024-09-07: better error handling
   };
 
-  public composite query func owners_of({token_ids: [Nat]}) : async [?(Principal, ?User)] {
+  public composite query func owners_of({token_ids: [Nat]}) : async [?Principal] {
     let accounts = await Icrc7Canister.icrc7_owner_of(token_ids);
-    getController().accountsToOwners(accounts);
+    getController().extractOwners(accounts);
+  };
+
+  public composite query func owner_of({token_id: Nat}) : async ?Principal {
+    let accounts = await Icrc7Canister.icrc7_owner_of([token_id]);
+    getController().extractOwner(accounts);
   };
 
   public query func get_e8s_price({token_id: Nat}) : async Result<Nat, Text> {
     getController().getE8sPrice({ id = token_id });
   };
 
-  public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<BuyIntPropResult, Text> {
-    await* getController().buyIntProp({ id = token_id; buyer = caller; time = Time.now(); });
+  public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<(), Text> {
+    await* getController().buyIntProp({ id = token_id; buyer = caller; });
   };
 
   func getController() : Controller.Controller {
