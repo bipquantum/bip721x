@@ -1,19 +1,16 @@
 import Principal         "mo:base/Principal";
 import Result            "mo:base/Result";
 import Map               "mo:map/Map";
-import Int               "mo:base/Int";
-import Time              "mo:base/Time";
-import Nat64             "mo:base/Nat64";
 import Array             "mo:base/Array";
 import Buffer            "mo:base/Buffer";
 
 import Types             "Types";
 import Conversions       "utils/Conversions";
+import TradeManager      "TradeManager";
 
 import ICRC7             "mo:icrc7-mo";
 
 import Icrc7Canister     "canister:icrc7";
-import IcpLedgerCanister "canister:icp_ledger";
 
 module {
 
@@ -26,7 +23,6 @@ module {
   type IntPropInput        = Types.IntPropInput;
   type IntProp             = Types.IntProp;
   type CreateIntPropResult = Types.CreateIntPropResult;
-  type BuyIntPropResult    = Types.BuyIntPropResult;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -34,6 +30,7 @@ module {
   public class Controller({
     users: UserRegister;
     intProps: IntPropRegister;
+    trade_manager: TradeManager.TradeManager;
   }) {
 
     public func setUser(
@@ -162,8 +159,7 @@ module {
     public func buyIntProp({
       buyer: Principal;
       id: Nat;
-      time: Time;
-    }) : async* Result<BuyIntPropResult, Text> {
+    }) : async* Result<(), Text> {
 
       // Verify the IP is listed
       let e8s_price = switch(getE8sPrice({id})){
@@ -182,42 +178,28 @@ module {
         return #err("You cannot buy your own IP");
       };
 
-      let buyer_account = {
-        owner = buyer;
-        subaccount = null;
-      };
-
-      let seller_account = {
-        owner = seller;
-        subaccount = null;
-      };
-
-      // Transfer the ICP to the seller account, assumed to be the same for ICP for now
-      let icp_transfer = await transferIcp({
-        from = buyer_account;
-        to = seller_account;
-        amount = e8s_price;
-        time;
+      // Perform the trade
+      let trade = await* trade_manager.tradeIntProp({
+        buyer = {
+          owner = buyer;
+          subaccount = null;
+        };
+        seller = {
+          owner = seller;
+          subaccount = null;
+        };
+        token_id = id;
+        e8s_price = e8s_price;
       });
 
-      // If the ICP transfer was successful, transfer the IP
-      // TODO sardariuss 2024-AUG-07: add a reimburse mechanism if the IP transfer failed
-      let ip_transfer = switch(icp_transfer){
-        case(#err(_)){ null; };
-        case(#ok(_)){
-          ?(await transferIp({
-            from = seller_account;
-            to = buyer_account;
-            token_id = id;
-            time;
-          }));
+      switch(trade){
+        case(#err(err)){ #err(err); };
+        case(#ok){
+          // Remove the IP from the list of listed IPs
+          Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+          #ok;
         };
       };
-
-      // Remove the IP from the list of listed IPs
-      Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
-
-      #ok({ icp_transfer; ip_transfer; });
     };
 
     func findIntPropOwner(id: Nat) : async* Result<Principal, Text> {
@@ -232,72 +214,22 @@ module {
       #ok(account.owner);
     };
 
-    func transferIcp({
-      from: Account;
-      to: Account;
-      amount: Nat;
-      time: Time;
-    }) : async Result<Nat, Text> {
-
-      let transfer_args = {
-        from;
-        spender_subaccount = null;
-        to;
-        amount;
-        fee = null;
-        memo = null;
-        created_at_time = ?Nat64.fromNat(Int.abs(time));
+    public func extractOwner(accounts: [?Account]) : ?Principal {
+      if (accounts.size() != 1){
+        return null;
       };
-
-      let transfer = await IcpLedgerCanister.icrc2_transfer_from(transfer_args);
-
-      switch(transfer){
-        case(#Err(err)){ #err("Transfer of ICP failed: " # debug_show(err)); };
-        case(#Ok(tx_id)){ #ok(tx_id); };
+      switch(accounts[0]){
+        case(null) { return null; };
+        case(?account) { ?account.owner; };
       };
     };
 
-    func transferIp({
-      from: Account;
-      to: Account;
-      token_id: Nat;
-      time: Time;
-    }) : async Result<Nat, Text> {
-
-      let transfer_args = {
-        spender_subaccount = null;
-        from;
-        to;
-        token_id;
-        memo = null;
-        created_at_time = ?Nat64.fromNat(Int.abs(time));
-      };
-
-      let transfers = await Icrc7Canister.icrc37_transfer_from([transfer_args]);
-
-      if (transfers.size() != 1){
-        return #err("Transfer of IP failed");
-      };
-      
-      let transfer = switch(transfers[0]){
-        case(null) { return #err("Transfer of IP failed"); };
-        case(?tx) { tx };
-      };
-      
-      switch(transfer) {
-        case(#Err(err)){ #err("Transfer of IP failed: " # debug_show(err)); };
-        case(#Ok(tx_id)){ #ok(tx_id); };
-      };
-    };
-
-    public func accountsToOwners(accounts: [?Account]) : [?(Principal, ?User)] {
-      Array.map(accounts, func(opt_account: ?Account) : ?(Principal, ?User) {
-        let owner = switch(opt_account){
+    public func extractOwners(accounts: [?Account]) : [?Principal] {
+      Array.map(accounts, func(opt_account: ?Account) : ?Principal {
+        switch(opt_account){
           case(null){ return null; };
-          case(?account) { account.owner; };
+          case(?account) { ?account.owner; };
         };
-        let user = Map.get(users.mapUsers, Map.phash, owner);
-        ?(owner, user);
       });
     };
 

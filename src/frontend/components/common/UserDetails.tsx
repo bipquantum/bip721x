@@ -9,6 +9,7 @@ type UserDetailsArgs = {
 };
 
 const UserDetails = ({ principal, title }: UserDetailsArgs) => {
+  
   const { data: author } = backendActor.useQueryCall({
     functionName: "get_user",
     args: [principal],
@@ -16,18 +17,13 @@ const UserDetails = ({ principal, title }: UserDetailsArgs) => {
 
   return (
     <div className="rounded-lg border border-gray-300 p-2">
-      {author === undefined || fromNullable(author) === undefined ? (
-        <div
-          className="text-center text-white"
-          style={{
-            padding: "100px",
-          }}
-        >
-          Loading...
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {title && <p className="text-lg">{title}</p>}
+      <div className="flex flex-col gap-2">
+        {title && <p className="text-lg">{title}</p>}
+        {author === undefined || fromNullable(author) === undefined ? (
+          <div className="text-center text-white">
+            Anonymous
+          </div>
+          ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
             <div>
               <div className="text-sm font-semibold">First Name</div>
@@ -60,8 +56,8 @@ const UserDetails = ({ principal, title }: UserDetailsArgs) => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

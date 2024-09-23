@@ -71,8 +71,8 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
         <button>
           <img src={FilterSvg} className="h-8 invert" alt="Logo" />
         </button>
+        <Balance principal={principal}/>
         <div className="flex items-center justify-center gap-3">
-          <Balance principal={principal}/>
           <p className="">{isListedIPs ? "Listed IPs" : "My IPs"}</p>
           <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />
         </div>

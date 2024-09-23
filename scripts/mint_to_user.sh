@@ -15,27 +15,9 @@ AMOUNT_TO_MINT=$2
 # Use the default identity
 dfx identity use default
 
-# Get the user account
-USER_ACCOUNT=$(dfx canister call backend get_user_account "record {
-  user = principal \"$USER_PRINCIPAL\";
-}" --query)
-
-# Extract owner and subaccount
-OWNER=$(echo $USER_ACCOUNT | grep -oP '(?<=owner = principal ")[^"]+')
-SUBACCOUNT=$(echo $USER_ACCOUNT | grep -oP '(?<=subaccount = opt blob ")[^"]+')
-
-# Format the `to` field
-if [ -n "$SUBACCOUNT" ]; then
-  TO="(record { owner = principal \"$OWNER\"; subaccount = opt blob \"$SUBACCOUNT\"; })"
-else
-  TO="(record { owner = principal \"$OWNER\"; subaccount = null; })"
-fi
-
-echo "User account to: $TO"
-
 # Mint to user
 dfx canister call icp_ledger icrc1_transfer "record {
-  to = $TO;
+  to = (record { owner = principal \"$USER_PRINCIPAL\"; subaccount = null; });
   fee = null;
   memo = null;
   from_subaccount = null;

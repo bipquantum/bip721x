@@ -77,9 +77,4 @@ module {
 
   public type CreateIntPropResult = Result<Nat, CreateIntPropResultError>;
 
-  public type BuyIntPropResult = {
-    icp_transfer: Result<Nat, Text>;
-    ip_transfer: ?Result<Nat, Text>;
-  };
-
 };
