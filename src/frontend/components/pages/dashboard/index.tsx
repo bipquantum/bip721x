@@ -76,12 +76,28 @@ function Dashboard() {
       {isChatting ? (
         <ChatBox chats={chats} />
       ) : (
-        <div className="flex h-full flex-col items-start justify-center bg-white px-4 text-primary-text sm:px-16">
-          <div className="flex flex-col items-center gap-2 py-4 text-center text-[32px] font-bold tracking-wider sm:items-start sm:py-16 sm:text-start">
+        <div className="flex h-full flex-col items-center justify-center bg-white px-4 text-primary-text sm:px-16">
+          <div className="flex flex-col items-center gap-2 py-4 text-center text-2xl font-bold tracking-wider sm:py-16 sm:text-start sm:text-[32px]">
             Meet ArtizBot Your Intellectual Property Guardian.
-            <div className="h-1 w-32 bg-primary"></div>
+            <div className="h-1 w-32 bg-primary sm:w-96"></div>
           </div>
-          <div className="flex flex-col items-start justify-start gap-8 text-lg">
+          <div className="grid grid-cols-2 items-start justify-start gap-8 text-center text-lg font-bold leading-6 text-white">
+            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+              IP Education/
+              <br />
+              Consultation
+            </div>
+            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+              Generate a bIP Certificate
+            </div>
+            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+              Organize IP Assets
+            </div>
+            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+              Sell IP Assets on the bIPQuantum Store
+            </div>
+          </div>
+          {/* <div className="flex flex-col items-start justify-start gap-8 text-lg">
             <div>
               <div className="font-semibold">Certify Your Creations</div>
               <div className="list-disc px-2">
@@ -117,7 +133,7 @@ function Dashboard() {
                 </li>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       )}
       <div className="w-full bg-gray-300 p-6 sm:px-8 sm:py-10">
