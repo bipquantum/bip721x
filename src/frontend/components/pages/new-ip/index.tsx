@@ -480,8 +480,10 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           {step === 3 && (
             <div className="w-80 text-xl" onClick={() => setStep(4)}>
               <div className="flex cursor-pointer items-center justify-start rounded-full bg-white px-2 text-secondary">
-                <div className="pu h-4 w-4 rounded-full border-2 border-secondary"></div>
-                <p className="w-full text-center">List on bIPQuantum Store</p>
+                <div className="h-4 w-4 rounded-full border-2 border-secondary"></div>
+                <p className="w-full flex-1 text-center">
+                  List on bIPQuantum Store
+                </p>
               </div>
               <p className="mt-2 pl-2 text-base">
                 Lists the asset for sale on the marketplace.

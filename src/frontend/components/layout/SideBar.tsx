@@ -9,6 +9,7 @@ import LogoSvg from "../../assets/logo.png";
 
 import { Link, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import Modal from "../common/Modal";
 
 interface ListInterface {
   id: string;
@@ -22,6 +23,8 @@ const SideBar = () => {
     // { id: uuidv4(), name: "Nft ai" },
     // { id: uuidv4(), name: "Nft ai" },
   ]);
+  const [isVisible, setIsVisible] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState<string>();
 
   const deleteItem = (uuid: string) => {
     setList(list.filter((item) => item.id !== uuid));
@@ -58,11 +61,46 @@ const SideBar = () => {
                   src={TrashSvg}
                   className="h-5 cursor-pointer invert"
                   alt="Trash"
-                  onClick={() => deleteItem(item.id)}
+                  onClick={() => {
+                    setIsVisible(true);
+                    setDeleteItemId(item.id);
+                  }}
                 />
               </div>
             </div>
           ))}
+          <Modal
+            isVisible={isVisible}
+            onClose={() => {
+              setIsVisible(false);
+              if (deleteItemId) setDeleteItemId("");
+            }}
+          >
+            <p className="pb-5">Do you really want to quit IP creation?</p>
+            <div className="flex w-full justify-center gap-4">
+              <button
+                className="w-1/3 rounded-xl bg-gray-600 text-white"
+                onClick={() => {
+                  setIsVisible(false);
+                  if (deleteItemId) setDeleteItemId("");
+                }}
+              >
+                No
+              </button>
+              <button
+                className="w-1/3 rounded-xl bg-secondary text-white"
+                onClick={() => {
+                  setIsVisible(false);
+                  if (deleteItemId) {
+                    deleteItem(deleteItemId);
+                    setDeleteItemId("");
+                  }
+                }}
+              >
+                Yes
+              </button>
+            </div>
+          </Modal>
         </div>
         <div
           className="flex h-[10vh] w-full cursor-pointer items-center justify-center gap-4"
