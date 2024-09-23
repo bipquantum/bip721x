@@ -26,6 +26,7 @@ import {
 
 import LampSvg from "../../../assets/lamp.svg";
 import UserHandUpSvg from "../../../assets/user-hand-up.svg";
+import User1Svg from "../../../assets/user-1.svg";
 import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
@@ -177,13 +178,13 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           </button>
         </div>
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-start gap-16 border-white bg-primary py-6 text-base text-white sm:border-l-[1px]">
+        <div className="flex min-h-screen w-full flex-col items-center justify-start gap-16 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
           <div className="flex w-72 flex-col gap-8">
             <div className="flex items-end justify-between">
               <p className="text-2xl font-bold">Name Your IP</p>
-              <div>Step {step} of 3</div>
+              <div>Step {step} of 4</div>
             </div>
-            <div className="flex w-full items-center justify-between gap-1">
+            <div className="flex w-full items-center justify-between">
               <div className="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white">
                 <img
                   src={LampSvg}
@@ -191,6 +192,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   className={`h-6 ${step > 0 ? "opacity-100" : "opacity-10"}`}
                 />
               </div>
+              <div className="z-0 h-0 w-12 border-b-[1px] border-t-[1px] border-dashed"></div>
               <div
                 className={`z-10 flex h-10 w-10 items-center justify-center rounded-full ${step > 1 ? "bg-white" : "bg-slate-400"}`}
               >
@@ -200,16 +202,26 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   className={`h-6 ${step > 1 ? "opacity-100" : "opacity-10"}`}
                 />
               </div>
+              <div className="z-0 h-0 w-12 border-b-[1px] border-t-[1px] border-dashed"></div>
               <div
                 className={`z-10 flex h-10 w-10 items-center justify-center rounded-full ${step > 2 ? "bg-white" : "bg-slate-400"}`}
               >
                 <img
-                  src={CheckCircleSvg}
+                  src={User1Svg}
                   alt=""
                   className={`h-6 ${step > 2 ? "opacity-100" : "opacity-10"}`}
                 />
               </div>
-              <div className="absolute z-0 h-0 w-72 border-b-[1px] border-t-[1px] border-dashed"></div>
+              <div className="z-0 h-0 w-12 border-b-[1px] border-t-[1px] border-dashed"></div>
+              <div
+                className={`z-10 flex h-10 w-10 items-center justify-center rounded-full ${step > 3 ? "bg-white" : "bg-slate-400"}`}
+              >
+                <img
+                  src={CheckCircleSvg}
+                  alt=""
+                  className={`h-6 ${step > 3 ? "opacity-100" : "opacity-10"}`}
+                />
+              </div>
             </div>
           </div>
           {step === 1 && (
@@ -219,7 +231,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Title of the IP</div>
                     <input
-                      className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
+                      className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
                       placeholder="Title of the IP"
                       value={intPropInput.title}
                       onChange={(e) => {
@@ -332,7 +344,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Creation Date</div>
                     <input
-                      className="bg-tertiary rounded-2xl border-none px-4 py-2 text-white outline-none"
+                      className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
                       placeholder=""
                       value={
                         new Date(Number(intPropInput.creationDate))
@@ -353,7 +365,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Publish Date</div>
                     <input
-                      className="bg-tertiary rounded-2xl border-none px-4 py-2 text-white outline-none"
+                      className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
                       placeholder=""
                       value={
                         new Date(Number(intPropInput.publishingDate))
@@ -401,7 +413,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">First Name</div>
                   <input
-                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
+                    className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
                     placeholder="Name"
                     defaultValue={user.firstName}
                     disabled
@@ -410,7 +422,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Last Name</div>
                   <input
-                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
+                    className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
                     placeholder="Family Name"
                     defaultValue={user.lastName}
                     disabled
@@ -419,7 +431,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Nick Name</div>
                   <input
-                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
+                    className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
                     placeholder="Nick Name"
                     defaultValue={user.nickName}
                     disabled
@@ -428,7 +440,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Speciality</div>
                   <input
-                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
+                    className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
                     placeholder="Speciality"
                     defaultValue={user.specialty}
                     disabled
@@ -437,7 +449,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">Country</div>
                   <input
-                    className="bg-tertiary rounded-2xl border border-none px-4 py-2 text-white outline-none"
+                    className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
                     placeholder="Complete Postal Address"
                     defaultValue={user.country}
                     disabled
@@ -459,13 +471,33 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                   {isLoading ? (
                     <img src={SpinnerSvg} alt="" />
                   ) : (
-                    "Add Author(s) Details"
+                    "Validate Author(s) Details"
                   )}
                 </button>
               </div>
             </>
           )}
           {step === 3 && (
+            <div className="w-80 text-xl" onClick={() => setStep(4)}>
+              <div className="flex cursor-pointer items-center justify-start rounded-full bg-white px-2 text-secondary">
+                <div className="pu h-4 w-4 rounded-full border-2 border-secondary"></div>
+                <p className="w-full text-center">List on bIPQuantum Store</p>
+              </div>
+              <p className="mt-2 pl-2 text-base">
+                Lists the asset for sale on the marketplace.
+              </p>
+
+              <div className="mt-8 flex cursor-pointer items-center justify-start rounded-full bg-white px-2 text-secondary">
+                <div className="h-4 w-4 rounded-full border-2 border-secondary"></div>
+                <p className="w-full text-center">Keep in my bIPs Wallet</p>
+              </div>
+              <p className="mt-2 pl-2 text-base">
+                {`Stores the asset in the user’s personal collection, visible only
+                to them.`}
+              </p>
+            </div>
+          )}
+          {step === 4 && (
             <div className="flex flex-col items-center gap-6">
               <div className="flex flex-col items-center sm:flex-row sm:gap-8">
                 <img

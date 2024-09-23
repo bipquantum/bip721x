@@ -46,7 +46,7 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex min-h-screen w-full flex-col sm:flex-row">
+      <div className="flex h-screen w-full flex-col sm:flex-row">
         <BrowserRouter>
           <AppContent />
         </BrowserRouter>
@@ -63,7 +63,7 @@ function AppContent() {
     <>
       <ToastContainer />
       <NavBar />
-      <div className="flex min-h-full w-full flex-1 flex-col justify-end">
+      <div className="flex h-full w-full flex-1 flex-col justify-end">
         <Router />
         {pathname !== "/" && pathname !== "/login" && <MobileNavBar />}
       </div>
