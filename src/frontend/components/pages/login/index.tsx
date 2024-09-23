@@ -13,7 +13,7 @@ const CONFIG_QUERY = `?applicationName=${APP_NAME}&applicationLogo=${APP_LOGO}`;
 const Login = () => {
   const { login, authenticated } = useAuth({});
 
-  if (authenticated) return <Navigate to="/" />;
+  if (authenticated) return <Navigate to="/who-you-are" />;
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">

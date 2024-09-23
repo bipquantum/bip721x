@@ -11,6 +11,7 @@ import Main from "../pages/main";
 import About from "../pages/about";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
+import WhoYouAre from "../pages/who-you-are";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -18,6 +19,10 @@ const Router = () => {
   return (
     <Routes>
       <Route path={"/"} element={<PrivateRoute element={<Main />} />} />
+      <Route
+        path={"/who-you-are"}
+        element={<PrivateRoute element={<WhoYouAre />} />}
+      />
       <Route
         path={"/dashboard"}
         element={<PrivateRoute element={<Dashboard />} />}
