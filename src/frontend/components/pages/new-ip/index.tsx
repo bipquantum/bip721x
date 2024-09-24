@@ -501,19 +501,19 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           )}
           {step === 4 && (
             <div className="flex flex-col items-center gap-6">
-              <div className="flex flex-col items-center sm:flex-row sm:gap-8">
+              <div className="flex flex-col items-center lg:flex-row lg:gap-8">
                 <img
-                  className="h-64 w-11/12 rounded-[32px] sm:h-[462px] sm:w-[447px]"
+                  className="h-64 w-11/12 rounded-[32px] lg:h-[462px] lg:w-[447px]"
                   src={AIBotImg}
                   alt=""
                 />
-                <div className="flex flex-col items-center sm:items-start sm:gap-6">
+                <div className="flex flex-col items-center lg:items-start lg:gap-6">
                   <img
-                    className="w-36 sm:h-48 sm:w-48"
+                    className="w-36 lg:h-48 lg:w-48"
                     src={CheckVerifiedSvg}
                     alt=""
                   />
-                  <p className="w-[320px] text-center text-2xl font-semibold text-white sm:text-start sm:text-3xl">
+                  <p className="w-[320px] text-center text-2xl font-semibold text-white lg:text-start lg:text-3xl">
                     Congratulations!
                     <br /> Your IP has been successfully minted and listed on
                     the bIPQuantum marketplace.

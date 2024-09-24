@@ -30,8 +30,8 @@ const Main = () => {
   }, [queriedUser]);
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-start overflow-auto border-l bg-primary text-lg text-white">
-      <div className="flex w-full items-center justify-between py-8 pr-4 sm:p-16">
+    <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-lg text-white sm:border-l">
+      <div className="hidden w-full items-center justify-between py-8 pr-4 sm:flex sm:p-16">
         <img src={LogoSvg} className="h-14 dark:invert" alt="Logo" />
         <img
           src={MenuSvg}

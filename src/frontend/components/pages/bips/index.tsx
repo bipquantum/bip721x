@@ -67,15 +67,20 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           <img src={ProfileSvg} className={`h-10 rounded-full`} />
         </div>
       </div>
-      <div className="flex w-full items-center justify-between px-2 sm:px-8">
+      <div className="flex w-full items-center justify-between px-2 lg:px-8">
         <button>
           <img src={FilterSvg} className="h-8 invert" alt="Logo" />
         </button>
-        <Balance principal={principal}/>
-        <div className="flex items-center justify-center gap-3">
+        <div className="hidden lg:flex">
+          <Balance principal={principal} />
+        </div>
+        <div className="flex items-center justify-center gap-2 text-lg">
           <p className="">{isListedIPs ? "Listed IPs" : "My IPs"}</p>
           <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />
         </div>
+      </div>
+      <div className="flex w-full lg:hidden">
+        <Balance principal={principal} />
       </div>
       <div className="grid grid-cols-2 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {entries?.map((intPropId, index) => (
