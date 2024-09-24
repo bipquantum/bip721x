@@ -30,15 +30,15 @@ const Main = () => {
   }, [queriedUser]);
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-lg text-white sm:border-l">
-      <div className="hidden w-full items-center justify-between py-8 pr-4 sm:flex sm:p-16">
+    <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-center text-lg text-white sm:border-l">
+      <div className="hidden w-full items-center justify-between py-8 pr-4 sm:flex lg:p-16">
         <img src={LogoSvg} className="h-14 dark:invert" alt="Logo" />
         <img
           src={MenuSvg}
           className="block h-8 dark:invert sm:hidden"
           alt="Logo"
         />
-        <div className="hidden items-center justify-center gap-x-16 sm:flex">
+        <div className="hidden items-center justify-center gap-x-2 sm:flex lg:gap-x-16">
           <Link to={"/about"}>About</Link>
           <Link to={"/new"}>Add your Intellectual Property</Link>
           <Link to={"/store"}>Store</Link>
