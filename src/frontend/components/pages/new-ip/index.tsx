@@ -280,8 +280,8 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                       primaryColor="#ffffff"
                       classNames={{
                         menuButton: () =>
-                          "rounded-2xl border-none bg-tertiary bg-white text-white flex items-center justify-between px-2",
-                        menu: "border-none bg-white bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
+                          "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
+                        menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
                       }}
                     />
                   </div>
@@ -322,8 +322,8 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                       primaryColor="#ffffff"
                       classNames={{
                         menuButton: () =>
-                          "rounded-2xl border-none bg-tertiary bg-white text-white flex items-center justify-between px-2",
-                        menu: "border-none bg-white bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
+                          "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
+                        menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
                       }}
                     />
                   </div>
