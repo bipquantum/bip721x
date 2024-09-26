@@ -1,15 +1,17 @@
+import Types         "Types";
+import Controller    "Controller";
+import Conversions   "utils/Conversions";
+import ChatBot       "ChatBot";
+import TradeManager  "TradeManager";
+
+import Icrc7Canister "canister:icrc7";
+
 import Result        "mo:base/Result";
 import Map           "mo:map/Map";
 import Principal     "mo:base/Principal";
 import Debug         "mo:base/Debug";
 import Option        "mo:base/Option";
-
-import Types         "Types";
-import Controller    "Controller";
-import Conversions   "utils/Conversions";
-
-import Icrc7Canister "canister:icrc7";
-import TradeManager "TradeManager";
+import Cycles        "mo:base/ExperimentalCycles";
 
 
 shared({ caller = admin; }) actor class Backend() = this {
@@ -113,6 +115,14 @@ shared({ caller = admin; }) actor class Backend() = this {
 
   public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<(), Text> {
     await* getController().buyIntProp({ id = token_id; buyer = caller; });
+  };
+
+  public query func cycles_balance() : async Nat {
+    Cycles.balance();
+  };
+
+  public shared func chatbot_completion({body: Blob}) : async ChatBot.HttpResponse {
+    await ChatBot.get_completion(body);
   };
 
   func getController() : Controller.Controller {
