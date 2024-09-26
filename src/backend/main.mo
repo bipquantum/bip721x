@@ -1,15 +1,17 @@
+import Types         "Types";
+import Controller    "Controller";
+import Conversions   "utils/Conversions";
+import ChatBot       "ChatBot";
+
+import Icrc7Canister "canister:icrc7";
+
 import Result        "mo:base/Result";
 import Map           "mo:map/Map";
 import Principal     "mo:base/Principal";
 import Time          "mo:base/Time";
 import Debug         "mo:base/Debug";
 import Option        "mo:base/Option";
-
-import Types         "Types";
-import Controller    "Controller";
-import Conversions   "utils/Conversions";
-
-import Icrc7Canister "canister:icrc7";
+import Cycles        "mo:base/ExperimentalCycles";
 
 
 shared({ caller = admin; }) actor class Backend() = this {
@@ -107,6 +109,14 @@ shared({ caller = admin; }) actor class Backend() = this {
 
   public query func get_user_account({user: Principal}) : async Account {
     getController().getUserAccount(user);
+  };
+
+  public query func cycles_balance() : async Nat {
+    Cycles.balance();
+  };
+
+  public shared func chatbot_completion({body: Blob}) : async ChatBot.HttpResponse {
+    await ChatBot.get_completion(body);
   };
 
   func getController() : Controller.Controller {
