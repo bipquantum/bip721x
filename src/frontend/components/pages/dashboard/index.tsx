@@ -32,6 +32,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chats }) => {
       {chats.map((chat, index) => (
         <p
           className={`rounded-xl px-4 py-2 ${index % 2 ? "bg-blue-600 text-white" : "bg-slate-300 text-black"}`}
+          key={index}
         >
           {chat.split("\n").map((line, i) => (
             <span key={i}>
@@ -59,15 +60,15 @@ function Dashboard() {
       {
         role: "user",
         content: prompt,
-      }
-    ]
+      },
+    ],
   };
 
   // Step 1: Convert the dictionary to a JSON string
   const jsonString = JSON.stringify(questionBody);
 
   // Step 2: Create a Blob from the JSON string
-  const blob = new Blob([jsonString], { type: 'application/json' });
+  const blob = new Blob([jsonString], { type: "application/json" });
 
   // Convert Blob to ArrayBuffer using FileReader
   function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
@@ -77,7 +78,7 @@ function Dashboard() {
         if (event.target?.result instanceof ArrayBuffer) {
           resolve(event.target.result);
         } else {
-          reject(new Error('Failed to read Blob as ArrayBuffer'));
+          reject(new Error("Failed to read Blob as ArrayBuffer"));
         }
       };
       reader.onerror = (error) => reject(error);
@@ -93,39 +94,43 @@ function Dashboard() {
     if (shiftPressed) {
       setPrompt((prevPrompt) => prevPrompt + "\n");
     } else if (prompt) {
-      setChats((prevChats) => [...prevChats, prompt, generatedText]);
       setPrompt("");
+      handleSendButtonClick();
     }
     event.preventDefault();
   };
 
   const handleSendButtonClick = () => {
-    blobToArrayBuffer(blob).then(arrayBuffer => {
-      console.log("Trigger getResponse");
-      const uint8Array = new Uint8Array(arrayBuffer);
-      getResponse([{ body: uint8Array }]).then((response) => {
-        console.log(response);
-        var ui8array = undefined
-        if (response?.body as Uint8Array) {
-          ui8array = response?.body as Uint8Array
-        } else if (response?.body as number[]) {
-          ui8array = arrayOfNumberToUint8Array(response?.body as number[]);
-        }
+    blobToArrayBuffer(blob)
+      .then((arrayBuffer) => {
+        console.log("Trigger getResponse");
+        const uint8Array = new Uint8Array(arrayBuffer);
+        getResponse([{ body: uint8Array }])
+          .then((response) => {
+            console.log(response);
+            var ui8array = undefined;
+            if (response?.body as Uint8Array) {
+              ui8array = response?.body as Uint8Array;
+            } else if (response?.body as number[]) {
+              ui8array = arrayOfNumberToUint8Array(response?.body as number[]);
+            }
 
-        if (ui8array) {
-          const decoder = new TextDecoder('utf-8');
-          const jsonString = decoder.decode(ui8array); 
-          const jsonObject = JSON.parse(jsonString);
-          // TODO sardariuss 2024-09-25: set the response in the UI
-          console.log(jsonObject["choices"][0]["message"]["content"]);
-        }
-        
-      }).catch((error) => {
-        console.error('Error getting response:', error);
-      });
-    })
-    .catch(error => console.error('Error converting blob:', error));
-    setChats([...chats, prompt, generatedText]);
+            if (ui8array) {
+              const decoder = new TextDecoder("utf-8");
+              const jsonString = decoder.decode(ui8array);
+              const jsonObject = JSON.parse(jsonString);
+              setChats((prevChats) => [
+                ...prevChats,
+                prompt,
+                jsonObject["choices"][0]["message"]["content"],
+              ]);
+            }
+          })
+          .catch((error) => {
+            console.error("Error getting response:", error);
+          });
+      })
+      .catch((error) => console.error("Error converting blob:", error));
     setPrompt("");
   };
 
@@ -212,9 +217,9 @@ function Dashboard() {
               event.key === "Shift" && setShiftPressed(true)
             }
             onKeyUp={(event) => event.key === "Shift" && setShiftPressed(false)}
-            onKeyPress={(event) =>
-              event.key === "Enter" && handleEnterPress(event)
-            }
+            onKeyPress={(event) => {
+              event.key === "Enter" && handleEnterPress(event);
+            }}
             ref={textAreaRef}
           />
           <button
