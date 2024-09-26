@@ -115,11 +115,9 @@ function Dashboard() {
     setChats((prevChats) => [...prevChats, prompt]);
     await blobToArrayBuffer(blob)
       .then((arrayBuffer) => {
-        console.log("Trigger getResponse");
         const uint8Array = new Uint8Array(arrayBuffer);
         getResponse([{ body: uint8Array }])
           .then((response) => {
-            console.log(response);
             var ui8array = undefined;
             if (response?.body as Uint8Array) {
               ui8array = response?.body as Uint8Array;
