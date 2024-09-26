@@ -29,7 +29,7 @@ dfx deploy icrc7 --argument 'record {
     supported_standards = null;
   };
   icrc37_args = null;
-  icrc3_args = null; 
+  icrc3_args = null;
 }'
 
 dfx deploy idempotent-proxy-canister --argument "(opt variant {Init =
@@ -65,9 +65,9 @@ dfx canister call idempotent-proxy-canister admin_set_agents '
 '
 
 # TODO sardariuss 2024-09-25: Not sure it's needed
-dfx canister call idempotent-proxy-canister admin_add_managers "(vec {principal "${BACKEND_CANISTER}"})"
+dfx canister call idempotent-proxy-canister admin_add_managers '(vec {principal "'${BACKEND_CANISTER}'"})'
 
-dfx canister call idempotent-proxy-canister admin_add_callers "(vec {principal "${BACKEND_CANISTER}"})"
+dfx canister call idempotent-proxy-canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})'
 
 dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'variant {
   Init = record {
