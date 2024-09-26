@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, KeyboardEvent } from "react";
 
 import SearchSvg from "../../../assets/search.svg";
 import SendMessageSvg from "../../../assets/send-message.svg";
+import SpinnerSvg from "../../../assets/spinner.svg";
 import { backendActor } from "../../actors/BackendActor";
 import { arrayOfNumberToUint8Array } from "@dfinity/utils";
 
@@ -12,9 +13,10 @@ const generatedText = "Hello! How can I assist you today?";
 
 interface ChatBoxProps {
   chats: string[];
+  isCalling: boolean;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ chats }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ chats, isCalling }) => {
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -42,6 +44,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chats }) => {
           ))}
         </p>
       ))}
+      {isCalling && (
+        <div className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-300 py-2 text-lg text-black">
+          <img src={SpinnerSvg} alt="" />
+        </div>
+      )}
       <div ref={messagesEndRef}></div>
     </div>
   );
@@ -52,6 +59,7 @@ function Dashboard() {
   const [chats, setChats] = useState([initialText]);
   const [prompt, setPrompt] = useState("");
   const [shiftPressed, setShiftPressed] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const questionBody = {
@@ -90,18 +98,22 @@ function Dashboard() {
     functionName: "chatbot_completion",
   });
 
-  const handleEnterPress = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleEnterPress = async (
+    event: KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
     if (shiftPressed) {
       setPrompt((prevPrompt) => prevPrompt + "\n");
     } else if (prompt) {
       setPrompt("");
-      handleSendButtonClick();
+      await handleSendButtonClick();
     }
     event.preventDefault();
   };
 
-  const handleSendButtonClick = () => {
-    blobToArrayBuffer(blob)
+  const handleSendButtonClick = async () => {
+    setIsCalling(true);
+    setChats((prevChats) => [...prevChats, prompt]);
+    await blobToArrayBuffer(blob)
       .then((arrayBuffer) => {
         console.log("Trigger getResponse");
         const uint8Array = new Uint8Array(arrayBuffer);
@@ -119,15 +131,29 @@ function Dashboard() {
               const decoder = new TextDecoder("utf-8");
               const jsonString = decoder.decode(ui8array);
               const jsonObject = JSON.parse(jsonString);
-              setChats((prevChats) => [
-                ...prevChats,
-                prompt,
-                jsonObject["choices"][0]["message"]["content"],
-              ]);
+              let newChat = "";
+              setChats((prevChats) => [...prevChats, newChat]);
+              let i = 0;
+              let intervalId = setInterval(() => {
+                if (i < jsonObject["choices"][0]["message"]["content"].length) {
+                  newChat +=
+                    jsonObject["choices"][0]["message"]["content"].charAt(i);
+                  setChats((prevChats) => {
+                    const updatedChats = [...prevChats];
+                    updatedChats[updatedChats.length - 1] = newChat;
+                    return updatedChats;
+                  });
+                  i++;
+                } else {
+                  clearInterval(intervalId);
+                }
+              }, 10);
             }
+            setIsCalling(false);
           })
           .catch((error) => {
             console.error("Error getting response:", error);
+            setIsCalling(false);
           });
       })
       .catch((error) => console.error("Error converting blob:", error));
@@ -142,7 +168,7 @@ function Dashboard() {
   return (
     <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
       {isChatting ? (
-        <ChatBox chats={chats} />
+        <ChatBox chats={chats} isCalling={isCalling} />
       ) : (
         <div className="flex h-full flex-col items-center justify-center bg-white px-4 text-primary-text sm:px-16">
           <div className="flex flex-col items-center gap-2 py-4 text-center text-2xl font-bold tracking-wider sm:py-16 sm:text-start sm:text-[32px]">
@@ -217,10 +243,11 @@ function Dashboard() {
               event.key === "Shift" && setShiftPressed(true)
             }
             onKeyUp={(event) => event.key === "Shift" && setShiftPressed(false)}
-            onKeyPress={(event) => {
-              event.key === "Enter" && handleEnterPress(event);
+            onKeyPress={async (event) => {
+              event.key === "Enter" && (await handleEnterPress(event));
             }}
             ref={textAreaRef}
+            disabled={isCalling}
           />
           <button
             onClick={() => {
