@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "@ic-reactor/react";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,10 +22,13 @@ const Main = () => {
     args: [identity?.getPrincipal()],
   });
 
+  const toastShownRef = useRef(false);
+
   useEffect(() => {
-    if (queriedUser?.length === 0) {
+    if (queriedUser?.length === 0 && !toastShownRef.current) {
       navigate("/profile");
       toast.warn("Please add user");
+      toastShownRef.current = true;
     }
   }, [queriedUser]);
 
