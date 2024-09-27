@@ -12,8 +12,12 @@ module {
 
   public type IntPropType = {
     #COPYRIGHT;
-    #PATENT;
-    #IP_CERTIFICATE;
+    #PRE_PATENT;
+    #TRADEMARK;
+    #TRADE_SECRET;
+    #INDUSTRIAL_DESIGN_RIGHTS;
+    #GEOGRAPHICAL_INDICATIONS;
+    #PLANT_VARIETY;
   };
 
   public type IntPropLicense = {

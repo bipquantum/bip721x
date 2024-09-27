@@ -21,7 +21,7 @@ import {
 } from "../../../utils/conversions";
 import {
   IntPropInput,
-  UserArgs,
+  User,
 } from "../../../../declarations/backend/backend.did";
 
 import LampSvg from "../../../assets/lamp.svg";
@@ -35,16 +35,32 @@ import SpinnerSvg from "../../../assets/spinner.svg";
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
   {
-    label: intPropTypeToString({ PATENT: null }),
-    value: intPropTypeToIndex({ PATENT: null }).toString(),
-  },
-  {
-    label: intPropTypeToString({ IP_CERTIFICATE: null }),
-    value: intPropTypeToIndex({ IP_CERTIFICATE: null }).toString(),
-  },
-  {
     label: intPropTypeToString({ COPYRIGHT: null }),
     value: intPropTypeToIndex({ COPYRIGHT: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ PRE_PATENT: null }),
+    value: intPropTypeToIndex({ PRE_PATENT: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ TRADEMARK: null }),
+    value: intPropTypeToIndex({ TRADEMARK: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ TRADE_SECRET: null }),
+    value: intPropTypeToIndex({ TRADE_SECRET: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ INDUSTRIAL_DESIGN_RIGHTS: null }),
+    value: intPropTypeToIndex({ INDUSTRIAL_DESIGN_RIGHTS: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ GEOGRAPHICAL_INDICATIONS: null }),
+    value: intPropTypeToIndex({ GEOGRAPHICAL_INDICATIONS: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ PLANT_VARIETY: null }),
+    value: intPropTypeToIndex({ PLANT_VARIETY: null }).toString(),
   },
 ];
 
@@ -83,8 +99,8 @@ const IP_LICENSE_OPTIONS: Option[] = [
 const INITIAL_INT_PROP_INPUT: IntPropInput = {
   dataUri: "",
   title: "",
-  intPropLicense: { NOT_APPLICABLE: null },
-  intPropType: { PATENT: null },
+  intPropLicense: { GAME_FI: null },
+  intPropType: { COPYRIGHT: null },
   description: "",
   creationDate: BigInt(new Date().getTime()),
   publishingDate: [BigInt(new Date().getTime())],
@@ -104,7 +120,7 @@ interface NewIPProps {
 
 const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   const [step, setStep] = useState(0);
-  const [user, setUser] = useState<UserArgs>(EMPTY_USER);
+  const [user, setUser] = useState<User>(EMPTY_USER);
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();

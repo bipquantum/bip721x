@@ -19,9 +19,13 @@ module {
 
   public func intPropTypeToNat(intPropType: IntPropType) : Nat {
     switch (intPropType) {
-      case(#COPYRIGHT)             { 0; };
-      case(#PATENT)                { 1; };
-      case(#IP_CERTIFICATE)        { 2; };
+      case(#COPYRIGHT)                { 0; };
+      case(#PRE_PATENT)               { 1; };
+      case(#TRADEMARK)                { 2; };
+      case(#TRADE_SECRET)             { 3; };
+      case(#INDUSTRIAL_DESIGN_RIGHTS) { 4; };
+      case(#GEOGRAPHICAL_INDICATIONS) { 5; };
+      case(#PLANT_VARIETY)            { 6; };
     };
   };
 
@@ -39,22 +43,26 @@ module {
 
   public func intPropTypeFromNat(value: Nat) : IntPropType {
     switch (value) {
-      case(0) { #COPYRIGHT; };
-      case(1) { #PATENT; };
-      case(2) { #IP_CERTIFICATE; };
+      case(0) { #COPYRIGHT;                              };
+      case(1) { #PRE_PATENT;                             };
+      case(2) { #TRADEMARK;                              };
+      case(3) { #TRADE_SECRET;                           };
+      case(4) { #INDUSTRIAL_DESIGN_RIGHTS;               };
+      case(5) { #GEOGRAPHICAL_INDICATIONS;               };
+      case(6) { #PLANT_VARIETY;                          };
       case(_) { Debug.trap("Invalid intPropType value"); };
     };
   };
 
   public func intPropLicenseFromNat(value: Nat) : IntPropLicense {
     switch (value) {
-      case(0) { #SAAS; };
-      case(1) { #REPRODUCTION; };
-      case(2) { #GAME_FI; };
-      case(3) { #META_USE; };
-      case(4) { #PHYSICAL_REPRODUCTION; };
-      case(5) { #ADVERTISEMENT; };
-      case(6) { #NOT_APPLICABLE; };
+      case(0) { #SAAS;                                      };
+      case(1) { #REPRODUCTION;                              };
+      case(2) { #GAME_FI;                                   };
+      case(3) { #META_USE;                                  };
+      case(4) { #PHYSICAL_REPRODUCTION;                     };
+      case(5) { #ADVERTISEMENT;                             };
+      case(6) { #NOT_APPLICABLE;                            };
       case(_) { Debug.trap("Invalid intPropLicense value"); };
     };
   };

@@ -12,24 +12,36 @@ export function intPropLicenseToString(license: IntPropLicense): string {
 }
 
 export function intPropTypeToString(propType: IntPropType): string {
-  if ('PATENT'         in propType) return 'Patent';
-  if ('IP_CERTIFICATE' in propType) return 'IP Certificate';
-  if ('COPYRIGHT'      in propType) return 'Copyright';
+  if ('COPYRIGHT'                in propType) return 'Copyright';
+  if ('PRE_PATENT'               in propType) return 'Pre-Patent';
+  if ('TRADEMARK'                in propType) return 'Trademark';
+  if ('TRADE_SECRET'             in propType) return 'Trade Secret';
+  if ('INDUSTRIAL_DESIGN_RIGHTS' in propType) return 'Industrial Design Rights';
+  if ('GEOGRAPHICAL_INDICATIONS' in propType) return 'Geographical Indications';
+  if ('PLANT_VARIETY'            in propType) return 'Plant Variety';
   throw new Error('Invalid IntPropType');
 }
 
 export function intPropTypeToIndex(propType: IntPropType): number {
-  if ('PATENT'         in propType) return 0;
-  if ('IP_CERTIFICATE' in propType) return 1;
-  if ('COPYRIGHT'      in propType) return 2;
+  if ('COPYRIGHT'                in propType) return 0;
+  if ('PRE_PATENT'               in propType) return 1;
+  if ('TRADEMARK'                in propType) return 2;
+  if ('TRADE_SECRET'             in propType) return 3;
+  if ('INDUSTRIAL_DESIGN_RIGHTS' in propType) return 4;
+  if ('GEOGRAPHICAL_INDICATIONS' in propType) return 5;
+  if ('PLANT_VARIETY'            in propType) return 6;
   throw new Error('Invalid IntPropType');
 }
 
 export function intPropTypeFromIndex(propType: number): IntPropType {
   switch (propType) {
-    case 0: return { PATENT        : null };
-    case 1: return { IP_CERTIFICATE: null };
-    case 2: return { COPYRIGHT     : null };
+    case 0: return { COPYRIGHT                : null };
+    case 1: return { PRE_PATENT               : null };
+    case 2: return { TRADEMARK                : null };
+    case 3: return { TRADE_SECRET             : null };
+    case 4: return { INDUSTRIAL_DESIGN_RIGHTS : null };
+    case 5: return { GEOGRAPHICAL_INDICATIONS : null };
+    case 6: return { PLANT_VARIETY            : null };
     default: throw new Error('Invalid IntPropType number');
   }
 }
