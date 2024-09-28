@@ -1,4 +1,4 @@
-import Types       "../src/backend/Types";
+import Types       "../src/backend/intprop/Types";
 
 import Array       "mo:base/Array";
 import Debug       "mo:base/Debug";
@@ -15,7 +15,7 @@ module {
 
     let FLOAT_EPSILON : Float = 1e-12;
 
-    type IntProp = Types.IntProp;
+    type VIntProp = Types.VersionnedIntProp;
 
     // Utility Functions, needs to be declared before used
     private func intToText(i : Int) : Text {
@@ -271,25 +271,22 @@ module {
         };
 
         public let intProp = {
-            equal : Testify<IntProp> = {
-                toText = func (i : IntProp) : Text {
+            equal : Testify<VIntProp> = {
+                toText = func (i : VIntProp) : Text {
                     debug_show(i);
                 };
-                compare = func (x : IntProp, y : IntProp) : Bool {
-                    x.title == y.title and
-                    x.description == y.description and
-                    x.intPropType == y.intPropType and
-                    x.intPropLicense == y.intPropLicense;
+                compare = func (x : VIntProp, y : VIntProp) : Bool {
+                    compareIntProps(x, y);
                 };
             };
         };
 
         public let intProps = {
-            equal : Testify<[IntProp]> = {
-                toText = func (ips : [IntProp]) : Text {
+            equal : Testify<[VIntProp]> = {
+                toText = func (ips : [VIntProp]) : Text {
                     debug_show(ips);
                 };
-                compare = func (x : [IntProp], y : [IntProp]) : Bool {
+                compare = func (x : [VIntProp], y : [VIntProp]) : Bool {
                     let (xIt, yIt) = (x.vals(), y.vals());
                     loop {
                         switch (xIt.next(), yIt.next()) {
@@ -337,11 +334,15 @@ module {
             t;
         };
 
-        func compareIntProps(x: IntProp, y: IntProp) : Bool {
-            x.title == y.title and
-            x.description == y.description and
-            x.intPropType == y.intPropType and
-            x.intPropLicense == y.intPropLicense;
+        func compareIntProps(x: VIntProp, y: VIntProp) : Bool {
+            switch(x, y) {
+                case(#V1(a), #V1(b)) { 
+                    a.title          == b.title       and
+                    a.description    == b.description and
+                    a.intPropType    == b.intPropType and
+                    a.intPropLicense == b.intPropLicense;
+                 };
+            };
         };
     };
 }
