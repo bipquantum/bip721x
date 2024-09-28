@@ -14,14 +14,19 @@
         }
       }
     },
-    "idempotent-proxy-canister": {
-      "candid": "src/idempotent-proxy-canister/idempotent-proxy-canister.did",
-      "package": "idempotent-proxy-canister",
+    "idempotent_proxy_canister": {
+      "candid": "src/idempotent_proxy_canister/idempotent_proxy_canister.did",
+      "package": "idempotent_proxy_canister",
       "type": "rust"
     },
     "backend": {
       "main": "src/backend/main.mo",
-      "type": "motoko"
+      "type": "motoko",
+      "dependencies": [
+        "icrc7",
+        "icp_ledger",
+        "idempotent_proxy_canister"
+      ]
     },
     "frontend": {
       "source": [

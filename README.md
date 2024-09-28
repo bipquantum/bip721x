@@ -28,7 +28,7 @@ mops test
 ```
 
 ## Credits
-- Idempotent proxy canister: https://github.com/ldclabs/idempotent-proxy/tree/main/src/idempotent-proxy-canister
+- Idempotent proxy canister: https://github.com/ldclabs/idempotent-proxy/tree/main/src/idempotent_proxy_canister
 
 ## MVP Requirements
 

@@ -1,5 +1,5 @@
 [package]
-name = "idempotent-proxy-canister"
+name = "idempotent_proxy_canister"
 description = "A ICP canister Make Idempotent Proxy service on-chain."
 publish = false
 

@@ -1,8 +1,14 @@
 {
   "backend": {
-    "ic": "yq6wu-3iaaa-aaaap-ahdea-cai"
+    "ic": "c6ywk-maaaa-aaaap-akila-cai"
   },
   "frontend": {
-    "ic": "yx7qa-wqaaa-aaaap-ahdeq-cai"
+    "ic": "czzq6-byaaa-aaaap-akilq-cai"
+  },
+  "icrc7": {
+    "ic": "cf5kp-wyaaa-aaaap-akijq-cai"
+  },
+  "idempotent_proxy_canister": {
+    "ic": "cx35w-2iaaa-aaaap-akikq-cai"
   }
 }
