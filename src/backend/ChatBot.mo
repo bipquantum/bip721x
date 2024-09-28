@@ -1,4 +1,4 @@
-import IdempotentProxy "canister:idempotent-proxy-canister";
+import IdempotentProxy "canister:idempotent_proxy_canister";
 
 import Cycles          "mo:base/ExperimentalCycles";
 

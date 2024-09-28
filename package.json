@@ -16,10 +16,10 @@
     "tw:generate": " npx tailwindcss -i ./src/frontend/src/index.css -o ./src/frontend/src/output.css --watch"
   },
   "dependencies": {
-    "@dfinity/agent": "^1.3",
-    "@dfinity/candid": "^1.3",
-    "@dfinity/principal": "^1.3",
-    "@dfinity/utils": "^2.4.0",
+    "@dfinity/agent": "^2.1.1",
+    "@dfinity/candid": "^2.1.1",
+    "@dfinity/principal": "^2.1.1",
+    "@dfinity/utils": "^2.5.0",
     "@napi-rs/lzma": "^1.3.1",
     "@napi-rs/lzma-linux-x64-gnu": "^1.3.1",
     "react": "^18.2.0",
@@ -32,8 +32,8 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@dfinity/auth-client": "^1.3",
-    "@ic-reactor/react": "^1.8.2",
+    "@dfinity/auth-client": "^2.1.1",
+    "@ic-reactor/react": "^1.9.1",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/uuid": "^10.0.0",

@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "src/idempotent-proxy-canister",
+  "src/idempotent_proxy_canister",
 ]
 resolver = "2"
 
