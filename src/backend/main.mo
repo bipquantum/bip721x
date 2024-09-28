@@ -1,44 +1,34 @@
 import Types         "Types";
 import Controller    "Controller";
-import Conversions   "utils/Conversions";
+import Conversions   "intprop/Conversions";
 import ChatBot       "ChatBot";
 import TradeManager  "TradeManager";
+import MigrationTypes "migrations/Types";
+import Migrations     "migrations/Migrations";
 
 import Icrc7Canister "canister:icrc7";
 
 import Result        "mo:base/Result";
-import Map           "mo:map/Map";
 import Principal     "mo:base/Principal";
 import Debug         "mo:base/Debug";
 import Option        "mo:base/Option";
 import Cycles        "mo:base/ExperimentalCycles";
 
 
-shared({ caller = admin; }) actor class Backend() = this {
+shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = this {
 
   type User                  = Types.User;
   type Account               = Types.Account;
   type IntPropInput          = Types.IntPropInput;
-  type IntProp               = Types.IntProp;
+  type VersionnedIntProp     = Types.VersionnedIntProp;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
   type CreateIntPropResult   = Types.CreateIntPropResult;
 
-  stable var _data = {
-    users = {
-      // TODO sardariuss 2024-08-07: careful, if the backend canister is ever
-      // reinstalled, this canister will attempt to mint already minted tokens
-      // because index would be reset to 0
-      var index = 0;
-      mapUsers = Map.new<Principal, User>();
-      subaccToPrincipal = Map.new<Blob, Principal>();
-    };
-    intProps = {
-      var index = 0;
-      e8sIcpPrices = Map.new<Nat, Nat>();
-    };
-    icpTransferFee = 10;
-  };
+  // STABLE MEMBER
+  stable var _state: MigrationTypes.State = Migrations.install(args);
+  _state := Migrations.migrate(_state, args);
 
+  // NON-STABLE MEMBER
   var _controller : ?Controller.Controller = null;
 
   // Unfortunately the principal of the canister cannot be used at the construction of the actor
@@ -53,16 +43,20 @@ shared({ caller = admin; }) actor class Backend() = this {
     if (Option.isSome(_controller)) {
       return #err("The controller is already initialized");
     };
+
+    switch(_state){
+      case(#v0_1_0(stable_data)) {
+        _controller := ?Controller.Controller({
+          stable_data with 
+          trade_manager = TradeManager.TradeManager({
+            stage_account = { owner = Principal.fromActor(this); subaccount = null; };
+            fee = stable_data.e8sTransferFee;
+          });
+        });
+      };
+    };
     
-    _controller := ?Controller.Controller({
-      _data with 
-      trade_manager = TradeManager.TradeManager({
-        stage_account = { owner = Principal.fromActor(this); subaccount = null; };
-        fee = _data.icpTransferFee;
-      });
-    });
-    
-    #ok();
+    #ok;
   };
 
   public shared({caller}) func set_user(user: User): async Result<(), Text> {
@@ -94,7 +88,7 @@ shared({ caller = admin; }) actor class Backend() = this {
     getController().filterListedIntProps({ ids });
   };
 
-  public composite query func get_int_prop({token_id: Nat}) : async Result<IntProp, Text> {
+  public composite query func get_int_prop({token_id: Nat}) : async Result<VersionnedIntProp, Text> {
     let metadata = await Icrc7Canister.icrc7_token_metadata([token_id]);
     #ok(Conversions.metadataToIntProp(metadata[0])); // TODO sardariuss 2024-09-07: better error handling
   };

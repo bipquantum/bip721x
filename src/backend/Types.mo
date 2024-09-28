@@ -1,4 +1,5 @@
-import Map "mo:map/Map";
+import IntPropTypes "intprop/Types";
+import CurrentTypes "migrations/00-01-00-initial/Types";
 
 import Result "mo:base/Result";
 
@@ -8,63 +9,18 @@ module {
 
   type Result<Ok, Err> = Result.Result<Ok, Err>;
 
-  public let BIP721X_TAG = "bip721x";
+  public let BIP721X_TAG        = IntPropTypes.BIP721X_TAG;
+  public type VersionnedIntProp = IntPropTypes.VersionnedIntProp;
+  public type IntPropInput      = IntPropTypes.IntPropInput;
+  public type IntProp           = IntPropTypes.IntProp;
 
-  public type IntPropType = {
-    #COPYRIGHT;
-    #PRE_PATENT;
-    #TRADEMARK;
-    #TRADE_SECRET;
-    #INDUSTRIAL_DESIGN_RIGHTS;
-    #GEOGRAPHICAL_INDICATIONS;
-    #PLANT_VARIETY;
-  };
-
-  public type IntPropLicense = {
-    #SAAS;
-    #REPRODUCTION;
-    #GAME_FI;
-    #META_USE;
-    #PHYSICAL_REPRODUCTION;
-    #ADVERTISEMENT;
-    #NOT_APPLICABLE;
-  };
-
-  public type IntPropInput = {
-    title: Text;
-    description: Text;
-    intPropType: IntPropType;
-    intPropLicense: IntPropLicense;
-    creationDate: Time;
-    publishingDate: ?Time;
-    dataUri: Text;
-  };
-
-  public type IntProp = IntPropInput and {
-    author: Principal;
-  };
-
-  public type IntPropRegister = {
-    var index: Nat;
-    e8sIcpPrices: Map.Map<Nat, Nat>;
-  };
-  
-  public type User = {
-    firstName: Text;
-    lastName: Text;
-    nickName: Text;
-    specialty: Text;
-    country: Text;
-  };
+  public type IntPropRegister = CurrentTypes.IntPropRegister;
+  public type User            = CurrentTypes.User;
+  public type UserRegister    = CurrentTypes.UserRegister;
 
   public type Account = {
     owner: Principal;
     subaccount: ?Blob;
-  };
-
-  public type UserRegister = {
-    var index: Nat;
-    mapUsers: Map.Map<Principal, User>;
   };
 
   public type CreateIntPropResultError = {

@@ -1,0 +1,42 @@
+
+module {
+
+  type Time = Int;
+
+  public let BIP721X_TAG = "bip721x";
+
+  public type IntPropType = {
+    #COPYRIGHT;
+    #PRE_PATENT;
+    #TRADEMARK;
+    #TRADE_SECRET;
+    #INDUSTRIAL_DESIGN_RIGHTS;
+    #GEOGRAPHICAL_INDICATIONS;
+    #PLANT_VARIETY;
+  };
+
+  public type IntPropLicense = {
+    #SAAS;
+    #REPRODUCTION;
+    #GAME_FI;
+    #META_USE;
+    #PHYSICAL_REPRODUCTION;
+    #ADVERTISEMENT;
+    #NOT_APPLICABLE;
+  };
+
+  public type IntPropInput = {
+    title: Text;
+    description: Text;
+    intPropType: IntPropType;
+    intPropLicense: IntPropLicense;
+    creationDate: Time;
+    publishingDate: ?Time;
+    dataUri: Text;
+  };
+
+  public type IntProp = IntPropInput and {
+    author: Principal;
+  };
+
+};

@@ -82,7 +82,9 @@ dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'var
   }
 }'
 
-dfx deploy backend
+dfx deploy backend --argument 'variant {
+  init = record { e8sTransferFee = 10; }
+}'
 
 # Internet identity
 dfx deps pull
