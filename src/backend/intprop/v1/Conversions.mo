@@ -1,16 +1,14 @@
-import Debug  "mo:base/Debug";
-import Array  "mo:base/Array";
-import Result "mo:base/Result";
-import Option "mo:base/Option";
+import Types     "Types";
+
+import ICRC7     "mo:icrc7-mo";
+
+import Debug     "mo:base/Debug";
+import Array     "mo:base/Array";
+import Result    "mo:base/Result";
+import Option    "mo:base/Option";
 import Principal "mo:base/Principal";
 
-import ICRC7  "mo:icrc7-mo";
-
-import Types  "../Types";
-
 module {
-
-  let BIP721X_TAG      = Types.BIP721X_TAG;
 
   type IntPropType     = Types.IntPropType;
   type IntPropLicense  = Types.IntPropLicense;
@@ -112,26 +110,7 @@ module {
     ]);
   };
 
-  public func intPropToMetadata(intProp: IntProp) : ICRC7.NFTInput {
-    #Class([{
-      name = BIP721X_TAG;
-      immutable = true;
-      value = intPropToValue(intProp);
-    }]);
-  };
-
-  public func metadataToIntProp(optMetaData: ?[(Text, ICRC7.Value)]) : IntProp {
-    switch(optMetaData){
-      case(null){ Debug.trap("Missing metadata"); };
-      case(?metaData){
-        assert (metaData.size() == 1);
-        assert (metaData[0].0 == BIP721X_TAG);
-        return valueToIntProp(metaData[0].1);
-      };
-    };
-  };
-
-  func valueToIntProp(value: ICRC7.Value) : IntProp {
+  public func valueToIntProp(value: ICRC7.Value) : IntProp {
     switch(value){
       case(#Map(map)){
         var title : ?Text = null;

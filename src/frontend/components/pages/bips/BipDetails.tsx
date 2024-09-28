@@ -85,25 +85,25 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
             </div>
           ) : (
             <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
-              {intProp.ok.dataUri && (
+              {intProp.ok.V1.dataUri && (
                 <div className="w-full">
                   <p> Preview </p>
-                  <FilePreview dataUri={intProp.ok.dataUri} />
+                  <FilePreview dataUri={intProp.ok.V1.dataUri} />
                 </div>
               )}
               <div className="text-sm">
                 <div className="py-2 text-base font-bold">
-                  {intProp.ok.title}
+                  {intProp.ok.V1.title}
                 </div>
                 <div className="flex flex-col gap-2 text-lg">
-                  <p> Type: {intPropTypeToString(intProp.ok.intPropType)}</p>
+                  <p> Type: {intPropTypeToString(intProp.ok.V1.intPropType)}</p>
                   <p>
-                    License: {intPropLicenseToString(intProp.ok.intPropLicense)}{" "}
+                    License: {intPropLicenseToString(intProp.ok.V1.intPropLicense)}{" "}
                   </p>
                   <p>
                     Creation Date:{" "}
                     {
-                      new Date(Number(intProp.ok.creationDate.toString()))
+                      new Date(Number(intProp.ok.V1.creationDate.toString()))
                         .toISOString()
                         .split("T")[0]
                     }
@@ -111,13 +111,13 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   <p>
                     Publish Date:{" "}
                     {
-                      new Date(Number(intProp.ok.publishingDate.toString()))
+                      new Date(Number(intProp.ok.V1.publishingDate.toString()))
                         .toISOString()
                         .split("T")[0]
                     }
                   </p>
                   <UserDetails
-                    principal={intProp.ok.author}
+                    principal={intProp.ok.V1.author}
                     title="Author(s) Details"
                   />
                   {owner && (
