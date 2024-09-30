@@ -128,6 +128,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   const [intPropInput, setIntPropInput] = useState<IntPropInput>(
     INITIAL_INT_PROP_INPUT,
   );
+  const [dataUri, setDataUri] = useState("");
 
   const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -175,6 +176,10 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
     }
     setStep(1);
   };
+
+  useEffect(() => {
+    setIntPropInput({ ...intPropInput, dataUri });
+  }, [dataUri]);
 
   return (
     <div
@@ -350,10 +355,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                     <FileUploader
                       dataUri={intPropInput.dataUri}
                       setDataUri={(dataUri) => {
-                        setIntPropInput({
-                          ...intPropInput,
-                          dataUri: dataUri ?? "",
-                        });
+                        setDataUri(dataUri ?? "");
                       }}
                     />
                   </div>

@@ -14,7 +14,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ dataUri, className }) => {
 
   return (
     <div>
-      <div className="rounded-lg border border-gray-300 shadow-md">
+      <div className="overflow-hidden rounded-lg border border-gray-300 shadow-md">
         {mimeType.startsWith("image/") && (
           <img
             src={dataUri}
