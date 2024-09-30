@@ -11,6 +11,7 @@ import FilePreview from "../../common/FilePreview";
 
 import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
+import { ICP_DECIMALS_ALLOWED } from "../../constants";
 
 interface IPItemProps {
   intPropId: bigint;
@@ -30,7 +31,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
 
   useEffect(() => {
     if (e8sPrice && "ok" in e8sPrice) {
-      const price = fromE8s(e8sPrice.ok).toFixed(2);
+      const price = fromE8s(e8sPrice.ok).toFixed(ICP_DECIMALS_ALLOWED);
       setPrice(price);
     } else setPrice("");
   }, [e8sPrice]);

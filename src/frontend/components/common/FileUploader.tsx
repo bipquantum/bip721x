@@ -1,6 +1,7 @@
 import React, { useCallback, useRef, useState } from "react";
 
 import FilePreview from "./FilePreview";
+import { MAX_IP_SIZE_BYTES } from "../constants";
 
 interface FileUploaderProps {
   dataUri: string | null;
@@ -14,13 +15,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_FILE_SIZE = 1.5 * 1024 * 1024; // 1.5 MB in bytes
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
     if (file) {
-      if (file.size > MAX_FILE_SIZE) {
+      if (file.size > MAX_IP_SIZE_BYTES) {
         setErrorMessage(
           `File size exceeds the 1.5MB limit. Selected file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`,
         );
@@ -63,7 +62,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
     if (item && item.kind === "file") {
       const file = item.getAsFile();
       if (!file) return;
-      if (file.size > MAX_FILE_SIZE) {
+      if (file.size > MAX_IP_SIZE_BYTES) {
         setErrorMessage(
           `File size exceeds the 1.5MB limit. Selected file is ${(file.size / (1024 * 1024)).toFixed(2)} MB.`,
         );

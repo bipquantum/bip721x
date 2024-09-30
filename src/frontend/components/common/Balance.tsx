@@ -8,6 +8,7 @@ import { ApproveArgs } from "../../../declarations/icp_ledger/icp_ledger.did";
 
 import SpinnerSvg from "../../assets/spinner.svg";
 import { toast } from "react-toastify";
+import { ICP_DECIMALS_ALLOWED } from "../constants";
 
 type BalanceProps = {
   principal: Principal;
@@ -80,12 +81,12 @@ const Balance = ({ principal }: BalanceProps) => {
 
   return (
     <div className="flex flex-row items-center gap-2">
-      <span>Balance: {fromE8s(balance ?? 0n).toFixed(2)} ICP</span>
-      <span>Allowed: {fromE8s(getAllowance()).toFixed(2)} ICP</span>
+      <span>Balance: {fromE8s(balance ?? 0n).toFixed(ICP_DECIMALS_ALLOWED)} ICP</span>
+      <span>Allowed: {fromE8s(getAllowance()).toFixed(ICP_DECIMALS_ALLOWED)} ICP</span>
       <NumericFormat
         className="w-32 focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
         thousandSeparator=","
-        decimalScale={2}
+        decimalScale={ICP_DECIMALS_ALLOWED}
         value={Number(fromE8s(approveAmount))}
         onValueChange={(e) => {
           setApproveAmount(

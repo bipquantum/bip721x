@@ -11,6 +11,7 @@ import SpinnerSvg from "../../assets/spinner.svg";
 import { icrc7Actor } from "../actors/Icrc7Actor";
 import { canisterId } from "../../../declarations/backend";
 import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/icrc7/icrc7.did";
+import { ICP_DECIMALS_ALLOWED } from "../constants";
 
 interface ListingDetailsProps {
   principal: Principal | undefined;
@@ -176,7 +177,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         return (
           <div className="flex w-full items-center justify-between">
             <div className="text-primary text-lg font-bold">
-              {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
+              {price ? fromE8s(price).toFixed(ICP_DECIMALS_ALLOWED) : "N/A"} ICP
             </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
@@ -200,7 +201,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             <NumericFormat
               className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
               thousandSeparator=","
-              decimalScale={2}
+              decimalScale={ICP_DECIMALS_ALLOWED}
               value={Number(fromE8s(sellPrice))}
               onValueChange={(e) => {
                 setSellPrice(
@@ -229,7 +230,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   return (
     <div className="flex w-full items-center justify-between">
       <div className="text-primary text-lg font-bold">
-        {price ? fromE8s(price).toFixed(2) : "N/A"} ICP
+        {price ? fromE8s(price).toFixed(ICP_DECIMALS_ALLOWED) : "N/A"} ICP
       </div>
       <button
         onClick={() => triggerBuy(intPropId)}

@@ -9,8 +9,6 @@ import { arrayOfNumberToUint8Array } from "@dfinity/utils";
 const initialText =
   "Hello! I am the IP Assistant, a chatbot trained on extensive legal and technical information related to intellectual property (IP). I am here to assist you with any questions or concerns you may have about IP protection, copyright laws, patent filing, trademark registration, and any other related topics. How can I assist you today?";
 
-const generatedText = "Hello! How can I assist you today?";
-
 interface ChatBoxProps {
   chats: string[];
   isCalling: boolean;
