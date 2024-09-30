@@ -21,9 +21,8 @@ interface IPItemProps {
 }
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
-
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
-  
+
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
 
@@ -36,14 +35,14 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
   });
-  
+
   const updateBipDetails = () => {
     getIntProp();
     getOptOwner();
   };
 
   useEffect(() => {
-    setOwner(optOwner? fromNullable(optOwner) : undefined);
+    setOwner(optOwner ? fromNullable(optOwner) : undefined);
   }, [optOwner]);
 
   return (
@@ -68,7 +67,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
         </button>
       </div>
       <div className="h-full w-full p-4 sm:p-8">
-        <div className="bg-tertiary flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl sm:rounded-3xl">
+        <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl bg-tertiary sm:rounded-3xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -84,18 +83,21 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               <p>{"Cannot find IP"}</p>
             </div>
           ) : (
-            <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
+            <div className="flex w-full flex-col gap-y-2 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
               {intProp.ok.dataUri && (
                 <div className="w-full">
                   <p> Preview </p>
-                  <FilePreview dataUri={intProp.ok.dataUri} />
+                  <div className="m-auto w-full sm:w-96">
+                    <FilePreview
+                      dataUri={intProp.ok.dataUri}
+                      className="h-60 w-full object-cover sm:w-96"
+                    />
+                  </div>
                 </div>
               )}
               <div className="text-sm">
-                <div className="py-2 text-base font-bold">
-                  {intProp.ok.title}
-                </div>
-                <div className="flex flex-col gap-2 text-lg">
+                <p className="font-bold">{intProp.ok.title}</p>
+                <div className="flex flex-col gap-1">
                   <p> Type: {intPropTypeToString(intProp.ok.intPropType)}</p>
                   <p>
                     License: {intPropLicenseToString(intProp.ok.intPropLicense)}{" "}
