@@ -3,7 +3,7 @@ import { useAuth } from "@ic-reactor/react";
 import { toast } from "react-toastify";
 import { fromNullable } from "@dfinity/utils";
 
-import { UserArgs } from "../../../../declarations/backend/backend.did";
+import { User } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
 import CopyToClipboard from "../../common/CopyToClipboard";
 
@@ -21,7 +21,7 @@ const EMPTY_USER = {
 const ProfileFields: {
   label: string;
   placeholder: string;
-  name: keyof UserArgs;
+  name: keyof User;
 }[] = [
   { label: "First Name", name: "firstName", placeholder: "John" },
   { label: "Last Name", name: "lastName", placeholder: "Doe" },
@@ -42,7 +42,7 @@ const Profile = () => {
     return <></>;
   }
 
-  const [user, setUser] = useState<UserArgs>(EMPTY_USER);
+  const [user, setUser] = useState<User>(EMPTY_USER);
 
   const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
     functionName: "get_user",

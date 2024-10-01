@@ -5,7 +5,7 @@ import Array             "mo:base/Array";
 import Buffer            "mo:base/Buffer";
 
 import Types             "Types";
-import Conversions       "utils/Conversions";
+import Conversions       "intprop/Conversions";
 import TradeManager      "TradeManager";
 
 import ICRC7             "mo:icrc7-mo";
@@ -67,7 +67,7 @@ module {
         metadata = #Class([{
           name = BIP721X_TAG;
           immutable = true;
-          value = Conversions.intPropToValue(args);
+          value = Conversions.intPropToValue(#V1(args));
         }]);
         owner = ?{
           owner = args.author;

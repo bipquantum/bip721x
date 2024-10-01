@@ -1,7 +1,8 @@
 import Principal              "mo:base/Principal";
 
-import Types                  "../src/backend/Types";
-import Conversions            "../src/backend/utils/Conversions";
+import Types                  "../src/backend/intprop/Types";
+import V1Conversions          "../src/backend/intprop/v1/Conversions";
+import Conversions            "../src/backend/intprop/Conversions";
 import { verify; Testify; } = "Testify";
 
 import { suite; test; } "mo:test";
@@ -12,20 +13,23 @@ suite("Conversions", func(){
 
     let actual = ?[
       (Types.BIP721X_TAG, 
-      #Map([
-        ("title", #Text("title")),
-        ("description", #Text("description")),
-        ("intPropType", #Nat(Conversions.intPropTypeToNat(#COPYRIGHT))),
-        ("intPropLicense", #Nat(Conversions.intPropLicenseToNat(#SAAS))),
-        ("creationDate", #Int(0)),
-        ("publishingDate", #Array([#Int(1)])),
-        ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae")),
-        ("dataUri", #Text("dataUri")),
+        #Map([
+          ("version", #Nat(1)),
+          ("ip", #Map([
+            ("title", #Text("title")),
+            ("description", #Text("description")),
+            ("intPropType", #Nat(V1Conversions.intPropTypeToNat(#COPYRIGHT))),
+            ("intPropLicense", #Nat(V1Conversions.intPropLicenseToNat(#SAAS))),
+            ("creationDate", #Int(0)),
+            ("publishingDate", #Array([#Int(1)])),
+            ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae")),
+            ("dataUri", #Text("dataUri")),
+          ]))
         ])
       )
     ];
 
-    let expected : Types.IntProp = {
+    let expected : Types.VersionnedIntProp = #V1({
       title = "title";
       description = "description";
       intPropType = #COPYRIGHT;
@@ -34,7 +38,7 @@ suite("Conversions", func(){
       publishingDate = ?1;
       author = Principal.fromText("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae");
       dataUri = "dataUri";
-    };
+    });
 
     verify(Conversions.metadataToIntProp(actual), expected, Testify.intProp.equal);
   });
@@ -58,8 +62,8 @@ suite("Conversions", func(){
         value = #Map([
           ("title", #Text("title")),
           ("description", #Text("description")),
-          ("intPropType", #Nat(Conversions.intPropTypeToNat(#COPYRIGHT))),
-          ("intPropLicense", #Nat(Conversions.intPropLicenseToNat(#SAAS))),
+          ("intPropType", #Nat(V1Conversions.intPropTypeToNat(#COPYRIGHT))),
+          ("intPropLicense", #Nat(V1Conversions.intPropLicenseToNat(#SAAS))),
           ("creationDate", #Int(0)),
           ("publishingDate", #Int(1)),
           ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae"))

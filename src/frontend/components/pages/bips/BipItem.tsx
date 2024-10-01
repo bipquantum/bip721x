@@ -11,6 +11,7 @@ import FilePreview from "../../common/FilePreview";
 
 import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
+import { ICP_DECIMALS_ALLOWED } from "../../constants";
 
 interface IPItemProps {
   intPropId: bigint;
@@ -30,7 +31,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
 
   useEffect(() => {
     if (e8sPrice && "ok" in e8sPrice) {
-      const price = fromE8s(e8sPrice.ok).toFixed(2);
+      const price = fromE8s(e8sPrice.ok).toFixed(ICP_DECIMALS_ALLOWED);
       setPrice(price);
     } else setPrice("");
   }, [e8sPrice]);
@@ -54,10 +55,10 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
       ) : (
         <Link className="w-44 sm:w-72 sm:p-2" to={`/bip/${intPropId}`}>
           <div className="bg-tertiary flex flex-col gap-y-1 rounded-2xl p-3 text-base text-white sm:p-4">
-            {intProp.ok.dataUri ? (
+            {intProp.ok.V1.dataUri ? (
               <div className="w-full">
                 <FilePreview
-                  dataUri={intProp.ok.dataUri}
+                  dataUri={intProp.ok.V1.dataUri}
                   className="h-[111px] w-full rounded-xl object-cover sm:h-[184px]"
                 />
               </div>
@@ -69,16 +70,16 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
               />
             )}
             <div className="flex items-center justify-between font-semibold">
-              <p className="text-base sm:text-2xl">{intProp.ok.title}</p>
+              <p className="text-base sm:text-2xl">{intProp.ok.V1.title}</p>
               <button className="rounded-full bg-[#6d15ff] px-4 py-1 text-xs sm:text-sm">
                 Buy
               </button>
             </div>
             <p className="text-sm font-semibold sm:text-base">
-              Type: {intPropTypeToString(intProp.ok.intPropType)}
+              Type: {intPropTypeToString(intProp.ok.V1.intPropType)}
             </p>
             <p className="text-sm font-semibold sm:text-base">
-              License: {intPropLicenseToString(intProp.ok.intPropLicense)}
+              License: {intPropLicenseToString(intProp.ok.V1.intPropLicense)}
             </p>
             <div className="flex items-center justify-between text-lg font-bold sm:text-[22px]">
               {price !== "" ? (

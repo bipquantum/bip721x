@@ -1,15 +1,11 @@
 set -ex
 
-dfx identity use default
-DEPLOYER_ACCOUNT_ID=$(dfx ledger account-id)
+dfx identity use first_deployement
 
-# Create all canisters
-dfx canister create --all
-
-BACKEND_CANISTER=$(dfx canister id backend)
+BACKEND_CANISTER=$(dfx canister id backend --ic)
 
 # Deploy all canisters
-dfx deploy icrc7 --argument 'record {
+dfx deploy icrc7 --ic --argument 'record {
   icrc7_args = opt opt record {
     symbol = opt "bIP721" : opt text;
     name = opt "Intellectual Property" : opt text;
@@ -31,15 +27,14 @@ dfx deploy icrc7 --argument 'record {
   icrc37_args = null;
   icrc3_args = null;
 }'
-
-dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
+dfx deploy idempotent_proxy_canister  --argument "(opt variant {Init =
   record {
-    ecdsa_key_name = \"dfx_test_key\";
+    ecdsa_key_name = \"key_1\";
     proxy_token_refresh_interval = 3600;
     subnet_size = 13;
     service_fee = 10_000_000;
   }
-})"
+})" --ic --mode=reinstall
 
 # TODO sardariuss 2024-09-25: Deploy our own cf proxy
 # TODO sardariuss 2024-09-25: Why 3 records of the same proxy are needed?
@@ -62,37 +57,17 @@ dfx canister call idempotent_proxy_canister admin_set_agents '
       proxy_token = null;
     };
   })
-'
+' --ic
 
 # TODO sardariuss 2024-09-25: Not sure it's needed
-dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal "'${BACKEND_CANISTER}'"})'
+dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal "'${BACKEND_CANISTER}'"})' --ic
 
-dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})'
+dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})' --ic
 
-dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'variant {
-  Init = record {
-    minting_account = "'${DEPLOYER_ACCOUNT_ID}'";
-    initial_values = vec {};
-    send_whitelist = vec {};
-    transfer_fee = opt record {
-      e8s = 10_000 : nat64;
-    };
-    token_symbol = opt "ICP";
-    token_name = opt "Internet Computer Protocol";
-  }
-}'
-
-dfx deploy backend --argument 'variant {
+dfx deploy backend --ic --argument 'variant {
   init = record { e8sTransferFee = 10; }
 }'
 
-# Internet identity
-dfx deps pull
-dfx deps init
-dfx deps deploy internet_identity
+dfx canister call backend init_controller --ic
 
-dfx canister call backend init_controller
-
-dfx deploy frontend
-
-dfx generate
+dfx deploy frontend --ic
