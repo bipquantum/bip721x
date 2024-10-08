@@ -21,9 +21,8 @@ interface IPItemProps {
 }
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
-
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
-  
+
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
 
@@ -36,14 +35,14 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
   });
-  
+
   const updateBipDetails = () => {
     getIntProp();
     getOptOwner();
   };
 
   useEffect(() => {
-    setOwner(optOwner? fromNullable(optOwner) : undefined);
+    setOwner(optOwner ? fromNullable(optOwner) : undefined);
   }, [optOwner]);
 
   return (
@@ -68,7 +67,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
         </button>
       </div>
       <div className="h-full w-full p-4 sm:p-8">
-        <div className="bg-tertiary flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl sm:rounded-3xl">
+        <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl bg-tertiary sm:rounded-3xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -88,7 +87,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               {intProp.ok.V1.dataUri && (
                 <div className="w-full">
                   <p> Preview </p>
-                  <FilePreview dataUri={intProp.ok.V1.dataUri} />
+                  <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
                 </div>
               )}
               <div className="text-sm">

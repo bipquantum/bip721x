@@ -128,6 +128,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   const [intPropInput, setIntPropInput] = useState<IntPropInput>(
     INITIAL_INT_PROP_INPUT,
   );
+  const [dataUri, setDataUri] = useState("");
 
   const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -176,6 +177,10 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
     setStep(1);
   };
 
+  useEffect(() => {
+    setIntPropInput({ ...intPropInput, dataUri });
+  }, [dataUri]);
+
   return (
     <div
       className={`flex h-full w-full flex-1 flex-col items-center justify-center gap-4 overflow-auto bg-white sm:justify-start`}
@@ -194,8 +199,8 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           </button>
         </div>
       ) : (
-        <div className="flex min-h-screen w-full flex-col items-center justify-start gap-16 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
-          <div className="flex w-72 flex-col gap-8">
+        <div className="flex min-h-screen w-full flex-col items-center justify-start gap-8 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
+          <div className="flex w-72 flex-col gap-4">
             <div className="flex items-end justify-between">
               <p className="text-2xl font-bold">Name Your IP</p>
               <div>Step {step} of 4</div>
@@ -243,7 +248,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           {step === 1 && (
             <>
               <div className="flex w-11/12 items-end justify-between gap-12 sm:w-1/3">
-                <div className="flex w-full flex-col gap-8 text-base">
+                <div className="flex w-full flex-col gap-4 text-base">
                   <div className="flex flex-col gap-1">
                     <div className="px-4 font-semibold">Title of the IP</div>
                     <input
@@ -350,10 +355,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                     <FileUploader
                       dataUri={intPropInput.dataUri}
                       setDataUri={(dataUri) => {
-                        setIntPropInput({
-                          ...intPropInput,
-                          dataUri: dataUri ?? "",
-                        });
+                        setDataUri(dataUri ?? "");
                       }}
                     />
                   </div>
@@ -505,7 +507,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
                 Lists the asset for sale on the marketplace.
               </p>
 
-              <div className="mt-8 flex cursor-pointer items-center justify-start rounded-full bg-white px-2 text-secondary">
+              <div className="mt-4 flex cursor-pointer items-center justify-start rounded-full bg-white px-2 text-secondary">
                 <div className="h-4 w-4 rounded-full border-2 border-secondary"></div>
                 <p className="w-full text-center">Keep in my bIPs Wallet</p>
               </div>
@@ -517,7 +519,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
           )}
           {step === 4 && (
             <div className="flex flex-col items-center gap-6">
-              <div className="flex flex-col items-center sm:flex-row sm:gap-8">
+              <div className="flex flex-col items-center sm:flex-row sm:gap-4">
                 <img
                   className="h-64 w-11/12 rounded-[32px] sm:h-[462px] sm:w-[447px]"
                   src={AIBotImg}

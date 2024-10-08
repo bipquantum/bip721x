@@ -93,10 +93,10 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
         ref={fileInputRef}
       />
       {dataUri ? (
-        FilePreview({ dataUri })
+        FilePreview({ dataUri, className: "h-60 w-full object-cover " })
       ) : (
         <div
-          className="bg-tertiary flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-none p-4"
+          className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-none bg-tertiary p-4"
           onDrop={handleDrop}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}

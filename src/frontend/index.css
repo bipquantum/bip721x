@@ -11,3 +11,33 @@ input {
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
+
+:root {
+  --scrollbar-width: 5px;
+  --scrollbar-bg: rgba(51, 51, 51, 0.1);
+  --scrollbar-thumb: #333;
+  --scrollbar-thumb-hover: #333;
+  background-color: white !important;
+}
+* {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    border-radius: 6px;
+    background: var(--scrollbar-bg);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+    box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-thumb);
+    cursor: pointer;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+}
