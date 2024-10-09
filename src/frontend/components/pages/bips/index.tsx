@@ -11,6 +11,8 @@ import FilterSvg from "../../../assets/filter.svg";
 import ProfileSvg from "../../../assets/profile.png";
 import SearchSvg from "../../../assets/search-button.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
+import TabsComponent from "../../common/TabComponent";
+import OwnedBipItem from "./OwnedBipItem";
 
 export enum FilterType {
   LISTED,
@@ -24,7 +26,7 @@ interface BipsProps {
 const take: [] | [bigint] = [BigInt(5)];
 
 const Bips: React.FC<BipsProps> = ({ principal }) => {
-  const [isListedIPs, setIsListedIPs] = useState(true);
+  const [activeTab, setActiveTab] = useState(0);
   const [filterBy, setFilterBy] = useState<FilterType>(FilterType.LISTED);
   const [entries, setEntries] = useState<bigint[]>([]); // Store fetched entries
   const [prev, setPrev] = useState<[] | [bigint]>([]); // Keep track of previous entries
@@ -65,9 +67,9 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   useEffect(() => {
     setEntries([]);
     setPrev([]);
-    if (isListedIPs) setFilterBy(FilterType.LISTED);
-    else setFilterBy(FilterType.OWNED);
-  }, [isListedIPs]);
+    if (activeTab === 0) setFilterBy(FilterType.LISTED);
+    else if (activeTab === 1) setFilterBy(FilterType.OWNED);
+  }, [activeTab]);
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-center justify-start gap-y-4 overflow-y-auto bg-primary py-4 text-white sm:items-start sm:p-0">
@@ -97,12 +99,11 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           <button className="flex sm:hidden">
             <img src={FilterSvg} className="h-6 invert" alt="Logo" />
           </button>
-          <div className="flex items-center gap-3">
-            <p className="text-sm sm:text-xl">
-              {isListedIPs ? "Listed IPs" : "My IPs"}
-            </p>
-            <ToggleSwitch vaule={isListedIPs} setValue={setIsListedIPs} />
-          </div>
+          <TabsComponent
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            tabs={["List IPs", "My IPs"]}
+          />
         </div>
       </div>
       <div className="h-[720px] w-full overflow-y-auto" id="scrollableDiv">
@@ -119,11 +120,25 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           }
           scrollableTarget="scrollableDiv"
         >
-          <div className="grid grid-cols-2 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {entries?.map((intPropId, index) => (
-              <BipItem intPropId={intPropId} key={index} />
-            ))}
-          </div>
+          {activeTab === 0 && (
+            <div className="grid grid-cols-2 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {entries?.map((intPropId, index) => (
+                <BipItem intPropId={intPropId} key={index} />
+              ))}
+            </div>
+          )}
+          {activeTab === 1 && (
+            <div className="flex w-full flex-col gap-4 px-4 text-xl font-bold">
+              <div className="flex w-full">
+                <p className="w-1/3 text-white">Title</p>
+                <p className="w-1/3 text-white">Create Date</p>
+                <p className="w-1/3 text-white">ACTION</p>
+              </div>
+              {entries?.map((intPropId, index) => (
+                <OwnedBipItem intPropId={intPropId} key={index} />
+              ))}
+            </div>
+          )}
         </InfiniteScroll>
       </div>
     </div>

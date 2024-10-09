@@ -83,11 +83,14 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               <p>{"Cannot find IP"}</p>
             </div>
           ) : (
-            <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
+            <div className="flex w-full flex-col items-center gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
               {intProp.ok.V1.dataUri && (
-                <div className="w-full">
+                <div className="w-full max-w-[480px]">
                   <p> Preview </p>
-                  <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
+                  <FilePreview
+                    dataUri={intProp.ok.V1.dataUri}
+                    className="h-60 w-full object-cover sm:w-96"
+                  />
                 </div>
               )}
               <div className="text-sm">
@@ -97,7 +100,8 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                 <div className="flex flex-col gap-2 text-lg">
                   <p> Type: {intPropTypeToString(intProp.ok.V1.intPropType)}</p>
                   <p>
-                    License: {intPropLicenseToString(intProp.ok.V1.intPropLicense)}{" "}
+                    License:{" "}
+                    {intPropLicenseToString(intProp.ok.V1.intPropLicense)}{" "}
                   </p>
                   <p>
                     Creation Date:{" "}
