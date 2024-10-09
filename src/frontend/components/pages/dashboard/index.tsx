@@ -1,22 +1,61 @@
 import { useEffect, useRef, useState, KeyboardEvent } from "react";
+import { useMachine } from '@xstate/react';
 
 import SearchSvg from "../../../assets/search.svg";
 import SendMessageSvg from "../../../assets/send-message.svg";
 import { backendActor } from "../../actors/BackendActor";
-import { ChatElem, createQuestion, createAnswers, ChatAnswerState } from "./types";
+import { ChatElem, createAnswers, createQuestion } from "./types";
 import ChatBox from "./ChatBox";
 import { extractRequestResponse, formatRequestBody } from "./chatgpt";
+import { botStateMachine } from "./botStateMachine";
 
-const initialText =
-  "Hello! I am the IP Assistant, a chatbot trained on extensive legal and technical information related to intellectual property (IP). I am here to assist you with any questions or concerns you may have about IP protection, copyright laws, patent filing, trademark registration, and any other related topics. How can I assist you today?";
+type CustomStateInfo = {
+  description: string;
+  transitions: string[];
+};
+
+const getCustomStateInfo = (stateValue: any): CustomStateInfo => {
+  // Convert the state value to a readable state map
+  const statePath = typeof stateValue === 'string' ? [stateValue] : Object.keys(stateValue);
+
+  // Traverse through the states object to find the description
+  let currentState = botStateMachine.config.states;
+  for (const path of statePath) {
+    // TODO: Find why typescript complains about types that are not assignable to each other
+    // @ts-ignore
+    currentState = currentState?.[path];
+  }
+
+  return {
+    description: currentState?.description as string,
+    transitions: Object.keys(currentState?.on || {}),
+  };
+};
 
 const Dashboard = () => {
+
+  const [state, send, actor] = useMachine(botStateMachine);
+
+  const [currentInfo, setCurrentInfo] = useState<CustomStateInfo | undefined>(undefined);
   const [isChatting, setIsChatting] = useState(false);
-  const [chats, setChats] = useState<ChatElem[]>([createQuestion(initialText), createAnswers(["Option 1", "Option 2", "Option 3"], ChatAnswerState.Selectable)]);
+  const [chats, setChats] = useState<ChatElem[]>([]);
   const [prompt, setPrompt] = useState("");
   const [shiftPressed, setShiftPressed] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  actor.subscribe((state) => {
+    // TODO: why with each transition this hook is called 6 times more every time?
+    console.log("State updated:", state.value);
+    let info = getCustomStateInfo(state.value);
+    setCurrentInfo(info);
+  });
+
+  useEffect(() => {
+    if (currentInfo) {
+      setChats((prevChats) => [...prevChats, createQuestion(currentInfo.description), createAnswers(currentInfo.transitions)]);
+    }
+  }, [currentInfo]);
 
   const { call: getResponse } = backendActor.useUpdateCall({
     functionName: "chatbot_completion",
@@ -42,14 +81,14 @@ const Dashboard = () => {
         let response = res && extractRequestResponse(res);
         if (response) {
           let newChat = "";
-          setChats((prevChats) => [...prevChats, createAnswers([newChat])]);
+          setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
           let i = 0;
           let intervalId = setInterval(() => {
             if (i < response.length) {
               newChat += response.charAt(i);
               setChats((prevChats) => {
                 const updatedChats = [...prevChats];
-                updatedChats[updatedChats.length - 1] = createAnswers([newChat]);
+                updatedChats[updatedChats.length - 1] = createAnswers([prompt]);
                 return updatedChats;
               });
               i++;
@@ -77,7 +116,7 @@ const Dashboard = () => {
   return (
     <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
       {isChatting ? (
-        <ChatBox chats={chats} isCalling={isCalling} />
+        <ChatBox chats={chats} isCalling={isCalling} sendEvent={send} />
       ) : (
         <div className="flex h-full flex-col items-center justify-center bg-white px-4 text-primary-text sm:px-16">
           <div className="flex flex-col items-center gap-2 py-4 text-center text-2xl font-bold tracking-wider sm:py-16 sm:text-start sm:text-[32px]">

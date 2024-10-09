@@ -2,13 +2,15 @@ import { useEffect, useRef } from "react";
 
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { ChatType, ChatElem, ChatAnswerState } from "./types";
+import { AnyEventObject } from "xstate";
 
 interface ChatBoxProps {
   chats: ChatElem[];
   isCalling: boolean;
+  sendEvent: (event: AnyEventObject) => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ chats, isCalling }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ chats, isCalling, sendEvent }) => {
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -46,6 +48,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chats, isCalling }) => {
                 ${answer.state === ChatAnswerState.Selected && "bg-blue-800 cursor-default"}
               `}
               key={answer_index}
+              onClick={() => { 
+                if (answer.state === ChatAnswerState.Selectable) {
+                  sendEvent({ type: answer.text });
+                }
+              }}
             >
               {answer.text.split("\n").map((line, i) => (
                 <span key={i}>
