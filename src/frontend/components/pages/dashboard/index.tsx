@@ -2,95 +2,21 @@ import { useEffect, useRef, useState, KeyboardEvent } from "react";
 
 import SearchSvg from "../../../assets/search.svg";
 import SendMessageSvg from "../../../assets/send-message.svg";
-import SpinnerSvg from "../../../assets/spinner.svg";
 import { backendActor } from "../../actors/BackendActor";
-import { arrayOfNumberToUint8Array } from "@dfinity/utils";
+import { ChatElem, createQuestion, createAnswers, ChatAnswerState } from "./types";
+import ChatBox from "./ChatBox";
+import { extractRequestResponse, formatRequestBody } from "./chatgpt";
 
 const initialText =
   "Hello! I am the IP Assistant, a chatbot trained on extensive legal and technical information related to intellectual property (IP). I am here to assist you with any questions or concerns you may have about IP protection, copyright laws, patent filing, trademark registration, and any other related topics. How can I assist you today?";
 
-interface ChatBoxProps {
-  chats: string[];
-  isCalling: boolean;
-}
-
-const ChatBox: React.FC<ChatBoxProps> = ({ chats, isCalling }) => {
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [chats]);
-
-  return (
-    <div
-      className="flex h-full w-full flex-col gap-2 overflow-y-auto bg-white px-4 py-2 text-lg"
-      ref={messagesContainerRef}
-    >
-      {chats.map((chat, index) => (
-        <p
-          className={`rounded-xl px-4 py-2 ${index % 2 ? "bg-blue-600 text-white" : "bg-slate-300 text-black"}`}
-          key={index}
-        >
-          {chat.split("\n").map((line, i) => (
-            <span key={i}>
-              {line}
-              <br />
-            </span>
-          ))}
-        </p>
-      ))}
-      {isCalling && (
-        <div className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-300 py-2 text-lg text-black">
-          <img src={SpinnerSvg} alt="" />
-        </div>
-      )}
-      <div ref={messagesEndRef}></div>
-    </div>
-  );
-};
-
-function Dashboard() {
+const Dashboard = () => {
   const [isChatting, setIsChatting] = useState(false);
-  const [chats, setChats] = useState([initialText]);
+  const [chats, setChats] = useState<ChatElem[]>([createQuestion(initialText), createAnswers(["Option 1", "Option 2", "Option 3"], ChatAnswerState.Selectable)]);
   const [prompt, setPrompt] = useState("");
   const [shiftPressed, setShiftPressed] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  const questionBody = {
-    model: "gpt-3.5-turbo",
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
-  };
-
-  // Step 1: Convert the dictionary to a JSON string
-  const jsonString = JSON.stringify(questionBody);
-
-  // Step 2: Create a Blob from the JSON string
-  const blob = new Blob([jsonString], { type: "application/json" });
-
-  // Convert Blob to ArrayBuffer using FileReader
-  function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result instanceof ArrayBuffer) {
-          resolve(event.target.result);
-        } else {
-          reject(new Error("Failed to read Blob as ArrayBuffer"));
-        }
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsArrayBuffer(blob);
-    });
-  }
 
   const { call: getResponse } = backendActor.useUpdateCall({
     functionName: "chatbot_completion",
@@ -110,49 +36,36 @@ function Dashboard() {
 
   const handleSendButtonClick = async () => {
     setIsCalling(true);
-    setChats((prevChats) => [...prevChats, prompt]);
-    await blobToArrayBuffer(blob)
-      .then((arrayBuffer) => {
-        const uint8Array = new Uint8Array(arrayBuffer);
-        getResponse([{ body: uint8Array }])
-          .then((response) => {
-            var ui8array = undefined;
-            if (response?.body as Uint8Array) {
-              ui8array = response?.body as Uint8Array;
-            } else if (response?.body as number[]) {
-              ui8array = arrayOfNumberToUint8Array(response?.body as number[]);
+    setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
+    await formatRequestBody(prompt).then((body) => {
+      getResponse([{ body }]).then((res) => {
+        let response = res && extractRequestResponse(res);
+        if (response) {
+          let newChat = "";
+          setChats((prevChats) => [...prevChats, createAnswers([newChat])]);
+          let i = 0;
+          let intervalId = setInterval(() => {
+            if (i < response.length) {
+              newChat += response.charAt(i);
+              setChats((prevChats) => {
+                const updatedChats = [...prevChats];
+                updatedChats[updatedChats.length - 1] = createAnswers([newChat]);
+                return updatedChats;
+              });
+              i++;
+            } else {
+              clearInterval(intervalId);
             }
-
-            if (ui8array) {
-              const decoder = new TextDecoder("utf-8");
-              const jsonString = decoder.decode(ui8array);
-              const jsonObject = JSON.parse(jsonString);
-              let newChat = "";
-              setChats((prevChats) => [...prevChats, newChat]);
-              let i = 0;
-              let intervalId = setInterval(() => {
-                if (i < jsonObject["choices"][0]["message"]["content"].length) {
-                  newChat +=
-                    jsonObject["choices"][0]["message"]["content"].charAt(i);
-                  setChats((prevChats) => {
-                    const updatedChats = [...prevChats];
-                    updatedChats[updatedChats.length - 1] = newChat;
-                    return updatedChats;
-                  });
-                  i++;
-                } else {
-                  clearInterval(intervalId);
-                }
-              }, 10);
-            }
-            setIsCalling(false);
-          })
-          .catch((error) => {
-            console.error("Error getting response:", error);
-            setIsCalling(false);
-          });
+          }, 10);
+        }
+        setIsCalling(false);
       })
-      .catch((error) => console.error("Error converting blob:", error));
+      .catch((error) => {
+        console.error("Error getting response:", error);
+        setIsCalling(false);
+      });
+    })
+    .catch((error) => console.error("Error converting blob:", error));
     setPrompt("");
   };
 
