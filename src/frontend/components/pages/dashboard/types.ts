@@ -30,7 +30,7 @@ export const createQuestion = (text: string): ChatElem => ({
     content: text,
 });
 
-export const createAnswers = (text: string[], state?: ChatAnswerState): ChatElem => ({
+export const createAnswers = (texts: string[], state?: ChatAnswerState): ChatElem => ({
     case: ChatType.Answers,
-    content: text.map((answer) => ({ text: answer, state: state ?? ChatAnswerState.Selectable })),
+    content: texts.map((answer) => ({ text: answer, state: state ?? ChatAnswerState.Selectable })),
 });
