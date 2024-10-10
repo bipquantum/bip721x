@@ -26,11 +26,13 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-markdown": "^9.0.1",
     "react-number-format": "^5.3.4",
     "react-router-dom": "^6.26.1",
     "react-tailwind-select": "^1.1.0",
     "react-tailwindcss-select": "^1.8.5",
     "react-toastify": "^10.0.5",
+    "remark-gfm": "^4.0.0",
     "uuid": "^10.0.0",
     "xstate": "^5.18.2"
   },

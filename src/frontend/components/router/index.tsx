@@ -3,7 +3,7 @@ import { useAuth } from "@ic-reactor/react";
 
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/dashboard";
-import NewIP from "../pages/new-ip";
+import NewIPButton from "../pages/new-ip";
 import Profile from "../pages/profile";
 import Bips from "../pages/bips";
 import Login from "../pages/login";
@@ -25,13 +25,13 @@ const Router = () => {
       />
       <Route
         path={"/dashboard"}
-        element={<PrivateRoute element={<Dashboard />} />}
+        element={<PrivateRoute element={<Dashboard principal={identity?.getPrincipal()}/>} />}
       />
       <Route
         path={"/new"}
         element={
           <PrivateRoute
-            element={<NewIP principal={identity?.getPrincipal()} />}
+            element={<NewIPButton principal={identity?.getPrincipal()} />}
           />
         }
       />

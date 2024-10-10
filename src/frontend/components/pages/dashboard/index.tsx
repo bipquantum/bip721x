@@ -7,7 +7,9 @@ import { backendActor } from "../../actors/BackendActor";
 import { ChatElem, createAnswers, createQuestion } from "./types";
 import ChatBox from "./ChatBox";
 import { extractRequestResponse, formatRequestBody } from "./chatgpt";
-import { botStateMachine } from "./botStateMachine";
+import { machine } from "./botStateMachine";
+import NewIP from "../new-ip/NewIp";
+import { Principal } from "@dfinity/principal";
 
 type CustomStateInfo = {
   description: string;
@@ -19,7 +21,7 @@ const getCustomStateInfo = (stateValue: any): CustomStateInfo => {
   const statePath = typeof stateValue === 'string' ? [stateValue] : Object.keys(stateValue);
 
   // Traverse through the states object to find the description
-  let currentState = botStateMachine.config.states;
+  let currentState = machine.config.states;
   for (const path of statePath) {
     // TODO: Find why typescript complains about types that are not assignable to each other
     // @ts-ignore
@@ -32,9 +34,13 @@ const getCustomStateInfo = (stateValue: any): CustomStateInfo => {
   };
 };
 
-const Dashboard = () => {
+interface DashboardProps {
+  principal: Principal | undefined;
+};
 
-  const [state, send, actor] = useMachine(botStateMachine);
+const Dashboard = ({ principal }: DashboardProps) => {
+
+  const [state, send, actor] = useMachine(machine);
 
   const [currentInfo, setCurrentInfo] = useState<CustomStateInfo | undefined>(undefined);
   const [isChatting, setIsChatting] = useState(false);
@@ -139,50 +145,13 @@ const Dashboard = () => {
               Sell IP Assets on the bIPQuantum Store
             </div>
           </div>
-          {/* <div className="flex flex-col items-start justify-start gap-8 text-lg">
-            <div>
-              <div className="font-semibold">Certify Your Creations</div>
-              <div className="list-disc px-2">
-                <li>
-                  "Secure your AI Art masterpiece with bIP certification today."
-                </li>
-                <li>
-                  "Transform your digital asset into a certified, market-ready
-                  product."
-                </li>
-                <li>
-                  "Turn your creative concept into a protected asset, ready for
-                  the market."
-                </li>
-              </div>
-            </div>
-            <div>
-              <div className="font-semibold">
-                Monetize Your Intellectual Assets
-              </div>
-              <div className="list-disc px-2">
-                <li>
-                  "Step into the future; tokenize your IP and open doors to
-                  unprecedented profits."
-                </li>
-                <li>
-                  "Unlock the full potential of your IP with customized
-                  licensing options."
-                </li>
-                <li>
-                  "Maximize your earnings with well-defined royalty schemes for
-                  your intellectual assets."
-                </li>
-              </div>
-            </div>
-          </div> */}
         </div>
       )}
       <div className="w-full bg-gray-300 p-6 sm:px-8 sm:py-10">
         <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
           <textarea
             className="w-full text-lg outline-none sm:px-4"
-            placeholder="What do want to protect?"
+            placeholder="What do you want to protect?"
             value={prompt}
             onChange={(e) => {
               setPrompt(e.target.value);
@@ -206,6 +175,7 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
+      <NewIP principal={principal} isOpen={state.value === ""} onClose={() => send({ type: "ipcreated" })}/>
     </div>
   );
 }
