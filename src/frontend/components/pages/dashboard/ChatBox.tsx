@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { ChatType, ChatElem, ChatAnswerState } from "./types";
 import { AnyEventObject } from "xstate";
+import Markdown from "react-markdown";
+import remarkGfm from 'remark-gfm';
 
 interface ChatBoxProps {
   chats: ChatElem[];
@@ -27,17 +29,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chats, isCalling, sendEvent }) => {
     >
       {chats.map((chat, elem_index) => (
         chat.case === ChatType.Question ?
-        <p
-          className={`rounded-xl px-4 py-2 bg-slate-300 text-black`}
-          key={elem_index}
-        >
-          {chat.content.split("\n").map((line, i) => (
-            <span key={i}>
-              {line}
-              <br />
-            </span>
-          ))}
-        </p> : 
+        <Markdown key={elem_index} className="rounded-xl px-4 py-2 bg-slate-300 text-black" remarkPlugins={[remarkGfm]}>
+          {chat.content}
+        </Markdown> : 
         <div key={elem_index} className="flex flex-row gap-2">
           {
           chat.content.map((answer, answer_index) => (
@@ -51,6 +45,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ chats, isCalling, sendEvent }) => {
               onClick={() => { 
                 if (answer.state === ChatAnswerState.Selectable) {
                   sendEvent({ type: answer.text });
+                  for (let i = 0; i < chat.content.length; i++) {
+                    if (i === answer_index) {
+                      chat.content[i].state = ChatAnswerState.Selected;
+                    } else {
+                      chat.content[i].state = ChatAnswerState.Unselectable;
+                    }
+                  }
                 }
               }}
             >

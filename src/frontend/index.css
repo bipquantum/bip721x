@@ -2,9 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom styles for Markdown headings */
+h1, h2, h3 {
+  font-weight: bold;
+  margin: 0.5em 0;
+}
+
+/* Custom styles for Markdown headings */
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
 body {
   font-family: sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 input {
