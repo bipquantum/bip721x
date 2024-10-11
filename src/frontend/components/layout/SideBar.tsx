@@ -104,7 +104,7 @@ const SideBar = () => {
         </div>
         <div
           className="flex h-[10vh] w-full cursor-pointer items-center justify-center gap-4"
-          onClick={() => addItem("Nft ai")}
+          onClick={() => {}}
         >
           <img
             src={AddPlusSvg}

@@ -8,7 +8,6 @@ import { ChatElem, createAnswers, createQuestion } from "./types";
 import ChatBox from "./ChatBox";
 import { extractRequestResponse, formatRequestBody } from "./chatgpt";
 import { machine } from "./botStateMachine";
-import NewIP from "../new-ip/NewIp";
 import { Principal } from "@dfinity/principal";
 
 type CustomStateInfo = {
@@ -40,7 +39,7 @@ interface DashboardProps {
 
 const Dashboard = ({ principal }: DashboardProps) => {
 
-  const [state, send, actor] = useMachine(machine);
+  const [_, send, actor] = useMachine(machine);
 
   const [currentInfo, setCurrentInfo] = useState<CustomStateInfo | undefined>(undefined);
   const [isChatting, setIsChatting] = useState(false);
@@ -53,8 +52,7 @@ const Dashboard = ({ principal }: DashboardProps) => {
   actor.subscribe((state) => {
     // TODO: why with each transition this hook is called 6 times more every time?
     console.log("State updated:", state.value);
-    let info = getCustomStateInfo(state.value);
-    setCurrentInfo(info);
+    setCurrentInfo(getCustomStateInfo(state.value));
   });
 
   useEffect(() => {
@@ -114,15 +112,10 @@ const Dashboard = ({ principal }: DashboardProps) => {
     setPrompt("");
   };
 
-  useEffect(() => {
-    if (chats.length <= 1) setIsChatting(false);
-    else setIsChatting(true);
-  }, [chats]);
-
   return (
     <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
       {isChatting ? (
-        <ChatBox chats={chats} isCalling={isCalling} sendEvent={send} />
+        <ChatBox chats={chats} isCalling={isCalling} sendEvent={send} principal={principal} />
       ) : (
         <div className="flex h-full flex-col items-center justify-center bg-white px-4 text-primary-text sm:px-16">
           <div className="flex flex-col items-center gap-2 py-4 text-center text-2xl font-bold tracking-wider sm:py-16 sm:text-start sm:text-[32px]">
@@ -130,20 +123,20 @@ const Dashboard = ({ principal }: DashboardProps) => {
             <div className="h-1 w-32 bg-primary sm:w-96"></div>
           </div>
           <div className="grid grid-cols-2 items-start justify-start gap-8 text-center text-lg font-bold leading-6 text-white">
-            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
               IP Education/
               <br />
               Consultation
-            </div>
-            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+            </button>
+            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
               Generate a bIP Certificate
-            </div>
-            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+            </button>
+            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
               Organize IP Assets
-            </div>
-            <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4">
+            </button>
+            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
               Sell IP Assets on the bIPQuantum Store
-            </div>
+            </button>
           </div>
         </div>
       )}
@@ -175,7 +168,6 @@ const Dashboard = ({ principal }: DashboardProps) => {
           </button>
         </div>
       </div>
-      <NewIP principal={principal} isOpen={state.value === ""} onClose={() => send({ type: "ipcreated" })}/>
     </div>
   );
 }
