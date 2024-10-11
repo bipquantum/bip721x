@@ -77,3 +77,15 @@ export const fromE8s = (e8s: bigint) : number => {
 export const toE8s = (icp: number) : bigint => {
   return BigInt(icp * 100_000_000);
 }
+
+export const dateToTime = (date: Date) : bigint => {
+  return BigInt(date.getTime() * 1_000_000);
+}
+
+export const timeToDate = (time: bigint) : Date => {
+  return new Date(Number(time));
+}
+
+export const formatDate = (date: Date) : string => {
+  return date.toISOString().split('T')[0];
+}

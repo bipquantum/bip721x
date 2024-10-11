@@ -4,6 +4,7 @@ import { Principal } from "@dfinity/principal";
 import { backendActor } from "../../actors/BackendActor";
 import { useNavigate } from "react-router-dom";
 import NewIPModal from "./NewIpModal";
+import { useEffect, useState } from "react";
 
 interface NewIPProps {
   principal: Principal | undefined;
@@ -20,14 +21,17 @@ const NewIP: React.FC<NewIPProps> = ({ principal, isOpen, onClose }) => {
     args: (principal ? [principal] : []) as [Principal],
   });
 
-  if (queriedUser === undefined || queriedUser?.length === 0) {
-    toast.warn("Please add user");
-    navigate("/profile");
-    return;
-  }
+  useEffect(() => {
+    if (queriedUser === undefined || queriedUser?.length === 0) {
+      navigate("/profile");
+      toast.warn("Please add user");
+      console.log("Please add user");
+    }
+  }, [queriedUser]);
 
   return (
-    <NewIPModal user={queriedUser[0]} isOpen={isOpen} onClose={onClose} />
+    (queriedUser === undefined || queriedUser?.length === 0) ? 
+    <></> : <NewIPModal user={queriedUser[0]} isOpen={isOpen} onClose={onClose} />
   );
 };
 

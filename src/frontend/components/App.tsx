@@ -1,10 +1,13 @@
-import React, { createContext, useState, useEffect } from "react";
-import { useAuth } from "@ic-reactor/react";
+import { createContext, useState, useEffect } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import Router from "./router";
 import NavBar from "./layout/NavBar";
+import { AgentProvider } from "@ic-reactor/react";
+import { BackendActorProvider } from "./actors/BackendActor"
+import { IcpLedgerActorProvider} from "./actors/IcpLedgerActor"
+import { Icrc7ActorProvider } from './actors/Icrc7Actor';
 
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
@@ -47,9 +50,17 @@ function App() {
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
       <div className="flex h-screen w-full flex-col sm:flex-row">
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
+        <AgentProvider withProcessEnv>
+          <BackendActorProvider>
+            <IcpLedgerActorProvider>
+              <Icrc7ActorProvider>
+                <BrowserRouter>
+                  <AppContent />
+                </BrowserRouter>
+              </Icrc7ActorProvider>
+            </IcpLedgerActorProvider>
+          </BackendActorProvider>
+        </AgentProvider>
       </div>
     </ThemeContext.Provider>
   );
