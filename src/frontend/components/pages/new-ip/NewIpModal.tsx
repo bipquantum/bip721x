@@ -24,7 +24,6 @@ import {
 import LampSvg from "../../../assets/lamp.svg";
 import UserHandUpSvg from "../../../assets/user-hand-up.svg";
 import User1Svg from "../../../assets/user-1.svg";
-import CheckCircleSvg from "../../../assets/check-circle.svg";
 import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
@@ -107,15 +106,16 @@ const INITIAL_INT_PROP_INPUT: IntPropInput = {
 interface NewIPModalProps {
   user: User;
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (ipId: bigint | undefined) => void;
 }
 
-const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen }) => {
+const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   
   const [step,         setStep        ] = useState(1);
   const [isLoading,    setIsLoading   ] = useState(false);
   const [intPropInput, setIntPropInput] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
   const [dataUri,      setDataUri     ] = useState("");
+  const [ipId,         setIpId        ] = useState<bigint | undefined>(undefined);
 
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
@@ -126,7 +126,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen }) => {
         toast.error("Failed to create new IP: " + data["err"]);
         console.log("error", data);
       } else {
-        toast.success("Created new IP (identifier=" + data["ok"] + ")");
+        setIpId(data["ok"]);
       }
     },
     onError: (error) => {
@@ -147,14 +147,13 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen }) => {
   }, [dataUri]);
 
   return (
-    <ModalPopup onClose={() => { isOpen = false; }} isOpen={isOpen}>
+    <ModalPopup onClose={() => onClose(ipId)} isOpen={isOpen}>
       <div className="flex w-full flex-col items-center justify-start gap-8 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
-        <div className="flex w-72 flex-col gap-4">
-          <div className="flex items-end justify-between">
-            <p className="text-2xl font-bold">Name Your IP</p>
-            <div>Step {step} of 4</div>
+        <div className="flex w-full items-center flex-col gap-1">
+          <div className="flex flex-col items-center justify-around gap-3">
+            <div className="text-2xl font-bold">Create New IP</div>
           </div>
-          <div className="flex w-full items-center justify-between">
+          <div className="flex w-56 items-center justify-between">
             <div className="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white">
               <img
                 src={LampSvg}
@@ -182,17 +181,8 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen }) => {
                 className={`h-6 ${step > 2 ? "opacity-100" : "opacity-10"}`}
               />
             </div>
-            <div className="z-0 h-0 w-12 border-b-[1px] border-t-[1px] border-dashed"></div>
-            <div
-              className={`z-10 flex h-10 w-10 items-center justify-center rounded-full ${step > 3 ? "bg-white" : "bg-slate-400"}`}
-            >
-              <img
-                src={CheckCircleSvg}
-                alt=""
-                className={`h-6 ${step > 3 ? "opacity-100" : "opacity-10"}`}
-              />
-            </div>
           </div>
+          <div>Step {step} of 3</div>
         </div>
         {step === 1 && (
           <>
@@ -445,51 +435,23 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen }) => {
           </>
         )}
         {step === 3 && (
-          <div className="w-80 text-xl" onClick={() => setStep(4)}>
-            <div className="flex cursor-pointer items-center justify-start rounded-full bg-white px-2 text-secondary">
-              <div className="h-4 w-4 rounded-full border-2 border-secondary"></div>
-              <p className="w-full flex-1 text-center">
-                List on bIPQuantum Store
-              </p>
-            </div>
-            <p className="mt-2 pl-2 text-base">
-              Lists the asset for sale on the marketplace.
-            </p>
-
-            <div className="mt-4 flex cursor-pointer items-center justify-start rounded-full bg-white px-2 text-secondary">
-              <div className="h-4 w-4 rounded-full border-2 border-secondary"></div>
-              <p className="w-full text-center">Keep in my bIPs Wallet</p>
-            </div>
-            <p className="mt-2 pl-2 text-base">
-              {`Stores the asset in the user’s personal collection, visible only
-              to them.`}
-            </p>
-          </div>
-        )}
-        {step === 4 && (
-          <div className="flex flex-col items-center gap-6">
-            <div className="flex flex-col items-center sm:flex-row sm:gap-4">
+          <div className="flex flex-col items-center sm:gap-4">
+            <img
+              className="rounded-[32px] md:w-1/2"
+              src={AIBotImg}
+              alt=""
+            />
+            <div className="flex flex-row items-center">
               <img
-                className="h-64 w-11/12 rounded-[32px] sm:h-[462px] sm:w-[447px]"
-                src={AIBotImg}
+                className="w-36 sm:h-48 sm:w-48"
+                src={CheckVerifiedSvg}
                 alt=""
               />
-              <div className="flex flex-col items-center sm:items-start sm:gap-6">
-                <img
-                  className="w-36 sm:h-48 sm:w-48"
-                  src={CheckVerifiedSvg}
-                  alt=""
-                />
-                <p className="w-[320px] text-center text-2xl font-semibold text-white sm:text-start sm:text-3xl">
-                  Congratulations!
-                  <br /> Your IP has been successfully minted and listed on
-                  the bIPQuantum marketplace.
-                </p>
-              </div>
+              <p className="w-[320px] text-center text-2xl font-semibold text-white sm:text-start sm:text-3xl">
+                Congratulations!
+                <br /> Your IP has been successfully minted!
+              </p>
             </div>
-            {/* <Link to="/bips" className="text-xl">
-              Back to marketplace
-            </Link> */}
           </div>
         )}
       </div>

@@ -2,17 +2,23 @@ import { useState } from "react";
 import { Principal } from "@dfinity/principal";
 
 import NewIP from "./NewIp";
+import { useNavigate } from "react-router-dom";
 
 interface NewIPButtonProps {
   principal: Principal | undefined;
 }
 
 const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
+
+  const navigate = useNavigate();
   
   const [createIp, setCreateIp] = useState<boolean>(false);
 
-  const onIpCreated = () => {
+  const onIpCreated = (ipId: bigint | undefined) => {
     setCreateIp(false);
+    if (ipId) {
+      navigate(`/bip/${ipId}`);
+    }
   };
 
   return (

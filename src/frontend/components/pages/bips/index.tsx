@@ -6,11 +6,9 @@ import { backendActor } from "../../actors/BackendActor";
 import Balance from "../../common/Balance";
 import ToggleSwitch from "../../common/ToggleSwitch";
 
-import Logo from "../../../assets/logo.png";
 import FilterSvg from "../../../assets/filter.svg";
-import ProfileSvg from "../../../assets/profile.png";
-import SearchSvg from "../../../assets/search-button.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
+import BipsHeader from "./BipsHeader";
 
 export enum FilterType {
   LISTED,
@@ -71,23 +69,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-center justify-start gap-y-4 overflow-y-auto bg-primary py-4 text-white sm:items-start sm:p-0">
-      <div className="hidden w-full items-center justify-between border-b-[1px] border-white p-4 pr-8 sm:flex">
-        <img src={Logo} className="h-14 invert" alt="Logo" />
-        <div className="flex w-[428px] items-center justify-start rounded-[69px] border-2 border-secondary border-opacity-40 p-2">
-          <div className="mx-1 flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
-            <img src={SearchSvg} className="h-4" alt="Logo" />
-          </div>
-          <input
-            className="w-full flex-1 bg-transparent text-base font-medium leading-10 placeholder-slate-300"
-            placeholder="Search Here"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-lg font-semibold leading-[26px]">Bessie Cooper</p>
-          <img src={ProfileSvg} className={`h-10 rounded-full`} />
-        </div>
-      </div>
-
+      <BipsHeader/>
       <div className="flex w-full flex-col items-center justify-between gap-2 px-2 sm:flex-row sm:px-8">
         <button className="hidden sm:flex">
           <img src={FilterSvg} className="h-8 invert" alt="Logo" />

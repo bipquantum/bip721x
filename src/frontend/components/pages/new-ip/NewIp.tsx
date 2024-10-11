@@ -8,7 +8,7 @@ import NewIPModal from "./NewIpModal";
 interface NewIPProps {
   principal: Principal | undefined;
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (ipId: bigint | undefined) => void;
 }
 
 const NewIP: React.FC<NewIPProps> = ({ principal, isOpen, onClose }) => {
