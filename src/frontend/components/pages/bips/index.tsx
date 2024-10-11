@@ -76,9 +76,6 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
         </button>
         <Balance principal={principal} />
         <div className="flex w-full items-center justify-between sm:w-auto sm:justify-center">
-          <button className="flex sm:hidden">
-            <img src={FilterSvg} className="h-6 invert" alt="Logo" />
-          </button>
           <div className="flex items-center gap-3">
             <p className="text-sm sm:text-xl">
               {isListedIPs ? "Listed IPs" : "My IPs"}

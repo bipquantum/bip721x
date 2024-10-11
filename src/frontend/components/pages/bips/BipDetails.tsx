@@ -12,8 +12,8 @@ import FilePreview from "../../common/FilePreview";
 import UserDetails from "../../common/UserDetails";
 import ListingDetails from "../../common/ListingDetails";
 
-import FilterSvg from "../../../assets/filter.svg";
 import BipsHeader from "./BipsHeader";
+import GenerateCertificate from "./GenerateCertificate";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -47,12 +47,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   return (
     <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
       <BipsHeader/>
-      <div className="hidden w-full items-center justify-between px-8 sm:flex">
-        <button>
-          <img src={FilterSvg} className="h-8 invert" alt="Logo" />
-        </button>
-      </div>
-      <div className="h-full w-full p-4 sm:p-8">
+      <div className="h-full w-full sm:p-8 md:p-4">
         <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl bg-tertiary sm:rounded-3xl">
           {intProp === undefined ? (
             <div
@@ -118,6 +113,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   updateBipDetails={updateBipDetails}
                 />
               )}
+              <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
             </div>
           )}
         </div>
