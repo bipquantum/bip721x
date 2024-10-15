@@ -59,7 +59,7 @@ const Main = () => {
             AI-Assisted IP Creation
           </Link>
           <Link to={"/new"} className="w-full rounded-2xl border-[2px] border-secondary bg-white py-2">
-            Manual IP Creration
+            Manual IP Creation
           </Link>
         </div>
       </div>

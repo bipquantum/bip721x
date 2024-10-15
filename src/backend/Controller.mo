@@ -7,6 +7,7 @@ import Buffer            "mo:base/Buffer";
 import Types             "Types";
 import Conversions       "intprop/Conversions";
 import TradeManager      "TradeManager";
+import ChatBotHistory "ChatBotHistory";
 
 import ICRC7             "mo:icrc7-mo";
 
@@ -22,6 +23,7 @@ module {
   type IntPropRegister     = Types.IntPropRegister;
   type IntPropInput        = Types.IntPropInput;
   type IntProp             = Types.IntProp;
+  type ChatHistory         = Types.ChatHistory;
   type CreateIntPropResult = Types.CreateIntPropResult;
   type Time                = Int;
 
@@ -30,7 +32,8 @@ module {
   public class Controller({
     users: UserRegister;
     intProps: IntPropRegister;
-    trade_manager: TradeManager.TradeManager;
+    chatBotHistory: ChatBotHistory.ChatBotHistory;
+    tradeManager: TradeManager.TradeManager;
   }) {
 
     public func setUser(
@@ -48,6 +51,28 @@ module {
 
     public func getUser(principal: Principal) : ?User {
       Map.get(users.mapUsers, Map.phash, principal)
+    };
+
+    public func getChatHistory({
+      caller: Principal;
+      id: Nat;
+    }) : Result<ChatHistory, Text> {
+      chatBotHistory.getChatHistory({ caller; id; });
+    };
+
+    public func createChatHistory({
+      caller: Principal;
+      history: Text;
+    }) : Result<Nat, Text> {
+      chatBotHistory.createChatHistory({ caller; history; });
+    };
+
+    public func updateChatHistory({
+      caller: Principal;
+      id: Nat;
+      history: Text;
+    }) : Result<(), Text> {
+      chatBotHistory.updateChatHistory({ caller; id; history; });
     };
 
     public func createIntProp(
@@ -179,7 +204,7 @@ module {
       };
 
       // Perform the trade
-      let trade = await* trade_manager.tradeIntProp({
+      let trade = await* tradeManager.tradeIntProp({
         buyer = {
           owner = buyer;
           subaccount = null;

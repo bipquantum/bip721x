@@ -11,7 +11,9 @@ import Main from "../pages/main";
 import About from "../pages/about";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
-import WhoYouAre from "../pages/who-you-are";
+import WhoAreYou from "../pages/who-you-are";
+import ChatBot from "../pages/dashboard/ChatBot";
+import WithHistory from "../pages/dashboard/WithHistory";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -21,11 +23,19 @@ const Router = () => {
       <Route path={"/"} element={<PrivateRoute element={<Main />} />} />
       <Route
         path={"/who-you-are"}
-        element={<PrivateRoute element={<WhoYouAre />} />}
+        element={<PrivateRoute element={<WhoAreYou />} />}
       />
       <Route
         path={"/dashboard"}
-        element={<PrivateRoute element={<Dashboard principal={identity?.getPrincipal()}/>} />}
+        element={<PrivateRoute element={<Dashboard/>} />}
+      />
+      <Route
+        path={"/chat/:chatId"}
+        element={<PrivateRoute element={<WithHistory principal={identity?.getPrincipal()} />} />}
+      />
+      <Route
+        path={"/chat"}
+        element={<PrivateRoute element={<WithHistory principal={identity?.getPrincipal()} />} />}
       />
       <Route
         path={"/new"}

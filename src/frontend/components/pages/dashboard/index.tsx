@@ -1,172 +1,28 @@
-import { useEffect, useRef, useState, KeyboardEvent } from "react";
-import { useMachine } from '@xstate/react';
+import { Link } from "react-router-dom";
 
-import SearchSvg from "../../../assets/search.svg";
-import SendMessageSvg from "../../../assets/send-message.svg";
-import { backendActor } from "../../actors/BackendActor";
-import { ChatElem, createAnswers, createQuestion } from "./types";
-import ChatBox from "./ChatBox";
-import { extractRequestResponse, formatRequestBody } from "./chatgpt";
-import { machine } from "./botStateMachine";
-import { Principal } from "@dfinity/principal";
-
-type CustomStateInfo = {
-  description: string;
-  transitions: string[];
-};
-
-const getCustomStateInfo = (stateValue: any): CustomStateInfo => {
-  // Convert the state value to a readable state map
-  const statePath = typeof stateValue === 'string' ? [stateValue] : Object.keys(stateValue);
-
-  // Traverse through the states object to find the description
-  let currentState = machine.config.states;
-  for (const path of statePath) {
-    // TODO: Find why typescript complains about types that are not assignable to each other
-    // @ts-ignore
-    currentState = currentState?.[path];
-  }
-
-  return {
-    description: currentState?.description as string,
-    transitions: Object.keys(currentState?.on || {}),
-  };
-};
-
-interface DashboardProps {
-  principal: Principal | undefined;
-};
-
-const Dashboard = ({ principal }: DashboardProps) => {
-
-  const [_, send, actor] = useMachine(machine);
-
-  const [currentInfo, setCurrentInfo] = useState<CustomStateInfo | undefined>(undefined);
-  const [isChatting, setIsChatting] = useState(false);
-  const [chats, setChats] = useState<ChatElem[]>([]);
-  const [prompt, setPrompt] = useState("");
-  const [shiftPressed, setShiftPressed] = useState(false);
-  const [isCalling, setIsCalling] = useState(false);
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  actor.subscribe((state) => {
-    // TODO: why with each transition this hook is called 6 times more every time?
-    console.log("State updated:", state.value);
-    setCurrentInfo(getCustomStateInfo(state.value));
-  });
-
-  useEffect(() => {
-    if (currentInfo) {
-      setChats((prevChats) => [...prevChats, createQuestion(currentInfo.description), createAnswers(currentInfo.transitions)]);
-    }
-  }, [currentInfo]);
-
-  const { call: getResponse } = backendActor.useUpdateCall({
-    functionName: "chatbot_completion",
-  });
-
-  const handleEnterPress = async (
-    event: KeyboardEvent<HTMLTextAreaElement>,
-  ) => {
-    if (shiftPressed) {
-      setPrompt((prevPrompt) => prevPrompt + "\n");
-    } else if (prompt) {
-      setPrompt("");
-      await handleSendButtonClick();
-    }
-    event.preventDefault();
-  };
-
-  const handleSendButtonClick = async () => {
-    setIsCalling(true);
-    setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
-    await formatRequestBody(prompt).then((body) => {
-      getResponse([{ body }]).then((res) => {
-        let response = res && extractRequestResponse(res);
-        if (response) {
-          let newChat = "";
-          setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
-          let i = 0;
-          let intervalId = setInterval(() => {
-            if (i < response.length) {
-              newChat += response.charAt(i);
-              setChats((prevChats) => {
-                const updatedChats = [...prevChats];
-                updatedChats[updatedChats.length - 1] = createAnswers([prompt]);
-                return updatedChats;
-              });
-              i++;
-            } else {
-              clearInterval(intervalId);
-            }
-          }, 10);
-        }
-        setIsCalling(false);
-      })
-      .catch((error) => {
-        console.error("Error getting response:", error);
-        setIsCalling(false);
-      });
-    })
-    .catch((error) => console.error("Error converting blob:", error));
-    setPrompt("");
-  };
+const Dashboard = () => {
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
-      {isChatting ? (
-        <ChatBox chats={chats} isCalling={isCalling} sendEvent={send} principal={principal} />
-      ) : (
-        <div className="flex h-full flex-col items-center justify-center bg-white px-4 text-primary-text sm:px-16">
-          <div className="flex flex-col items-center gap-2 py-4 text-center text-2xl font-bold tracking-wider sm:py-16 sm:text-start sm:text-[32px]">
-            Meet ArtizBot Your Intellectual Property Guardian.
-            <div className="h-1 w-32 bg-primary sm:w-96"></div>
-          </div>
-          <div className="grid grid-cols-2 items-start justify-start gap-8 text-center text-lg font-bold leading-6 text-white">
-            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
-              IP Education/
-              <br />
-              Consultation
-            </button>
-            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
-              Generate a bIP Certificate
-            </button>
-            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
-              Organize IP Assets
-            </button>
-            <button className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" onClick={() => setIsChatting(true)}>
-              Sell IP Assets on the bIPQuantum Store
-            </button>
-          </div>
-        </div>
-      )}
-      <div className="w-full bg-gray-300 p-6 sm:px-8 sm:py-10">
-        <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
-          <textarea
-            className="w-full text-lg outline-none sm:px-4"
-            placeholder="What do you want to protect?"
-            value={prompt}
-            onChange={(e) => {
-              setPrompt(e.target.value);
-            }}
-            onKeyDown={(event) =>
-              event.key === "Shift" && setShiftPressed(true)
-            }
-            onKeyUp={(event) => event.key === "Shift" && setShiftPressed(false)}
-            onKeyPress={async (event) => {
-              event.key === "Enter" && (await handleEnterPress(event));
-            }}
-            ref={textAreaRef}
-            disabled={isCalling}
-          />
-          <button
-            onClick={() => {
-              if (prompt) handleSendButtonClick();
-            }}
-          >
-            <img src={prompt ? SendMessageSvg : SearchSvg} className="h-10" />
-          </button>
-        </div>
+    <div className="flex h-full flex-col items-center justify-center bg-white px-4 text-primary-text sm:px-16">
+      <div className="flex flex-col items-center gap-2 py-4 text-center text-2xl font-bold tracking-wider sm:py-16 sm:text-start sm:text-[32px]">
+        Meet bIPQuantum Your Intellectual Property Guardian.
+        <div className="h-1 w-32 bg-primary sm:w-96"></div>
+      </div>
+      <div className="grid grid-cols-2 items-start justify-start gap-8 text-center text-lg font-bold leading-6 text-white">
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+          IP Education/
+          <br />
+          Consultation
+        </Link>
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+          Generate a bIP Certificate
+        </Link>
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+          Organize IP Assets
+        </Link>
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+          Sell IP Assets on the bIPQuantum Store
+        </Link>
       </div>
     </div>
   );

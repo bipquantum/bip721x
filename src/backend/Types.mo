@@ -17,6 +17,8 @@ module {
   public type IntPropRegister = CurrentTypes.IntPropRegister;
   public type User            = CurrentTypes.User;
   public type UserRegister    = CurrentTypes.UserRegister;
+  public type ChatHistories   = CurrentTypes.ChatHistories;
+  public type ChatHistory     = CurrentTypes.ChatHistory;
 
   public type Account = {
     owner: Principal;

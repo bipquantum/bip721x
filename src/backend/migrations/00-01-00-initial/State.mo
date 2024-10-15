@@ -9,6 +9,7 @@ module {
 
   type State         = MigrationTypes.State;
   type User          = Types.User;
+  type ChatHistories = Types.ChatHistories;
   type InitArgs      = Types.InitArgs;
   type UpgradeArgs   = Types.UpgradeArgs;
   type DowngradeArgs = Types.DowngradeArgs;
@@ -19,8 +20,9 @@ module {
             users = {
                 var index = 0;
                 mapUsers = Map.new<Principal, User>();
+                chatHistories = Map.new<Principal, ChatHistories>();
             };
-                intProps = {
+            intProps = {
                 var index = 0;
                 e8sIcpPrices = Map.new<Nat, Nat>();
             };

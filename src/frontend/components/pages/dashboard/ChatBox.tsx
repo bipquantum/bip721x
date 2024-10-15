@@ -23,12 +23,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
   const [pendingPick, setPendingPick] = useState<number | undefined>(undefined);
   const [creatingIp, setCreatingIp] = useState<number | undefined>(undefined);
   const [ipId, setIpId] = useState<bigint | undefined>(undefined);
+  const [eventHistory, setEventHistory] = useState<string[]>([]);
 
   const onIpCreated = (ipId: bigint | undefined) => {
     if (creatingIp === undefined) {
       throw new Error("No IP creation in progress");
     }
-    if (ipId) {
+    if (ipId !== undefined) {
       setIpId(ipId);
       transition(creatingIp);
     }
@@ -45,7 +46,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
     }
     
     const answers = chats[pendingPick];
-    sendEvent({ type: answers.content[pickIndex].text });
+    const event = answers.content[pickIndex].text;
+    sendEvent({ type: event });
+    setEventHistory([...eventHistory, event]);
     
     // Update the selected state of each answer
     for (let i = 0; i < answers.content.length; i++) {
@@ -66,11 +69,50 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
   }, [chats]);
 
   useEffect(() => {
-    const lastChatIndex = chats.length - 1;
-    if (chats[lastChatIndex].case === ChatType.Answers) {
-      setPendingPick(lastChatIndex);
+    if (chats.length > 0) {
+      const lastChatIndex = chats.length - 1;
+      if (chats[lastChatIndex].case === ChatType.Answers) {
+        setPendingPick(lastChatIndex);
+      }
     }
   }, [chats]);
+
+//  useEffect(() => {
+//    console.log(eventHistory);
+//  }
+//  , [eventHistory]);
+//
+//  const { call: create_chat_history } = backendActor.useUpdateCall({
+//    functionName: "create_chat_history",
+//  });
+//
+//  useEffect(() => {
+//    if (chatId === undefined) {
+//      create_chat_history([{ history: eventHistory }]).then((res) => {
+//        console.log("Chat history created:", res);
+//        setChatId(res);
+//      })
+//      .catch((error) => {
+//        console.error("Error creating chat history:", error);
+//      });
+//    }
+//  });
+
+//
+//  const { call: update_chat_history } = backendActor.useUpdateCall({
+//    functionName: "update_chat_history",
+//  });
+//
+//  useEffect(() => {
+//    if (eventHistory.length > 0) {
+//      create_chat_history([{ eventHistory: eventHistory }]).then((res) => {
+//        console.log("Chat history created:", res);
+//      })
+//      .catch((error) => {
+//        console.error("Error creating chat history:", error);
+//      });
+//    }
+//  }, []);
 
   return (
     <div

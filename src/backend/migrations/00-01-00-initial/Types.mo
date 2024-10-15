@@ -19,13 +19,21 @@ module {
   public type UserRegister = {
     var index: Nat;
     mapUsers: Map.Map<Principal, User>;
+    chatHistories: Map.Map<Principal, ChatHistories>;
+  };
+
+  public type ChatHistories = {
+    var index: Nat;
+    byIndex: Map.Map<Nat, ChatHistory>;
+  };
+
+  public type ChatHistory = {
+    id: Nat;
+    history: Text;
   };
 
   public type State = {
-    users: {
-      var index: Nat;
-      mapUsers: Map.Map<Principal, User>;
-    };
+    users: UserRegister;
     intProps: {
       var index: Nat;
       e8sIcpPrices: Map.Map<Nat, Nat>;

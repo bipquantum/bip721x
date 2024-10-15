@@ -1,37 +1,34 @@
 import { useState } from "react";
 
-import LayoutCollapseLeftSvg from "../../assets/layout-collapse-left.svg";
-import LayoutCollapseRightSvg from "../../assets/layout-collapse-right.svg";
 import EditSvg from "../../assets/edit.svg";
 import TrashSvg from "../../assets/trash.svg";
 import AddPlusSvg from "../../assets/add-plus.svg";
 import LogoSvg from "../../assets/logo.png";
 
 import { Link, useLocation } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 import Modal from "../common/Modal";
 
-interface ListInterface {
-  id: string;
+interface ChatHistory {
   name: string;
-}
+  history: string[];
+};
 
-const SideBar = () => {
-  const location = useLocation();
-  const { pathname } = location;
-  const [list, setList] = useState<ListInterface[]>([
-    // { id: uuidv4(), name: "Nft ai" },
-    // { id: uuidv4(), name: "Nft ai" },
+const ChatHistoryBar = () => {
+
+  const { pathname } = useLocation();
+
+  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([
+    { name: "Nft ai", history: [] },
+    { name: "Nft ai", history: [] },
   ]);
-  const [isVisible, setIsVisible] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState<string>();
+  const [deleteCandidate, setDeleteCandidate] = useState<number | undefined>();
 
-  const deleteItem = (uuid: string) => {
-    setList(list.filter((item) => item.id !== uuid));
+  const deleteHistory = () => {
+    setChatHistories(chatHistories.filter((_, index) => index !== deleteCandidate));
   };
 
-  const addItem = (name: string) => {
-    setList([...list, { id: uuidv4(), name }]);
+  const addHistory = (item: ChatHistory) => {
+    setChatHistories([...chatHistories, item]);
   };
 
   return (
@@ -45,12 +42,12 @@ const SideBar = () => {
               <img src={LogoSvg} className="h-14 invert" alt="Logo" />
             </Link>
           </div>
-          {list.map((item, index) => (
+          {chatHistories.map((item, index) => (
             <div
               className="mt-4 flex items-center justify-between px-4"
               key={index}
             >
-              <p className="cursor-pointer text-xl">{item.name}</p>
+              <Link to={"/chat/" + index}>{item.name}</Link>
               <div className="flex items-center gap-x-2">
                 <img
                   src={EditSvg}
@@ -62,40 +59,27 @@ const SideBar = () => {
                   className="h-5 cursor-pointer invert"
                   alt="Trash"
                   onClick={() => {
-                    setIsVisible(true);
-                    setDeleteItemId(item.id);
+                    setDeleteCandidate(index);
                   }}
                 />
               </div>
             </div>
           ))}
           <Modal
-            isVisible={isVisible}
-            onClose={() => {
-              setIsVisible(false);
-              if (deleteItemId) setDeleteItemId("");
-            }}
+            isVisible={deleteCandidate !== undefined}
+            onClose={() => { setDeleteCandidate(undefined); }}
           >
-            <p className="pb-5">Do you really want to quit IP creation?</p>
+            <p className="pb-5">Remove chatbot history?</p>
             <div className="flex w-full justify-center gap-4">
               <button
                 className="w-1/3 rounded-xl bg-gray-600 text-white"
-                onClick={() => {
-                  setIsVisible(false);
-                  if (deleteItemId) setDeleteItemId("");
-                }}
+                onClick={() => { setDeleteCandidate(undefined); }}
               >
                 No
               </button>
               <button
                 className="w-1/3 rounded-xl bg-secondary text-white"
-                onClick={() => {
-                  setIsVisible(false);
-                  if (deleteItemId) {
-                    deleteItem(deleteItemId);
-                    setDeleteItemId("");
-                  }
-                }}
+                onClick={() => { deleteHistory(); setDeleteCandidate(undefined); }}
               >
                 Yes
               </button>
@@ -118,4 +102,4 @@ const SideBar = () => {
   );
 };
 
-export default SideBar;
+export default ChatHistoryBar;
