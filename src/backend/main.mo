@@ -51,7 +51,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
-            chatHistories = stableData.users.chatHistories;
+            chatHistories = stableData.chatHistories;
           });
           tradeManager = TradeManager.TradeManager({
             stage_account = { owner = Principal.fromActor(this); subaccount = null; };
@@ -72,24 +72,20 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().getUser(principal);
   };
 
-  public query({caller}) func get_chat_histories() : async [Nat] {
+  public query({caller}) func get_chat_histories() : async [ChatHistory] {
     getController().getChatHistories({ caller; });
   };
 
-  public query({caller}) func get_chat_history({id: Nat;}) : async Result<ChatHistory, Text> {
+  public query({caller}) func get_chat_history({id: Text;}) : async Result<ChatHistory, Text> {
     getController().getChatHistory({ caller; id; });
   };
 
-  public shared({caller}) func delete_chat_history({id: Nat;}) : async Result<(), Text> {
+  public shared({caller}) func delete_chat_history({id: Text;}) : async Result<(), Text> {
     getController().deleteChatHistory({ caller; id; });
   };
 
-  public shared({caller}) func create_chat_history({history: Text;}) : async Result<Nat, Text> {
-    getController().createChatHistory({ caller; history; });
-  };
-
-  public shared({caller}) func update_chat_history({id: Nat; history: Text;}) : async Result<(), Text> {
-    getController().updateChatHistory({ caller; id; history; });
+  public shared({caller}) func set_chat_history({id: Text; history: Text;}) : async Result<(), Text> {
+    getController().setChatHistory({ caller; id; history; });
   };
 
   public shared({caller}) func create_int_prop(args: IntPropInput) : async CreateIntPropResult {

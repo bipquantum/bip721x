@@ -18,7 +18,6 @@ module {
   let BIP721X_TAG          = Types.BIP721X_TAG;
 
   type User                = Types.User;
-  type UserRegister        = Types.UserRegister;
   type Result<Ok, Err>     = Result.Result<Ok, Err>;
   type IntPropRegister     = Types.IntPropRegister;
   type IntPropInput        = Types.IntPropInput;
@@ -30,7 +29,7 @@ module {
   type Account             = ICRC7.Account;
 
   public class Controller({
-    users: UserRegister;
+    users: Map.Map<Principal, User>;
     intProps: IntPropRegister;
     chatBotHistory: ChatBotHistory.ChatBotHistory;
     tradeManager: TradeManager.TradeManager;
@@ -45,45 +44,40 @@ module {
         return #err("Cannot create a user with from anonymous principal");
       };
 
-      Map.set(users.mapUsers, Map.phash, args.caller, args);
+      Map.set(users, Map.phash, args.caller, args);
       #ok;
     };
 
     public func getUser(principal: Principal) : ?User {
-      Map.get(users.mapUsers, Map.phash, principal)
+      Map.get(users, Map.phash, principal)
     };
 
-    public func getChatHistories({caller: Principal}) : [Nat] {
+    public func getChatHistories({
+      caller: Principal;
+    }) : [ChatHistory] {
       chatBotHistory.getChatHistories({caller});
+    };
+    
+    public func getChatHistory({
+      caller: Principal;
+      id: Text;
+    }) : Result<ChatHistory, Text> {
+      chatBotHistory.getChatHistory({caller; id});
     };
 
     public func deleteChatHistory({
       caller: Principal;
-      id: Nat;
+      id: Text;
     }) : Result<(), Text> {
-      chatBotHistory.deleteChatHistory({ caller; id; });
+      chatBotHistory.deleteChatHistory({caller; id});
     };
 
-    public func getChatHistory({
+    public func setChatHistory({
       caller: Principal;
-      id: Nat;
-    }) : Result<ChatHistory, Text> {
-      chatBotHistory.getChatHistory({ caller; id; });
-    };
-
-    public func createChatHistory({
-      caller: Principal;
-      history: Text;
-    }) : Result<Nat, Text> {
-      chatBotHistory.createChatHistory({ caller; history; });
-    };
-
-    public func updateChatHistory({
-      caller: Principal;
-      id: Nat;
+      id: Text;
       history: Text;
     }) : Result<(), Text> {
-      chatBotHistory.updateChatHistory({ caller; id; history; });
+      chatBotHistory.setChatHistory({caller; id; history});
     };
 
     public func createIntProp(
@@ -91,7 +85,7 @@ module {
         author: Principal;
     }) : async CreateIntPropResult {
 
-      if (not Map.has(users.mapUsers, Map.phash, args.author)){
+      if (not Map.has(users, Map.phash, args.author)){
         return #err(#GenericError({ error_code = 100; message = "A user profile is required to mint a new IP"; }));
       };
 

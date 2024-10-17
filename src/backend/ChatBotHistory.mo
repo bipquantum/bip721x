@@ -1,116 +1,110 @@
 import Types "Types";
 
+import Map               "mo:map/Map";
+import Set               "mo:map/Set";
+
 import Principal         "mo:base/Principal";
 import Result            "mo:base/Result";
-import Iter              "mo:base/Iter";
-import Map               "mo:map/Map";
-
+import Buffer            "mo:base/Buffer";
 
 module {
 
-  type ChatHistories       = Types.ChatHistories;
-  type ChatHistory         = Types.ChatHistory;
-
   type Result<Ok, Err>     = Result.Result<Ok, Err>;
+  type ChatHistory         = Types.ChatHistory;
+  type ChatHistories       = Types.ChatHistories;
 
-  public class ChatBotHistory({chatHistories: Map.Map<Principal, ChatHistories>}) {
+  public class ChatBotHistory({ chatHistories: ChatHistories }) {
 
-    public func getChatHistories({caller: Principal}) : [Nat] {
-      let histories = switch(Map.get(chatHistories, Map.phash, caller)){
-        case(null) { return []; };
-        case(?h) { h; };
+    public func getChatHistories({
+      caller: Principal;
+    }) : [ChatHistory] {
+      let ids = switch(Map.get(chatHistories.byPrincipal, Map.phash, caller)){
+        case(null) { Set.new<Text>(); };
+        case(?k) { k; };
       };
 
-      Iter.toArray(Map.keys(histories.byIndex));
+      let buffer = Buffer.Buffer<ChatHistory>(ids.size());
+
+      for (id in Set.keys(ids)){
+        switch(Map.get(chatHistories.histories, Map.thash, id)){
+          case(null) { };
+          case(?hist) { buffer.add(hist); };
+        };
+      };
+
+      Buffer.toArray(buffer);
     };
 
     public func getChatHistory({
       caller: Principal;
-      id: Nat;
+      id: Text;
     }) : Result<ChatHistory, Text> {
 
       if (Principal.isAnonymous(caller)){
         return #err("Cannot get a chat history with from anonymous principal");
       };
 
-      let histories = switch(Map.get(chatHistories, Map.phash, caller)){
-        case(null) { return #err("Chat history not found"); };
-        case(?h) { h; };
+      let ids = switch(Map.get(chatHistories.byPrincipal, Map.phash, caller)){
+        case(null) { Set.new<Text>(); };
+        case(?k) { k; };
       };
 
-      switch(Map.get(histories.byIndex, Map.nhash, id)){
-        case(null) { return #err("Chat history not found"); };
-        case(?h) { return #ok(h); };
+      if (not Set.has(ids, Set.thash, id)){
+        return #err("Chat history not found");
+      };
+
+      switch(Map.get(chatHistories.histories, Map.thash, id)){
+        case(null) { #err("Chat history not found"); };
+        case(?h) { #ok(h); };
       };
     };
 
     public func deleteChatHistory({
       caller: Principal;
-      id: Nat;
+      id: Text;
     }) : Result<(), Text> {
 
       if (Principal.isAnonymous(caller)){
-        return #err("Cannot delete a chat history with from anonymous principal");
+        return #err("Cannot get a chat history with from anonymous principal");
       };
 
-      let histories = switch(Map.get(chatHistories, Map.phash, caller)){
-        case(null) { return #err("Chat history not found"); };
-        case(?h) { h; };
+      let ids = switch(Map.get(chatHistories.byPrincipal, Map.phash, caller)){
+        case(null) { Set.new<Text>(); };
+        case(?k) { k; };
       };
 
-      if (not Map.has(histories.byIndex, Map.nhash, id)){
+      if (not Set.has(ids, Set.thash, id)){
         return #err("Chat history not found");
       };
 
-      Map.delete(histories.byIndex, Map.nhash, id);
+      Map.delete(chatHistories.histories, Map.thash, id);
+      Set.delete(ids, Set.thash, id);
+      Map.set(chatHistories.byPrincipal, Map.phash, caller, ids);
       #ok;
     };
 
-    public func createChatHistory({
+    public func setChatHistory({
       caller: Principal;
-      history: Text;
-    }) : Result<Nat, Text> {
-
-      if (Principal.isAnonymous(caller)){
-        return #err("Cannot create a chat history with from anonymous principal");
-      };
-
-      let histories = switch(Map.get(chatHistories, Map.phash, caller)){
-        case(null) { 
-          let h = { var index = 0; byIndex = Map.new<Nat, ChatHistory>(); }; 
-          Map.set(chatHistories, Map.phash, caller, h);
-          h;
-        };
-        case(?h) { h; };
-      };
-
-      let id = histories.index;
-      Map.set(histories.byIndex, Map.nhash, id, { id; history; });
-      histories.index += 1;
-
-      #ok(id);
-    };
-
-    public func updateChatHistory({
-      caller: Principal;
-      id: Nat;
+      id: Text;
       history: Text;
     }) : Result<(), Text> {
 
       if (Principal.isAnonymous(caller)){
-        return #err("Cannot update a chat history with from anonymous principal");
+        return #err("Cannot get a chat history with from anonymous principal");
       };
 
-      let histories = switch(Map.get(chatHistories, Map.phash, caller)){
-        case(null) { return #err("Chat history not found"); };
-        case(?h) { h; };
+      let ids = switch(Map.get(chatHistories.byPrincipal, Map.phash, caller)){
+        case(null) { Set.new<Text>(); };
+        case(?k) { k; };
       };
 
-      if (not Map.has(histories.byIndex, Map.nhash, id)){
-        return #err("Chat history not found");
+      // Add it to the user's chat history list if it's not already there
+      if (not Set.has(ids, Set.thash, id)){
+        Set.add(ids, Set.thash, id);
+        Map.set(chatHistories.byPrincipal, Map.phash, caller, ids);
       };
 
-      Map.set(histories.byIndex, Map.nhash, id, { id; history; });
+      Map.set(chatHistories.histories, Map.thash, id, {id; history});
       #ok;
     };
 

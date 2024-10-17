@@ -38,7 +38,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
 
   const transition = (pickIndex: number) => {
     
-    if (!pendingPick) {
+    if (pendingPick === undefined) {
       throw new Error("No pending pick");
     }
     

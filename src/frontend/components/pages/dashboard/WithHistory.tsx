@@ -1,9 +1,8 @@
 import { Principal } from "@dfinity/principal";
 import ChatBot from "./ChatBot";
-import { useParams } from "react-router-dom";
 import { backendActor } from "../../actors/BackendActor";
 import { useEffect, useRef, useState } from "react";
-import { AnyEventObject } from "xstate";
+import { AnyEventObject, createMachine, createActor } from "xstate";
 import { useMachine } from "@xstate/react";
 import { machine } from "./botStateMachine";
 import { ChatAnswerState, ChatElem, createChatElem } from "./types";
@@ -31,110 +30,107 @@ const getCustomStateInfo = (stateValue: any): CustomStateInfo => {
   };
 };
 
+const createStateMachine = (eventHistory: string | undefined, onNewState: (state: any) => void) => {
+  const actor = createActor(machine);
+  actor.subscribe((state) => {
+    onNewState(state);
+  });
+  actor.start();
+  if (eventHistory !== undefined) {
+    for (const event of JSON.parse(eventHistory)) {
+      // Send the transition
+      console.log("Sending event:", JSON.parse(event));
+      actor.send(JSON.parse(event));
+    }
+  }
+  return actor;
+}
+
 interface WithHistoryProps {
   principal: Principal | undefined;
+  chatId: string;
 }
 
-enum HistoryStateEnum {
-  Unset,
-  Creating,
-  Defined,
-}
+const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
 
-type HistoryState =
-| { state: HistoryStateEnum.Unset }
-| { state: HistoryStateEnum.Creating }
-| { state: HistoryStateEnum.Defined, chatId: bigint };
-
-const WithHistory: React.FC<WithHistoryProps> = ({ principal }) => {
-
-  let { chatId: chatId } = useParams();
-
-  const [_, send, actor] = useMachine(machine);
-
-  const historyState = useRef<HistoryState>(chatId !== undefined ? 
-    { state: HistoryStateEnum.Defined, chatId: BigInt(chatId) } : { state: HistoryStateEnum.Unset });
-  const eventHistory = useRef<string[] | undefined>(undefined);
-  //const stateHistory = useRef<string[]>([]);
+  const refId = useRef<string>(chatId);
+  const eventHistory = useRef<string[]>([]);
   const chats = useRef<ChatElem[]>([]);
-  const [currentInfo, setCurrentInfo] = useState<CustomStateInfo | undefined>(undefined);
 
-  const { call: createChatHistory } = backendActor.useUpdateCall({
-    functionName: "create_chat_history",
-  });
+  const updateChat = (state: any) => {
+    if (state.value !== undefined){
+      const stateInfo = getCustomStateInfo(state.value);
+      if (chats.current.length === 0 || chats.current[chats.current.length - 1].question !== stateInfo.description) {
+        console.log("Refreshing from state subscribe:", stateInfo.description, stateInfo.transitions);
+        chats.current = [...chats.current, createChatElem(stateInfo.description, stateInfo.transitions)];
+      }
+    }
+  }
 
-  const { call: updateChatHistory } = backendActor.useUpdateCall({
-    functionName: "update_chat_history",
+  const [actor, setActor] = useState(createStateMachine(undefined, updateChat));
+
+  const { call: setChatHistory } = backendActor.useUpdateCall({
+    functionName: "set_chat_history",
   });
 
   const { call: getChatHistory } = backendActor.useQueryCall({
     functionName: "get_chat_history",
+    args: [{id: chatId}],
   });
+
+  const refreshMachine = () => {
+    // Stop the current state machine
+    eventHistory.current = [];
+    chats.current = [];
+    actor.stop(); // To unsubscribe listeners
+
+    console.log("Refreshing chat history...");
+    const id = refId.current;
+
+    getChatHistory([{id}]).then((res) => {
+      if (id === refId.current && res !== undefined && 'ok' in res) {
+        console.log("Set new actor");
+        setActor(createStateMachine(res.ok.history, updateChat));
+//        const history = JSON.parse(res.ok.history);
+//        console.log("Chat history retrieved:", history);
+//        eventHistory.current = history;
+//        for (const event of history) {
+          // Select the answer
+//          for (const answer of chats.current[chats.current.length - 1].answers) {
+//            if (answer.text === JSON.parse(event).type) {
+//              answer.state = ChatAnswerState.Selected;
+//            } else {
+//              answer.state = ChatAnswerState.Unselectable;
+//            }
+//          }
+//        }
+      }
+    }).catch((error) => {
+      console.error("Error getting chat history:", error);
+    });
+  }
+
+  useEffect(() => {
+    if (refId.current !== chatId) {
+      console.log("Chat id changed: new:", chatId, "old:", refId.current);
+      refId.current = chatId; // Make sure to refresh only once
+      refreshMachine();
+    };
+  }, [chatId]);
 
   const addToHistory = (event: AnyEventObject) => {
     // Trigger the state machine transition with the event
-    send(event);
+    actor.send(event);
 
     // Update the chat history with the new event
-    if (historyState.current.state ===  HistoryStateEnum.Defined && eventHistory.current !== undefined) {
-      eventHistory.current = [...eventHistory.current, JSON.stringify(event)];
-      updateChatHistory([{id: historyState.current.chatId, history: JSON.stringify([...eventHistory.current, JSON.stringify(event)])}]).then((res) => {
-        console.log("Chat history updated:", res);
-      })
-      .catch((error) => {
-        console.error("Error updating chat history:", error);
-      });
-    }
+    eventHistory.current = [...eventHistory.current, JSON.stringify(event)];
+    setChatHistory([{id: chatId, history: JSON.stringify([...eventHistory.current, JSON.stringify(event)])}]).then((res) => {
+      console.log("Chat history updated:", res);
+    })
+    .catch((error) => {
+      console.error("Error updating chat history:", error);
+    });
   }
-
-  // Create a new chat history if the chatId is not defined
-  useEffect(() => {
-    if (historyState.current.state === HistoryStateEnum.Unset) {
-      console.log("Creating chat history...");
-      historyState.current = { state: HistoryStateEnum.Creating } ;
-      createChatHistory([{history: JSON.stringify([])}]).then((res) => {
-        if (res !== undefined && 'ok' in res) {
-          historyState.current = { state: HistoryStateEnum.Defined, chatId: BigInt(res.ok) };
-        }
-      })
-      .catch((error) => {
-        console.error("Error creating chat history:", error);
-      });
-    } else if (historyState.current.state === HistoryStateEnum.Defined && eventHistory.current === undefined) {
-      eventHistory.current = [];
-      console.log("Getting chat history...");
-      getChatHistory([{id: historyState.current.chatId}]).then((res) => {
-        if (res !== undefined && 'ok' in res) {
-          console.log("Chat history retrieved:", res.ok.history);
-          eventHistory.current = (JSON.parse(res.ok.history));
-          for (const event of JSON.parse(res.ok.history)) {
-            for (const answer of chats.current[chats.current.length - 1].answers) {
-              if (answer.text === JSON.parse(event).type) {
-                answer.state = ChatAnswerState.Selected;
-              } else {
-                answer.state = ChatAnswerState.Unselectable;
-              }
-            }
-            send(JSON.parse(event));
-          }
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting chat history:", error);
-      });
-    }
-  }, [historyState]);
-
-  actor.subscribe((state) => {
-    // TODO: why with each transition this hook is called 6 times more every time?
-    if (state.value !== undefined){
-      const stateInfo = getCustomStateInfo(state.value);
-      if (chats.current.length === 0 || chats.current[chats.current.length - 1].question !== stateInfo.description) {
-        chats.current = [...chats.current, createChatElem(stateInfo.description, stateInfo.transitions)];
-        console.log("Chats:", chats.current);
-      }
-    }
-  });
 
   return <ChatBot principal={principal} chats={chats.current} addToHistory={addToHistory}/>
 }

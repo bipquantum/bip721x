@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
 
 const Dashboard = () => {
 
@@ -9,18 +10,18 @@ const Dashboard = () => {
         <div className="h-1 w-32 bg-primary sm:w-96"></div>
       </div>
       <div className="grid grid-cols-2 items-start justify-start gap-8 text-center text-lg font-bold leading-6 text-white">
-        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat/` + uuidv4()}>
           IP Education/
           <br />
           Consultation
         </Link>
-        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat/` + uuidv4()}>
           Generate a bIP Certificate
         </Link>
-        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat/` + uuidv4()}>
           Organize IP Assets
         </Link>
-        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat`}>
+        <Link className="flex h-36 w-36 items-center justify-center rounded-2xl bg-secondary px-4 hover:cursor-pointer hover:bg-blue-800" to={`/chat/` + uuidv4()}>
           Sell IP Assets on the bIPQuantum Store
         </Link>
       </div>

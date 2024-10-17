@@ -2,6 +2,7 @@ import Types          "Types";
 import MigrationTypes "../Types";
 
 import Map            "mo:map/Map";
+import Set            "mo:map/Set";
 
 import Debug          "mo:base/Debug";
 
@@ -9,22 +10,21 @@ module {
 
   type State         = MigrationTypes.State;
   type User          = Types.User;
-  type ChatHistories = Types.ChatHistories;
+  type ChatHistory   = Types.ChatHistory;
   type InitArgs      = Types.InitArgs;
   type UpgradeArgs   = Types.UpgradeArgs;
   type DowngradeArgs = Types.DowngradeArgs;
 
     public func init(args: InitArgs) : State {
-
         #v0_1_0({
-            users = {
-                var index = 0;
-                mapUsers = Map.new<Principal, User>();
-                chatHistories = Map.new<Principal, ChatHistories>();
-            };
+            users = Map.new<Principal, User>();
             intProps = {
                 var index = 0;
                 e8sIcpPrices = Map.new<Nat, Nat>();
+            };
+            chatHistories = {
+                histories = Map.new<Text, ChatHistory>();
+                byPrincipal = Map.new<Principal, Set.Set<Text>>();
             };
             e8sTransferFee = args.e8sTransferFee;
         });
