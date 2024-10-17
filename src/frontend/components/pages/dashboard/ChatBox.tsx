@@ -1,5 +1,5 @@
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { ChatType, ChatElem, ChatAnswerState} from "./types";
+import { ChatElem, ChatAnswerState} from "./types";
 import NewIP from "../new-ip/NewIp";
 
 import { useEffect, useRef, useState } from "react";
@@ -41,21 +41,18 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
     if (!pendingPick) {
       throw new Error("No pending pick");
     }
-    if (chats[pendingPick].case !== ChatType.Answers) {
-      throw new Error("Pending pick is not an answer");
-    }
     
-    const answers = chats[pendingPick];
-    const event = answers.content[pickIndex].text;
+    const answers = chats[pendingPick].answers;
+    const event = answers[pickIndex].text;
     sendEvent({ type: event });
     setEventHistory([...eventHistory, event]);
     
     // Update the selected state of each answer
-    for (let i = 0; i < answers.content.length; i++) {
+    for (let i = 0; i < answers.length; i++) {
       if (i === pickIndex) {
-        answers.content[i].state = ChatAnswerState.Selected;
+        answers[i].state = ChatAnswerState.Selected;
       } else {
-        answers.content[i].state = ChatAnswerState.Unselectable;
+        answers[i].state = ChatAnswerState.Unselectable;
       }
     }
 
@@ -70,49 +67,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
 
   useEffect(() => {
     if (chats.length > 0) {
-      const lastChatIndex = chats.length - 1;
-      if (chats[lastChatIndex].case === ChatType.Answers) {
-        setPendingPick(lastChatIndex);
-      }
+      setPendingPick(chats.length - 1);
     }
   }, [chats]);
-
-//  useEffect(() => {
-//    console.log(eventHistory);
-//  }
-//  , [eventHistory]);
-//
-//  const { call: create_chat_history } = backendActor.useUpdateCall({
-//    functionName: "create_chat_history",
-//  });
-//
-//  useEffect(() => {
-//    if (chatId === undefined) {
-//      create_chat_history([{ history: eventHistory }]).then((res) => {
-//        console.log("Chat history created:", res);
-//        setChatId(res);
-//      })
-//      .catch((error) => {
-//        console.error("Error creating chat history:", error);
-//      });
-//    }
-//  });
-
-//
-//  const { call: update_chat_history } = backendActor.useUpdateCall({
-//    functionName: "update_chat_history",
-//  });
-//
-//  useEffect(() => {
-//    if (eventHistory.length > 0) {
-//      create_chat_history([{ eventHistory: eventHistory }]).then((res) => {
-//        console.log("Chat history created:", res);
-//      })
-//      .catch((error) => {
-//        console.error("Error creating chat history:", error);
-//      });
-//    }
-//  }, []);
 
   return (
     <div
@@ -120,41 +77,42 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
       ref={messagesContainerRef}
     >
       {chats.map((chat, elem_index) => (
-        chat.case === ChatType.Question ?
-        <div className="flex flex-col rounded-xl px-4 py-2 bg-slate-300 text-black">
-          <Markdown key={elem_index} remarkPlugins={[remarkGfm]}>
-            {chat.content}
-          </Markdown>
-          { 
-            // TODO: this is a temporary solution to show the bIP certificate link
-            (elem_index === chats.length - 2) && ipId !== undefined ?
-            <a href={`/bip/${ipId}`} className="font-bold text-blue-500">View your bIP</a> : <></>
-          }
-        </div> : 
-        <div key={elem_index} className="flex flex-row gap-2">
-          {
-          chat.content.map((answer, answer_index) => (
-            <button
-              className={`rounded-xl px-4 py-2 bg-blue-600 text-white 
-                ${answer.state === ChatAnswerState.Unselectable || answer.text === "US Copyright Certificate" && "bg-gray-400"}
-                ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-blue-800"}
-                ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-blue-800"}
-              `}
-              // TODO: temporary solution to prevent the user from selecting the "US Copyright Certificate"
-              disabled={answer.state !== ChatAnswerState.Selectable || answer.text === "US Copyright Certificate"}
-              key={answer_index}
-              // TODO: have guards in the state machine to prevent code like this
-              onClick={() => { answer.text === "bIP certificate" ? setCreatingIp(answer_index) : transition(answer_index); } } 
-            >
-              {answer.text.split("\n").map((line, i) => (
-                <span key={i}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </button>
-          ))
-          }
+        <div key={elem_index} className="flex flex-col">
+          <div className="flex flex-col rounded-xl px-4 py-2 bg-slate-300 text-black">
+            <Markdown remarkPlugins={[remarkGfm]}>
+              {chat.question}
+            </Markdown>
+            { 
+              // TODO: this is a temporary solution to show the bIP certificate link
+              (elem_index === chats.length - 2) && ipId !== undefined ?
+              <a href={`/bip/${ipId}`} className="font-bold text-blue-500">View your bIP</a> : <></>
+            }
+          </div>
+          <div className="flex flex-row py-2 gap-2">
+            {
+            chat.answers.map((answer, answer_index) => (
+              <button
+                className={`rounded-xl px-4 py-2 bg-blue-600 text-white 
+                  ${answer.state === ChatAnswerState.Unselectable || answer.text === "US Copyright Certificate" && "bg-gray-400"}
+                  ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-blue-800"}
+                  ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-blue-800"}
+                `}
+                // TODO: temporary solution to prevent the user from selecting the "US Copyright Certificate"
+                disabled={answer.state !== ChatAnswerState.Selectable || answer.text === "US Copyright Certificate"}
+                key={answer_index}
+                // TODO: have guards in the state machine to prevent code like this
+                onClick={() => { answer.text === "bIP certificate" ? setCreatingIp(answer_index) : transition(answer_index); } } 
+              >
+                {answer.text.split("\n").map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </button>
+            ))
+            }
+          </div>
         </div>
       ))}
       {isCalling && (

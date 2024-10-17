@@ -1,9 +1,4 @@
 
-export enum ChatType {
-    Question,
-    Answers
-};
-
 export enum ChatAnswerState {
     Unselectable,
     Selectable,
@@ -15,22 +10,14 @@ export type ChatAnswer = {
     state: ChatAnswerState
 }
   
-export type ChatElem = 
-| { 
-    case: ChatType.Question; 
-    content: string; 
-  }
-| {
-    case: ChatType.Answers;
-    content: ChatAnswer[]; 
+export type ChatElem = {
+    question: string;
+    answers: ChatAnswer[];
 };
 
-export const createQuestion = (text: string): ChatElem => ({
-    case: ChatType.Question,
-    content: text,
-});
-
-export const createAnswers = (texts: string[], state?: ChatAnswerState): ChatElem => ({
-    case: ChatType.Answers,
-    content: texts.map((answer) => ({ text: answer, state: state ?? ChatAnswerState.Selectable })),
-});
+export const createChatElem = (question: string, answers: string[]): ChatElem => {
+    return {
+        question,
+        answers: answers.map((answer) => ({ text: answer, state: ChatAnswerState.Selectable })),
+    };
+};

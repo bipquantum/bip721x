@@ -2,7 +2,9 @@ import Types "Types";
 
 import Principal         "mo:base/Principal";
 import Result            "mo:base/Result";
+import Iter              "mo:base/Iter";
 import Map               "mo:map/Map";
+
 
 module {
 
@@ -12,6 +14,15 @@ module {
   type Result<Ok, Err>     = Result.Result<Ok, Err>;
 
   public class ChatBotHistory({chatHistories: Map.Map<Principal, ChatHistories>}) {
+
+    public func getChatHistories({caller: Principal}) : [Nat] {
+      let histories = switch(Map.get(chatHistories, Map.phash, caller)){
+        case(null) { return []; };
+        case(?h) { h; };
+      };
+
+      Iter.toArray(Map.keys(histories.byIndex));
+    };
 
     public func getChatHistory({
       caller: Principal;
@@ -31,6 +42,28 @@ module {
         case(null) { return #err("Chat history not found"); };
         case(?h) { return #ok(h); };
       };
+    };
+
+    public func deleteChatHistory({
+      caller: Principal;
+      id: Nat;
+    }) : Result<(), Text> {
+
+      if (Principal.isAnonymous(caller)){
+        return #err("Cannot delete a chat history with from anonymous principal");
+      };
+
+      let histories = switch(Map.get(chatHistories, Map.phash, caller)){
+        case(null) { return #err("Chat history not found"); };
+        case(?h) { h; };
+      };
+
+      if (not Map.has(histories.byIndex, Map.nhash, id)){
+        return #err("Chat history not found");
+      };
+
+      Map.delete(histories.byIndex, Map.nhash, id);
+      #ok;
     };
 
     public func createChatHistory({

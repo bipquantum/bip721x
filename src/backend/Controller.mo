@@ -53,6 +53,17 @@ module {
       Map.get(users.mapUsers, Map.phash, principal)
     };
 
+    public func getChatHistories({caller: Principal}) : [Nat] {
+      chatBotHistory.getChatHistories({caller});
+    };
+
+    public func deleteChatHistory({
+      caller: Principal;
+      id: Nat;
+    }) : Result<(), Text> {
+      chatBotHistory.deleteChatHistory({ caller; id; });
+    };
+
     public func getChatHistory({
       caller: Principal;
       id: Nat;

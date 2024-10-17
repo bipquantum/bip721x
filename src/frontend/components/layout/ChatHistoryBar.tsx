@@ -7,28 +7,28 @@ import LogoSvg from "../../assets/logo.png";
 
 import { Link, useLocation } from "react-router-dom";
 import Modal from "../common/Modal";
-
-interface ChatHistory {
-  name: string;
-  history: string[];
-};
+import { backendActor } from "../actors/BackendActor";
 
 const ChatHistoryBar = () => {
 
   const { pathname } = useLocation();
 
-  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([
-    { name: "Nft ai", history: [] },
-    { name: "Nft ai", history: [] },
-  ]);
-  const [deleteCandidate, setDeleteCandidate] = useState<number | undefined>();
+  const {} = backendActor.useQueryCall({
+    functionName: "get_chat_histories",
+    onSuccess: (data) => { if (data) setChatHistories(data); }
+  });
+
+  const { call: deleteChatHistory } = backendActor.useUpdateCall({
+    functionName: "delete_chat_history",
+  });
+
+  const [chatHistories, setChatHistories] = useState<bigint[]>([]);
+  const [deleteCandidate, setDeleteCandidate] = useState<bigint | undefined>();
 
   const deleteHistory = () => {
-    setChatHistories(chatHistories.filter((_, index) => index !== deleteCandidate));
-  };
-
-  const addHistory = (item: ChatHistory) => {
-    setChatHistories([...chatHistories, item]);
+    if (deleteCandidate === undefined) return;
+    deleteChatHistory([{ id: deleteCandidate }]);
+    setChatHistories(chatHistories.filter((id) => id !== deleteCandidate));
   };
 
   return (
@@ -42,12 +42,12 @@ const ChatHistoryBar = () => {
               <img src={LogoSvg} className="h-14 invert" alt="Logo" />
             </Link>
           </div>
-          {chatHistories.map((item, index) => (
+          {chatHistories.map((chatId) => (
             <div
               className="mt-4 flex items-center justify-between px-4"
-              key={index}
+              key={chatId}
             >
-              <Link to={"/chat/" + index}>{item.name}</Link>
+              <Link to={"/chat/" + chatId}>{chatId.toString()}</Link>
               <div className="flex items-center gap-x-2">
                 <img
                   src={EditSvg}
@@ -59,7 +59,10 @@ const ChatHistoryBar = () => {
                   className="h-5 cursor-pointer invert"
                   alt="Trash"
                   onClick={() => {
-                    setDeleteCandidate(index);
+                    //setDeleteCandidate(chatId);
+                    // @todo
+                    deleteChatHistory([{ id: chatId }]);
+                    setChatHistories(chatHistories.filter((id) => id !== chatId));
                   }}
                 />
               </div>

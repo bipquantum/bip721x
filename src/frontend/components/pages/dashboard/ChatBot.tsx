@@ -1,38 +1,26 @@
-import { useEffect, useRef, useState, KeyboardEvent } from "react";
+import { useRef, useState, KeyboardEvent } from "react";
 
 import SearchSvg from "../../../assets/search.svg";
 import SendMessageSvg from "../../../assets/send-message.svg";
 import { backendActor } from "../../actors/BackendActor";
-import { ChatElem, createAnswers, createQuestion } from "./types";
+import { ChatElem } from "./types";
 import ChatBox from "./ChatBox";
 import { extractRequestResponse, formatRequestBody } from "./chatgpt";
 import { Principal } from "@dfinity/principal";
 import { AnyEventObject } from "xstate";
 
-type CustomStateInfo = {
-  description: string;
-  transitions: string[];
-};
-
 interface ChatBotProps {
+  chats: ChatElem[];
   principal: Principal | undefined;
-  currentInfo: CustomStateInfo | undefined;
   addToHistory: (event: AnyEventObject) => void;
 };
 
-const ChatBot = ({ principal, currentInfo, addToHistory }: ChatBotProps) => {
+const ChatBot = ({ principal, chats, addToHistory }: ChatBotProps) => {
 
-  const [chats, setChats] = useState<ChatElem[]>([]);
   const [prompt, setPrompt] = useState("");
   const [shiftPressed, setShiftPressed] = useState(false);
   const [isCalling, setIsCalling] = useState(false);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (currentInfo) {
-      setChats((prevChats) => [...prevChats, createQuestion(currentInfo.description), createAnswers(currentInfo.transitions)]);
-    }
-  }, [currentInfo]);
 
   const { call: getResponse } = backendActor.useUpdateCall({
     functionName: "chatbot_completion",
@@ -51,38 +39,38 @@ const ChatBot = ({ principal, currentInfo, addToHistory }: ChatBotProps) => {
   };
 
   const handleSendButtonClick = async () => {
-    setIsCalling(true);
-    setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
-    await formatRequestBody(prompt).then((body) => {
-      getResponse([{ body }]).then((res) => {
-        let response = res && extractRequestResponse(res);
-        if (response) {
-          let newChat = "";
-          setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
-          let i = 0;
-          let intervalId = setInterval(() => {
-            if (i < response.length) {
-              newChat += response.charAt(i);
-              setChats((prevChats) => {
-                const updatedChats = [...prevChats];
-                updatedChats[updatedChats.length - 1] = createAnswers([prompt]);
-                return updatedChats;
-              });
-              i++;
-            } else {
-              clearInterval(intervalId);
-            }
-          }, 10);
-        }
-        setIsCalling(false);
-      })
-      .catch((error) => {
-        console.error("Error getting response:", error);
-        setIsCalling(false);
-      });
-    })
-    .catch((error) => console.error("Error converting blob:", error));
-    setPrompt("");
+//    setIsCalling(true);
+//    setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
+//    await formatRequestBody(prompt).then((body) => {
+//      getResponse([{ body }]).then((res) => {
+//        let response = res && extractRequestResponse(res);
+//        if (response) {
+//          let newChat = "";
+//          setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
+//          let i = 0;
+//          let intervalId = setInterval(() => {
+//            if (i < response.length) {
+//              newChat += response.charAt(i);
+//              setChats((prevChats) => {
+//                const updatedChats = [...prevChats];
+//                updatedChats[updatedChats.length - 1] = createAnswers([prompt]);
+//                return updatedChats;
+//              });
+//              i++;
+//            } else {
+//              clearInterval(intervalId);
+//            }
+//          }, 10);
+//        }
+//        setIsCalling(false);
+//      })
+//      .catch((error) => {
+//        console.error("Error getting response:", error);
+//        setIsCalling(false);
+//      });
+//    })
+//    .catch((error) => console.error("Error converting blob:", error));
+//    setPrompt("");
   };
 
   return (
