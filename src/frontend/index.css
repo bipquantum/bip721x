@@ -27,6 +27,15 @@ input {
   outline-offset: 2px;
 }
 
+.markdown-link a {
+  color: blue;
+  text-decoration: none;
+}
+
+.markdown-link a:hover {
+  color: darkblue;
+}
+
 :root {
   --scrollbar-width: 5px;
   --scrollbar-bg: rgba(51, 51, 51, 0.1);

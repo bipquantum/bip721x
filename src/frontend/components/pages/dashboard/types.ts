@@ -11,12 +11,14 @@ export type ChatAnswer = {
 }
   
 export type ChatElem = {
+    key: string;
     question: string;
     answers: ChatAnswer[];
 };
 
-export const createChatElem = (question: string, answers: string[]): ChatElem => {
+export const createChatElem = (key: string, question: string, answers: string[]): ChatElem => {
     return {
+        key,
         question,
         answers: answers.map((answer) => ({ text: answer, state: ChatAnswerState.Selectable })),
     };

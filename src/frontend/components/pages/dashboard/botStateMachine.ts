@@ -1,9 +1,36 @@
 // From: https://stately.ai/registry/editor/3d2c8fb7-500b-480d-b46a-7dccbed9b147?machineId=4c194f5d-c804-419f-8ba8-440559ed2bb7&mode=Design
 
-import { createMachine } from "xstate";
+import { assign, createMachine, EventObject, MetaObject, NonReducibleUnknown, ParameterizedObject, ProvidedActor, StateMachine } from "xstate";
 
-export const machine = createMachine({
-  context: {},
+interface MachineContext {
+  intPropId: string | undefined;
+}
+
+interface BIPCertificateEvent {
+  type: string;
+  intPropId: string;
+}
+
+type MachineEvent = BIPCertificateEvent | { type: string };
+
+const bIPQuantumUrl = process.env.DFX_NETWORK == 'local' ? "http://localhost:3000" : `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io`;
+
+export const machine = createMachine<
+  MachineContext,
+  MachineEvent,
+  ProvidedActor,
+  ParameterizedObject,
+  ParameterizedObject,
+  string,
+  string,
+  string,
+  NonReducibleUnknown,
+  EventObject,
+  MetaObject
+>({
+  context: {
+    intPropId: undefined,
+  },
   id: "chat",
   initial: "knowledgeLevel",
   states: {
@@ -103,6 +130,9 @@ export const machine = createMachine({
       on: {
         "bIP certificate": {
           target: "bipCertificate",
+          actions: assign({
+            intPropId: (_, event: BIPCertificateEvent | undefined) => event?.intPropId,
+          })
         },
         "US Copyright Certificate": {
           target: "usCopyright",
@@ -112,12 +142,15 @@ export const machine = createMachine({
         "# 📜 What kind of certificate are you looking for?\n\n1. **bIP Certificate:** a Blockchain Intellectual Property Certificate, as offered by bIP Quantum, is a digital certificate that leverages blockchain technology to provide secure and immutable proof of evidence ownership and authenticity for your intellectual property. It ensures transparency, traceability, and protection against infringement in the digital realm and completes a US copyright certificate.\n2. **US Copyright Certificate**: a conventional form of legal recognition provided by the United States Copyright Office. It serves as official documentation that establishes your rights as the creator of a work, offering legal protection primarily in the physical realm and traditional channels.",
     },
     bipCertificate: {
-      type: "final",
+      meta: {
+        description: (context: MachineContext) : string => { return `[View your bIP](${bIPQuantumUrl}/bips/${context.intPropId})` },
+      },
       description:
         "# 🎉 Congratulations on successfully listing your Intellectual Property on bIPQ store! \n\nYour entry is a significant step towards harnessing the full potential of your creative work. Please be aware that the bIP Quantum team may request additional validation to ensure the highest standards of quality and authenticity for our marketplace. This process is part of our commitment to maintaining a trusted and secure platform for all the members. We appreciate your cooperation and are here to assist you every step of the way. Welcome to the bIP Quantum community!",
     },
     usCopyright: {
-      type: "final",
+      description:
+        "", // @todo
     },
   },
   on: {

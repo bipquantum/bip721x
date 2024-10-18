@@ -45,9 +45,13 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
 
   actor.subscribe((state) => {
     if (state.value !== undefined){
+      console.log(state.value);
+      const key = state.value.toString();
       const stateInfo = getCustomStateInfo(state.value);
-      if (chats.current.length === 0 || chats.current[chats.current.length - 1].question !== stateInfo.description) {
-        chats.current = [...chats.current, createChatElem(stateInfo.description, stateInfo.transitions)];
+      if (chats.current.length === 0 || chats.current[chats.current.length - 1].key !== key) {
+        const metaDescription = state.getMeta()["chat.bipCertificate"]?.description;
+        const description = stateInfo.description + (metaDescription === undefined ? "" : "\n\n" + metaDescription(state.context));
+        chats.current = [...chats.current, createChatElem(state.value.toString(), description, stateInfo.transitions)];
       }
     }
   });
@@ -63,11 +67,13 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
 
   const refreshMachine = () => {
 
-    // Reset the machine
-    eventHistory.current = [];
-    chats.current = [];
-    send({ type: "reset" });
+    // Reset the machine if not already in the initial state
+    if (actor.getSnapshot().value !== machine.definition.initial?.target[0].key){
+      chats.current = [];
+      send({ type: "reset" });
+    }
 
+    // Process the chat history
     const id = refId.current;
     var eHistory = JSON.stringify("");
 
@@ -81,23 +87,30 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
         eventHistory.current = JSON.parse(eHistory);
         for (const event of eventHistory.current) {
           // Send the transition
-          selectAnswer(JSON.parse(event).type);
+          selectAnswer(JSON.parse(event));
         }
       }
     });
   }
 
-  const selectAnswer = (selectedAnswer: string) => {
-    // First refresh the UI
-    for (const answer of chats.current[chats.current.length - 1].answers) {
-      if (answer.text === selectedAnswer) {
-        answer.state = ChatAnswerState.Selected;
-      } else {
-        answer.state = ChatAnswerState.Unselectable;
+  const selectAnswer = (event: AnyEventObject) => {
+    // Watchout: chats.current is a reference to the current chats array
+    // It is required to check if the selected answer is in the current answers
+    // because the state subscription is triggered many times for the same state.
+    let selectedAnswer = event.type;
+    let currentAnswers = chats.current[chats.current.length - 1].answers;
+    if (currentAnswers.map((answer) => answer.text).includes(selectedAnswer)) {
+      for (const answer of currentAnswers) {
+        if (answer.text === selectedAnswer) {
+          answer.state = ChatAnswerState.Selected;
+        } else {
+          answer.state = ChatAnswerState.Unselectable;
+        }
       }
-    }
-    // Then send the event
-    send({ type: selectedAnswer });
+    };
+    // Send the event
+    console.log("Analyzing event:", event);
+    send(event);
   }
 
   useEffect(() => {
@@ -107,12 +120,15 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     };
   }, [chatId]);
 
+  useEffect(() => {
+    refreshMachine();
+  }, []);
+
   const addToHistory = (event: AnyEventObject) => {
-    selectAnswer(event.type);
+    selectAnswer(event);
     // Update the chat history with the new event
     eventHistory.current = [...eventHistory.current, JSON.stringify(event)];
-    setChatHistory([{id: chatId, history: JSON.stringify([...eventHistory.current, JSON.stringify(event)])}]).then((res) => {
-    })
+    setChatHistory([{id: chatId, history: JSON.stringify([...eventHistory.current, JSON.stringify(event)])}])
     .catch((error) => {
       console.error("Error updating chat history:", error);
     });

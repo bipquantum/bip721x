@@ -1,7 +1,5 @@
-import { useEffect, useRef } from "react";
-import { toast } from "react-toastify";
 import { useAuth } from "@ic-reactor/react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import LogoSvg from "../../../assets/logo.png";
 import MenuSvg from "../../../assets/menu.svg";
@@ -10,7 +8,6 @@ import { backendActor } from "../../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../constants";
 
 const Main = () => {
-  const navigate = useNavigate();
 
   const { authenticated, identity } = useAuth({});
 
@@ -22,16 +19,6 @@ const Main = () => {
     functionName: "get_user",
     args: [identity?.getPrincipal()],
   });
-
-  const toastShownRef = useRef(false);
-
-  useEffect(() => {
-    if (queriedUser?.length === 0 && !toastShownRef.current) {
-      navigate("/profile");
-      toast.warn("Please add user");
-      toastShownRef.current = true;
-    }
-  }, [queriedUser]);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-start overflow-auto border-l bg-primary text-lg text-white">

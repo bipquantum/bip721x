@@ -22,39 +22,24 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
 
   const [pendingPick, setPendingPick] = useState<number | undefined>(undefined);
   const [creatingIp, setCreatingIp] = useState<number | undefined>(undefined);
-  const [ipId, setIpId] = useState<bigint | undefined>(undefined);
-  const [eventHistory, setEventHistory] = useState<string[]>([]);
 
   const onIpCreated = (ipId: bigint | undefined) => {
     if (creatingIp === undefined) {
       throw new Error("No IP creation in progress");
     }
     if (ipId !== undefined) {
-      setIpId(ipId);
-      transition(creatingIp);
+      transition(creatingIp, ipId.toString());
     }
     setCreatingIp(undefined);
   }
 
-  const transition = (pickIndex: number) => {
+  const transition = (pickIndex: number, intPropId?: string) => {
     
     if (pendingPick === undefined) {
       throw new Error("No pending pick");
     }
     
-    const answers = chats[pendingPick].answers;
-    const event = answers[pickIndex].text;
-    sendEvent({ type: event });
-    setEventHistory([...eventHistory, event]);
-    
-    // Update the selected state of each answer
-    for (let i = 0; i < answers.length; i++) {
-      if (i === pickIndex) {
-        answers[i].state = ChatAnswerState.Selected;
-      } else {
-        answers[i].state = ChatAnswerState.Unselectable;
-      }
-    }
+    sendEvent({ type: chats[pendingPick].answers[pickIndex].text, intPropId });
 
     setPendingPick(undefined);
   }
@@ -78,14 +63,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
     >
       {chats.map((chat, elem_index) => (
         <div key={elem_index} className="flex flex-col">
-          <div className="flex flex-col rounded-xl px-4 py-2 bg-slate-300 text-black">
+          <div className="flex flex-col rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
             <Markdown remarkPlugins={[remarkGfm]}>
               {chat.question}
             </Markdown>
             { 
               // TODO: this is a temporary solution to show the bIP certificate link
-              (elem_index === chats.length - 2) && ipId !== undefined ?
-              <a href={`/bip/${ipId}`} className="font-bold text-blue-500">View your bIP</a> : <></>
+              //(elem_index === chats.length - 1) && ipId !== undefined ?
+              //<a href={`/bip/${ipId}`} className="font-bold text-blue-500">View your bIP</a> : <></>
             }
           </div>
           <div className="flex flex-row py-2 gap-2">
