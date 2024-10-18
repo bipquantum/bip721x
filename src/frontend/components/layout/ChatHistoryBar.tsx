@@ -1,36 +1,26 @@
 import { useState } from "react";
-
 import EditSvg from "../../assets/edit.svg";
 import TrashSvg from "../../assets/trash.svg";
 import AddPlusSvg from "../../assets/add-plus.svg";
 import LogoSvg from "../../assets/logo.png";
-
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
-import { backendActor } from "../actors/BackendActor";
+import { useChatHistory } from "./ChatHistoryContext";
 
 const ChatHistoryBar = () => {
-
   const { pathname } = useLocation();
-
-  const {} = backendActor.useQueryCall({
-    functionName: "get_chat_histories",
-    onSuccess: (data) => { if (data !== undefined) setChatHistories(data.map((chat) => chat.id)); },
-    onError: (error) => { console.error("Error querying chat history:", error); },
-  });
-
-  const { call: deleteChatHistory } = backendActor.useUpdateCall({
-    functionName: "delete_chat_history",
-    onError: (error) => { console.error("Error deleting chat history:", error); },
-  });
-
-  const [chatHistories, setChatHistories] = useState<string[]>([]);
+  const navigate = useNavigate();
+  const { chatHistories, addChat, deleteChat } = useChatHistory();
   const [deleteCandidate, setDeleteCandidate] = useState<string | undefined>();
 
   const deleteHistory = () => {
     if (deleteCandidate === undefined) return;
-    deleteChatHistory([{ id: deleteCandidate }]);
-    setChatHistories(chatHistories.filter((id) => id !== deleteCandidate));
+    deleteChat(deleteCandidate);
+    setDeleteCandidate(undefined);
+  };
+
+  const newChat = () => {
+    navigate(`/chat/${addChat()}`);
   };
 
   return (
@@ -51,21 +41,12 @@ const ChatHistoryBar = () => {
             >
               <Link to={"/chat/" + chatId}>{chatId.toString()}</Link>
               <div className="flex items-center gap-x-2">
-                <img
-                  src={EditSvg}
-                  className="h-5 cursor-pointer invert"
-                  alt="Edit"
-                />
+                <img src={EditSvg} className="h-5 cursor-pointer invert" alt="Edit" />
                 <img
                   src={TrashSvg}
                   className="h-5 cursor-pointer invert"
                   alt="Trash"
-                  onClick={() => {
-                    //setDeleteCandidate(chatId);
-                    // @todo
-                    deleteChatHistory([{ id: chatId }]);
-                    setChatHistories(chatHistories.filter((id) => id !== chatId));
-                  }}
+                  onClick={() => setDeleteCandidate(chatId)}
                 />
               </div>
             </div>
@@ -84,24 +65,20 @@ const ChatHistoryBar = () => {
               </button>
               <button
                 className="w-1/3 rounded-xl bg-secondary text-white"
-                onClick={() => { deleteHistory(); setDeleteCandidate(undefined); }}
+                onClick={deleteHistory}
               >
                 Yes
               </button>
             </div>
           </Modal>
         </div>
-        <div
+        <button
           className="flex h-[10vh] w-full cursor-pointer items-center justify-center gap-4"
-          onClick={() => {}}
+          onClick={newChat}
         >
-          <img
-            src={AddPlusSvg}
-            className="h-5 cursor-pointer invert"
-            alt="Edit"
-          />
+          <img src={AddPlusSvg} className="h-5 cursor-pointer invert" alt="Edit" />
           Add new
-        </div>
+        </button>
       </div>
     </div>
   );
