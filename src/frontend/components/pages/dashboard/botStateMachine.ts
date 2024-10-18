@@ -120,4 +120,8 @@ export const machine = createMachine({
       type: "final",
     },
   },
+  on: {
+    // Define a global 'reset' event that can be triggered from anywhere
+    reset: ".knowledgeLevel",
+  },
 });

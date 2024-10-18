@@ -15,15 +15,17 @@ const ChatHistoryBar = () => {
 
   const {} = backendActor.useQueryCall({
     functionName: "get_chat_histories",
-    onSuccess: (data) => { if (data) setChatHistories(data); }
+    onSuccess: (data) => { if (data !== undefined) setChatHistories(data.map((chat) => chat.id)); },
+    onError: (error) => { console.error("Error querying chat history:", error); },
   });
 
   const { call: deleteChatHistory } = backendActor.useUpdateCall({
     functionName: "delete_chat_history",
+    onError: (error) => { console.error("Error deleting chat history:", error); },
   });
 
-  const [chatHistories, setChatHistories] = useState<bigint[]>([]);
-  const [deleteCandidate, setDeleteCandidate] = useState<bigint | undefined>();
+  const [chatHistories, setChatHistories] = useState<string[]>([]);
+  const [deleteCandidate, setDeleteCandidate] = useState<string | undefined>();
 
   const deleteHistory = () => {
     if (deleteCandidate === undefined) return;
