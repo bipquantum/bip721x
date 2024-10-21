@@ -15,6 +15,10 @@ type MachineEvent = BIPCertificateEvent | { type: string };
 
 const bIPQuantumUrl = process.env.DFX_NETWORK == 'local' ? "http://localhost:3000" : `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io`;
 
+export const VERSION_MAJOR = 0;
+export const VERSION_MINOR = 1;
+export const VERSION_PATCH = 0;
+
 export const machine = createMachine<
   MachineContext,
   MachineEvent,
@@ -45,9 +49,12 @@ export const machine = createMachine<
         Advanced: {
           target: "expertLevel",
         },
+        Skip: {
+          target: "userGoal",
+        },
       },
       description:
-        "# 🌟 Welcome to the AI IP BOT! \n\nBefore we dive into the world of Intellectual Property, I'd love to tailor our conversation to your level of familiarity with IP concepts. Could you let me know which category best describes your current understanding?\n\n🌱 **Beginner**: I'm new to IP and would appreciate some basic guidance. \n\n👩‍🎓 **Intermediate**: I have some knowledge but would like to learn more. \n\n🧠**Advanced**: I'm well-versed in IP and looking for expert insights.",
+        "# 🌟 Welcome to the AI IP BOT! \n\nBefore we dive into the world of Intellectual Property, I'd love to tailor our conversation to your level of familiarity with IP concepts. Could you let me know which category best describes your current understanding?\n\n🌱 **Beginner**: I'm new to IP and would appreciate some basic guidance. \n\n👩‍🎓 **Intermediate**: I have some knowledge but would like to learn more. \n\n🧠 **Advanced**: I'm well-versed in IP and looking for expert insights.\n\n⏭️ **Skip**: I'm all set, let's jump into creating my IP right now!",
     },
     beginnerLevel: {
       on: {
@@ -130,6 +137,8 @@ export const machine = createMachine<
       on: {
         "bIP certificate": {
           target: "bipCertificate",
+          /*guard: "hasIntPropId",*/
+          // TODO: Somehow assign the intPropId to the context does not work, the event is always undefined
           actions: assign({
             intPropId: (_, event: BIPCertificateEvent | undefined) => event?.intPropId,
           })
@@ -139,7 +148,7 @@ export const machine = createMachine<
         },
       },
       description:
-        "# 📜 What kind of certificate are you looking for?\n\n1. **bIP Certificate:** a Blockchain Intellectual Property Certificate, as offered by bIP Quantum, is a digital certificate that leverages blockchain technology to provide secure and immutable proof of evidence ownership and authenticity for your intellectual property. It ensures transparency, traceability, and protection against infringement in the digital realm and completes a US copyright certificate.\n2. **US Copyright Certificate**: a conventional form of legal recognition provided by the United States Copyright Office. It serves as official documentation that establishes your rights as the creator of a work, offering legal protection primarily in the physical realm and traditional channels.",
+        `# 📜 What kind of certificate are you looking for?\n\n1. **bIP Certificate:** a Blockchain Intellectual Property Certificate, as offered by [bIP Quantum](${bIPQuantumUrl}), is a digital certificate that leverages blockchain technology to provide secure and immutable proof of evidence ownership and authenticity for your intellectual property. It ensures transparency, traceability, and protection against infringement in the digital realm and completes a US copyright certificate.\n2. **US Copyright Certificate** (available soon): a conventional form of legal recognition provided by the United States Copyright Office. It serves as official documentation that establishes your rights as the creator of a work, offering legal protection primarily in the physical realm and traditional channels.`,
     },
     bipCertificate: {
       meta: {
@@ -157,4 +166,15 @@ export const machine = createMachine<
     // Define a global 'reset' event that can be triggered from anywhere
     reset: ".knowledgeLevel",
   },
-});
+},
+// TODO: should we use a parallel state to assign the intPropId?
+/*
+{
+  guards: {
+    hasIntPropId: (_, event) => {
+      return event !== undefined && event !== null && 'intPropId' in event;
+    }
+  }
+}
+*/
+);

@@ -41,8 +41,8 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
   const eventHistory = useRef<string[]>([]);
   const chats = useRef<ChatElem[]>([]);
 
-  const [_, send, actor] = useMachine(machine);
-
+  const [_, send, actor] = useMachine(machine, { input: undefined });
+  
   actor.subscribe((state) => {
     if (state.value !== undefined){
       console.log(state.value);
