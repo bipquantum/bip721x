@@ -45,3 +45,9 @@ mops test
     - validate that it is today or in the past
 - publication date: it should not be mandatory
 - once created, IP shall not be listed on the marketplace yet, but only in the user's owned IP
+
+## TODOs
+- bIPs not listed should stay private
+- dates minting PDF not good
+- in the chatbot, the link to the minted bIP is not working (because the context does not update on transition)
+- add versionning to the state machine

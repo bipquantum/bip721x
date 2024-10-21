@@ -67,13 +67,12 @@ const generatePdf = async (intPropId: string, intProp: IntProp, author: User) : 
   form.flatten();
 
   // Generate QR code for the bIP
-  const qrCodeData = `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io/bips/${intPropId}`;
+  const qrCodeData = `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io/bip/${intPropId}`;
   const qrCodeDataUrl = await toDataURL(qrCodeData, {
     width: 150,
     margin: 1,
   });
-  const qrImageBytes = await fetch(qrCodeDataUrl).then((res) => res.arrayBuffer());
-  const qrImage = await pdfDoc.embedPng(qrImageBytes);
+  const qrImage = await pdfDoc.embedPng(qrCodeDataUrl);
 
   // Set the position and size for the QR code in the PDF
   const qrCodeDimensions = qrImage.scale(0.45); // Scale as necessary
