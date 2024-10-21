@@ -1,6 +1,8 @@
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { ChatType, ChatElem, ChatAnswerState} from "./types";
+import { ChatElem, ChatAnswerState, AiPrompt} from "./types";
 import NewIP from "../new-ip/NewIp";
+import ProfileSvg from "../../../assets/profile.png";
+import AIBotImg from "../../../assets/ai-bot.png";
 
 import { useEffect, useRef, useState } from "react";
 import { Principal } from "@dfinity/principal";
@@ -11,50 +13,35 @@ import remarkGfm from 'remark-gfm';
 interface ChatBoxProps {
   principal: Principal | undefined;
   chats: ChatElem[];
-  isCalling: boolean;
+  aiPrompts: Map<number, AiPrompt[]>;
   sendEvent: (event: AnyEventObject) => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEvent }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEvent }) => {
   
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const [pendingPick, setPendingPick] = useState<number | undefined>(undefined);
   const [creatingIp, setCreatingIp] = useState<number | undefined>(undefined);
-  const [ipId, setIpId] = useState<bigint | undefined>(undefined);
 
   const onIpCreated = (ipId: bigint | undefined) => {
     if (creatingIp === undefined) {
       throw new Error("No IP creation in progress");
     }
-    if (ipId) {
-      setIpId(ipId);
-      transition(creatingIp);
+    if (ipId !== undefined) {
+      transition(creatingIp, ipId.toString());
     }
     setCreatingIp(undefined);
   }
 
-  const transition = (pickIndex: number) => {
+  const transition = (pickIndex: number, intPropId?: string) => {
     
-    if (!pendingPick) {
+    if (pendingPick === undefined) {
       throw new Error("No pending pick");
     }
-    if (chats[pendingPick].case !== ChatType.Answers) {
-      throw new Error("Pending pick is not an answer");
-    }
     
-    const answers = chats[pendingPick];
-    sendEvent({ type: answers.content[pickIndex].text });
-    
-    // Update the selected state of each answer
-    for (let i = 0; i < answers.content.length; i++) {
-      if (i === pickIndex) {
-        answers.content[i].state = ChatAnswerState.Selected;
-      } else {
-        answers.content[i].state = ChatAnswerState.Unselectable;
-      }
-    }
+    sendEvent({ type: chats[pendingPick].answers[pickIndex].text, intPropId });
 
     setPendingPick(undefined);
   }
@@ -66,9 +53,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
   }, [chats]);
 
   useEffect(() => {
-    const lastChatIndex = chats.length - 1;
-    if (chats[lastChatIndex].case === ChatType.Answers) {
-      setPendingPick(lastChatIndex);
+    if (chats.length > 0) {
+      setPendingPick(chats.length - 1);
     }
   }, [chats]);
 
@@ -78,48 +64,69 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
       ref={messagesContainerRef}
     >
       {chats.map((chat, elem_index) => (
-        chat.case === ChatType.Question ?
-        <div className="flex flex-col rounded-xl px-4 py-2 bg-slate-300 text-black">
-          <Markdown key={elem_index} remarkPlugins={[remarkGfm]}>
-            {chat.content}
-          </Markdown>
-          { 
-            // TODO: this is a temporary solution to show the bIP certificate link
-            (elem_index === chats.length - 2) && ipId !== undefined ?
-            <a href={`/bip/${ipId}`} className="font-bold text-blue-500">View your bIP</a> : <></>
-          }
-        </div> : 
-        <div key={elem_index} className="flex flex-row gap-2">
+        <div key={elem_index} className="flex flex-col">
           {
-          chat.content.map((answer, answer_index) => (
-            <button
-              className={`rounded-xl px-4 py-2 bg-blue-600 text-white 
-                ${answer.state === ChatAnswerState.Unselectable || answer.text === "US Copyright Certificate" && "bg-gray-400"}
-                ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-blue-800"}
-                ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-blue-800"}
-              `}
-              // TODO: temporary solution to prevent the user from selecting the "US Copyright Certificate"
-              disabled={answer.state !== ChatAnswerState.Selectable || answer.text === "US Copyright Certificate"}
-              key={answer_index}
-              // TODO: have guards in the state machine to prevent code like this
-              onClick={() => { answer.text === "bIP certificate" ? setCreatingIp(answer_index) : transition(answer_index); } } 
-            >
-              {answer.text.split("\n").map((line, i) => (
-                <span key={i}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </button>
-          ))
+            aiPrompts.get(elem_index)?.map((prompt, prompt_index) => (
+              <div key={prompt_index} className="flex flex-col gap-2 pt-2">
+                <div className="flex flex-row gap-2 justify-end">
+                  <span className="flex flex-col px-5"> { /* spacer */ } </span>
+                  <div className="rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
+                    {prompt.question}
+                  </div>
+                  <img src={ProfileSvg} className={`h-10 rounded-full`} />
+                </div>
+                <div className="flex flex-row gap-2">
+                  <img src={AIBotImg} className={`h-10 rounded-full`} />
+                  <div className="rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
+                    {prompt.answer === undefined ? (
+                      <img src={SpinnerSvg} alt="Loading..." />
+                    ) : (
+                      <Markdown>{prompt.answer}</Markdown>
+                    )}
+                  </div>
+                  <span className="flex flex-col px-5"> { /* spacer */ } </span>
+                </div>
+              </div>
+            ))
           }
+          <div className="flex flex-row gap-2 py-2">
+            <img src={AIBotImg} className={`h-10 rounded-full`} />
+            <div className="flex flex-col rounded-xl bg-slate-300 px-4 py-2 text-black markdown-link">
+              <Markdown remarkPlugins={[remarkGfm]}>
+                {chat.question}
+              </Markdown>
+            </div>
+            <span className="flex flex-col px-5"> { /* spacer */ } </span>
+          </div>
+          <div className="flex flex-row py-2 gap-2 justify-end">
+            <span className="flex flex-col px-5"> { /* spacer */ } </span>
+            {
+            chat.answers.map((answer, answer_index) => (
+              <button
+                className={`rounded-xl px-4 py-2 bg-blue-600 text-white 
+                  ${answer.state === ChatAnswerState.Unselectable || answer.text === "US Copyright Certificate" && "bg-gray-400"}
+                  ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-blue-800"}
+                  ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-blue-800"}
+                `}
+                // TODO: temporary solution to prevent the user from selecting the "US Copyright Certificate"
+                disabled={answer.state !== ChatAnswerState.Selectable || answer.text === "US Copyright Certificate"}
+                key={answer_index}
+                // TODO: have guards in the state machine to prevent code like this
+                onClick={() => { answer.text === "bIP certificate" ? setCreatingIp(answer_index) : transition(answer_index); } } 
+              >
+                {answer.text.split("\n").map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </button>
+            ))
+            }
+            { chat.answers.length > 0 && <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />}
+          </div>
         </div>
       ))}
-      {isCalling && (
-        <div className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-300 py-2 text-lg text-black">
-          <img src={SpinnerSvg} alt="" />
-        </div>
-      )}
       <div ref={messagesEndRef}></div>
       <NewIP principal={principal} isOpen={creatingIp !== undefined} onClose={(ipId) => onIpCreated(ipId)} />
     </div>

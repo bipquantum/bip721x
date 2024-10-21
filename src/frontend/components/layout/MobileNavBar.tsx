@@ -8,7 +8,7 @@ import WindowSvg from "../../assets/window.svg";
 import ProfileSvg from "../../assets/profile.png";
 import HelpCenterSvg from "../../assets/help-center.svg";
 import LogoutSvg from "../../assets/logout.svg";
-import SideBar from "./SideBar";
+import ChatHistoryBar from "./ChatHistoryBar";
 import LogoSvg from "../../assets/logo.png";
 import MessagesSvg from "../../assets/messages.svg";
 

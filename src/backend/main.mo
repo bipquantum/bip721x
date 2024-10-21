@@ -2,6 +2,7 @@ import Types         "Types";
 import Controller    "Controller";
 import Conversions   "intprop/Conversions";
 import ChatBot       "ChatBot";
+import ChatBotHistory "ChatBotHistory";
 import TradeManager  "TradeManager";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
@@ -13,12 +14,14 @@ import Principal     "mo:base/Principal";
 import Debug         "mo:base/Debug";
 import Option        "mo:base/Option";
 import Cycles        "mo:base/ExperimentalCycles";
+import Time          "mo:base/Time";
 
 
 shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = this {
 
   type User                  = Types.User;
   type Account               = Types.Account;
+  type ChatHistory           = Types.ChatHistory;
   type IntPropInput          = Types.IntPropInput;
   type VersionnedIntProp     = Types.VersionnedIntProp;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
@@ -45,12 +48,15 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_1_0(stable_data)) {
+      case(#v0_1_0(stableData)) {
         _controller := ?Controller.Controller({
-          stable_data with 
-          trade_manager = TradeManager.TradeManager({
+          stableData with
+          chatBotHistory = ChatBotHistory.ChatBotHistory({
+            chatHistories = stableData.chatHistories;
+          });
+          tradeManager = TradeManager.TradeManager({
             stage_account = { owner = Principal.fromActor(this); subaccount = null; };
-            fee = stable_data.e8sTransferFee;
+            fee = stableData.e8sTransferFee;
           });
         });
       };
@@ -65,6 +71,26 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public query func get_user(principal: Principal): async ?User {
     getController().getUser(principal);
+  };
+
+  public query({caller}) func get_chat_histories() : async [ChatHistory] {
+    getController().getChatHistories({ caller; });
+  };
+
+  public query({caller}) func get_chat_history({id: Text;}) : async Result<ChatHistory, Text> {
+    getController().getChatHistory({ caller; id; });
+  };
+
+  public shared({caller}) func create_chat_history({id: Text;}) : async Result<(), Text> {
+    getController().createChatHistory({ caller; id; date = Time.now(); });
+  };
+
+  public shared({caller}) func delete_chat_history({id: Text;}) : async Result<(), Text> {
+    getController().deleteChatHistory({ caller; id; });
+  };
+
+  public shared({caller}) func update_chat_history({id: Text; events: Text; aiPrompts: Text}) : async Result<(), Text> {
+    getController().updateChatHistory({ caller; id; events; aiPrompts; });
   };
 
   public shared({caller}) func create_int_prop(args: IntPropInput) : async CreateIntPropResult {

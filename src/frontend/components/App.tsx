@@ -11,6 +11,7 @@ import { Icrc7ActorProvider } from './actors/Icrc7Actor';
 
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
+import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
 
 interface ThemeContextProps {
   theme: string;
@@ -55,7 +56,9 @@ function App() {
             <IcpLedgerActorProvider>
               <Icrc7ActorProvider>
                 <BrowserRouter>
-                  <AppContent />
+                  <ChatHistoryProvider>
+                    <AppContent />
+                  </ChatHistoryProvider>
                 </BrowserRouter>
               </Icrc7ActorProvider>
             </IcpLedgerActorProvider>

@@ -4,19 +4,18 @@ import { Link, Navigate, useLocation } from "react-router-dom";
 import MenuSvg from "../../assets/menu.svg";
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
-import CopyRightSvg from "../../assets/copyright.svg";
 import WindowSvg from "../../assets/window.svg";
 import ProfileSvg from "../../assets/profile.png";
 import HelpCenterSvg from "../../assets/help-center.svg";
 import LogoutSvg from "../../assets/logout.svg";
 import MoonSvg from "../../assets/moon.svg";
 import SunSvg from "../../assets/sun.svg";
-import SideBar from "./SideBar";
 import LogoSvg from "../../assets/logo.png";
 import MessagesSvg from "../../assets/messages.svg";
 
 import { useAuth } from "@ic-reactor/react";
 import { ThemeContext } from "../App";
+import ChatHistoryBar from "./ChatHistoryBar";
 
 const NavBarItems = [
   {
@@ -127,7 +126,7 @@ const NavBar = () => {
             <img src={LogoSvg} className="h-14 invert" alt="Logo" />
             <img src={MessagesSvg} className="h-7" alt="Logo" />
           </div>
-          <SideBar />
+          <ChatHistoryBar/>
         </>
       )}
       {/* <div className="absolute right-4 top-2 z-50">

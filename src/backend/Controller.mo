@@ -7,6 +7,7 @@ import Buffer            "mo:base/Buffer";
 import Types             "Types";
 import Conversions       "intprop/Conversions";
 import TradeManager      "TradeManager";
+import ChatBotHistory "ChatBotHistory";
 
 import ICRC7             "mo:icrc7-mo";
 
@@ -17,20 +18,21 @@ module {
   let BIP721X_TAG          = Types.BIP721X_TAG;
 
   type User                = Types.User;
-  type UserRegister        = Types.UserRegister;
   type Result<Ok, Err>     = Result.Result<Ok, Err>;
   type IntPropRegister     = Types.IntPropRegister;
   type IntPropInput        = Types.IntPropInput;
   type IntProp             = Types.IntProp;
+  type ChatHistory         = Types.ChatHistory;
   type CreateIntPropResult = Types.CreateIntPropResult;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
 
   public class Controller({
-    users: UserRegister;
+    users: Map.Map<Principal, User>;
     intProps: IntPropRegister;
-    trade_manager: TradeManager.TradeManager;
+    chatBotHistory: ChatBotHistory.ChatBotHistory;
+    tradeManager: TradeManager.TradeManager;
   }) {
 
     public func setUser(
@@ -42,12 +44,49 @@ module {
         return #err("Cannot create a user with from anonymous principal");
       };
 
-      Map.set(users.mapUsers, Map.phash, args.caller, args);
+      Map.set(users, Map.phash, args.caller, args);
       #ok;
     };
 
     public func getUser(principal: Principal) : ?User {
-      Map.get(users.mapUsers, Map.phash, principal)
+      Map.get(users, Map.phash, principal)
+    };
+
+    public func getChatHistories({
+      caller: Principal;
+    }) : [ChatHistory] {
+      chatBotHistory.getChatHistories({caller});
+    };
+    
+    public func getChatHistory({
+      caller: Principal;
+      id: Text;
+    }) : Result<ChatHistory, Text> {
+      chatBotHistory.getChatHistory({caller; id});
+    };
+
+    public func createChatHistory({
+      caller: Principal;
+      id: Text;
+      date: Time;
+    }) : Result<(), Text> {
+      chatBotHistory.createChatHistory({caller; id; date});
+    };
+
+    public func deleteChatHistory({
+      caller: Principal;
+      id: Text;
+    }) : Result<(), Text> {
+      chatBotHistory.deleteChatHistory({caller; id});
+    };
+
+    public func updateChatHistory({
+      caller: Principal;
+      id: Text;
+      events: Text;
+      aiPrompts: Text;
+    }) : Result<(), Text> {
+      chatBotHistory.updateChatHistory({caller; id; events; aiPrompts});
     };
 
     public func createIntProp(
@@ -55,7 +94,7 @@ module {
         author: Principal;
     }) : async CreateIntPropResult {
 
-      if (not Map.has(users.mapUsers, Map.phash, args.author)){
+      if (not Map.has(users, Map.phash, args.author)){
         return #err(#GenericError({ error_code = 100; message = "A user profile is required to mint a new IP"; }));
       };
 
@@ -179,7 +218,7 @@ module {
       };
 
       // Perform the trade
-      let trade = await* trade_manager.tradeIntProp({
+      let trade = await* tradeManager.tradeIntProp({
         buyer = {
           owner = buyer;
           subaccount = null;

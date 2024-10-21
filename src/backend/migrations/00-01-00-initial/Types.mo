@@ -1,7 +1,10 @@
 import Map "mo:map/Map";
+import Set "mo:map/Set";
 import Nat "mo:base/Nat";
 
 module {
+
+  type Time = Int;
 
   public type IntPropRegister = {
     var index: Nat;
@@ -16,20 +19,30 @@ module {
     country: Text;
   };
 
-  public type UserRegister = {
-    var index: Nat;
-    mapUsers: Map.Map<Principal, User>;
+  public type AiPrompt = {
+    question: Text;
+    answer: Text;
+  };
+
+  public type ChatHistory = {
+    id: Text;
+    date: Time;
+    events: Text;
+    aiPrompts: Text;
+  };
+
+  public type ChatHistories = {
+    histories: Map.Map<Text, ChatHistory>;
+    byPrincipal: Map.Map<Principal, Set.Set<Text>>;
   };
 
   public type State = {
-    users: {
-      var index: Nat;
-      mapUsers: Map.Map<Principal, User>;
-    };
+    users: Map.Map<Principal, User>;
     intProps: {
       var index: Nat;
       e8sIcpPrices: Map.Map<Nat, Nat>;
     };
+    chatHistories: ChatHistories;
     e8sTransferFee: Nat;
   };
 
