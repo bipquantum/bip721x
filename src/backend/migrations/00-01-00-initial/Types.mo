@@ -4,6 +4,8 @@ import Nat "mo:base/Nat";
 
 module {
 
+  type Time = Int;
+
   public type IntPropRegister = {
     var index: Nat;
     e8sIcpPrices: Map.Map<Nat, Nat>;
@@ -17,9 +19,16 @@ module {
     country: Text;
   };
 
+  public type AiPrompt = {
+    question: Text;
+    answer: Text;
+  };
+
   public type ChatHistory = {
     id: Text;
-    history: Text;
+    date: Time;
+    events: Text;
+    aiPrompts: Text;
   };
 
   public type ChatHistories = {

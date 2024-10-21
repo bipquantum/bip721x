@@ -23,3 +23,8 @@ export const createChatElem = (key: string, question: string, answers: string[])
         answers: answers.map((answer) => ({ text: answer, state: ChatAnswerState.Selectable })),
     };
 };
+
+export interface AiPrompt {
+    question: string;
+    answer: string | undefined;
+};

@@ -1,11 +1,12 @@
 import { Principal } from "@dfinity/principal";
 import ChatBot from "./ChatBot";
 import { backendActor } from "../../actors/BackendActor";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnyEventObject } from "xstate";
 import { useMachine } from "@xstate/react";
 import { machine } from "./botStateMachine";
-import { ChatAnswerState, ChatElem, createChatElem } from "./types";
+import { AiPrompt, ChatAnswerState, ChatElem, createChatElem } from "./types";
+import { extractRequestResponse, formatRequestBody } from "./chatgpt";
 
 type CustomStateInfo = {
   description: string;
@@ -45,7 +46,6 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
   
   actor.subscribe((state) => {
     if (state.value !== undefined){
-      console.log(state.value);
       const key = state.value.toString();
       const stateInfo = getCustomStateInfo(state.value);
       if (chats.current.length === 0 || chats.current[chats.current.length - 1].key !== key) {
@@ -56,8 +56,10 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     }
   });
 
-  const { call: setChatHistory } = backendActor.useUpdateCall({
-    functionName: "set_chat_history",
+  const [aiPrompts, setAIPrompts] = useState<Map<number, AiPrompt[]>>(new Map());
+
+  const { call: updateChatHistory } = backendActor.useUpdateCall({
+    functionName: "update_chat_history",
   });
 
   const { call: getChatHistory } = backendActor.useQueryCall({
@@ -65,7 +67,11 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     args: [{id: chatId}],
   });
 
-  const refreshMachine = () => {
+  const { call: getResponse } = backendActor.useUpdateCall({
+    functionName: "chatbot_completion",
+  });
+
+  const refreshChat = () => {
 
     // Reset the machine if not already in the initial state
     if (actor.getSnapshot().value !== machine.definition.initial?.target[0].key){
@@ -75,20 +81,23 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
 
     // Process the chat history
     const id = refId.current;
-    var eHistory = JSON.stringify("");
+    var events = JSON.stringify("");
+    var prompts = JSON.stringify("");
 
     getChatHistory([{id}]).then((res) => {
       if (res !== undefined && 'ok' in res) {
-        eHistory = res.ok.history;
+        events = res.ok.events;
+        prompts = res.ok.aiPrompts;
       }
     }).catch(() => {
     }).finally(() => {
       if (id === refId.current) {
-        eventHistory.current = JSON.parse(eHistory);
+        eventHistory.current = JSON.parse(events);
         for (const event of eventHistory.current) {
           // Send the transition
           selectAnswer(JSON.parse(event));
         }
+        setAIPrompts(new Map(JSON.parse(prompts)));
       }
     });
   }
@@ -109,32 +118,65 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
       }
     };
     // Send the event
-    console.log("Analyzing event:", event);
     send(event);
   }
+
+  const askAI = async (question: string) : Promise<void> => {
+    
+    const promptIndex = chats.current.length > 0 ? chats.current.length - 1 : 0;
+    var aiPrompt = aiPrompts.get(promptIndex) || [];
+    const innerIndex = aiPrompt.push({ question, answer: undefined });
+    setAIPrompts((old) => new Map(old.set(promptIndex, aiPrompt)));
+    
+    await formatRequestBody(question, Array.from(aiPrompts.values()).flat()).then((body) => {
+      getResponse([{ body }]).then((res) => {
+        let response = res && extractRequestResponse(res);
+        console.log(response);
+        if (response) {
+          setAIPrompts((old) => {
+            const currentPrompts = old.get(promptIndex);
+            if (!currentPrompts) {
+              throw new Error("Expected updated prompts to exist");
+            }
+            currentPrompts[innerIndex - 1].answer = response;
+            const newPrompts = new Map(old);
+            newPrompts.set(promptIndex, currentPrompts);
+            updateChatHistory([{id: chatId, events: JSON.stringify(eventHistory.current), aiPrompts: JSON.stringify(Array.from(newPrompts.entries()))}])
+            return newPrompts;
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting response:", error);
+      })
+    })
+    .catch((error) => { 
+      console.error("Error converting blob:", error)
+    });
+  };
 
   useEffect(() => {
     if (refId.current !== chatId) {
       refId.current = chatId; // Make sure to refresh only once
-      refreshMachine();
+      refreshChat();
     };
   }, [chatId]);
 
   useEffect(() => {
-    refreshMachine();
+    refreshChat();
   }, []);
 
-  const addToHistory = (event: AnyEventObject) => {
+  const sendEvent = (event: AnyEventObject) => {
     selectAnswer(event);
     // Update the chat history with the new event
     eventHistory.current = [...eventHistory.current, JSON.stringify(event)];
-    setChatHistory([{id: chatId, history: JSON.stringify([...eventHistory.current, JSON.stringify(event)])}])
+    updateChatHistory([{id: chatId, events: JSON.stringify([...eventHistory.current, JSON.stringify(event)]), aiPrompts: JSON.stringify(Array.from(aiPrompts.entries()))}])
     .catch((error) => {
       console.error("Error updating chat history:", error);
     });
   }
 
-  return <ChatBot principal={principal} chats={chats.current} addToHistory={addToHistory}/>
+  return <ChatBot principal={principal} chats={chats.current} sendEvent={sendEvent} aiPrompts={aiPrompts} askAI={askAI}/>
 }
 
 export default WithHistory;

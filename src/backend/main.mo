@@ -14,6 +14,7 @@ import Principal     "mo:base/Principal";
 import Debug         "mo:base/Debug";
 import Option        "mo:base/Option";
 import Cycles        "mo:base/ExperimentalCycles";
+import Time          "mo:base/Time";
 
 
 shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = this {
@@ -80,12 +81,16 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().getChatHistory({ caller; id; });
   };
 
+  public shared({caller}) func create_chat_history({id: Text;}) : async Result<(), Text> {
+    getController().createChatHistory({ caller; id; date = Time.now(); });
+  };
+
   public shared({caller}) func delete_chat_history({id: Text;}) : async Result<(), Text> {
     getController().deleteChatHistory({ caller; id; });
   };
 
-  public shared({caller}) func set_chat_history({id: Text; history: Text;}) : async Result<(), Text> {
-    getController().setChatHistory({ caller; id; history; });
+  public shared({caller}) func update_chat_history({id: Text; events: Text; aiPrompts: Text}) : async Result<(), Text> {
+    getController().updateChatHistory({ caller; id; events; aiPrompts; });
   };
 
   public shared({caller}) func create_int_prop(args: IntPropInput) : async CreateIntPropResult {

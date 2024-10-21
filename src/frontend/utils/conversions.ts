@@ -83,9 +83,9 @@ export const dateToTime = (date: Date) : bigint => {
 }
 
 export const timeToDate = (time: bigint) : Date => {
-  return new Date(Number(time));
+  return new Date(Number(time / 1_000_000n));
 }
 
 export const formatDate = (date: Date) : string => {
-  return date.toISOString().split('T')[0];
+  return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 }

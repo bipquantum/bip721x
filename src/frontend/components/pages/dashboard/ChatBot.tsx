@@ -2,88 +2,58 @@ import { useRef, useState, KeyboardEvent } from "react";
 
 import SearchSvg from "../../../assets/search.svg";
 import SendMessageSvg from "../../../assets/send-message.svg";
-import { backendActor } from "../../actors/BackendActor";
-import { ChatElem } from "./types";
+import { AiPrompt, ChatElem } from "./types";
 import ChatBox from "./ChatBox";
-import { extractRequestResponse, formatRequestBody } from "./chatgpt";
 import { Principal } from "@dfinity/principal";
 import { AnyEventObject } from "xstate";
 
 interface ChatBotProps {
-  chats: ChatElem[];
   principal: Principal | undefined;
-  addToHistory: (event: AnyEventObject) => void;
+  chats: ChatElem[];
+  sendEvent: (event: AnyEventObject) => void;
+  aiPrompts: Map<number, AiPrompt[]>;
+  askAI: (question: string) => Promise<void>;
 };
 
-const ChatBot = ({ principal, chats, addToHistory }: ChatBotProps) => {
+const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps) => {
 
-  const [prompt, setPrompt] = useState("");
+  const [userInput,    setUserInput   ] = useState("");
   const [shiftPressed, setShiftPressed] = useState(false);
-  const [isCalling, setIsCalling] = useState(false);
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  const { call: getResponse } = backendActor.useUpdateCall({
-    functionName: "chatbot_completion",
-  });
+  const [isCalling,    setIsCalling   ] = useState(false);
+  const textAreaRef                     = useRef<HTMLTextAreaElement>(null);
 
   const handleEnterPress = async (
     event: KeyboardEvent<HTMLTextAreaElement>,
   ) => {
     if (shiftPressed) {
-      setPrompt((prevPrompt) => prevPrompt + "\n");
-    } else if (prompt) {
-      setPrompt("");
-      await handleSendButtonClick();
+      setUserInput((prevPrompt) => prevPrompt + "\n");
+    } else if (userInput) {
+      submitUserInput();
     }
     event.preventDefault();
   };
 
-  const handleSendButtonClick = async () => {
-//    setIsCalling(true);
-//    setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
-//    await formatRequestBody(prompt).then((body) => {
-//      getResponse([{ body }]).then((res) => {
-//        let response = res && extractRequestResponse(res);
-//        if (response) {
-//          let newChat = "";
-//          setChats((prevChats) => [...prevChats, createAnswers([prompt])]);
-//          let i = 0;
-//          let intervalId = setInterval(() => {
-//            if (i < response.length) {
-//              newChat += response.charAt(i);
-//              setChats((prevChats) => {
-//                const updatedChats = [...prevChats];
-//                updatedChats[updatedChats.length - 1] = createAnswers([prompt]);
-//                return updatedChats;
-//              });
-//              i++;
-//            } else {
-//              clearInterval(intervalId);
-//            }
-//          }, 10);
-//        }
-//        setIsCalling(false);
-//      })
-//      .catch((error) => {
-//        console.error("Error getting response:", error);
-//        setIsCalling(false);
-//      });
-//    })
-//    .catch((error) => console.error("Error converting blob:", error));
-//    setPrompt("");
-  };
+  const submitUserInput = () => {
+    if (userInput) {
+      setIsCalling(true);
+      askAI(userInput).then(() => {
+        setIsCalling(false);
+      });
+      setUserInput("");
+    }
+  }
 
   return (
     <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
-      <ChatBox chats={chats} isCalling={isCalling} sendEvent={addToHistory} principal={principal} />
+      <ChatBox chats={chats} sendEvent={sendEvent} aiPrompts={aiPrompts} principal={principal} />
       <div className="w-full bg-gray-300 p-6 sm:px-8 sm:py-10">
         <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
           <textarea
             className="w-full text-lg outline-none sm:px-4"
             placeholder="What do you want to protect?"
-            value={prompt}
+            value={userInput}
             onChange={(e) => {
-              setPrompt(e.target.value);
+              setUserInput(e.target.value);
             }}
             onKeyDown={(event) =>
               event.key === "Shift" && setShiftPressed(true)
@@ -97,10 +67,10 @@ const ChatBot = ({ principal, chats, addToHistory }: ChatBotProps) => {
           />
           <button
             onClick={() => {
-              if (prompt) handleSendButtonClick();
+              if (userInput) submitUserInput();
             }}
           >
-            <img src={prompt ? SendMessageSvg : SearchSvg} className="h-10" />
+            <img src={userInput ? SendMessageSvg : SearchSvg} className="h-10" />
           </button>
         </div>
       </div>

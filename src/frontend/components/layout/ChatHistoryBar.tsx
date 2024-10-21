@@ -6,6 +6,7 @@ import LogoSvg from "../../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
 import { useChatHistory } from "./ChatHistoryContext";
+import { formatDate, timeToDate } from "../../utils/conversions";
 
 const ChatHistoryBar = () => {
   const { pathname } = useLocation();
@@ -34,19 +35,19 @@ const ChatHistoryBar = () => {
               <img src={LogoSvg} className="h-14 invert" alt="Logo" />
             </Link>
           </div>
-          {chatHistories.map((chatId) => (
+          {chatHistories.map((chat) => (
             <div
               className="mt-4 flex items-center justify-between px-4"
-              key={chatId}
+              key={chat.id}
             >
-              <Link to={"/chat/" + chatId}>{chatId.toString()}</Link>
+              <Link to={"/chat/" + chat.id}>{ formatDate(timeToDate(chat.date))}</Link>
               <div className="flex items-center gap-x-2">
                 <img src={EditSvg} className="h-5 cursor-pointer invert" alt="Edit" />
                 <img
                   src={TrashSvg}
                   className="h-5 cursor-pointer invert"
                   alt="Trash"
-                  onClick={() => setDeleteCandidate(chatId)}
+                  onClick={() => setDeleteCandidate(chat.id)}
                 />
               </div>
             </div>

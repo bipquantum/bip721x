@@ -1,6 +1,8 @@
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { ChatElem, ChatAnswerState} from "./types";
+import { ChatElem, ChatAnswerState, AiPrompt} from "./types";
 import NewIP from "../new-ip/NewIp";
+import ProfileSvg from "../../../assets/profile.png";
+import AIBotImg from "../../../assets/ai-bot.png";
 
 import { useEffect, useRef, useState } from "react";
 import { Principal } from "@dfinity/principal";
@@ -11,11 +13,11 @@ import remarkGfm from 'remark-gfm';
 interface ChatBoxProps {
   principal: Principal | undefined;
   chats: ChatElem[];
-  isCalling: boolean;
+  aiPrompts: Map<number, AiPrompt[]>;
   sendEvent: (event: AnyEventObject) => void;
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEvent }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEvent }) => {
   
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -63,17 +65,41 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
     >
       {chats.map((chat, elem_index) => (
         <div key={elem_index} className="flex flex-col">
-          <div className="flex flex-col rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
-            <Markdown remarkPlugins={[remarkGfm]}>
-              {chat.question}
-            </Markdown>
-            { 
-              // TODO: this is a temporary solution to show the bIP certificate link
-              //(elem_index === chats.length - 1) && ipId !== undefined ?
-              //<a href={`/bip/${ipId}`} className="font-bold text-blue-500">View your bIP</a> : <></>
-            }
+          {
+            aiPrompts.get(elem_index)?.map((prompt, prompt_index) => (
+              <div key={prompt_index} className="flex flex-col gap-2 pt-2">
+                <div className="flex flex-row gap-2 justify-end">
+                  <span className="flex flex-col px-5"> { /* spacer */ } </span>
+                  <div className="rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
+                    {prompt.question}
+                  </div>
+                  <img src={ProfileSvg} className={`h-10 rounded-full`} />
+                </div>
+                <div className="flex flex-row gap-2">
+                  <img src={AIBotImg} className={`h-10 rounded-full`} />
+                  <div className="rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
+                    {prompt.answer === undefined ? (
+                      <img src={SpinnerSvg} alt="Loading..." />
+                    ) : (
+                      <Markdown>{prompt.answer}</Markdown>
+                    )}
+                  </div>
+                  <span className="flex flex-col px-5"> { /* spacer */ } </span>
+                </div>
+              </div>
+            ))
+          }
+          <div className="flex flex-row gap-2 py-2">
+            <img src={AIBotImg} className={`h-10 rounded-full`} />
+            <div className="flex flex-col rounded-xl bg-slate-300 px-4 py-2 text-black markdown-link">
+              <Markdown remarkPlugins={[remarkGfm]}>
+                {chat.question}
+              </Markdown>
+            </div>
+            <span className="flex flex-col px-5"> { /* spacer */ } </span>
           </div>
-          <div className="flex flex-row py-2 gap-2">
+          <div className="flex flex-row py-2 gap-2 justify-end">
+            <span className="flex flex-col px-5"> { /* spacer */ } </span>
             {
             chat.answers.map((answer, answer_index) => (
               <button
@@ -97,14 +123,10 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, isCalling, sendEven
               </button>
             ))
             }
+            { chat.answers.length > 0 && <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />}
           </div>
         </div>
       ))}
-      {isCalling && (
-        <div className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-300 py-2 text-lg text-black">
-          <img src={SpinnerSvg} alt="" />
-        </div>
-      )}
       <div ref={messagesEndRef}></div>
       <NewIP principal={principal} isOpen={creatingIp !== undefined} onClose={(ipId) => onIpCreated(ipId)} />
     </div>

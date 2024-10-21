@@ -54,7 +54,7 @@ export const machine = createMachine<
         },
       },
       description:
-        "# 🌟 Welcome to the AI IP BOT! \n\nBefore we dive into the world of Intellectual Property, I'd love to tailor our conversation to your level of familiarity with IP concepts. Could you let me know which category best describes your current understanding?\n\n🌱 **Beginner**: I'm new to IP and would appreciate some basic guidance. \n\n👩‍🎓 **Intermediate**: I have some knowledge but would like to learn more. \n\n🧠 **Advanced**: I'm well-versed in IP and looking for expert insights.\n\n⏭️ **Skip**: I'm all set, let's jump into creating my IP right now!",
+        "# 🌟 Welcome to the AI IP BOT! \n\nBefore we dive into the world of Intellectual Property, I'd love to tailor our conversation to your level of familiarity with IP concepts. Could you let me know which category best describes your current understanding?\n\n🌱 **Beginner**: I'm new to IP and would appreciate some basic guidance. \n\n👩‍🎓 **Intermediate**: I have some knowledge but would like to learn more. \n\n🧠 **Advanced**: I'm well-versed in IP and looking for expert insights.\n\n⏭️ **Skip**: I'm all set, let's jump into creating my IP!",
     },
     beginnerLevel: {
       on: {

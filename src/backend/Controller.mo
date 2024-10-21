@@ -65,6 +65,14 @@ module {
       chatBotHistory.getChatHistory({caller; id});
     };
 
+    public func createChatHistory({
+      caller: Principal;
+      id: Text;
+      date: Time;
+    }) : Result<(), Text> {
+      chatBotHistory.createChatHistory({caller; id; date});
+    };
+
     public func deleteChatHistory({
       caller: Principal;
       id: Text;
@@ -72,12 +80,13 @@ module {
       chatBotHistory.deleteChatHistory({caller; id});
     };
 
-    public func setChatHistory({
+    public func updateChatHistory({
       caller: Principal;
       id: Text;
-      history: Text;
+      events: Text;
+      aiPrompts: Text;
     }) : Result<(), Text> {
-      chatBotHistory.setChatHistory({caller; id; history});
+      chatBotHistory.updateChatHistory({caller; id; events; aiPrompts});
     };
 
     public func createIntProp(

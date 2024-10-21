@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { backendActor } from "../actors/BackendActor";
+import { ChatHistory } from "../../../declarations/backend/backend.did";
 
 interface ChatHistoryContextType {
-  chatHistories: string[];
+  chatHistories: ChatHistory[];
   addChat: () => string;
   deleteChat: (chatId: string) => void;
 }
@@ -12,13 +13,16 @@ const ChatHistoryContext = createContext<ChatHistoryContextType | undefined>(und
 
 export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   
-  const [chatHistories, setChatHistories] = useState<string[]>([]);
+  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
 
   const { call: fetchChatHistories } = backendActor.useQueryCall({
     functionName: "get_chat_histories",
     onSuccess: (data) => {
       if (data !== undefined) {
-        setChatHistories(data.map((chat) => chat.id));
+        setChatHistories(data);
+      } else {
+        console.error("No chat histories returned");
+        setChatHistories([]);
       }
     },
     onError: (error) => {
@@ -33,8 +37,8 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
     },
   });
 
-  const { call: setChatHistory } = backendActor.useUpdateCall({
-    functionName: "set_chat_history",
+  const { call: createChatHistory } = backendActor.useUpdateCall({
+    functionName: "create_chat_history",
     onError: (error) => {
       console.error("Error creating chat history:", error);
     },
@@ -43,7 +47,7 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const addChat = (): string => {
     console.log("Adding chat...");
     const newChatId = uuidv4();
-    setChatHistory([{ id: newChatId, history: JSON.stringify([]) }]).then(() => {
+    createChatHistory([{ id: newChatId }]).then(() => {
       fetchChatHistories();
     });
     return newChatId;
