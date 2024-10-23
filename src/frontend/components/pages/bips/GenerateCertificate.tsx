@@ -129,7 +129,7 @@ const GenerateCertificate: React.FC<GenerateCertificateProps> = ({ intPropId, in
   return (
     (author === undefined || author.length === 0) ? <></> : (
       <button 
-        className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="rounded-lg bg-violet-700 w-52 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
         onClick={async () => { generatePdf(intPropId, intProp, author[0]).then((data) => download(data, `bIP${intPropId}_certificate.pdf`)); }}
       >
         Generate Certificate

@@ -6,7 +6,7 @@ import LogoSvg from "../../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
 import { useChatHistory } from "./ChatHistoryContext";
-import { formatDate, timeToDate } from "../../utils/conversions";
+import { formatDateTime, timeToDate } from "../../utils/conversions";
 
 const ChatHistoryBar = () => {
   const { pathname } = useLocation();
@@ -26,7 +26,7 @@ const ChatHistoryBar = () => {
 
   return (
     <div
-      className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${pathname.includes("/bip") || pathname === "/about" ? "sm:hidden" : "sm:block"}`}
+      className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${pathname.includes("/marketplace") || pathname === "/about" ? "sm:hidden" : "sm:block"}`}
     >
       <div className="flex flex-col justify-between">
         <div className="h-[90vh] overflow-auto px-2 py-4">
@@ -40,7 +40,7 @@ const ChatHistoryBar = () => {
               className="mt-4 flex items-center justify-between px-4"
               key={chat.id}
             >
-              <Link to={"/chat/" + chat.id}>{ formatDate(timeToDate(chat.date))}</Link>
+              <Link to={"/chat/" + chat.id}>{ formatDateTime(timeToDate(chat.date))}</Link>
               <div className="flex items-center gap-x-2">
                 <img src={EditSvg} className="h-5 cursor-pointer invert" alt="Edit" />
                 <img

@@ -5,8 +5,10 @@ import { fromNullable } from "@dfinity/utils";
 
 import { backendActor } from "../../actors/BackendActor";
 import {
+  formatDate,
   intPropLicenseToString,
   intPropTypeToString,
+  timeToDate,
 } from "../../../utils/conversions";
 import FilePreview from "../../common/FilePreview";
 import UserDetails from "../../common/UserDetails";
@@ -14,6 +16,7 @@ import ListingDetails from "../../common/ListingDetails";
 
 import BipsHeader from "./BipsHeader";
 import GenerateCertificate from "./GenerateCertificate";
+import { IntProp } from "../../../../declarations/backend/backend.did";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -43,6 +46,18 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   useEffect(() => {
     setOwner(optOwner ? fromNullable(optOwner) : undefined);
   }, [optOwner]);
+
+  const getPublishingDate = (ip: IntProp) => {
+
+    if (ip.publishingDate !== undefined) {
+      const date = fromNullable(ip.publishingDate);
+      if (date !== undefined) {
+        return formatDate(timeToDate(date));
+      }
+    }
+
+    return "N/A";
+  }
 
   return (
     <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
@@ -83,18 +98,12 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   <p>
                     Creation Date:{" "}
                     {
-                      new Date(Number(intProp.ok.V1.creationDate.toString()))
-                        .toISOString()
-                        .split("T")[0]
+                      formatDate(timeToDate(intProp.ok.V1.creationDate))
                     }
                   </p>
                   <p>
                     Publish Date:{" "}
-                    {
-                      new Date(Number(intProp.ok.V1.publishingDate.toString()))
-                        .toISOString()
-                        .split("T")[0]
-                    }
+                    { getPublishingDate(intProp.ok.V1) }
                   </p>
                   <UserDetails
                     principal={intProp.ok.V1.author}
@@ -105,15 +114,18 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   )}
                 </div>
               </div>
-              {owner && (
-                <ListingDetails
-                  principal={principal}
-                  owner={owner}
-                  intPropId={BigInt(intPropId)}
-                  updateBipDetails={updateBipDetails}
-                />
-              )}
-              <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
+              <div className="flex flex-row justify-between">
+                <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
+                <div>{owner && (
+                  <ListingDetails
+                    principal={principal}
+                    owner={owner}
+                    intPropId={BigInt(intPropId)}
+                    updateBipDetails={updateBipDetails}
+                  />
+                )}
+                </div>
+              </div>
             </div>
           )}
         </div>

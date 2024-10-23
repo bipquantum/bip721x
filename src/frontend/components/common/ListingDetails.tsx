@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Principal } from "@dfinity/principal";
 import { NumericFormat } from "react-number-format";
@@ -26,12 +25,11 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   intPropId,
   updateBipDetails,
 }) => {
+  
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
 
-  const { data: e8sPrice } = backendActor.useQueryCall({
+  const { data: e8sPrice, call: getE8sPrice } = backendActor.useQueryCall({
     functionName: "get_e8s_price",
     args: [{ token_id: intPropId }],
   });
@@ -56,8 +54,12 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     functionName: "unlist_int_prop",
   });
 
-  const getListedPrice = () =>
-    !e8sPrice ? undefined : "ok" in e8sPrice ? e8sPrice.ok : null;
+  const getListedPrice = () => {
+    if (e8sPrice === undefined) {
+      return null;
+    };
+    return "ok" in e8sPrice ? fromE8s(e8sPrice.ok).toFixed(ICP_DECIMALS_ALLOWED) : null;
+  }
 
   const triggerBuy = (intPropId: bigint) => {
     setIsLoading(true);
@@ -67,8 +69,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       } else {
         if ("ok" in result) {
           toast.success("Success");
-          updateBipDetails();
-          navigate(`/bip/${intPropId.toString()}`);
+          getE8sPrice().finally(() => {
+            updateBipDetails();
+          });
         } else {
           toast.warn("Failed to buy");
           console.error(result["err"]);
@@ -107,8 +110,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               console.error(result ? result["err"] : "No result");
             } else {
               toast.success("Success");
-              updateBipDetails();
-              navigate(`/bip/${intPropId.toString()}`);
+              getE8sPrice().finally(() => {
+                updateBipDetails();
+              });
             }
           },
         );
@@ -148,8 +152,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             console.error(result ? result["err"] : "No result");
           } else {
             toast.success("Success");
-            updateBipDetails();
-            navigate(`/bip/${intPropId.toString()}`);
+            getE8sPrice().finally(() => {
+              updateBipDetails();
+            });
           }
         });
       }
@@ -160,28 +165,18 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     });
   };
 
-  if (getListedPrice() === undefined) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <p>{"Cannot find if the IP is listed or not"}</p>
-      </div>
-    );
-  }
-
-  const price = getListedPrice();
-
   if (principal !== undefined) {
     if (owner.compareTo(principal) == "eq") {
-      if (getListedPrice()) {
+      if (getListedPrice() !== null) {
+        // To unlist
         return (
-          <div className="flex w-full items-center justify-between">
-            <div className="text-primary text-lg font-bold">
-              {price ? fromE8s(price).toFixed(ICP_DECIMALS_ALLOWED) : "N/A"} ICP
+          <div className="flex w-full items-center space-x-2">
+            <div className="text-lg font-bold">
+              { getListedPrice() } ICP
             </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
-              className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="flex items-center justify-center rounded-lg bg-violet-700 w-24 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
               type="button"
               disabled={isLoading}
             >
@@ -190,6 +185,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
           </div>
         );
       } else {
+        // To list
         return (
           <div className="flex flex-row gap-2">
             <label
@@ -199,7 +195,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               List for (ICP)
             </label>
             <NumericFormat
-              className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
+              className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-32 rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
               thousandSeparator=","
               decimalScale={ICP_DECIMALS_ALLOWED}
               value={Number(fromE8s(sellPrice))}
@@ -215,7 +211,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             />
             <button
               onClick={() => triggerList(intPropId, sellPrice)}
-              className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="flex items-center justify-center rounded-lg bg-violet-700 w-24 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
               type="button"
               disabled={isLoading}
             >
@@ -227,14 +223,15 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     }
   }
 
+  // To buy
   return (
     <div className="flex w-full items-center justify-between">
       <div className="text-primary text-lg font-bold">
-        {price ? fromE8s(price).toFixed(ICP_DECIMALS_ALLOWED) : "N/A"} ICP
+        { getListedPrice() } ICP
       </div>
       <button
         onClick={() => triggerBuy(intPropId)}
-        className="flex items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        className="flex items-center justify-center rounded-lg bg-violet-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
         type="button"
         disabled={isLoading}
       >

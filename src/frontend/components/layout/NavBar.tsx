@@ -28,26 +28,26 @@ const NavBarItems = [
     label: "Create New IP",
     link: "new",
   },
-  // {
-  //   svg: CopyRightSvg,
-  //   label: "Copyright",
-  //   link: "copyright",
-  // },
   {
     svg: WindowSvg,
     label: "bIPs",
     link: "bips",
   },
   {
+    svg: WindowSvg, // TODO: replace with marketplace icon
+    label: "Market place",
+    link: "marketplace",
+  },
+  {
     svg: ProfileSvg,
     label: "",
     link: "profile",
   },
-  {
-    svg: HelpCenterSvg,
-    label: "Help Center",
-    link: "about",
-  },
+//  {
+//    svg: HelpCenterSvg,
+//    label: "Help Center",
+//    link: "about",
+//  },
 ];
 
 const DarkModeToggle = () => {

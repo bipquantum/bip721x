@@ -9,14 +9,18 @@ import {
 import { backendActor } from "../../actors/BackendActor";
 import FileUploader from "../../common/FileUploader";
 import {
+  dateToTime,
+  formatDate,
   intPropLicenseFromIndex,
   intPropLicenseToIndex,
   intPropLicenseToString,
   intPropTypeFromIndex,
   intPropTypeToIndex,
   intPropTypeToString,
+  timeToDate,
 } from "../../../utils/conversions";
 import {
+  IntProp,
   IntPropInput,
   User,
 } from "../../../../declarations/backend/backend.did";
@@ -28,6 +32,7 @@ import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { ModalPopup } from "../../common/ModalPopup";
+import { fromNullable } from "@dfinity/utils";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -99,8 +104,8 @@ const INITIAL_INT_PROP_INPUT: IntPropInput = {
   intPropLicense: { GAME_FI: null },
   intPropType: { COPYRIGHT: null },
   description: "",
-  creationDate: BigInt(new Date().getTime()),
-  publishingDate: [BigInt(new Date().getTime())],
+  creationDate: dateToTime(new Date()),
+  publishingDate: [dateToTime(new Date())],
 };
 
 interface NewIPModalProps {
@@ -145,6 +150,34 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   useEffect(() => {
     setIntPropInput({ ...intPropInput, dataUri });
   }, [dataUri]);
+
+  const getPublishingDate = (ip: IntPropInput) => {
+
+    if (ip.publishingDate !== undefined) {
+      const date = fromNullable(ip.publishingDate);
+      if (date !== undefined) {
+        return toDateInputFormat(timeToDate(date));
+      }
+    }
+
+    return "";
+  }
+
+  // Date input format is "yyyy-MM-dd"
+  const toDateInputFormat = (date: Date) : string => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Date output format is "yyyy-MM-dd"
+  const fromDateInputFormat = (date: string) : Date => {
+    // Create a new Date using the picked date parts to be in current timezone
+    const [year, month, day] = date.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day); // month is 0-indexed
+    return localDate;
+  }
 
   return (
     <ModalPopup onClose={() => onClose(ipId)} isOpen={isOpen}>
@@ -304,16 +337,12 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                     className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
                     placeholder=""
                     value={
-                      new Date(Number(intPropInput.creationDate))
-                        .toISOString()
-                        .split("T")[0]
+                      (toDateInputFormat(timeToDate(intPropInput.creationDate)))
                     }
-                    onChange={(e) => {
+                    onChange={(e) => {                    
                       setIntPropInput({
                         ...intPropInput,
-                        creationDate: BigInt(
-                          new Date(e.target.value).getTime(),
-                        ),
+                        creationDate: dateToTime(fromDateInputFormat(e.target.value)),
                       });
                     }}
                     type="date"
@@ -324,17 +353,11 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   <input
                     className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
                     placeholder=""
-                    value={
-                      new Date(Number(intPropInput.publishingDate))
-                        .toISOString()
-                        .split("T")[0]
-                    }
+                    value={ getPublishingDate(intPropInput) }
                     onChange={(e) => {
                       setIntPropInput({
                         ...intPropInput,
-                        publishingDate: [
-                          BigInt(new Date(e.target.value).getTime()),
-                        ],
+                        publishingDate: [ dateToTime(fromDateInputFormat(e.target.value)) ],
                       });
                     }}
                     type="date"

@@ -12,8 +12,8 @@ import About from "../pages/about";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
 import WhoAreYou from "../pages/who-you-are";
-import ChatBot from "../pages/dashboard/ChatBot";
 import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
+import Wallet from "../pages/wallet";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -32,6 +32,10 @@ const Router = () => {
       <Route
         path={"/chat/:chatId"}
         element={<PrivateRoute element={<WithHistoryWrapper principal={identity?.getPrincipal()} />} />}
+      />
+      <Route
+        path={"/marketplace"}
+        element={<PrivateRoute element={<Bips principal={identity?.getPrincipal()}/>} />}
       />
       <Route
         path={"/new"}
@@ -53,7 +57,7 @@ const Router = () => {
         path={"/bips"}
         element={
           <PrivateRoute
-            element={<Bips principal={identity?.getPrincipal()} />}
+            element={<Wallet principal={identity?.getPrincipal()} />}
           />
         }
       />

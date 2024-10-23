@@ -9,6 +9,7 @@ type UserDetailsArgs = {
 };
 
 const UserDetails = ({ principal, title }: UserDetailsArgs) => {
+  
   const { data: author } = backendActor.useQueryCall({
     functionName: "get_user",
     args: [principal],
