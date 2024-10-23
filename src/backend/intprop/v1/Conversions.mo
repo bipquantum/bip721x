@@ -2,6 +2,8 @@ import Types     "Types";
 
 import ICRC7     "mo:icrc7-mo";
 
+import Map       "mo:map/Map";
+
 import Debug     "mo:base/Debug";
 import Array     "mo:base/Array";
 import Result    "mo:base/Result";
@@ -13,7 +15,10 @@ module {
   type IntPropType     = Types.IntPropType;
   type IntPropLicense  = Types.IntPropLicense;
   type IntProp         = Types.IntProp;
+  type PublishingInfo  = Types.PublishingInfo;
   type Result<Ok, Err> = Result.Result<Ok, Err>;
+  type HashUtils<K>    = Map.HashUtils<K>;
+  type Map<K, V>       = Map.Map<K, V>;
 
   public func intPropTypeToNat(intPropType: IntPropType) : Nat {
     switch (intPropType) {
@@ -79,11 +84,25 @@ module {
     };
   };
 
-  public func unwrapOptInt(value: ICRC7.Value) : ?Int {
+  public func unwrapMap(value: ICRC7.Value) : Map.Map<Text, ICRC7.Value> {
+    switch (value) {
+      case(#Map(map)) { Map.fromIter(Array.vals(map), Map.thash); };
+      case(_) { Debug.trap("Unexpected value"); };
+    };
+  };
+
+  public func unwrapArray(value: ICRC7.Value) : [ICRC7.Value] {
+    switch (value) {
+      case(#Array(array)) { array; };
+      case(_) { Debug.trap("Unexpected value"); };
+    };
+  };
+
+  public func unwrapOpt(value: ICRC7.Value) : ?ICRC7.Value {
     switch (value) {
       case(#Array(array)) { 
         if (array.size() == 0) { return null; };
-        if (array.size() == 1) { return ?unwrapInt(array[0]); };
+        if (array.size() == 1) { return ?(array[0]); };
         Debug.trap("Unexpected array size");
       };
       case(_) { Debug.trap("Unexpected value"); };
@@ -97,14 +116,27 @@ module {
     };
   };
 
+  public func getOrTrap<K, V>(map: Map.Map<K, V>, hash: HashUtils<K>, key: K) : V {
+    switch (Map.get(map, hash, key)) {
+      case(?v) { v; };
+      case(null) { Debug.trap("Key not found"); };
+    };
+  };
+
   public func intPropToValue(intProp: IntProp) : ICRC7.Value {
     #Map([
       ("title",           #Text(intProp.title)),
       ("description",     #Text(intProp.description)),
       ("intPropType",     #Nat(intPropTypeToNat(intProp.intPropType))),
-      ("intPropLicense",  #Nat(intPropLicenseToNat(intProp.intPropLicense))),
+      ("intPropLicenses", #Array(Array.map(intProp.intPropLicenses, func(license: IntPropLicense) : ICRC7.Value { #Nat(intPropLicenseToNat(license)); }))),
       ("creationDate",    #Int(intProp.creationDate)),
-      ("publishingDate",  #Array(Option.getMapped<Int,[ICRC7.Value]>(intProp.publishingDate, func(d: Int) { [#Int(d)]; }, []))),
+      ("publishing",      #Array(switch(intProp.publishing) {
+        case(?d) { [#Map([
+          ("date",        #Int(d.date)),
+          ("countryCode", #Text(d.countryCode)),
+        ])]; }; 
+        case(null) { [] };
+      })),
       ("author",          #Text(Principal.toText(intProp.author))),
       ("dataUri",         #Text(intProp.dataUri)),
     ]);
@@ -116,27 +148,39 @@ module {
         var title : ?Text = null;
         var description : ?Text = null;
         var intPropType : ?IntPropType = null;
-        var intPropLicense : ?IntPropLicense = null;
+        var intPropLicenses : ?[IntPropLicense] = null;
         var creationDate : ?Int = null;
-        var publishingDate : ??Int = null;
+        var publishing : ??PublishingInfo = null;
         var author : ?Principal = null;
         var dataUri : ?Text = null;
         for ((k, v) in Array.vals(map)){
           switch(k){
-            case("title")         { title := ?unwrapText(v);                                };
-            case("description")   { description := ?unwrapText(v);                          };
-            case("intPropType")   { intPropType := ?intPropTypeFromNat(unwrapNat(v));       };
-            case("intPropLicense"){ intPropLicense := ?intPropLicenseFromNat(unwrapNat(v)); };
-            case("creationDate")  { creationDate := ?unwrapInt(v);                          };
-            case("publishingDate"){ publishingDate := ?unwrapOptInt(v);                     };
-            case("author")        { author := ?Principal.fromText(unwrapText(v));           };
-            case("dataUri")       { dataUri := ?unwrapText(v);                              };
-            case(_){ Debug.trap("Unexpected value"); };
+            case("title")           { title := ?unwrapText(v);                         };
+            case("description")     { description := ?unwrapText(v);                   };
+            case("intPropType")     { intPropType := ?intPropTypeFromNat(unwrapNat(v));};
+            case("intPropLicenses") { 
+              intPropLicenses := ?Array.map(unwrapArray(v), func(value: ICRC7.Value) : IntPropLicense {
+                intPropLicenseFromNat(unwrapNat(value));
+              });
+            };
+            case("creationDate")    { creationDate := ?unwrapInt(v);                   };
+            case("publishing")      { 
+              publishing := ?Option.map(unwrapOpt(v), func(v: ICRC7.Value) : PublishingInfo {
+                let map = unwrapMap(v);
+                {
+                  date = unwrapInt(getOrTrap(map, Map.thash, "date"));
+                  countryCode = unwrapText(getOrTrap(map, Map.thash, "countryCode"));
+                };
+              });
+            };
+            case("author")          { author := ?Principal.fromText(unwrapText(v));    };
+            case("dataUri")         { dataUri := ?unwrapText(v);                       };
+            case(_)                 { Debug.trap("Unexpected value");                  };
           };
         };
-        switch(title, description, intPropType, intPropLicense, creationDate, publishingDate, author, dataUri){
-          case(?title, ?description, ?intPropType, ?intPropLicense, ?creationDate, ?publishingDate, ?author, ?dataUri){
-            return { title; description; intPropType; intPropLicense; creationDate; publishingDate; author; dataUri; };
+        switch(title, description, intPropType, intPropLicenses, creationDate, publishing, author, dataUri){
+          case(?title, ?description, ?intPropType, ?intPropLicenses, ?creationDate, ?publishing, ?author, ?dataUri){
+            return { title; description; intPropType; intPropLicenses; creationDate; publishing; author; dataUri; };
           };
           case(_){
             Debug.trap("Unexpected intProp metadata");

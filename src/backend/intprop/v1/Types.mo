@@ -25,13 +25,18 @@ module {
     #NOT_APPLICABLE;
   };
 
+  public type PublishingInfo = {
+    date: Time;
+    countryCode: Text;
+  };
+
   public type IntPropInput = {
     title: Text;
     description: Text;
     intPropType: IntPropType;
-    intPropLicense: IntPropLicense;
+    intPropLicenses: [IntPropLicense];
     creationDate: Time;
-    publishingDate: ?Time;
+    publishing: ?PublishingInfo;
     dataUri: Text;
   };
 

@@ -9,13 +9,14 @@ import CopyToClipboard from "../../common/CopyToClipboard";
 
 import ProfileSvg from "../../../assets/profile.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
+import ReactCountryDropdown from "react-country-dropdown";
 
 const EMPTY_USER = {
   firstName: "",
   lastName: "",
   nickName: "",
   specialty: "",
-  country: "",
+  countryCode: "",
 };
 
 const ProfileFields: {
@@ -31,7 +32,7 @@ const ProfileFields: {
     name: "specialty",
     placeholder: "Blockchain strategic architect",
   },
-  { label: "Country", name: "country", placeholder: "Canada" },
+  { label: "Country", name: "countryCode", placeholder: "US" },
 ];
 
 const Profile = () => {
@@ -82,16 +83,20 @@ const Profile = () => {
         {ProfileFields.map((field, index) => (
           <div className="flex w-full flex-col justify-start gap-2" key={index}>
             <div className="text-sm">{field.label}</div>
-            <input
-              className="w-full rounded-2xl border border-gray-300 bg-white bg-opacity-35 px-4 py-2 text-gray-600 placeholder-white outline-none"
-              placeholder={field.placeholder}
-              defaultValue={user[field.name]}
-              onChange={(e) => {
-                const copiedUser = { ...user };
-                copiedUser[field.name] = e.target.value;
-                setUser(copiedUser);
-              }}
-            />
+            {
+              field.name === "countryCode" ? 
+              <ReactCountryDropdown defaultCountry="US" onSelect={(val) => setUser({ ...user, countryCode: val.code })} /> :
+              <input
+                className="w-full rounded-2xl border border-gray-300 bg-white bg-opacity-35 px-4 py-2 text-gray-600 placeholder-white outline-none"
+                placeholder={field.placeholder}
+                defaultValue={user[field.name]}
+                onChange={(e) => {
+                  const copiedUser = { ...user };
+                  copiedUser[field.name] = e.target.value;
+                  setUser(copiedUser);
+                }}
+              />
+            }
           </div>
         ))}
       </div>

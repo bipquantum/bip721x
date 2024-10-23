@@ -18,6 +18,9 @@ import BipsHeader from "./BipsHeader";
 import GenerateCertificate from "./GenerateCertificate";
 import { IntProp } from "../../../../declarations/backend/backend.did";
 
+// @ts-ignore
+import { getName } from "country-list";
+
 interface IPItemProps {
   principal: Principal | undefined;
 }
@@ -49,11 +52,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
 
   const getPublishingDate = (ip: IntProp) => {
 
-    if (ip.publishingDate !== undefined) {
-      const date = fromNullable(ip.publishingDate);
-      if (date !== undefined) {
-        return formatDate(timeToDate(date));
-      }
+    const publish = fromNullable(ip.publishing);
+
+    if (publish !== undefined) {
+      return formatDate(timeToDate(publish.date));
     }
 
     return "N/A";
@@ -80,31 +82,38 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
             </div>
           ) : (
             <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
-              {intProp.ok.V1.dataUri && (
-                <div className="w-full">
-                  <p> Preview </p>
-                  <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
-                </div>
-              )}
+              {intProp.ok.V1.dataUri && <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
+              }
               <div className="text-sm">
                 <div className="py-2 text-base font-bold">
                   {intProp.ok.V1.title}
                 </div>
                 <div className="flex flex-col gap-2 text-lg">
                   <p> Type: {intPropTypeToString(intProp.ok.V1.intPropType)}</p>
-                  <p>
-                    License: {intPropLicenseToString(intProp.ok.V1.intPropLicense)}{" "}
-                  </p>
+                  {
+                    intProp.ok.V1.intPropLicenses.length > 0 && 
+                    <p>
+                      Licenses: {intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}
+                    </p>
+                  }
                   <p>
                     Creation Date:{" "}
                     {
                       formatDate(timeToDate(intProp.ok.V1.creationDate))
                     }
                   </p>
-                  <p>
-                    Publish Date:{" "}
-                    { getPublishingDate(intProp.ok.V1) }
-                  </p>
+                  {
+                    fromNullable(intProp.ok.V1.publishing) && <p>
+                      Publishing Date:{" "}
+                      { getPublishingDate(intProp.ok.V1) }
+                    </p>
+                  }
+                  {
+                    fromNullable(intProp.ok.V1.publishing) && <p>
+                      Publishing country: {" "}
+                      {getName(fromNullable(intProp.ok.V1.publishing)?.countryCode)}
+                    </p>
+                  }
                   <UserDetails
                     principal={intProp.ok.V1.author}
                     title="Author(s) Details"

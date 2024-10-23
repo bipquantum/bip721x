@@ -78,9 +78,12 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
             <p className="text-sm font-semibold sm:text-base">
               Type: {intPropTypeToString(intProp.ok.V1.intPropType)}
             </p>
-            <p className="text-sm font-semibold sm:text-base">
-              License: {intPropLicenseToString(intProp.ok.V1.intPropLicense)}
-            </p>
+            {
+              intProp.ok.V1.intPropLicenses.length > 0 && 
+              <p className="text-sm font-semibold sm:text-base">
+                Licenses: {intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}
+              </p>
+            }
             <div className="flex items-center justify-between text-lg font-bold sm:text-[22px]">
               {price !== "" ? (
                 <div className="font-bold">{price} ICP</div>

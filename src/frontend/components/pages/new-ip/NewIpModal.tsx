@@ -10,7 +10,6 @@ import { backendActor } from "../../actors/BackendActor";
 import FileUploader from "../../common/FileUploader";
 import {
   dateToTime,
-  formatDate,
   intPropLicenseFromIndex,
   intPropLicenseToIndex,
   intPropLicenseToString,
@@ -20,7 +19,6 @@ import {
   timeToDate,
 } from "../../../utils/conversions";
 import {
-  IntProp,
   IntPropInput,
   User,
 } from "../../../../declarations/backend/backend.did";
@@ -33,6 +31,10 @@ import AIBotImg from "../../../assets/ai-bot.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { ModalPopup } from "../../common/ModalPopup";
 import { fromNullable } from "@dfinity/utils";
+import ReactCountryDropdown from "react-country-dropdown";
+
+// @ts-ignore
+import { getName } from "country-list";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -101,11 +103,16 @@ const IP_LICENSE_OPTIONS: Option[] = [
 const INITIAL_INT_PROP_INPUT: IntPropInput = {
   dataUri: "",
   title: "",
-  intPropLicense: { GAME_FI: null },
+  intPropLicenses: [],
   intPropType: { COPYRIGHT: null },
   description: "",
   creationDate: dateToTime(new Date()),
-  publishingDate: [dateToTime(new Date())],
+  publishing: [],
+};
+
+const DEFAULT_PUBLISHING = {
+  date: dateToTime(new Date()),
+  countryCode: "US",
 };
 
 interface NewIPModalProps {
@@ -116,11 +123,11 @@ interface NewIPModalProps {
 
 const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   
-  const [step,         setStep        ] = useState(1);
-  const [isLoading,    setIsLoading   ] = useState(false);
-  const [intPropInput, setIntPropInput] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
-  const [dataUri,      setDataUri     ] = useState("");
-  const [ipId,         setIpId        ] = useState<bigint | undefined>(undefined);
+  const [step,           setStep          ] = useState(1);
+  const [isLoading,      setIsLoading     ] = useState(false);
+  const [intPropInput,   setIntPropInput  ] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
+  const [dataUri,        setDataUri       ] = useState("");
+  const [ipId,           setIpId          ] = useState<bigint | undefined>(undefined);
 
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
@@ -153,11 +160,10 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
 
   const getPublishingDate = (ip: IntPropInput) => {
 
-    if (ip.publishingDate !== undefined) {
-      const date = fromNullable(ip.publishingDate);
-      if (date !== undefined) {
-        return toDateInputFormat(timeToDate(date));
-      }
+    const publish = fromNullable(ip.publishing);
+
+    if (publish !== undefined) {
+      return toDateInputFormat(timeToDate(publish.date));
     }
 
     return "";
@@ -281,36 +287,28 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                 <div className="flex flex-col gap-1">
                   <div className="px-4 font-semibold">IP License</div>
                   <Select
+                    isMultiple={true}
                     value={
-                      IP_LICENSE_OPTIONS.find(
-                        (option) =>
-                          option.value ===
-                          intPropLicenseToIndex(
-                            intPropInput.intPropLicense,
-                          ).toString(),
-                      ) ||
-                      (() => {
-                        throw new Error(
-                          `Invalid intPropType: ${intPropInput.intPropLicense}`,
-                        );
-                      })()
+                      intPropInput.intPropLicenses.map((license) =>
+                        IP_LICENSE_OPTIONS.find(
+                          (option) =>
+                            option.value === intPropLicenseToIndex(license).toString(),
+                        ) ||
+                        (() => {
+                          throw new Error(`Invalid intPropLicense: ${license}`);
+                        })()
+                      )
                     }
                     onChange={(selectedOptions: SelectValue) =>
                       setIntPropInput({
                         ...intPropInput,
-                        intPropLicense: intPropLicenseFromIndex(
-                          Number((selectedOptions as Option).value),
+                        intPropLicenses: (selectedOptions as Option[]).map((option) =>
+                          intPropLicenseFromIndex(Number(option.value))
                         ),
                       })
                     }
-                    options={IP_LICENSE_OPTIONS.filter(
-                      (option) =>
-                        option.value !==
-                        intPropLicenseToIndex(
-                          intPropInput.intPropLicense,
-                        ).toString(),
-                    )}
-                    placeholder="Select an option"
+                    options={IP_LICENSE_OPTIONS}
+                    placeholder="Select options"
                     noOptionsMessage="No options found"
                     primaryColor="#ffffff"
                     classNames={{
@@ -349,19 +347,44 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">Publish Date</div>
-                  <input
-                    className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
-                    placeholder=""
-                    value={ getPublishingDate(intPropInput) }
-                    onChange={(e) => {
-                      setIntPropInput({
-                        ...intPropInput,
-                        publishingDate: [ dateToTime(fromDateInputFormat(e.target.value)) ],
-                      });
-                    }}
-                    type="date"
-                  />
+                  <label className="inline-flex items-center cursor-pointer">
+                    <div className="px-4 font-semibold">Publishing</div>
+                    <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
+                      return {...intProp, publishing: fromNullable(intProp.publishing) ? [] : [DEFAULT_PUBLISHING]};
+                    })} />
+                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
+                  </label>
+                  {
+                    fromNullable(intPropInput.publishing) && ( 
+                    <div className="flex flex-col gap-1">
+                      <div className="px-4 font-semibold">Date</div>
+                      <input
+                        className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
+                        placeholder=""
+                        value={ getPublishingDate(intPropInput) }
+                        onChange={(e) => {
+                          setIntPropInput((intProp) => {
+                            return {...intProp, publishing: [{
+                              date: dateToTime(fromDateInputFormat(e.target.value)),
+                              countryCode: fromNullable(intProp.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode
+                            }]};
+                          })
+                        }}
+                        type="date"
+                      />
+                      <div className="px-4 font-semibold">Country</div>
+                      <ReactCountryDropdown 
+                        defaultCountry={DEFAULT_PUBLISHING.countryCode}
+                        onSelect={(val) => setIntPropInput((intProp) => {
+                          return {...intProp, publishing: [{
+                            date: fromNullable(intProp.publishing)?.date ?? DEFAULT_PUBLISHING.date,
+                            countryCode: val.code
+                          }]};
+                        })}
+                      />
+                    </div>
+                    )
+                  }
                 </div>
               </div>
             </div>
@@ -431,7 +454,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                 <input
                   className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
                   placeholder="Complete Postal Address"
-                  defaultValue={user.country}
+                  defaultValue={getName(user.countryCode)}
                   disabled
                 />
               </div>

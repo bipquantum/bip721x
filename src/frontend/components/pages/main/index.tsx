@@ -32,7 +32,7 @@ const Main = () => {
         <div className="hidden items-center justify-center gap-x-16 sm:flex">
           <Link to={"/about"}>About</Link>
           <Link to={"/new"}>Add your Intellectual Property</Link>
-          <Link to={"/store"}>Store</Link>
+          <Link to={"/marketplace"}>Market place</Link>
         </div>
         <Link to={"profile"} className="hidden items-center gap-4 sm:flex">
           { queriedUser?.length === 0 ? NEW_USER_NICKNAME : queriedUser?.[0]?.nickName }

@@ -16,7 +16,7 @@ module {
     lastName: Text;
     nickName: Text;
     specialty: Text;
-    country: Text;
+    countryCode: Text;
   };
 
   public type AiPrompt = {

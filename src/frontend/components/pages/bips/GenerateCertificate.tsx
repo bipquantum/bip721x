@@ -9,6 +9,9 @@ import { IntProp, User } from "../../../../declarations/backend/backend.did";
 import { formatDate, intPropLicenseToString, intPropTypeToString, timeToDate } from "../../../utils/conversions";
 import { fromNullable } from "@dfinity/utils";
 
+// @ts-ignore
+import { getName } from "country-list";
+
 const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> => {
   try {
     const response = await fetch(assetUrl);
@@ -40,20 +43,19 @@ const generatePdf = async (intPropId: string, intProp: IntProp, author: User) : 
   // Get the form within the document
   const form = pdfDoc.getForm();
 
-  var publicationDate = 'N/A';
-  let optDate = fromNullable(intProp.publishingDate);
-  if (optDate){
-    publicationDate = formatDate(timeToDate(optDate));
+  var publication = 'N/A';
+  let optPublishing = fromNullable(intProp.publishing);
+  if (optPublishing){
+    publication = formatDate(timeToDate(optPublishing.date)) + ' ' + getName(optPublishing.countryCode);
   }
-  // TODO: what to use for the country?
 
   // Define the field names and values to fill
   const fieldValues : Record<string, string> = {
     'title': intProp.title,
     'ip_type': intPropTypeToString(intProp.intPropType),
-    'ip_license': intPropLicenseToString(intProp.intPropLicense),
+    'ip_license': intProp.intPropLicenses.map(intPropLicenseToString).join(', '),
     'registration_date': formatDate(timeToDate(intProp.creationDate)),
-    'publication_date_and_country': publicationDate,
+    'publication_date_and_country': publication,
     'author': `${author.firstName} ${author.lastName}`,
   };
 
