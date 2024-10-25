@@ -7,10 +7,12 @@ import { backendActor } from "../actors/BackendActor";
 import { fromE8s, toE8s } from "../../utils/conversions";
 
 import SpinnerSvg from "../../assets/spinner.svg";
-import { icrc7Actor } from "../actors/Icrc7Actor";
+import { bip721LedgerActor } from "../actors/Bip721LedgerActor";
 import { canisterId } from "../../../declarations/backend";
-import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/icrc7/icrc7.did";
-import { ICP_DECIMALS_ALLOWED } from "../constants";
+import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/bip721_ledger/bip721_ledger.did";
+import { TOKEN_DECIMALS_ALLOWED } from "../constants";
+import { bqcLedgerActor } from "../actors/BqcLedgerActor";
+import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did";
 
 interface ListingDetailsProps {
   principal: Principal | undefined;
@@ -34,15 +36,19 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     args: [{ token_id: intPropId }],
   });
 
+  const { call: approveBqcTransfer } = bqcLedgerActor.useUpdateCall({
+    functionName: "icrc2_approve",
+  });
+
   const { call: buyIntProp } = backendActor.useUpdateCall({
     functionName: "buy_int_prop",
   });
 
-  const { call: approveTransfer } = icrc7Actor.useUpdateCall({
+  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
     functionName: "icrc37_approve_tokens",
   });
 
-  const { call: revokeTransfer } = icrc7Actor.useUpdateCall({
+  const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
     functionName: "icrc37_revoke_token_approvals",
   });
 
@@ -58,26 +64,63 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     if (e8sPrice === undefined) {
       return null;
     };
-    return "ok" in e8sPrice ? fromE8s(e8sPrice.ok).toFixed(ICP_DECIMALS_ALLOWED) : null;
+    return "ok" in e8sPrice ? fromE8s(e8sPrice.ok).toFixed(TOKEN_DECIMALS_ALLOWED) : null;
   }
 
   const triggerBuy = (intPropId: bigint) => {
+
+    if (e8sPrice === undefined || "ok" in e8sPrice === false) {
+      throw new Error("Price not available");
+    };
+
+    const args : ApproveArgs = {
+      amount: e8sPrice.ok + 10_000n,
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [],
+      spender: {
+        owner: Principal.fromText(canisterId),
+        subaccount: [],
+      },
+      expires_at: [],
+      fee: [],
+      expected_allowance: [],
+    }
+
     setIsLoading(true);
-    buyIntProp([{ token_id: intPropId }]).then((result) => {
-      if (!result) {
-        toast.warn("Failed to buy: undefined error");
+
+    // TODO: 
+    // - improve the flow by first checking the allowance and then approving the difference
+    // - revert the allowance if the buy fails
+    console.log("Approving BQC transfer");
+    approveBqcTransfer([args]).then((result) => {
+      if (!result || "Err" in result) {
+        setIsLoading(false);
+        toast.warn("Failed to approve BQC transfer");
+        console.error(result ? result["Err"] : "No result");
       } else {
-        if ("ok" in result) {
-          toast.success("Success");
-          getE8sPrice().finally(() => {
-            updateBipDetails();
-          });
-        } else {
-          toast.warn("Failed to buy");
-          console.error(result["err"]);
-        }
+        console.log("Buying IP");
+        buyIntProp([{ token_id: intPropId }]).then((result) => {
+          setIsLoading(false);
+          if (!result) {
+            toast.warn("Failed to buy: undefined error");
+          } else {
+            if ("ok" in result) {
+              toast.success("Success");
+              getE8sPrice().finally(() => {
+                updateBipDetails();
+              });
+            } else {
+              toast.warn("Failed to buy");
+              console.error(result["err"]);
+            }
+          }
+        });
       }
+    }).catch((e) => {
       setIsLoading(false);
+      console.error(e);
+      toast.warn("Failed to buy");
     });
   };
 
@@ -96,7 +139,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 
     setIsLoading(true);
 
-    approveTransfer([[{token_id: intPropId, approval_info: info}]]).then((result) => {
+    approveBip721Transfer([[{token_id: intPropId, approval_info: info}]]).then((result) => {
       if (!result || "Err" in result) {
         setIsLoading(false);
         toast.warn("Failed to approve IP transfer");
@@ -139,7 +182,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       }],
     }
 
-    revokeTransfer([[info]]).then((result) => {
+    revokeBip721Transfer([[info]]).then((result) => {
       if (!result || "Err" in result) {
         setIsLoading(false);
         toast.warn("Failed to revoke IP transfer");
@@ -172,7 +215,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         return (
           <div className="flex w-full items-center space-x-2">
             <div className="text-lg font-bold">
-              { getListedPrice() } ICP
+              { getListedPrice() } bQC
             </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
@@ -192,12 +235,12 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               htmlFor="e8sIcpPrice"
               className="flex items-center justify-center text-nowrap text-sm font-medium"
             >
-              List for (ICP)
+              List for (bQC)
             </label>
             <NumericFormat
               className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-32 rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
               thousandSeparator=","
-              decimalScale={ICP_DECIMALS_ALLOWED}
+              decimalScale={TOKEN_DECIMALS_ALLOWED}
               value={Number(fromE8s(sellPrice))}
               onValueChange={(e) => {
                 setSellPrice(
@@ -227,7 +270,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   return (
     <div className="flex w-full items-center justify-between">
       <div className="text-primary text-lg font-bold">
-        { getListedPrice() } ICP
+        { getListedPrice() } bQC
       </div>
       <button
         onClick={() => triggerBuy(intPropId)}

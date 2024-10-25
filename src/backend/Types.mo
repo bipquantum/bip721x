@@ -18,6 +18,13 @@ module {
   public type User            = CurrentTypes.User;
   public type ChatHistory     = CurrentTypes.ChatHistory;
   public type ChatHistories   = CurrentTypes.ChatHistories;
+  public type Airdrop         = CurrentTypes.Airdrop;
+
+  public type SAirdropInfo = {
+    allowed_per_user: Nat;
+    total_distributed: Nat;
+    map_distributed: [(Principal, Nat)];
+  };
 
   public type Account = {
     owner: Principal;

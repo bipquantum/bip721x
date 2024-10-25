@@ -3,15 +3,20 @@ import Result            "mo:base/Result";
 import Map               "mo:map/Map";
 import Array             "mo:base/Array";
 import Buffer            "mo:base/Buffer";
+import Option            "mo:base/Option";
+import Int               "mo:base/Int";
+import Time              "mo:base/Time";
+import Nat64             "mo:base/Nat64";
 
 import Types             "Types";
 import Conversions       "intprop/Conversions";
 import TradeManager      "TradeManager";
-import ChatBotHistory "ChatBotHistory";
+import ChatBotHistory    "ChatBotHistory";
 
 import ICRC7             "mo:icrc7-mo";
 
-import Icrc7Canister     "canister:icrc7";
+import BIP721Ledger     "canister:bip721_ledger";
+import BQCLedger        "canister:bqc_ledger";
 
 module {
 
@@ -24,6 +29,8 @@ module {
   type IntProp             = Types.IntProp;
   type ChatHistory         = Types.ChatHistory;
   type CreateIntPropResult = Types.CreateIntPropResult;
+  type Airdrop             = Types.Airdrop;
+  type SAirdropInfo        = Types.SAirdropInfo;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -33,6 +40,7 @@ module {
     intProps: IntPropRegister;
     chatBotHistory: ChatBotHistory.ChatBotHistory;
     tradeManager: TradeManager.TradeManager;
+    airdrop: Airdrop;
   }) {
 
     public func setUser(
@@ -100,7 +108,7 @@ module {
 
       let id = intProps.index;
 
-      let mint_operation = await Icrc7Canister.icrcX_mint([{
+      let mint_operation = await BIP721Ledger.icrcX_mint([{
         token_id = id;
         // TODO sardariuss 2024-AUG-07: somehow compilation fails if we use Conversions.intPropToMetadata
         metadata = #Class([{
@@ -242,7 +250,7 @@ module {
     };
 
     func findIntPropOwner(id: Nat) : async* Result<Principal, Text> {
-      let owners = await Icrc7Canister.icrc7_owner_of([id]);
+      let owners = await BIP721Ledger.icrc7_owner_of([id]);
       if (owners.size() != 1){
         return #err("Owner not found");
       };
@@ -270,6 +278,72 @@ module {
           case(?account) { ?account.owner; };
         };
       });
+    };
+
+    public func airdropUser(principal: Principal) : async Result<Nat, Text> {
+
+      if (Principal.isAnonymous(principal)){
+        return #err("Cannot airdrop to an anonymous principal");
+      };
+
+      let distributed : Int = Option.get(Map.get(airdrop.map_distributed, Map.phash, principal), 0);
+      
+      let difference = airdrop.allowed_per_user - distributed;
+      
+      if (difference <= 0) {
+        return #err("Already airdropped user to the maximum allowed!");
+      };
+
+      let amount = Int.abs(difference);
+
+      let transfer = await BQCLedger.icrc1_transfer({
+        from_subaccount = null;
+        to = {
+          owner = principal;
+          subaccount = null;
+        };
+        amount;
+        fee = null;
+        memo = null;
+        created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
+      });
+
+      switch(transfer){
+        case(#Err(err)){ 
+          #err("Airdrop transfer failed: " # debug_show(err)); 
+        };
+        case(#Ok(_)){
+          Map.set(airdrop.map_distributed, Map.phash, principal, airdrop.allowed_per_user);
+          airdrop.total_distributed += amount;
+          #ok(amount); 
+        };
+      };
+
+    };
+
+    public func isAirdropAvailable(principal: Principal) : Bool {
+
+      if (Principal.isAnonymous(principal)){
+        return false;
+      };
+      
+      let distributed : Int = Option.get(Map.get(airdrop.map_distributed, Map.phash, principal), 0);
+      
+      let difference = airdrop.allowed_per_user - distributed;
+      
+      difference > 0;
+    };
+
+    public func getAirdropInfo(): SAirdropInfo {
+      return {
+        allowed_per_user = airdrop.allowed_per_user;
+        total_distributed = airdrop.total_distributed;
+        map_distributed = Map.toArray(airdrop.map_distributed) 
+      };
+    };
+
+    public func setAirdropPerUser({ amount : Nat; }) {
+      airdrop.allowed_per_user := amount;
     };
 
   };

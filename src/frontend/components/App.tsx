@@ -6,8 +6,8 @@ import Router from "./router";
 import NavBar from "./layout/NavBar";
 import { AgentProvider } from "@ic-reactor/react";
 import { BackendActorProvider } from "./actors/BackendActor"
-import { IcpLedgerActorProvider} from "./actors/IcpLedgerActor"
-import { Icrc7ActorProvider } from './actors/Icrc7Actor';
+import { BqcLedgerActorProvider} from "./actors/BqcLedgerActor"
+import { Bip721LedgerActorProvider } from './actors/Bip721LedgerActor';
 
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
@@ -53,15 +53,15 @@ function App() {
       <div className="flex h-screen w-full flex-col sm:flex-row">
         <AgentProvider withProcessEnv>
           <BackendActorProvider>
-            <IcpLedgerActorProvider>
-              <Icrc7ActorProvider>
+            <BqcLedgerActorProvider>
+              <Bip721LedgerActorProvider>
                 <BrowserRouter>
                   <ChatHistoryProvider>
                     <AppContent />
                   </ChatHistoryProvider>
                 </BrowserRouter>
-              </Icrc7ActorProvider>
-            </IcpLedgerActorProvider>
+              </Bip721LedgerActorProvider>
+            </BqcLedgerActorProvider>
           </BackendActorProvider>
         </AgentProvider>
       </div>

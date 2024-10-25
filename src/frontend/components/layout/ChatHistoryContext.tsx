@@ -45,7 +45,6 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
   });
 
   const addChat = (): string => {
-    console.log("Adding chat...");
     const newChatId = uuidv4();
     createChatHistory([{ id: newChatId }]).then(() => {
       fetchChatHistories();

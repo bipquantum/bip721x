@@ -5,7 +5,7 @@ import {
     uint8ArrayToHexString,
     arrayOfNumberToUint8Array,
     fromNullable } from "@dfinity/utils";
-import { Account } from "../../declarations/icrc7/icrc7.did";
+import { Account } from "../../declarations/bip721_ledger/bip721_ledger.did";
 import { Principal } from "@dfinity/principal";
 
 type IcrcAccount = {

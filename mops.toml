@@ -4,6 +4,7 @@ map = "9.0.1"
 icrc37-mo = "0.4.2"
 icrc3-mo = "0.2.6"
 test = "2.0.0"
+icrc-fungible = "0.0.5"
 
 [toolchain]
 moc = "0.12.0"

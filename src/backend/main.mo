@@ -7,7 +7,7 @@ import TradeManager  "TradeManager";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
-import Icrc7Canister "canister:icrc7";
+import BIP721Ledger  "canister:bip721_ledger";
 
 import Result        "mo:base/Result";
 import Principal     "mo:base/Principal";
@@ -106,26 +106,26 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async [Nat] {
-    await Icrc7Canister.icrc7_tokens_of({ owner; subaccount = null }, prev, take);
+    await BIP721Ledger.icrc7_tokens_of({ owner; subaccount = null }, prev, take);
   };
 
   public composite query func get_listed_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
-    let ids = await Icrc7Canister.icrc7_tokens(prev, take);
+    let ids = await BIP721Ledger.icrc7_tokens(prev, take);
     getController().filterListedIntProps({ ids });
   };
 
   public composite query func get_int_prop({token_id: Nat}) : async Result<VersionnedIntProp, Text> {
-    let metadata = await Icrc7Canister.icrc7_token_metadata([token_id]);
+    let metadata = await BIP721Ledger.icrc7_token_metadata([token_id]);
     #ok(Conversions.metadataToIntProp(metadata[0])); // TODO sardariuss 2024-09-07: better error handling
   };
 
   public composite query func owners_of({token_ids: [Nat]}) : async [?Principal] {
-    let accounts = await Icrc7Canister.icrc7_owner_of(token_ids);
+    let accounts = await BIP721Ledger.icrc7_owner_of(token_ids);
     getController().extractOwners(accounts);
   };
 
   public composite query func owner_of({token_id: Nat}) : async ?Principal {
-    let accounts = await Icrc7Canister.icrc7_owner_of([token_id]);
+    let accounts = await BIP721Ledger.icrc7_owner_of([token_id]);
     getController().extractOwner(accounts);
   };
 
@@ -143,6 +143,26 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public shared func chatbot_completion({body: Blob}) : async ChatBot.HttpResponse {
     await ChatBot.get_completion(body);
+  };
+
+  public query({caller}) func is_airdrop_available() : async Bool {
+    getController().isAirdropAvailable(caller);
+  };
+
+  public shared({caller}) func airdrop_user() : async Result<Nat, Text> {
+    await getController().airdropUser(caller);
+  };
+
+  public query func get_airdrop_info(): async Types.SAirdropInfo {
+    getController().getAirdropInfo();
+  };
+
+  public shared({caller}) func set_airdrop_per_user({ amount : Nat; }) : async Result<(), Text> {
+    if (caller != admin) {
+      return #err("Only the admin can call this function!");
+    };
+    getController().setAirdropPerUser({amount});
+    #ok;
   };
 
   func getController() : Controller.Controller {

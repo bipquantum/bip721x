@@ -17,7 +17,7 @@ const CopyToClipboard: React.FC<ClipboardProps> = ({ copiedText }) => {
           setCopySuccess("");
         }, 1000);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.error(err));
   };
 
   return (

@@ -18,6 +18,11 @@ module {
     public func init(args: InitArgs) : State {
         #v0_1_0({
             users = Map.new<Principal, User>();
+            airdrop = {
+                var allowed_per_user = args.airdrop_per_user;
+                var total_distributed = 0;
+                map_distributed = Map.new<Principal, Nat>();
+            };
             intProps = {
                 var index = 0;
                 e8sIcpPrices = Map.new<Nat, Nat>();

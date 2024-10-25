@@ -9,27 +9,16 @@ dfx canister create --all
 BACKEND_CANISTER=$(dfx canister id backend)
 
 # Deploy all canisters
-dfx deploy icrc7 --argument 'record {
-  icrc7_args = opt opt record {
-    symbol = opt "bIP721" : opt text;
-    name = opt "Intellectual Property" : opt text;
-    description = opt "A Collection of Intellectual Property by BipQuantum" : opt text;
-    logo = null : opt text;
-    supply_cap = null : opt nat;
-    allow_transfers = null : opt bool;
-    max_query_batch_size = opt 100 : opt nat;
-    max_update_batch_size = opt 100 : opt nat;
-    default_take_value = opt 1000 : opt nat;
-    max_take_value = opt 10000 : opt nat;
-    max_memo_size = opt 512 : opt nat;
-    permitted_drift = null : opt nat;
-    tx_window = null : opt nat;
-    burn_account = null;
+
+dfx deploy bip721_ledger --argument 'record {
     deployer = principal "'${BACKEND_CANISTER}'";
-    supported_standards = null;
+}'
+
+dfx deploy bqc_ledger --argument 'record {
+  minting_account = record {
+    owner = principal "'${BACKEND_CANISTER}'";
+    subaccount = null;
   };
-  icrc37_args = null;
-  icrc3_args = null;
 }'
 
 dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
@@ -69,24 +58,11 @@ dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal 
 
 dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})'
 
-dfx deploy --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai icp_ledger --argument 'variant {
-  Init = record {
-    minting_account = "'${DEPLOYER_ACCOUNT_ID}'";
-    initial_values = vec {};
-    send_whitelist = vec {};
-    transfer_fee = opt record {
-      e8s = 10_000 : nat64;
-    };
-    token_symbol = opt "ICP";
-    token_name = opt "Internet Computer Protocol";
-  }
-}'
-
 dfx deploy backend --argument 'variant {
-  init = record { e8sTransferFee = 10; }
+  init = record { e8sTransferFee = 10; airdrop_per_user = 100_000_000_000; }
 }'
 
-# Internet identity
+## Internet identity
 dfx deps pull
 dfx deps init
 dfx deps deploy internet_identity

@@ -6,8 +6,8 @@ import Debug             "mo:base/Debug";
 
 import ICRC7             "mo:icrc7-mo";
 
-import Icrc7Canister     "canister:icrc7";
-import IcpLedgerCanister "canister:icp_ledger";
+import BIP721Ledger      "canister:bip721_ledger";
+import BQCLedger         "canister:bqc_ledger";
 
 module {
 
@@ -59,7 +59,7 @@ module {
       let { buyer: Account; seller: Account; token_id: Nat; e8s_price: Nat; } = args;
 
       // Transfer ICPs to the stage account
-      let icp_transfer = await IcpLedgerCanister.icrc2_transfer_from({
+      let icp_transfer = await BQCLedger.icrc2_transfer_from({
         from = buyer;
         spender_subaccount = null;
         to = stage_account;
@@ -75,7 +75,7 @@ module {
       };
 
       // Transfer the intellectual property to the stage account
-      let ip_transfer = extractSingleTransfer(await Icrc7Canister.icrc37_transfer_from([{
+      let ip_transfer = extractSingleTransfer(await BIP721Ledger.icrc37_transfer_from([{
         spender_subaccount = null;
         from = seller;
         to = stage_account;
@@ -88,7 +88,7 @@ module {
         case(#err(err)){ 
           
           // Reimburse the buyer if the transfer of the intellectual property failed
-          let icp_reimbursement = await IcpLedgerCanister.icrc1_transfer({
+          let icp_reimbursement = await BQCLedger.icrc1_transfer({
             from_subaccount = stage_account.subaccount;
             to = buyer;
             amount = e8s_price - fee;
@@ -114,7 +114,7 @@ module {
       let { buyer: Account; seller: Account; token_id: Nat; e8s_price: Nat; } = args;
 
       // Transfer the intellectual property to the buyer
-      let ip_transfer = extractSingleTransfer(await Icrc7Canister.icrc7_transfer([{
+      let ip_transfer = extractSingleTransfer(await BIP721Ledger.icrc7_transfer([{
         from_subaccount = stage_account.subaccount;
         to = buyer;
         token_id;
@@ -128,7 +128,7 @@ module {
       };
 
       // Transfer the ICPs to the seller
-      let icp_transfer = await IcpLedgerCanister.icrc1_transfer({
+      let icp_transfer = await BQCLedger.icrc1_transfer({
         from_subaccount = stage_account.subaccount;
         to = seller;
         amount = e8s_price - fee;
@@ -145,7 +145,7 @@ module {
 
   };
 
-  func extractSingleTransfer(ip_transfers: [?Icrc7Canister.TransferFromResult]) : Result<(), Text> {
+  func extractSingleTransfer(ip_transfers: [?BIP721Ledger.TransferFromResult]) : Result<(), Text> {
     if (ip_transfers.size() == 0 or ip_transfers[0] == null){
       return #err("Transfer of IP failed");
     };

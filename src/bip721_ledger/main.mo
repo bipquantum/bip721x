@@ -12,17 +12,9 @@ import ICRC7 "mo:icrc7-mo";
 import ICRC37 "mo:icrc37-mo";
 import ICRC3 "mo:icrc3-mo";
 
-import ICRC7Default "./initial_state/icrc7";
-import ICRC37Default "./initial_state/icrc37";
-import ICRC3Default "./initial_state/icrc3";
-
 // This class has been imported from https://github.com/PanIndustrial-Org/icrc_nft.mo/blob/main/example/main.mo
 // TODO sardariuss 2024-08-07: verify the correctness of this implementation
-shared(_init_msg) actor class Example(_args : {
-  icrc7_args: ?ICRC7.InitArgs;
-  icrc37_args: ?ICRC37.InitArgs;
-  icrc3_args: ICRC3.InitArgs;
-}) = this {
+shared(_init_msg) actor class BIP721Ledger({deployer: Principal}) = this {
 
   type Account                        = ICRC7.Account;
   type Environment                    = ICRC7.Environment;
@@ -60,21 +52,39 @@ shared(_init_msg) actor class Example(_args : {
   stable var icrc7_migration_state = ICRC7.init(
     ICRC7.initialState() , 
     #v0_1_0(#id), 
-    switch(_args.icrc7_args){
-      case(null) ICRC7Default.defaultConfig(init_msg.caller);
-      case(?val) val;
-      }, 
+    ?{ 
+      symbol = ?"bIP721";
+      name = ?"bIPQuantum 721";
+      description = ?"A Collection of Intellectual Properties by bIPQuantum";
+      logo = null;
+      supply_cap = null;
+      allow_transfers = null;
+      max_query_batch_size = ?100;
+      max_update_batch_size = ?100;
+      default_take_value = ?1000;
+      max_take_value = ?10000;
+      max_memo_size = ?512;
+      permitted_drift = null;
+      tx_window = null;
+      burn_account = null; // Burned NFTs are deleted
+      deployer; // Deployer passed as argument
+      supported_standards = null;
+    },
     init_msg.caller);
 
   let #v0_1_0(#data(icrc7_state_current)) = icrc7_migration_state;
 
   stable var icrc37_migration_state = ICRC37.init(
-    ICRC37.initialState() , 
+    ICRC37.initialState(), 
     #v0_1_0(#id), 
-    switch(_args.icrc37_args){
-      case(null) ICRC37Default.defaultConfig(init_msg.caller);
-      case(?val) val;
-      }, 
+    ?{
+      max_approvals_per_token_or_collection = ?10;
+      max_revoke_approvals = ?100;
+      collection_approval_requires_token = ?true;
+      max_approvals = null;
+      settle_to_approvals = null;
+      deployer; // Deployer passed as argument
+    },
     init_msg.caller);
 
   let #v0_1_0(#data(icrc37_state_current)) = icrc37_migration_state;
@@ -82,10 +92,17 @@ shared(_init_msg) actor class Example(_args : {
   stable var icrc3_migration_state = ICRC3.init(
     ICRC3.initialState() ,
     #v0_1_0(#id), 
-    switch(_args.icrc3_args){
-      case(null) ICRC3Default.defaultConfig(init_msg.caller);
-      case(?val) ?val : ICRC3.InitArgs;
-      }, 
+    ?{
+      maxActiveRecords = 4000;
+      settleToRecords = 2000;
+      maxRecordsInArchiveInstance = 5_000_000;
+      maxArchivePages  = 62500; //allows up to 993 bytes per record
+      archiveIndexType = #Stable;
+      maxRecordsToArchive = 10_000;
+      archiveCycles = 2_000_000_000_000; //two trillion
+      archiveControllers = null;
+      supportedBlocks = [];
+    },
     init_msg.caller);
 
   let #v0_1_0(#data(icrc3_state_current)) = icrc3_migration_state;
@@ -129,8 +146,6 @@ shared(_init_msg) actor class Example(_args : {
       get_certificate_store = ?get_certificate_store;
     };
   };
-
-  D.print("Initargs: " # debug_show(_args));
 
   func ensure_block_types(icrc3Class: ICRC3.ICRC3) : () {
     D.print("in ensure_block_types: ");

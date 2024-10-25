@@ -1,18 +1,12 @@
 {
   "canisters": {
-    "icrc7": {
-      "main": "src/icrc7/main.mo",
+    "bip721_ledger": {
+      "main": "src/bip721_ledger/main.mo",
       "type": "motoko"
     },
-    "icp_ledger": {
-      "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/3d0b3f10417fc6708e8b5d844a0bac5e86f3e17d/rs/rosetta-api/icp_ledger/ledger.did",
-      "wasm": "https://download.dfinity.systems/ic/3d0b3f10417fc6708e8b5d844a0bac5e86f3e17d/canisters/ledger-canister.wasm.gz",
-      "remote": {
-        "id": {
-          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-        }
-      }
+    "bqc_ledger": {
+      "main": "src/bqc_ledger/main.mo",
+      "type": "motoko"
     },
     "idempotent_proxy_canister": {
       "candid": "src/idempotent_proxy_canister/idempotent_proxy_canister.did",
@@ -21,12 +15,7 @@
     },
     "backend": {
       "main": "src/backend/main.mo",
-      "type": "motoko",
-      "dependencies": [
-        "icrc7",
-        "icp_ledger",
-        "idempotent_proxy_canister"
-      ]
+      "type": "motoko"
     },
     "frontend": {
       "source": [

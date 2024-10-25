@@ -136,13 +136,13 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
         toast.error("Failed to create new IP: no data returned");
       } else if ("err" in data) {
         toast.error("Failed to create new IP: " + data["err"]);
-        console.log("error", data);
+        console.error("error", data);
       } else {
         setIpId(data["ok"]);
       }
     },
     onError: (error) => {
-      console.log("error", error);
+      console.error("error", error);
       toast.error("Failed to create new IP: " + error);
     },
   });

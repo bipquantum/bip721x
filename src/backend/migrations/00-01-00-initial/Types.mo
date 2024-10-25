@@ -36,8 +36,15 @@ module {
     byPrincipal: Map.Map<Principal, Set.Set<Text>>;
   };
 
+  public type Airdrop = {
+    var allowed_per_user: Nat;
+    var total_distributed: Nat;
+    map_distributed: Map.Map<Principal, Nat>;
+  };
+
   public type State = {
     users: Map.Map<Principal, User>;
+    airdrop: Airdrop;
     intProps: {
       var index: Nat;
       e8sIcpPrices: Map.Map<Nat, Nat>;
@@ -53,7 +60,7 @@ module {
     #none;
   };
 
-  public type InitArgs = { e8sTransferFee: Nat; };
+  public type InitArgs = { e8sTransferFee: Nat; airdrop_per_user: Nat; };
   public type UpgradeArgs = {};
   public type DowngradeArgs = {};
 

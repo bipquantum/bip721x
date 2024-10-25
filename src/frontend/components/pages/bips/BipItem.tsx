@@ -11,7 +11,7 @@ import FilePreview from "../../common/FilePreview";
 
 import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
-import { ICP_DECIMALS_ALLOWED } from "../../constants";
+import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
 
 interface IPItemProps {
   intPropId: bigint;
@@ -31,7 +31,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
 
   useEffect(() => {
     if (e8sPrice && "ok" in e8sPrice) {
-      const price = fromE8s(e8sPrice.ok).toFixed(ICP_DECIMALS_ALLOWED);
+      const price = fromE8s(e8sPrice.ok).toFixed(TOKEN_DECIMALS_ALLOWED);
       setPrice(price);
     } else setPrice("");
   }, [e8sPrice]);
@@ -86,7 +86,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
             }
             <div className="flex items-center justify-between text-lg font-bold sm:text-[22px]">
               {price !== "" ? (
-                <div className="font-bold">{price} ICP</div>
+                <div className="font-bold">{price} bQC</div>
               ) : (
                 <div></div>
               )}

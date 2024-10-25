@@ -5,7 +5,7 @@
   "frontend": {
     "ic": "czzq6-byaaa-aaaap-akilq-cai"
   },
-  "icrc7": {
+  "bip721_ledger": {
     "ic": "cf5kp-wyaaa-aaaap-akijq-cai"
   },
   "idempotent_proxy_canister": {

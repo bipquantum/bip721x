@@ -131,7 +131,6 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     await formatRequestBody(question, Array.from(aiPrompts.values()).flat()).then((body) => {
       getResponse([{ body }]).then((res) => {
         let response = res && extractRequestResponse(res);
-        console.log(response);
         if (response) {
           setAIPrompts((old) => {
             const currentPrompts = old.get(promptIndex);
