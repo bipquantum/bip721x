@@ -101,7 +101,7 @@ shared ({ caller = _owner }) actor class BQCLedger({minting_account: ICRC1.Accou
       return icrc1_state_current;
     };
 
-    public shared func get_all_balances() : async [(ICRC1.Account, ICRC1.Balance)] {
+    public query func get_all_balances() : async [(ICRC1.Account, ICRC1.Balance)] {
       return Map.toArray(icrc1_state_current.accounts);
     };
 
