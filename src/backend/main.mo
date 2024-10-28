@@ -105,13 +105,12 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     await* getController().unlistIntProp({ caller; id = token_id; });
   };
 
-  public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat}) : async [Nat] {
+  public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat;}) : async [Nat] {
     await BIP721Ledger.icrc7_tokens_of({ owner; subaccount = null }, prev, take);
   };
 
-  public composite query func get_listed_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
-    let ids = await BIP721Ledger.icrc7_tokens(prev, take);
-    getController().filterListedIntProps({ ids });
+  public query func get_listed_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
+    getController().getListedIntProps({ prev; take; });
   };
 
   public composite query func get_int_prop({token_id: Nat}) : async Result<VersionnedIntProp, Text> {

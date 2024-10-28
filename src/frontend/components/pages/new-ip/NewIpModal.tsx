@@ -35,6 +35,7 @@ import ReactCountryDropdown from "react-country-dropdown";
 
 // @ts-ignore
 import { getName } from "country-list";
+import { DEFAULT_COUNTRY_CODE } from "../../constants";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -112,7 +113,7 @@ const INITIAL_INT_PROP_INPUT: IntPropInput = {
 
 const DEFAULT_PUBLISHING = {
   date: dateToTime(new Date()),
-  countryCode: "US",
+  countryCode: DEFAULT_COUNTRY_CODE,
 };
 
 interface NewIPModalProps {
@@ -453,7 +454,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                 <div className="px-4 font-semibold">Country</div>
                 <input
                   className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
-                  placeholder="Complete Postal Address"
+                  placeholder="Country"
                   defaultValue={getName(user.countryCode)}
                   disabled
                 />

@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import { Principal } from "@dfinity/principal";
 
 import { backendActor } from "../../actors/BackendActor";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import NewIPModal from "./NewIpModal";
 import { useEffect } from "react";
 
@@ -15,6 +15,7 @@ interface NewIPProps {
 const NewIP: React.FC<NewIPProps> = ({ principal, isOpen, onClose }) => {
 
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const { data: queriedUser } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -22,16 +23,15 @@ const NewIP: React.FC<NewIPProps> = ({ principal, isOpen, onClose }) => {
   });
 
   useEffect(() => {
-    if (isOpen && queriedUser === undefined || queriedUser?.length === 0) {
-      navigate("/profile");
+    if (isOpen && (queriedUser === undefined || queriedUser?.length === 0)) {
+      navigate("/profile", { state: { redirect: pathname }});
       toast.warn("Please add user");
     }
-  }, [isOpen]);
+  }, [isOpen, queriedUser, navigate, pathname]);
 
-  return (
-    (queriedUser === undefined || queriedUser?.length === 0) ? 
-    <></> : <NewIPModal user={queriedUser[0]} isOpen={isOpen} onClose={onClose} />
-  );
+  if (!queriedUser || queriedUser.length === 0) return null;
+
+  return <NewIPModal user={queriedUser[0]} isOpen={isOpen} onClose={onClose}/>
 };
 
 export default NewIP;

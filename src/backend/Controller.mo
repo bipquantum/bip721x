@@ -186,14 +186,23 @@ module {
       #ok;
     };
 
-    public func filterListedIntProps({ids: [Nat]}) : [Nat] {
-      let buffer = Buffer.Buffer<Nat>(0);
-      for (id in Array.vals(ids)){
-        if (Map.has(intProps.e8sIcpPrices, Map.nhash, id)){
-          buffer.add(id);
+    public func getListedIntProps({
+      prev: ?Nat;
+      take: ?Nat;
+    }) : [Nat] {
+      var listed_ids = Buffer.Buffer<Nat>(0);
+      for (key in Map.keysFrom(intProps.e8sIcpPrices, Map.nhash, prev)){
+        switch(take){
+          case(null) {};
+          case(?take) {
+            if (listed_ids.size() >= take){
+              return Buffer.toArray(listed_ids);
+            };
+          };
         };
+        listed_ids.add(key);
       };
-      Buffer.toArray(buffer);
+      Buffer.toArray(listed_ids);
     };
 
     public func getE8sPrice({id: Nat}) : Result<Nat, Text> {

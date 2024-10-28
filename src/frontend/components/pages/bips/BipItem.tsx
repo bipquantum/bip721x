@@ -9,7 +9,6 @@ import {
 } from "../../../utils/conversions";
 import FilePreview from "../../common/FilePreview";
 
-import FavoriteHeartOutlineSvg from "../../../assets/favourite-heart-outline.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
 import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
 
@@ -18,6 +17,7 @@ interface IPItemProps {
 }
 
 const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
+  
   const [price, setPrice] = useState("");
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
@@ -71,9 +71,6 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
             )}
             <div className="flex items-center justify-between font-semibold">
               <p className="text-base sm:text-2xl">{intProp.ok.V1.title}</p>
-              <button className="rounded-full bg-[#6d15ff] px-4 py-1 text-xs sm:text-sm">
-                Buy
-              </button>
             </div>
             <p className="text-sm font-semibold sm:text-base">
               Type: {intPropTypeToString(intProp.ok.V1.intPropType)}
@@ -90,13 +87,6 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
               ) : (
                 <div></div>
               )}
-              <button>
-                <img
-                  src={FavoriteHeartOutlineSvg}
-                  className="h-4 w-4 sm:h-8 sm:w-8"
-                  alt="Logo"
-                />
-              </button>
             </div>
           </div>
         </Link>

@@ -10,29 +10,26 @@ import CopyToClipboard from "../../common/CopyToClipboard";
 import ProfileSvg from "../../../assets/profile.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import ReactCountryDropdown from "react-country-dropdown";
+import { useLocation, useNavigate } from "react-router-dom";
+import { DEFAULT_COUNTRY_CODE } from "../../constants";
 
 const EMPTY_USER = {
   firstName: "",
   lastName: "",
   nickName: "",
   specialty: "",
-  countryCode: "",
+  countryCode: DEFAULT_COUNTRY_CODE,
 };
 
 const ProfileFields: {
   label: string;
-  placeholder: string;
   name: keyof User;
 }[] = [
-  { label: "First Name", name: "firstName", placeholder: "John" },
-  { label: "Last Name", name: "lastName", placeholder: "Doe" },
-  { label: "Nick Name", name: "nickName", placeholder: "JohnDoe" },
-  {
-    label: "Speciality",
-    name: "specialty",
-    placeholder: "Blockchain strategic architect",
-  },
-  { label: "Country", name: "countryCode", placeholder: "US" },
+  { label: "First Name", name: "firstName" },
+  { label: "Last Name", name: "lastName" },
+  { label: "Nick Name", name: "nickName" },
+  { label: "Speciality", name: "specialty"},
+  { label: "Country", name: "countryCode" },
 ];
 
 const Profile = () => {
@@ -42,6 +39,9 @@ const Profile = () => {
   if (!authenticated || !identity) {
     return <></>;
   }
+
+  const redirect = useLocation().state?.redirect;
+  const navigate = useNavigate();
 
   const [user, setUser] = useState<User>(EMPTY_USER);
 
@@ -69,6 +69,9 @@ const Profile = () => {
     queryUser();
     toast.success("User information added/updated!");
     setIsLoading(false);
+    if (redirect) {
+      navigate(redirect);
+    }
   };
 
   return (
@@ -85,10 +88,9 @@ const Profile = () => {
             <div className="text-sm">{field.label}</div>
             {
               field.name === "countryCode" ? 
-              <ReactCountryDropdown defaultCountry="US" onSelect={(val) => setUser({ ...user, countryCode: val.code })} /> :
+              <ReactCountryDropdown defaultCountry={user.countryCode} onSelect={(val) => setUser({ ...user, countryCode: val.code })} /> :
               <input
                 className="w-full rounded-2xl border border-gray-300 bg-white bg-opacity-35 px-4 py-2 text-gray-600 placeholder-white outline-none"
-                placeholder={field.placeholder}
                 defaultValue={user[field.name]}
                 onChange={(e) => {
                   const copiedUser = { ...user };

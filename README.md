@@ -49,7 +49,6 @@ mops test
 ## TODOs
 - verify initial arguments of ledgers
 - verify hardcoding arguments in bip721_ledger and bqc_ledger do not compromize upgrades
-- bIPs not listed should stay private
 - in the chatbot, the link to the minted bIP is not working (because the context does not update on transition)
 - add versionning to the state machine
 - fix "Transfer of IP failed: #Unauthorized" when transfering an IP that has already been transferred

@@ -65,3 +65,8 @@ input {
     background: var(--scrollbar-thumb-hover);
   }
 }
+
+/* Custom style for "Coming soon!" pop-over */
+.group:hover .group-hover\:block {
+  display: block;
+}

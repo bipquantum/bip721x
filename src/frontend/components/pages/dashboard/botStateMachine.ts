@@ -152,7 +152,8 @@ export const machine = createMachine<
     },
     bipCertificate: {
       meta: {
-        description: (context: MachineContext) : string => { return `[View your bIP](${bIPQuantumUrl}/bips/${context.intPropId})` },
+        // TODO: the context does not correctly updates, so for now we redirect to all user bIPs
+        description: (context: MachineContext) : string => { return `[View your bIPs](${bIPQuantumUrl}/bips)` },
       },
       description:
         "# 🎉 Congratulations on successfully listing your Intellectual Property on bIPQ store! \n\nYour entry is a significant step towards harnessing the full potential of your creative work. Please be aware that the bIP Quantum team may request additional validation to ensure the highest standards of quality and authenticity for our marketplace. This process is part of our commitment to maintaining a trusted and secure platform for all the members. We appreciate your cooperation and are here to assist you every step of the way. Welcome to the bIP Quantum community!",

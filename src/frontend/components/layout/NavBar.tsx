@@ -1,86 +1,62 @@
-import React, { useContext, useState } from "react";
-import { Link, Navigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import MenuSvg from "../../assets/menu.svg";
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
 import WindowSvg from "../../assets/window.svg";
 import ProfileSvg from "../../assets/profile.png";
-import HelpCenterSvg from "../../assets/help-center.svg";
 import LogoutSvg from "../../assets/logout.svg";
-import MoonSvg from "../../assets/moon.svg";
-import SunSvg from "../../assets/sun.svg";
 import LogoSvg from "../../assets/logo.png";
 import MessagesSvg from "../../assets/messages.svg";
 
 import { useAuth } from "@ic-reactor/react";
-import { ThemeContext } from "../App";
 import ChatHistoryBar from "./ChatHistoryBar";
-
-const NavBarItems = [
-  {
-    svg: HomeSvg,
-    label: "Dashboard",
-    link: "dashboard",
-  },
-  {
-    svg: EditSvg,
-    label: "Create New IP",
-    link: "new",
-  },
-  {
-    svg: WindowSvg,
-    label: "bIPs",
-    link: "bips",
-  },
-  {
-    svg: WindowSvg, // TODO: replace with marketplace icon
-    label: "Market place",
-    link: "marketplace",
-  },
-  {
-    svg: ProfileSvg,
-    label: "",
-    link: "profile",
-  },
-//  {
-//    svg: HelpCenterSvg,
-//    label: "Help Center",
-//    link: "about",
-//  },
-];
-
-const DarkModeToggle = () => {
-  const { theme, setTheme } = useContext(ThemeContext);
-
-  return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={`flex w-28 items-center justify-between rounded-full bg-gray-400 bg-opacity-45 px-4 py-1 text-sm font-bold uppercase text-gray-800 transition-colors duration-500 dark:bg-blue-600 dark:text-white ${theme === "dark" ? "flex-row" : "flex-row-reverse"}`}
-    >
-      <div
-        className={`${theme === "dark" ? "-ml-2" : "-mr-2"} flex h-7 w-7 items-center justify-center rounded-full bg-white`}
-      >
-        <img
-          src={theme === "dark" ? MoonSvg : SunSvg}
-          alt=""
-          className="h-6 cursor-pointer"
-        />
-      </div>
-      {theme === "dark" ? "night" : "light"}
-    </button>
-  );
-};
+import { backendActor } from "../actors/BackendActor";
+import { NEW_USER_NICKNAME } from "../constants";
 
 const NavBar = () => {
+
   const location = useLocation();
   const { pathname } = location;
 
-  const { authenticated, logout } = useAuth({});
+  const { identity, authenticated, logout } = useAuth({});
 
-  if (!authenticated) {
+  if (!identity || !authenticated) {
     return <></>;
   }
+
+  const { data: queriedUser } = backendActor.useQueryCall({
+    functionName: "get_user",
+    args: [identity?.getPrincipal()],
+  });
+
+  const NavBarItems = [
+    {
+      svg: HomeSvg,
+      label: "Dashboard",
+      link: "dashboard",
+    },
+    {
+      svg: EditSvg,
+      label: "Create New IP",
+      link: "new",
+    },
+    {
+      svg: WindowSvg,
+      label: "bIPs",
+      link: "bips",
+    },
+    {
+      svg: WindowSvg, // TODO: replace with marketplace icon
+      label: "Market place",
+      link: "marketplace",
+    },
+    {
+      svg: ProfileSvg,
+      label: queriedUser?.length === 0 ? NEW_USER_NICKNAME : queriedUser?.[0]?.nickName,
+      link: "profile",
+    },
+  ];
 
   return (
     <>
@@ -102,7 +78,7 @@ const NavBar = () => {
                   >
                     <img
                       src={item.svg}
-                      className={`${item.link === "profile" ? "h-8 rounded-full" : "h-6 invert"}`}
+                      className={`${item.link === "profile" ? "h-9 rounded-full" : "h-7 invert"}`}
                     />
                     <p className={`text-[10px] font-bold`}>{item.label}</p>
                   </Link>

@@ -13,7 +13,7 @@ const CONFIG_QUERY = `?applicationName=${APP_NAME}&applicationLogo=${APP_LOGO}`;
 const Login = () => {
   const { login, authenticated } = useAuth({});
 
-  if (authenticated) return <Navigate to="/who-you-are" />;
+  if (authenticated) return <Navigate to="/" />;
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">
@@ -51,17 +51,22 @@ const Login = () => {
             Connect with
             <img src={DfinitySvg} className="h-4" alt="Logo" />
           </button>
-          <button
-            className="flex w-11/12 items-center justify-center gap-x-2 rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]"
-            onClick={() => {
-              login({
-                identityProvider: `https://nfid.one/authenticate${CONFIG_QUERY}`,
-              });
-            }}
-          >
-            Connect with
-            <img src={NfidSvg} className="h-4" alt="Logo" />
-          </button>
+          <div className="relative group">
+            <button
+              className="flex w-11/12 items-center justify-center gap-x-2 rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px] opacity-50"
+              onClick={() => {
+                login({
+                  identityProvider: `https://nfid.one/authenticate${CONFIG_QUERY}`,
+                });
+              }}
+              disabled={true}
+            >
+              Connect with <img src={NfidSvg} className="h-4" alt="Logo" />
+            </button>
+            <span className="absolute bottom-full mb-2 hidden w-max px-2 py-1 text-sm text-white bg-black rounded opacity-75 group-hover:block items-center">
+              Coming Soon!
+            </span>
+          </div>
         </div>
       </div>
     </div>

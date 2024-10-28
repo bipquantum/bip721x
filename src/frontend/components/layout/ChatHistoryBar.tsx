@@ -24,9 +24,21 @@ const ChatHistoryBar = () => {
     navigate(`/chat/${addChat()}`);
   };
 
+  const isCurrentChat = (chatId: string) => {
+    return pathname.includes("/chat/" + chatId);
+  }
+
+  const hideHistoryBar = () => {
+    return pathname == "/" || 
+           pathname.includes("/marketplace")|| 
+           pathname.includes("/bip/") ||
+           pathname.includes("/poll") ||
+           pathname.includes("/about");
+  }
+
   return (
     <div
-      className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${pathname.includes("/marketplace") || pathname === "/about" ? "sm:hidden" : "sm:block"}`}
+      className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
     >
       <div className="flex flex-col justify-between">
         <div className="h-[90vh] overflow-auto px-2 py-4">
@@ -37,15 +49,15 @@ const ChatHistoryBar = () => {
           </div>
           {chatHistories.map((chat) => (
             <div
-              className="mt-4 flex items-center justify-between px-4"
+              className={`mt-4 flex items-center justify-between px-4 ${isCurrentChat(chat.id) ? "font-bold" : ""}`}
               key={chat.id}
             >
               <Link to={"/chat/" + chat.id}>{ formatDateTime(timeToDate(chat.date))}</Link>
               <div className="flex items-center gap-x-2">
-                <img src={EditSvg} className="h-5 cursor-pointer invert" alt="Edit" />
+                <img src={EditSvg} className={`cursor-pointer invert ${isCurrentChat(chat.id) ? "h-6" : "h-5"}`} alt="Edit" />
                 <img
                   src={TrashSvg}
-                  className="h-5 cursor-pointer invert"
+                  className={`cursor-pointer invert ${isCurrentChat(chat.id) ? "h-6" : "h-5"}`}
                   alt="Trash"
                   onClick={() => setDeleteCandidate(chat.id)}
                 />

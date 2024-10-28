@@ -11,7 +11,7 @@ import Main from "../pages/main";
 import About from "../pages/about";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
-import WhoAreYou from "../pages/who-you-are";
+import WhoAreYou from "../pages/poll";
 import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 
@@ -22,7 +22,7 @@ const Router = () => {
     <Routes>
       <Route path={"/"} element={<PrivateRoute element={<Main />} />} />
       <Route
-        path={"/who-you-are"}
+        path={"/poll"}
         element={<PrivateRoute element={<WhoAreYou />} />}
       />
       <Route
