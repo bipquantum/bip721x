@@ -3,6 +3,9 @@ import { Principal } from "@dfinity/principal";
 
 import { backendActor } from "../actors/BackendActor";
 
+// @ts-ignore
+import { getName } from "country-list";
+
 type UserDetailsArgs = {
   principal: Principal;
   title?: string;
@@ -41,7 +44,7 @@ const UserDetails = ({ principal, title }: UserDetailsArgs) => {
             </div>
             <div>
               <p>Country</p>
-              <div className="font-bold">{fromNullable(author)?.country}</div>
+              <div className="font-bold">{getName(fromNullable(author)?.countryCode)}</div>
             </div>
           </div>
         )}
