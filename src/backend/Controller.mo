@@ -15,8 +15,8 @@ import ChatBotHistory    "ChatBotHistory";
 
 import ICRC7             "mo:icrc7-mo";
 
-import BIP721Ledger     "canister:bip721_ledger";
-import BQCLedger        "canister:bqc_ledger";
+import BIP721Ledger      "canister:bip721_ledger";
+import BQCLedger         "canister:bqc_ledger";
 
 module {
 
@@ -126,7 +126,7 @@ module {
         // Hence override can be set to false
         override = false;
         memo = null;
-        created_at_time = null;
+        created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
       }]);
 
       if (mint_operation.size() != 1){

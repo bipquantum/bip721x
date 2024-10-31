@@ -1,12 +1,12 @@
-import Types "Types";
+import Types     "Types";
 
-import Map               "mo:map/Map";
-import Set               "mo:map/Set";
+import Map       "mo:map/Map";
+import Set       "mo:map/Set";
 
-import Principal         "mo:base/Principal";
-import Result            "mo:base/Result";
-import Buffer            "mo:base/Buffer";
-import Debug             "mo:base/Debug";
+import Principal "mo:base/Principal";
+import Result    "mo:base/Result";
+import Buffer    "mo:base/Buffer";
+import Debug     "mo:base/Debug";
 
 module {
 

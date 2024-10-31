@@ -1,9 +1,9 @@
-import Types         "Types";
-import Controller    "Controller";
-import Conversions   "intprop/Conversions";
-import ChatBot       "ChatBot";
+import Types          "Types";
+import Controller     "Controller";
+import Conversions    "intprop/Conversions";
+import ChatBot        "ChatBot";
 import ChatBotHistory "ChatBotHistory";
-import TradeManager  "TradeManager";
+import TradeManager   "TradeManager";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
