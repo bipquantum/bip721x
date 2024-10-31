@@ -4,7 +4,7 @@ import { NumericFormat } from "react-number-format";
 import { useState } from "react";
 
 import { backendActor } from "../actors/BackendActor";
-import { fromE8s, toE8s } from "../../utils/conversions";
+import { dateToTime, fromE8s, toE8s } from "../../utils/conversions";
 
 import SpinnerSvg from "../../assets/spinner.svg";
 import { bip721LedgerActor } from "../actors/Bip721LedgerActor";
@@ -77,7 +77,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       amount: e8sPrice.ok + 10_000n,
       memo: [],
       from_subaccount: [],
-      created_at_time: [],
+      created_at_time: [dateToTime(new Date())],
       spender: {
         owner: Principal.fromText(canisterId),
         subaccount: [],
@@ -129,7 +129,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     const info : ApprovalInfo = {
       memo: [],
       from_subaccount: [],
-      created_at_time: [],
+      created_at_time: [dateToTime(new Date())],
       spender: {
         owner: Principal.fromText(canisterId),
         subaccount: [],
@@ -175,7 +175,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       token_id: intPropId,
       memo: [],
       from_subaccount: [],
-      created_at_time: [],
+      created_at_time: [dateToTime(new Date())],
       spender: [{
         owner: Principal.fromText(canisterId),
         subaccount: [],
