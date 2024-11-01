@@ -52,12 +52,13 @@ export const formatRequestBody = (question: string, history: AiPrompt[]) : Promi
 
 };
 
-export const extractRequestResponse = (response: HttpResponse) : string | undefined => {
+export const extractRequestResponse = (response: HttpResponse): string | undefined => {
 
-  var ui8array = undefined;
-  if (response.body as Uint8Array) {
-    ui8array = response.body as Uint8Array;
-  } else if (response.body as number[]) {
+  let ui8array: Uint8Array | undefined = undefined;
+
+  if (response.body instanceof Uint8Array) {
+    ui8array = response.body;
+  } else if (Array.isArray(response.body)) {
     ui8array = arrayOfNumberToUint8Array(response.body as number[]);
   }
 
@@ -65,6 +66,10 @@ export const extractRequestResponse = (response: HttpResponse) : string | undefi
     const decoder = new TextDecoder("utf-8");
     const jsonString = decoder.decode(ui8array);
     const jsonObject = JSON.parse(jsonString);
-    return jsonObject["choices"][0]["message"]["content"];
+
+    // Use optional chaining to check for the presence of necessary properties
+    return jsonObject?.choices?.[0]?.message?.content;
   }
-}
+
+  return undefined;
+};

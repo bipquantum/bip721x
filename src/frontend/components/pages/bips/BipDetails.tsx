@@ -62,10 +62,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   }
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
+    <div className="flex w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
       <BipsHeader/>
-      <div className="h-full w-full sm:p-8 md:p-4">
-        <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl bg-tertiary sm:rounded-3xl">
+      <div className="w-full sm:p-8 md:p-4">
+        <div className="flex w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl bg-tertiary sm:rounded-3xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -128,7 +128,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   )}
                 </div>
               </div>
-              <div className="flex flex-row justify-between">
+              <div className="flex flex-row flex-wrap space-x-1 space-y-1 justify-between">
                 <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
                 <div>{owner && (
                   <ListingDetails

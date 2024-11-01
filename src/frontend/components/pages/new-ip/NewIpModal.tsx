@@ -192,7 +192,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   return (
     <ModalPopup onClose={() => onClose(ipId)} isOpen={isOpen}>
       <div className="flex w-full flex-col items-center justify-start gap-8 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
-        <div className="flex w-full items-center flex-col gap-1">
+        <div className="flex w-full items-center flex-col gap-1 w-full">
           <div className="flex flex-col items-center justify-around gap-3">
             <div className="text-2xl font-bold">Create New IP</div>
           </div>
@@ -229,228 +229,218 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
         </div>
         {step === 1 && (
           <>
-            <div className="flex w-11/12 items-end justify-between gap-12 w-3/4">
-              <div className="flex w-full flex-col gap-4 text-base">
-                <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">Title of the IP</div>
-                  <input
-                    className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
-                    placeholder="Title of the IP"
-                    value={intPropInput.title}
-                    onChange={(e) => {
-                      setIntPropInput({
-                        ...intPropInput,
-                        title: e.target.value,
-                      });
-                    }}
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">IP Type</div>
-                  <Select
-                    value={
-                      IP_TYPE_OPTIONS.find(
-                        (option) =>
-                          option.value ===
-                          intPropTypeToIndex(
-                            intPropInput.intPropType,
-                          ).toString(),
-                      ) ||
-                      (() => {
-                        throw new Error(
-                          `Invalid intPropType: ${intPropInput.intPropType}`,
-                        );
-                      })()
-                    }
-                    onChange={(selectedOptions: SelectValue) =>
-                      setIntPropInput({
-                        ...intPropInput,
-                        intPropType: intPropTypeFromIndex(
-                          Number((selectedOptions as Option).value),
-                        ),
-                      })
-                    }
-                    options={IP_TYPE_OPTIONS.filter(
-                      (type) =>
-                        type.value !==
+            <div className="flex flex-col items-start justify-between gap-4 w-64 px-1">
+              <div className="flex flex-col gap-1 w-full">
+                <div className="px-4 font-semibold">Title of the IP</div>
+                <input
+                  className="rounded-2xl w-full border border-none bg-tertiary px-4 py-2 text-white outline-none"
+                  placeholder="Title of the IP"
+                  value={intPropInput.title}
+                  onChange={(e) => {
+                    setIntPropInput({
+                      ...intPropInput,
+                      title: e.target.value,
+                    });
+                  }}
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <div className="px-4 font-semibold">IP Type</div>
+                <Select
+                  value={
+                    IP_TYPE_OPTIONS.find(
+                      (option) =>
+                        option.value ===
                         intPropTypeToIndex(
                           intPropInput.intPropType,
                         ).toString(),
-                    )}
-                    placeholder="Select an option"
-                    noOptionsMessage="No options found"
-                    primaryColor="#ffffff"
-                    classNames={{
-                      menuButton: () =>
-                        "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
-                      menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
-                    }}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">IP License</div>
-                  <Select
-                    isMultiple={true}
-                    value={
-                      intPropInput.intPropLicenses.map((license) =>
-                        IP_LICENSE_OPTIONS.find(
-                          (option) =>
-                            option.value === intPropLicenseToIndex(license).toString(),
-                        ) ||
-                        (() => {
-                          throw new Error(`Invalid intPropLicense: ${license}`);
-                        })()
-                      )
-                    }
-                    onChange={(selectedOptions: SelectValue) =>
-                      setIntPropInput({
-                        ...intPropInput,
-                        intPropLicenses: (selectedOptions as Option[]).map((option) =>
-                          intPropLicenseFromIndex(Number(option.value))
-                        ),
-                      })
-                    }
-                    options={IP_LICENSE_OPTIONS}
-                    placeholder="Select options"
-                    noOptionsMessage="No options found"
-                    primaryColor="#ffffff"
-                    classNames={{
-                      menuButton: () =>
-                        "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
-                      menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
-                    }}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">
-                    Upload IP File (SIZE LIMITED TO 1.5 MB)
-                  </div>
-                  <FileUploader
-                    dataUri={intPropInput.dataUri}
-                    setDataUri={(dataUri) => {
-                      setDataUri(dataUri ?? "");
-                    }}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="px-4 font-semibold">Creation Date</div>
-                  <input
-                    className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
-                    placeholder=""
-                    value={
-                      (toDateInputFormat(timeToDate(intPropInput.creationDate)))
-                    }
-                    onChange={(e) => {                    
-                      setIntPropInput({
-                        ...intPropInput,
-                        creationDate: dateToTime(fromDateInputFormat(e.target.value)),
-                      });
-                    }}
-                    type="date"
-                  />
-                </div>
-                <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1">
-                  <label className="inline-flex items-center cursor-pointer">
-                    <div className="px-4 font-semibold">Royalties</div>
-                    <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
-                      return {...intProp, percentageRoyalties: fromNullable(intProp.percentageRoyalties) ? [] : [DEFAULT_PERCENTAGE_ROYALTIES]};
-                    })} />
-                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
-                  </label>
-                  {
-                    fromNullable(intPropInput.percentageRoyalties) !== undefined && (
-                      <div className="flex flex-row items-center gap-1 justify-between">
-                        <div className="px-4 font-semibold">Percentage</div>
-                        <input
-                          className="flex rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none w-20"
-                          placeholder=""
-                          value={fromNullable(intPropInput.percentageRoyalties)?.toString()}
-                          onChange={(e) => {
-                            setIntPropInput((intProp) => {
-                              return {...intProp, percentageRoyalties: [BigInt(e.target.value)] };
-                            });
-                          }}
-                          max={20}
-                          min={1}
-                          type="number"
-                        />
-                      </div>
+                    ) ||
+                    (() => {
+                      throw new Error(
+                        `Invalid intPropType: ${intPropInput.intPropType}`,
+                      );
+                    })()
+                  }
+                  onChange={(selectedOptions: SelectValue) =>
+                    setIntPropInput({
+                      ...intPropInput,
+                      intPropType: intPropTypeFromIndex(
+                        Number((selectedOptions as Option).value),
+                      ),
+                    })
+                  }
+                  options={IP_TYPE_OPTIONS.filter(
+                    (type) =>
+                      type.value !==
+                      intPropTypeToIndex(
+                        intPropInput.intPropType,
+                      ).toString(),
+                  )}
+                  placeholder="Select an option"
+                  noOptionsMessage="No options found"
+                  primaryColor="#ffffff"
+                  classNames={{
+                    menuButton: () =>
+                      "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
+                    menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <div className="px-4 font-semibold">IP License</div>
+                <Select
+                  isMultiple={true}
+                  value={
+                    intPropInput.intPropLicenses.map((license) =>
+                      IP_LICENSE_OPTIONS.find(
+                        (option) =>
+                          option.value === intPropLicenseToIndex(license).toString(),
+                      ) ||
+                      (() => {
+                        throw new Error(`Invalid intPropLicense: ${license}`);
+                      })()
                     )
                   }
+                  onChange={(selectedOptions: SelectValue) =>
+                    setIntPropInput({
+                      ...intPropInput,
+                      intPropLicenses: (selectedOptions as Option[]).map((option) =>
+                        intPropLicenseFromIndex(Number(option.value))
+                      ),
+                    })
+                  }
+                  options={IP_LICENSE_OPTIONS}
+                  placeholder="Select options"
+                  noOptionsMessage="No options found"
+                  primaryColor="#ffffff"
+                  classNames={{
+                    menuButton: () =>
+                      "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
+                    menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <div className="px-4 font-semibold">
+                  Upload IP File (SIZE LIMITED TO 1.5 MB)
                 </div>
-                <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1">
-                  <label className="inline-flex items-center cursor-pointer">
-                    <div className="px-4 font-semibold">Publishing</div>
-                    <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
-                      return {...intProp, publishing: fromNullable(intProp.publishing) ? [] : [DEFAULT_PUBLISHING]};
-                    })} />
-                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
-                  </label>
-                  {
-                    fromNullable(intPropInput.publishing) !== undefined && ( 
-                    <div className="flex flex-col gap-1">
-                      <div className="flex flex-row items-center gap-1 justify-between">
-                        <div className="px-4 font-semibold">Date</div>
-                        <input
-                          className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
-                          placeholder=""
-                          value={ getPublishingDate(intPropInput) }
-                          onChange={(e) => {
-                            setIntPropInput((intProp) => {
-                              return {...intProp, publishing: [{
-                                date: dateToTime(fromDateInputFormat(e.target.value)),
-                                countryCode: fromNullable(intProp.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode
-                              }]};
-                            })
-                          }}
-                          type="date"
-                        />
-                      </div>
-                      <div className="flex flex-row items-center gap-1 justify-between">
-                        <div className="px-4 font-semibold">Country</div>
-                        <ReactCountryDropdown 
-                          defaultCountry={DEFAULT_PUBLISHING.countryCode}
-                          onSelect={(val) => setIntPropInput((intProp) => {
-                            return {...intProp, publishing: [{
-                              date: fromNullable(intProp.publishing)?.date ?? DEFAULT_PUBLISHING.date,
-                              countryCode: val.code
-                            }]};
-                          })}
-                        />
-                      </div>
+                <FileUploader
+                  dataUri={intPropInput.dataUri}
+                  setDataUri={(dataUri) => {
+                    setDataUri(dataUri ?? "");
+                  }}
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
+                <div className="px-4 font-semibold">Creation Date</div>
+                <input
+                  className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
+                  placeholder=""
+                  value={
+                    (toDateInputFormat(timeToDate(intPropInput.creationDate)))
+                  }
+                  onChange={(e) => {                    
+                    setIntPropInput({
+                      ...intPropInput,
+                      creationDate: dateToTime(fromDateInputFormat(e.target.value)),
+                    });
+                  }}
+                  type="date"
+                />
+              </div>
+              <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1 w-full space-y-1">
+                <label className="flex flex-row items-center justify-between cursor-pointer">
+                  <div className="px-4 font-semibold">Royalties</div>
+                  <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
+                    return {...intProp, percentageRoyalties: fromNullable(intProp.percentageRoyalties) ? [] : [DEFAULT_PERCENTAGE_ROYALTIES]};
+                  })} />
+                  <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
+                </label>
+                {
+                  fromNullable(intPropInput.percentageRoyalties) !== undefined && (
+                    <div className="flex flex-row items-center gap-1 justify-between">
+                      <div className="px-4 font-semibold">Percentage</div>
+                      <input
+                        className="flex rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none w-20"
+                        placeholder=""
+                        value={fromNullable(intPropInput.percentageRoyalties)?.toString()}
+                        onChange={(e) => {
+                          setIntPropInput((intProp) => {
+                            return {...intProp, percentageRoyalties: [BigInt(e.target.value)] };
+                          });
+                        }}
+                        max={20}
+                        min={1}
+                        type="number"
+                      />
                     </div>
-                    )
-                  }
-                </div>
+                  )
+                }
+              </div>
+              <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1 w-full space-y-1">
+                <label className="flex flex-row items-center justify-between items-center cursor-pointer">
+                  <div className="px-4 font-semibold">Publishing</div>
+                  <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
+                    return {...intProp, publishing: fromNullable(intProp.publishing) ? [] : [DEFAULT_PUBLISHING]};
+                  })} />
+                  <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
+                </label>
+                {
+                  fromNullable(intPropInput.publishing) !== undefined && ( 
+                  <div className="flex flex-col gap-1 w-full">
+                    <div className="flex flex-row items-center gap-1 justify-between">
+                      <div className="px-4 font-semibold">Date</div>
+                      <input
+                        className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
+                        placeholder=""
+                        value={ getPublishingDate(intPropInput) }
+                        onChange={(e) => {
+                          setIntPropInput((intProp) => {
+                            return {...intProp, publishing: [{
+                              date: dateToTime(fromDateInputFormat(e.target.value)),
+                              countryCode: fromNullable(intProp.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode
+                            }]};
+                          })
+                        }}
+                        type="date"
+                      />
+                    </div>
+                    <div className="flex flex-row items-center gap-1 justify-between">
+                      <div className="px-4 font-semibold">Country</div>
+                      <ReactCountryDropdown 
+                        defaultCountry={DEFAULT_PUBLISHING.countryCode}
+                        onSelect={(val) => setIntPropInput((intProp) => {
+                          return {...intProp, publishing: [{
+                            date: fromNullable(intProp.publishing)?.date ?? DEFAULT_PUBLISHING.date,
+                            countryCode: val.code
+                          }]};
+                        })}
+                      />
+                    </div>
+                  </div>
+                  )
+                }
               </div>
             </div>
-            <div className="flex items-center justify-center gap-x-4">
-              <button
-                className="w-24 rounded-2xl bg-gray-500 py-2 text-lg font-semibold text-white sm:w-32"
-                onClick={() => setStep(0)}
-              >
-                Back
-              </button>
-              <button
-                className="w-56 rounded-2xl bg-secondary py-2 text-lg font-semibold text-white sm:w-64"
-                onClick={() => {
-                  if (intPropInput.title === "") {
-                    toast.warn("Please add title of the IP");
-                    return;
-                  }
-                  setStep(2);
-                }}
-              >
-                Add Author Details
-              </button>
-            </div>
+            <button
+              className="w-56 rounded-2xl bg-secondary py-2 text-lg font-semibold text-white sm:w-64"
+              onClick={() => {
+                if (intPropInput.title === "") {
+                  toast.warn("Please add title of the IP");
+                  return;
+                }
+                setStep(2);
+              }}
+            >
+              Add Author Details
+            </button>
           </>
         )}
         {step === 2 && (
           <>
-            <div className="flex w-80 flex-col gap-4 text-base">
-              <div className="flex flex-col gap-1">
+            <div className="flex flex-col items-start justify-between gap-4 w-64 px-1">
+              <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">First Name</div>
                 <input
                   className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
@@ -459,7 +449,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   disabled
                 />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">Last Name</div>
                 <input
                   className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
@@ -468,7 +458,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   disabled
                 />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">Nick Name</div>
                 <input
                   className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
@@ -477,7 +467,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   disabled
                 />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">Speciality</div>
                 <input
                   className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
@@ -486,7 +476,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   disabled
                 />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">Country</div>
                 <input
                   className="rounded-2xl border border-none bg-tertiary px-4 py-2 text-white outline-none"
@@ -496,7 +486,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                 />
               </div>
             </div>
-            <div className="flex items-center justify-center gap-x-4">
+            <div className="flex flex-col flex-wrap items-center justify-center gap-x-4 gap-y-2">
               <button
                 className="w-32 rounded-2xl bg-gray-500 py-2 text-lg font-semibold text-white"
                 onClick={() => setStep(1)}

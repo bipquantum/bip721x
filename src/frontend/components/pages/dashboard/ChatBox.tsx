@@ -98,8 +98,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
             </div>
             <span className="flex flex-col px-5"> { /* spacer */ } </span>
           </div>
-          <div className="flex flex-row py-2 gap-2 justify-end">
-            <span className="flex flex-col px-5"> { /* spacer */ } </span>
+          <div className="flex flex-row py-2 gap-2 justify-start flex-wrap flex-row-reverse">
+            { chat.answers.length > 0 && <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />}
             {
             chat.answers.map((answer, answer_index) => (
               <button
@@ -123,7 +123,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
               </button>
             ))
             }
-            { chat.answers.length > 0 && <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />}
+            <span className="flex flex-col px-5"> { /* spacer */ } </span>
           </div>
         </div>
       ))}

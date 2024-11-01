@@ -27,12 +27,12 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
     >
       { !createIp ? (
         <div className="flex h-full flex-col items-center justify-center gap-6 text-primary-text">
-          <p className="mx-3 w-96 text-center text-2xl font-semibold leading-10">
+          <p className="mx-3 min-w-24 text-center text-2xl font-semibold leading-10">
             Unlock the full potential of your intellectual property by listing
             it on bIPQuantum, where innovation meets opportunity.
           </p>
           <button
-            className="w-80 rounded-2xl bg-secondary py-2 text-xl font-semibold text-white"
+            className="rounded-2xl bg-secondary py-2 px-4 text-xl font-semibold text-white"
             onClick={() => setCreateIp(true)}
           >
             Create New IP

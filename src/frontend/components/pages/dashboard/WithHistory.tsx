@@ -130,20 +130,18 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     
     await formatRequestBody(question, Array.from(aiPrompts.values()).flat()).then((body) => {
       getResponse([{ body }]).then((res) => {
-        let response = res && extractRequestResponse(res);
-        if (response) {
-          setAIPrompts((old) => {
-            const currentPrompts = old.get(promptIndex);
-            if (!currentPrompts) {
-              throw new Error("Expected updated prompts to exist");
-            }
-            currentPrompts[innerIndex - 1].answer = response;
-            const newPrompts = new Map(old);
-            newPrompts.set(promptIndex, currentPrompts);
-            updateChatHistory([{id: chatId, events: JSON.stringify(eventHistory.current), aiPrompts: JSON.stringify(Array.from(newPrompts.entries()))}])
-            return newPrompts;
-          });
-        }
+        let response : string = (res && extractRequestResponse(res)) ?? "Sorry, I am experiencing techical issues. Please try again later.";
+        setAIPrompts((old) => {
+          const currentPrompts = old.get(promptIndex);
+          if (!currentPrompts) {
+            throw new Error("Expected updated prompts to exist");
+          }
+          currentPrompts[innerIndex - 1].answer = response;
+          const newPrompts = new Map(old);
+          newPrompts.set(promptIndex, currentPrompts);
+          updateChatHistory([{id: chatId, events: JSON.stringify(eventHistory.current), aiPrompts: JSON.stringify(Array.from(newPrompts.entries()))}])
+          return newPrompts;
+        });
       })
       .catch((error) => {
         console.error("Error getting response:", error);

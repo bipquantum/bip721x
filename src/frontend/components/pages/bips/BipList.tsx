@@ -59,7 +59,7 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
   });
 
   return (
-    <div className="h-[720px] w-full overflow-y-auto" id="scrollableDiv">
+    <div className="h-full w-full overflow-y-auto" id="scrollableDiv">
       <div className={scrollableClassName}>
         {Array.from(entries).map((intPropId) => (
           <BipItemComponent principal={principal} intPropId={intPropId} key={intPropId} />

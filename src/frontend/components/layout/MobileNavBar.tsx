@@ -33,11 +33,6 @@ const MobileNavBarItems = [
     label: "",
     link: "profile",
   },
-  //   {
-  //     svg: HelpCenterSvg,
-  //     label: "Help Center",
-  //     link: "about",
-  //   },
 ];
 
 const MobileNavBar = () => {
@@ -51,7 +46,7 @@ const MobileNavBar = () => {
   }
 
   return (
-    <div className="flex w-full items-center justify-between bg-secondary p-4 sm:hidden">
+    <div className="flex w-full items-center justify-between bg-secondary p-4 sm:hidden h-24 sticky bottom-0">
       {MobileNavBarItems.map((item, index) => (
         <Link
           className={`rounded-xl p-4 ${pathname !== "/" + item.link && "profile" !== item.link && "opacity-40"} ${pathname === "/" + item.link && "profile" !== item.link && "bg-white bg-opacity-25"}`}

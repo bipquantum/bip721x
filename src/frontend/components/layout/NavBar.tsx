@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
 
-import MenuSvg from "../../assets/menu.svg";
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
 import WindowSvg from "../../assets/window.svg";
@@ -13,6 +12,8 @@ import { useAuth } from "@ic-reactor/react";
 import ChatHistoryBar from "./ChatHistoryBar";
 import { backendActor } from "../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../constants";
+import { ModalPopup } from "../common/ModalPopup";
+import { useState } from "react";
 
 const NavBar = () => {
 
@@ -24,6 +25,8 @@ const NavBar = () => {
   if (!identity || !authenticated) {
     return <></>;
   }
+
+  const [showChatHistory, setShowChatHistory] = useState(false);
 
   const { data: queriedUser } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -58,16 +61,19 @@ const NavBar = () => {
     },
   ];
 
+  const hideHistoryBar = () => {
+    return pathname == "/" || 
+           pathname.includes("/marketplace")|| 
+           pathname.includes("/bip/") ||
+           pathname.includes("/poll") ||
+           pathname.includes("/about");
+  }
+
   return (
     <>
       {!(pathname === "login") && (
-        <>
+        <div className="flex flex-row static">
           <div className="hidden h-screen w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
-            <img
-              src={MenuSvg}
-              alt=""
-              className="mt-2 h-8 cursor-pointer invert"
-            />
             <div className="flex flex-grow flex-col items-center justify-between py-10">
               <div className="flex flex-col items-center justify-start gap-12">
                 {NavBarItems.map((item, index) => (
@@ -97,17 +103,20 @@ const NavBar = () => {
               </button>
             </div>
           </div>
-          <div className="flex h-28 w-full items-center justify-between bg-secondary px-4 sm:hidden">
-            <img src={MenuSvg} alt="" className="h-7 cursor-pointer invert" />
+          <div className="flex h-28 w-full items-center justify-between bg-secondary pl-4 pr-8 sm:hidden">
             <img src={LogoSvg} className="h-14 invert" alt="Logo" />
-            <img src={MessagesSvg} className="h-7" alt="Logo" />
+            <img src={MessagesSvg} className="h-8" alt="Logo" onClick={() => setShowChatHistory(true)} />
           </div>
-          <ChatHistoryBar/>
-        </>
+          <div
+            className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
+          >
+            <ChatHistoryBar onChatSelected={() => {}}/>
+          </div>
+        </div>
       )}
-      {/* <div className="absolute right-4 top-2 z-50">
-        <DarkModeToggle />
-      </div> */}
+      <ModalPopup onClose={() => {setShowChatHistory(false)}} isOpen={showChatHistory}>
+        <ChatHistoryBar onChatSelected={() => setShowChatHistory(false)}/>
+      </ModalPopup>
     </>
   );
 };

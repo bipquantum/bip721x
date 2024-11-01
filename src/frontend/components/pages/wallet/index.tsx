@@ -25,7 +25,7 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
   }
 
   return (
-    <div className="flex grid sm:grid-cols-3 md:grid-cols-9 gap-2 sm:p-8 shadow border-2 border-tertiary hover:border-primary bg-tertiary sm:rounded-lg text-white mx-3 my-1 items-center">
+    <div className="flex grid sm:grid-cols-3 md:grid-cols-9 gap-2 sm:p-8 shadow border-2 border-tertiary hover:border-primary bg-tertiary sm:rounded-lg text-white mx-3 my-1 items-center rounded-lg p-2">
       <Link className="col-span-2 text-xl" to={`/bip/${intPropId.toString()}`}>{intProp.ok.V1.title}</Link>
       <Link className="col-span-1"  to={`/bip/${intPropId.toString()}`}>{formatDate(timeToDate(intProp.ok.V1.creationDate))}</Link>
       <div className="col-span-3">
@@ -60,10 +60,9 @@ const Wallet = ({ principal }: WalletProps) => {
   }
  
   return (
-    <div className="flex w-full flex-1 flex-col items-center bg-white gap-y-4 overflow-y-auto py-4 text-black sm:items-start sm:p-0 grow">
+    <div className="flex w-full flex-col items-center bg-white overflow-y-auto text-black  sm:p-0 grow">
       <div className="flex flex-col text-center items-center justify-center w-full mt-5 text-2xl font-bold tracking-wider sm:py-16 sm:text-start sm:text-[32px]">
         Your bIPs
-        <div className="h-1 w-32 bg-primary sm:w-96"></div>
       </div>
       <BipList principal={principal} fetchBips={fetchBips} BipItemComponent={BIPDetail} scrollableClassName="flex flex-col w-full grow"/>
     </div>

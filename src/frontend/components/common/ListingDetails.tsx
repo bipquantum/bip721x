@@ -219,7 +219,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             </div>
             <button
               onClick={() => triggerUnlist(intPropId)}
-              className="flex items-center justify-center rounded-lg bg-violet-700 w-24 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
+              className="items-center justify-center rounded-lg bg-violet-700 w-32 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
               type="button"
               disabled={isLoading}
             >
@@ -238,7 +238,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               List for (bQC)
             </label>
             <NumericFormat
-              className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-32 rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
+              className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
               thousandSeparator=","
               decimalScale={TOKEN_DECIMALS_ALLOWED}
               value={Number(fromE8s(sellPrice))}
@@ -254,7 +254,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             />
             <button
               onClick={() => triggerList(intPropId, sellPrice)}
-              className="flex items-center justify-center rounded-lg bg-violet-700 w-24 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
+              className="items-center justify-center rounded-lg bg-violet-700 w-32 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
               type="button"
               disabled={isLoading}
             >
@@ -274,7 +274,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       </div>
       <button
         onClick={() => triggerBuy(intPropId)}
-        className="flex items-center justify-center rounded-lg bg-violet-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
+        className="items-center justify-center rounded-lg bg-violet-700 w-32 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
         type="button"
         disabled={isLoading}
       >

@@ -75,13 +75,12 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-4 overflow-auto bg-white font-semibold text-primary sm:gap-8">
-      <img src={ProfileSvg} className={`h-32 rounded-full`} />
+    <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-4 overflow-auto bg-white font-semibold text-primary sm:gap-8 mb-2">
+      <img src={ProfileSvg} className={`h-16 sm:h-32 rounded-full mt-24 sm:mt-12`} />
       <div className="flex gap-1 px-10 text-center text-sm">
         {identity?.getPrincipal().toString()}
         <CopyToClipboard copiedText={identity?.getPrincipal().toString()} />
       </div>
-
       <div className="flex w-80 flex-col gap-2 py-4 text-base text-primary-text sm:mt-4">
         {ProfileFields.map((field, index) => (
           <div className="flex w-full flex-col justify-start gap-2" key={index}>

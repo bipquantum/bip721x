@@ -2,7 +2,6 @@ import { useAuth } from "@ic-reactor/react";
 import { Link } from "react-router-dom";
 
 import LogoSvg from "../../../assets/logo.png";
-import MenuSvg from "../../../assets/menu.svg";
 import ProfileSvg from "../../../assets/profile.png";
 import { backendActor } from "../../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../constants";
@@ -25,11 +24,6 @@ const Main = () => {
       <div className="flex w-full items-center justify-between py-8 pr-4 sm:p-16">
         <Link to={"/"}>
           <img src={LogoSvg} className="h-14 dark:invert" alt="Logo" />
-          <img
-            src={MenuSvg}
-            className="block h-8 dark:invert sm:hidden"
-            alt="Logo"
-          />
         </Link>
         <div className="hidden items-center justify-center gap-x-16 sm:flex">
           <Link to={"/about"}>About</Link>
