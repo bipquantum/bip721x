@@ -22,7 +22,7 @@ const Main = () => {
   return (
     <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-lg text-white">
       <div className="flex w-full items-center justify-between py-8 pr-4 sm:p-16">
-        <Link to={"/"}>
+        <Link to={"/"} className="hidden sm:flex">
           <img src={LogoSvg} className="h-14 dark:invert" alt="Logo" />
         </Link>
         <div className="hidden items-center justify-center gap-x-16 sm:flex">
@@ -35,8 +35,8 @@ const Main = () => {
           <img src={ProfileSvg} className="h-10 rounded-full" alt="Logo" />
         </Link>
       </div>
-      <div className="flex h-full flex-col items-center justify-center">
-        <div className="mx-4 flex w-full flex-col items-center justify-center gap-6 rounded-2xl bg-white p-12 py-8 text-center font-bold text-secondary sm:w-[440px]">
+      <div className="flex h-full flex-col items-center">
+        <div className="mx-4 flex w-full flex-col items-center gap-6 rounded-2xl bg-white p-12 text-center font-bold text-secondary sm:w-[440px]">
           <p className="w-full px-4 text-start">IP Creation Option</p>
           <Link to={"/dashboard"} className="w-full rounded-2xl border-[2px] border-secondary bg-white py-2">
             AI-Assisted IP Creation

@@ -15,9 +15,9 @@ type MachineEvent = BIPCertificateEvent | { type: string };
 
 const bIPQuantumUrl = process.env.DFX_NETWORK == 'local' ? "http://localhost:3000" : `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io`;
 
-export const VERSION_MAJOR = 0;
-export const VERSION_MINOR = 1;
-export const VERSION_PATCH = 0;
+const VERSION_MAJOR = 0;
+const VERSION_MINOR = 1;
+const VERSION_PATCH = 0;
 
 export const machine = createMachine<
   MachineContext,
@@ -32,6 +32,7 @@ export const machine = createMachine<
   EventObject,
   MetaObject
 >({
+  version: `${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}`,
   context: {
     intPropId: undefined,
   },

@@ -76,9 +76,10 @@ module {
     public func createChatHistory({
       caller: Principal;
       id: Text;
+      version: Text;
       date: Time;
     }) : Result<(), Text> {
-      chatBotHistory.createChatHistory({caller; id; date});
+      chatBotHistory.createChatHistory({caller; id; version; date});
     };
 
     public func deleteChatHistory({

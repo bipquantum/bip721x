@@ -13,6 +13,7 @@ import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/bip7
 import { TOKEN_DECIMALS_ALLOWED } from "../constants";
 import { bqcLedgerActor } from "../actors/BqcLedgerActor";
 import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did";
+import { useBalance } from "./BalanceContext";
 
 interface ListingDetailsProps {
   principal: Principal | undefined;
@@ -30,6 +31,8 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   
   const [isLoading, setIsLoading] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
+
+  const { refreshBalance } = useBalance();
 
   const { data: e8sPrice, call: getE8sPrice } = backendActor.useQueryCall({
     functionName: "get_e8s_price",
@@ -109,6 +112,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               toast.success("Success");
               getE8sPrice().finally(() => {
                 updateBipDetails();
+                if (principal !== undefined){
+                  refreshBalance([{ owner: principal, subaccount: [] }]);
+                };
               });
             } else {
               toast.warn("Failed to buy");

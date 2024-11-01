@@ -86,6 +86,9 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
 
     getChatHistory([{id}]).then((res) => {
       if (res !== undefined && 'ok' in res) {
+        if (res.ok.version !== machine.version) {
+          throw new Error("State machine version mismatch!");
+        };
         events = res.ok.events;
         prompts = res.ok.aiPrompts;
       }

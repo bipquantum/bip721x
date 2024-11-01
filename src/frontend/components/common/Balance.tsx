@@ -1,4 +1,3 @@
-import { bqcLedgerActor } from "../actors/BqcLedgerActor";
 import { fromE8s } from "../../utils/conversions";
 import { Principal } from "@dfinity/principal";
 
@@ -7,6 +6,7 @@ import { toast } from "react-toastify";
 import { TOKEN_DECIMALS_ALLOWED } from "../constants";
 import { backendActor } from "../actors/BackendActor";
 import { useEffect } from "react";
+import { useBalance } from "./BalanceContext";
 
 type BalanceProps = {
   principal: Principal;
@@ -14,15 +14,7 @@ type BalanceProps = {
 
 const Balance = ({ principal }: BalanceProps) => {
 
-  const { data: balance, call: refreshBalance } = bqcLedgerActor.useQueryCall({
-    functionName: "icrc1_balance_of",
-    args: [
-      {
-        owner: principal,
-        subaccount: [],
-      },
-    ],
-  });
+  const {balance, refreshBalance} = useBalance();
 
   const { call: aidropUser, loading: airdropUserLoading } = backendActor.useUpdateCall({
     functionName: "airdrop_user",
@@ -43,7 +35,10 @@ const Balance = ({ principal }: BalanceProps) => {
       } else {
         toast.success("Airdrop succeeded!");
         checkAirdropAvailability();
-        refreshBalance();
+        refreshBalance([{
+          owner: principal,
+          subaccount: [],
+        }]);
       }
     });
   };

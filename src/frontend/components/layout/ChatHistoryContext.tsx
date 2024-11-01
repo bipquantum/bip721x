@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { backendActor } from "../actors/BackendActor";
 import { ChatHistory } from "../../../declarations/backend/backend.did";
+import { machine } from "../pages/dashboard/botStateMachine";
 
 interface ChatHistoryContextType {
   chatHistories: ChatHistory[];
@@ -45,8 +46,13 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
   });
 
   const addChat = (): string => {
+
+    if (machine.version === undefined) {
+      throw new Error("Machine version not found");
+    };
+
     const newChatId = uuidv4();
-    createChatHistory([{ id: newChatId }]).then(() => {
+    createChatHistory([{ id: newChatId, version: machine.version }]).then(() => {
       fetchChatHistories();
     });
     return newChatId;

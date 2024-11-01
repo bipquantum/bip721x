@@ -27,6 +27,7 @@ module {
   public type ChatHistory = {
     id: Text;
     date: Time;
+    version: Text;
     events: Text;
     aiPrompts: Text;
   };

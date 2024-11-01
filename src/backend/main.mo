@@ -81,8 +81,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().getChatHistory({ caller; id; });
   };
 
-  public shared({caller}) func create_chat_history({id: Text;}) : async Result<(), Text> {
-    getController().createChatHistory({ caller; id; date = Time.now(); });
+  public shared({caller}) func create_chat_history({id: Text; version: Text;}) : async Result<(), Text> {
+    getController().createChatHistory({ caller; id; version; date = Time.now(); });
   };
 
   public shared({caller}) func delete_chat_history({id: Text;}) : async Result<(), Text> {

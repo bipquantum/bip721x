@@ -80,6 +80,7 @@ module {
     public func createChatHistory({
       caller: Principal;
       id: Text;
+      version: Text;
       date: Time;
     }) : Result<(), Text> {
         
@@ -100,7 +101,7 @@ module {
         return #err("Chat history already exists");
       };
 
-      Map.set(chatHistories.histories, Map.thash, id, {id; date; events = ""; aiPrompts = "";});
+      Map.set(chatHistories.histories, Map.thash, id, {id; date; version; events = ""; aiPrompts = "";});
       #ok;
     };
 
