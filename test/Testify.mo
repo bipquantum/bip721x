@@ -337,10 +337,15 @@ module {
         func compareIntProps(x: VIntProp, y: VIntProp) : Bool {
             switch(x, y) {
                 case(#V1(a), #V1(b)) { 
-                    a.title          == b.title       and
-                    a.description    == b.description and
-                    a.intPropType    == b.intPropType and
-                    a.intPropLicense == b.intPropLicense;
+                    a.title               == b.title               and
+                    a.description         == b.description         and
+                    a.intPropType         == b.intPropType         and
+                    a.intPropLicenses     == b.intPropLicenses     and
+                    a.creationDate        == b.creationDate        and
+                    a.publishing          == b.publishing          and
+                    a.dataUri             == b.dataUri             and
+                    a.percentageRoyalties == b.percentageRoyalties and
+                    a.author              == b.author;
                  };
             };
         };

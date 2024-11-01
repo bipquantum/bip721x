@@ -16,6 +16,11 @@ module {
 
   type Account             = ICRC7.Account;
 
+  type Royalties = {
+    percentage: Nat;
+    receiver: Principal;
+  };
+
   type TransferArgs = {
     buyer: Account;
     seller: Account;
@@ -23,33 +28,23 @@ module {
     e8s_price: Nat;
   };
 
+  type TradeArgs = TransferArgs and {
+    royalties: ?Royalties;
+  };
+
   public class TradeManager({
     stage_account: Account;
     fee: Nat;
   }) {
 
-    public func tradeIntProp(args: TransferArgs) : async* Result<(), Text> {
+    public func tradeIntProp(args: TradeArgs) : async* Result<(), Text> {
 
-      let { buyer: Account; seller: Account; token_id: Nat; e8s_price: Nat; } = args;
-
-      let stage_transfer = await* stageTransfer({
-        buyer = buyer;
-        seller = seller;
-        token_id = token_id;
-        e8s_price = e8s_price;
-      });
-
-      switch(stage_transfer){
+      switch(await* stageTransfer(args)){
         case(#err(err)){ return #err(err); };
         case(#ok){};
       };
 
-      await* executeTransfer({
-        buyer = buyer;
-        seller = seller;
-        token_id = token_id;
-        e8s_price = e8s_price;
-      });
+      await* executeTransfer(args);
 
       #ok;
     };
@@ -109,9 +104,9 @@ module {
       };
     };
 
-    func executeTransfer(args: TransferArgs) : async* () {
+    func executeTransfer(args: TradeArgs) : async* () {
 
-      let { buyer: Account; seller: Account; token_id: Nat; e8s_price: Nat; } = args;
+      let { buyer: Account; seller: Account; token_id: Nat; e8s_price: Nat; royalties: ?Royalties; } = args;
 
       // Transfer the intellectual property to the buyer
       let ip_transfer = extractSingleTransfer(await BIP721Ledger.icrc7_transfer([{
@@ -127,11 +122,43 @@ module {
         case(#ok(_)){};
       };
 
+      var seller_amount = e8s_price;
+
+      switch(royalties){
+        case(null){};
+        case(?{ percentage; receiver }){
+
+          if (receiver != seller.owner){
+            // Calculate the royalties
+            let royalties_amount = (seller_amount * percentage) / 100;
+
+            // Transfer ICPs to the receiver of the royalties
+            // TODO: One should find a way to set the subaccount of the receiver
+            let royalties_transfer = await BQCLedger.icrc1_transfer({
+              from_subaccount = stage_account.subaccount;
+              to = { owner = receiver; subaccount = null; };
+              amount = royalties_amount - fee;
+              fee = null;
+              memo = null;
+              created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
+            });
+
+            switch(royalties_transfer){
+              case(#Err(err)){ Debug.print("Transfer of royalties failed: " # debug_show(err)); };
+              case(#Ok(_)){};
+            };
+
+            // Do not forget to subtract the royalties from the amount to be transferred to the seller
+            seller_amount -= royalties_amount;
+          };
+        };
+      };
+
       // Transfer the ICPs to the seller
       let icp_transfer = await BQCLedger.icrc1_transfer({
         from_subaccount = stage_account.subaccount;
         to = seller;
-        amount = e8s_price - fee;
+        amount = seller_amount - fee;
         fee = null;
         memo = null;
         created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));

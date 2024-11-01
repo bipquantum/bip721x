@@ -125,20 +125,21 @@ module {
 
   public func intPropToValue(intProp: IntProp) : ICRC7.Value {
     #Map([
-      ("title",           #Text(intProp.title)),
-      ("description",     #Text(intProp.description)),
-      ("intPropType",     #Nat(intPropTypeToNat(intProp.intPropType))),
-      ("intPropLicenses", #Array(Array.map(intProp.intPropLicenses, func(license: IntPropLicense) : ICRC7.Value { #Nat(intPropLicenseToNat(license)); }))),
-      ("creationDate",    #Int(intProp.creationDate)),
-      ("publishing",      #Array(switch(intProp.publishing) {
+      ("title",               #Text(intProp.title)),
+      ("description",         #Text(intProp.description)),
+      ("intPropType",         #Nat(intPropTypeToNat(intProp.intPropType))),
+      ("intPropLicenses",     #Array(Array.map(intProp.intPropLicenses, func(license: IntPropLicense) : ICRC7.Value { #Nat(intPropLicenseToNat(license)); }))),
+      ("creationDate",        #Int(intProp.creationDate)),
+      ("publishing",          #Array(switch(intProp.publishing) {
         case(?d) { [#Map([
-          ("date",        #Int(d.date)),
-          ("countryCode", #Text(d.countryCode)),
+          ("date",            #Int(d.date)),
+          ("countryCode",     #Text(d.countryCode)),
         ])]; }; 
         case(null) { [] };
       })),
-      ("author",          #Text(Principal.toText(intProp.author))),
-      ("dataUri",         #Text(intProp.dataUri)),
+      ("author",              #Text(Principal.toText(intProp.author))),
+      ("dataUri",             #Text(intProp.dataUri)),
+      ("percentageRoyalties", #Array(Option.getMapped(intProp.percentageRoyalties, func(n: Nat) : [ICRC7.Value] { [#Nat(n)]; }, []))),
     ]);
   };
 
@@ -153,6 +154,7 @@ module {
         var publishing : ??PublishingInfo = null;
         var author : ?Principal = null;
         var dataUri : ?Text = null;
+        var percentageRoyalties : ??Nat = null;
         for ((k, v) in Array.vals(map)){
           switch(k){
             case("title")           { title := ?unwrapText(v);                         };
@@ -175,12 +177,17 @@ module {
             };
             case("author")          { author := ?Principal.fromText(unwrapText(v));    };
             case("dataUri")         { dataUri := ?unwrapText(v);                       };
+            case("percentageRoyalties") { 
+              percentageRoyalties := ?Option.map(unwrapOpt(v), func(v: ICRC7.Value) : Nat {
+                unwrapNat(v);
+              });
+            };
             case(_)                 { Debug.trap("Unexpected value");                  };
           };
         };
-        switch(title, description, intPropType, intPropLicenses, creationDate, publishing, author, dataUri){
-          case(?title, ?description, ?intPropType, ?intPropLicenses, ?creationDate, ?publishing, ?author, ?dataUri){
-            return { title; description; intPropType; intPropLicenses; creationDate; publishing; author; dataUri; };
+        switch(title, description, intPropType, intPropLicenses, creationDate, publishing, author, dataUri, percentageRoyalties){
+          case(?title, ?description, ?intPropType, ?intPropLicenses, ?creationDate, ?publishing, ?author, ?dataUri, ?percentageRoyalties){
+            return { title; description; intPropType; intPropLicenses; creationDate; publishing; author; dataUri; percentageRoyalties; };
           };
           case(_){
             Debug.trap("Unexpected intProp metadata");

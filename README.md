@@ -47,8 +47,5 @@ mops test
 - once created, IP shall not be listed on the marketplace yet, but only in the user's owned IP
 
 ## TODOs
-- verify initial arguments of ledgers
-- verify hardcoding arguments in bip721_ledger and bqc_ledger do not compromize upgrades
 - in the chatbot, the link to the minted bIP is not working (because the context does not update on transition)
 - add versionning to the state machine
-- fix "Transfer of IP failed: #Unauthorized" when transfering an IP that has already been transferred

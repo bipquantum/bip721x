@@ -234,6 +234,22 @@ module {
         return #err("You cannot buy your own IP");
       };
 
+      let metadata = await BIP721Ledger.icrc7_token_metadata([id]);
+
+      if (metadata.size() != 1){
+        return #err("IP not found");
+      };
+
+      let intProp = switch(Conversions.metadataToIntProp(metadata[0])){
+        case(#V1(ip)) { ip; };
+      };
+      
+      let royalties = Option.map(
+        intProp.percentageRoyalties,
+        func(percentage : Nat) : { receiver: Principal; percentage: Nat; } {
+          { receiver = intProp.author; percentage; };
+        });
+
       // Perform the trade
       let trade = await* tradeManager.tradeIntProp({
         buyer = {
@@ -244,6 +260,7 @@ module {
           owner = seller;
           subaccount = null;
         };
+        royalties;
         token_id = id;
         e8s_price = e8s_price;
       });

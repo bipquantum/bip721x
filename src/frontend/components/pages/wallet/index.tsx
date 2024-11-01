@@ -25,14 +25,14 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
   }
 
   return (
-    <div className="flex grid grid-cols-9 gap-2 sm:p-8 shadow border-2 border-tertiary hover:border-primary bg-tertiary sm:rounded-lg text-white mx-3 my-1 items-center">
+    <div className="flex grid sm:grid-cols-3 md:grid-cols-9 gap-2 sm:p-8 shadow border-2 border-tertiary hover:border-primary bg-tertiary sm:rounded-lg text-white mx-3 my-1 items-center">
       <Link className="col-span-2 text-xl" to={`/bip/${intPropId.toString()}`}>{intProp.ok.V1.title}</Link>
-      <Link className="col-span-2"  to={`/bip/${intPropId.toString()}`}>{formatDate(timeToDate(intProp.ok.V1.creationDate))}</Link>
-      <div className="col-span-2">
-        <GenerateCertificate intPropId={intPropId.toString()} intProp={intProp.ok.V1}/>
-      </div>
-      <div className="col-span-3 self-end justify-self-end">
+      <Link className="col-span-1"  to={`/bip/${intPropId.toString()}`}>{formatDate(timeToDate(intProp.ok.V1.creationDate))}</Link>
+      <div className="col-span-3">
         <ListingDetails principal={principal} owner={principal} intPropId={intPropId} updateBipDetails={() => {}} />
+      </div>
+      <div className="col-span-3 justify-self-end">
+        <GenerateCertificate intPropId={intPropId.toString()} intProp={intProp.ok.V1}/>
       </div>
     </div>
   );

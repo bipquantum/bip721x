@@ -109,12 +109,15 @@ const INITIAL_INT_PROP_INPUT: IntPropInput = {
   description: "",
   creationDate: dateToTime(new Date()),
   publishing: [],
+  percentageRoyalties: [],
 };
 
 const DEFAULT_PUBLISHING = {
   date: dateToTime(new Date()),
   countryCode: DEFAULT_COUNTRY_CODE,
 };
+
+const DEFAULT_PERCENTAGE_ROYALTIES = 2n;
 
 interface NewIPModalProps {
   user: User;
@@ -124,11 +127,11 @@ interface NewIPModalProps {
 
 const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   
-  const [step,           setStep          ] = useState(1);
-  const [isLoading,      setIsLoading     ] = useState(false);
-  const [intPropInput,   setIntPropInput  ] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
-  const [dataUri,        setDataUri       ] = useState("");
-  const [ipId,           setIpId          ] = useState<bigint | undefined>(undefined);
+  const [step,         setStep        ] = useState(1);
+  const [isLoading,    setIsLoading   ] = useState(false);
+  const [intPropInput, setIntPropInput] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
+  const [dataUri,      setDataUri     ] = useState("");
+  const [ipId,         setIpId        ] = useState<bigint | undefined>(undefined);
 
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
@@ -347,7 +350,36 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                     type="date"
                   />
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1">
+                  <label className="inline-flex items-center cursor-pointer">
+                    <div className="px-4 font-semibold">Royalties</div>
+                    <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
+                      return {...intProp, percentageRoyalties: fromNullable(intProp.percentageRoyalties) ? [] : [DEFAULT_PERCENTAGE_ROYALTIES]};
+                    })} />
+                    <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
+                  </label>
+                  {
+                    fromNullable(intPropInput.percentageRoyalties) !== undefined && (
+                      <div className="flex flex-row items-center gap-1 justify-between">
+                        <div className="px-4 font-semibold">Percentage</div>
+                        <input
+                          className="flex rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none w-20"
+                          placeholder=""
+                          value={fromNullable(intPropInput.percentageRoyalties)?.toString()}
+                          onChange={(e) => {
+                            setIntPropInput((intProp) => {
+                              return {...intProp, percentageRoyalties: [BigInt(e.target.value)] };
+                            });
+                          }}
+                          max={20}
+                          min={1}
+                          type="number"
+                        />
+                      </div>
+                    )
+                  }
+                </div>
+                <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1">
                   <label className="inline-flex items-center cursor-pointer">
                     <div className="px-4 font-semibold">Publishing</div>
                     <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
@@ -356,33 +388,37 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                     <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
                   </label>
                   {
-                    fromNullable(intPropInput.publishing) && ( 
+                    fromNullable(intPropInput.publishing) !== undefined && ( 
                     <div className="flex flex-col gap-1">
-                      <div className="px-4 font-semibold">Date</div>
-                      <input
-                        className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
-                        placeholder=""
-                        value={ getPublishingDate(intPropInput) }
-                        onChange={(e) => {
-                          setIntPropInput((intProp) => {
+                      <div className="flex flex-row items-center gap-1 justify-between">
+                        <div className="px-4 font-semibold">Date</div>
+                        <input
+                          className="rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none"
+                          placeholder=""
+                          value={ getPublishingDate(intPropInput) }
+                          onChange={(e) => {
+                            setIntPropInput((intProp) => {
+                              return {...intProp, publishing: [{
+                                date: dateToTime(fromDateInputFormat(e.target.value)),
+                                countryCode: fromNullable(intProp.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode
+                              }]};
+                            })
+                          }}
+                          type="date"
+                        />
+                      </div>
+                      <div className="flex flex-row items-center gap-1 justify-between">
+                        <div className="px-4 font-semibold">Country</div>
+                        <ReactCountryDropdown 
+                          defaultCountry={DEFAULT_PUBLISHING.countryCode}
+                          onSelect={(val) => setIntPropInput((intProp) => {
                             return {...intProp, publishing: [{
-                              date: dateToTime(fromDateInputFormat(e.target.value)),
-                              countryCode: fromNullable(intProp.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode
+                              date: fromNullable(intProp.publishing)?.date ?? DEFAULT_PUBLISHING.date,
+                              countryCode: val.code
                             }]};
-                          })
-                        }}
-                        type="date"
-                      />
-                      <div className="px-4 font-semibold">Country</div>
-                      <ReactCountryDropdown 
-                        defaultCountry={DEFAULT_PUBLISHING.countryCode}
-                        onSelect={(val) => setIntPropInput((intProp) => {
-                          return {...intProp, publishing: [{
-                            date: fromNullable(intProp.publishing)?.date ?? DEFAULT_PUBLISHING.date,
-                            countryCode: val.code
-                          }]};
-                        })}
-                      />
+                          })}
+                        />
+                      </div>
                     </div>
                     )
                   }

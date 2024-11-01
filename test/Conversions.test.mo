@@ -19,11 +19,12 @@ suite("Conversions", func(){
             ("title", #Text("title")),
             ("description", #Text("description")),
             ("intPropType", #Nat(V1Conversions.intPropTypeToNat(#COPYRIGHT))),
-            ("intPropLicense", #Nat(V1Conversions.intPropLicenseToNat(#SAAS))),
+            ("intPropLicenses", #Array([#Nat(V1Conversions.intPropLicenseToNat(#GAME_FI)), #Nat(V1Conversions.intPropLicenseToNat(#META_USE))])),
             ("creationDate", #Int(0)),
-            ("publishingDate", #Array([#Int(1)])),
+            ("publishing", #Array([#Map([("date", #Int(1)), ("countryCode", #Text("FR"))])])),
             ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae")),
             ("dataUri", #Text("dataUri")),
+            ("percentageRoyalties", #Array([#Nat(2)]))
           ]))
         ])
       )
@@ -33,11 +34,12 @@ suite("Conversions", func(){
       title = "title";
       description = "description";
       intPropType = #COPYRIGHT;
-      intPropLicense = #SAAS;
+      intPropLicenses = [#GAME_FI, #META_USE];
       creationDate = 0;
-      publishingDate = ?1;
+      publishing = ?{ date = 1; countryCode = "FR"; };
       author = Principal.fromText("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae");
       dataUri = "dataUri";
+      percentageRoyalties = ?2;
     });
 
     verify(Conversions.metadataToIntProp(actual), expected, Testify.intProp.equal);
@@ -49,10 +51,12 @@ suite("Conversions", func(){
       title = "title";
       description = "description";
       intPropType = #COPYRIGHT;
-      intPropLicense = #SAAS;
+      intPropLicenses = [#GAME_FI, #META_USE];
       creationDate = 0;
-      publishingDate = 1;
+      publishing = ?{ date = 1; countryCode = "FR"; };
       author = Principal.fromText("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae");
+      dataUri = "dataUri";
+      percentageRoyalties = ?2;
     }];
 
     let _ = #Class(
@@ -63,10 +67,12 @@ suite("Conversions", func(){
           ("title", #Text("title")),
           ("description", #Text("description")),
           ("intPropType", #Nat(V1Conversions.intPropTypeToNat(#COPYRIGHT))),
-          ("intPropLicense", #Nat(V1Conversions.intPropLicenseToNat(#SAAS))),
+          ("intPropLicenses", #Array([#Nat(V1Conversions.intPropLicenseToNat(#GAME_FI)), #Nat(V1Conversions.intPropLicenseToNat(#META_USE))])),
           ("creationDate", #Int(0)),
-          ("publishingDate", #Int(1)),
-          ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae"))
+          ("publishing", #Array([#Map([("date", #Int(1)), ("countryCode", #Text("FR"))])])),
+          ("author", #Text("ftqps-w53nr-kacwj-ij5at-k4qja-yjq77-4zd37-mwamr-w37ng-66pj3-dae")),
+          ("dataUri", #Text("dataUri")),
+          ("percentageRoyalties", #Array([#Nat(2)]))
         ]);
       }]
     );

@@ -32,6 +32,7 @@ const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> =>
   }
 }
 
+// TODO: Add the percentage royalties once the field has been added to the PDF template
 const generatePdf = async (intPropId: string, intProp: IntProp, author: User) : Promise<Uint8Array> => {
 
   // Load the PDF template

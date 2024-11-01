@@ -133,6 +133,7 @@ async function testBuyIpThenBuyBack() {
     description: "Test IP description",
     creationDate: dateToTime(new Date()),
     publishing: [],
+    percentageRoyalties: [],
   });
   console.log(create_int_prop_result);
   let token_id = create_int_prop_result.ok;

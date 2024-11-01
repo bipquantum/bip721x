@@ -38,6 +38,7 @@ module {
     creationDate: Time;
     publishing: ?PublishingInfo;
     dataUri: Text;
+    percentageRoyalties: ?Nat;
   };
 
   public type IntProp = IntPropInput and {

@@ -84,8 +84,8 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
             <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
               {intProp.ok.V1.dataUri && <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
               }
-              <div className="text-sm">
-                <div className="py-2 text-base font-bold">
+              <div className="flex flex-col">
+                <div className="py-2 text-xl text-base font-bold">
                   {intProp.ok.V1.title}
                 </div>
                 <div className="flex flex-col gap-2 text-lg">
@@ -102,6 +102,11 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                       formatDate(timeToDate(intProp.ok.V1.creationDate))
                     }
                   </p>
+                  {
+                    fromNullable(intProp.ok.V1.percentageRoyalties) !== undefined && <p>
+                      Royalties: {fromNullable(intProp.ok.V1.percentageRoyalties)?.toString()}%
+                    </p>
+                  }
                   {
                     fromNullable(intProp.ok.V1.publishing) && <p>
                       Publishing Date:{" "}

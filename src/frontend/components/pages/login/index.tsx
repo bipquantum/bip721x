@@ -51,9 +51,9 @@ const Login = () => {
             Connect with
             <img src={DfinitySvg} className="h-4" alt="Logo" />
           </button>
-          <div className="relative group">
+          <div className="relative group flex w-11/12 items-center justify-center rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]">
             <button
-              className="flex w-11/12 items-center justify-center gap-x-2 rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px] opacity-50"
+              className="opacity-50 flex flex-row items-center gap-x-2"
               onClick={() => {
                 login({
                   identityProvider: `https://nfid.one/authenticate${CONFIG_QUERY}`,
