@@ -18,9 +18,9 @@ module {
       body = ?body;
       transform = null;
       headers= [
-        { name = "idempotency-key"; value = "idempotency_key_001"                                        },
-        { name = "content-type"   ; value = "application/json"                                           },
-        { name = "Authorization"  ; value = "Bearer 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" },
+        { name = "idempotency-key"; value = "idempotency_key_001"                                                                                                                                                         },
+        { name = "content-type"   ; value = "application/json"                                                                                                                                                            },
+        { name = "Authorization"  ; value = "Bearer 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" },
       ];
     });
 

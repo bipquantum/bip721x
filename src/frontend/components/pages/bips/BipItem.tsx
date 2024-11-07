@@ -1,40 +1,39 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { backendActor } from "../../actors/BackendActor";
 import {
-  fromE8s,
+  fromNullableExt,
   intPropLicenseToString,
   intPropTypeToString,
 } from "../../../utils/conversions";
 import FilePreview from "../../common/FilePreview";
 
 import AIBotImg from "../../../assets/ai-bot.png";
-import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
+import { Principal } from "@dfinity/principal";
+import ListingDetails from "../../common/ListingDetails";
 
-interface IPItemProps {
+interface BipItemProps {
+  principal: Principal;
   intPropId: bigint;
 }
 
-const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
+const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
   
-  const [price, setPrice] = useState("");
+  const [owner, setOwner] = useState<Principal | undefined>(undefined);
+
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
   });
 
-  const { data: e8sPrice } = backendActor.useQueryCall({
-    functionName: "get_e8s_price",
-    args: [{ token_id: intPropId }],
+  const {} = backendActor.useQueryCall({
+    functionName: "owner_of",
+    args: [{ token_id: BigInt(intPropId) }],
+    onSuccess(data) {
+      setOwner(fromNullableExt(data));
+    },
   });
-
-  useEffect(() => {
-    if (e8sPrice && "ok" in e8sPrice) {
-      const price = fromE8s(e8sPrice.ok).toFixed(TOKEN_DECIMALS_ALLOWED);
-      setPrice(price);
-    } else setPrice("");
-  }, [e8sPrice]);
 
   return (
     <>
@@ -81,13 +80,7 @@ const BipItem: React.FC<IPItemProps> = ({ intPropId }) => {
                 Licenses: {intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}
               </p>
             }
-            <div className="flex items-center justify-between text-lg font-bold sm:text-[22px]">
-              {price !== "" ? (
-                <div className="font-bold">{price} bQC</div>
-              ) : (
-                <div></div>
-              )}
-            </div>
+            { owner && <ListingDetails principal={principal} owner={owner} intPropId={intPropId} updateBipDetails={() => {}} /> }
           </div>
         </Link>
       )}

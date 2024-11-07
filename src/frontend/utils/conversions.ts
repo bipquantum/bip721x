@@ -1,3 +1,4 @@
+import { fromNullable } from "@dfinity/utils";
 import { IntPropLicense, IntPropType } from "../../declarations/backend/backend.did";
 
 export function intPropLicenseToString(license: IntPropLicense): string {
@@ -93,3 +94,10 @@ export const formatDateTime = (date: Date) : string => {
 export const formatDate = (date: Date) : string => {
   return date.toLocaleDateString();
 }
+
+export const fromNullableExt = <T>(value: [T] | [] | undefined) : T | undefined => {
+  if (value === undefined)
+    return undefined;
+  else 
+    return fromNullable(value);
+};

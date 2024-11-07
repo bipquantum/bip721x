@@ -14,7 +14,7 @@ type BalanceProps = {
 
 const Balance = ({ principal }: BalanceProps) => {
 
-  const {balance, refreshBalance} = useBalance();
+  const { balance, refreshBalance } = useBalance();
 
   const { call: aidropUser, loading: airdropUserLoading } = backendActor.useUpdateCall({
     functionName: "airdrop_user",
@@ -44,6 +44,7 @@ const Balance = ({ principal }: BalanceProps) => {
   };
 
   useEffect(() => {
+    refreshBalance([{ owner: principal, subaccount: [] }]);
     checkAirdropAvailability();
   }
   , []);

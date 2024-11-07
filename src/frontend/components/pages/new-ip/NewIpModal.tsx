@@ -246,6 +246,21 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                 />
               </div>
               <div className="flex flex-col gap-1 w-full">
+                <div className="px-4 font-semibold">Description of the IP</div>
+                <textarea
+                  className="rounded-2xl w-full border border-none bg-tertiary px-4 py-2 text-white outline-none"
+                  placeholder="Description of the IP"
+                  value={intPropInput.description}
+                  onChange={(e) => {
+                    setIntPropInput({
+                      ...intPropInput,
+                      description: e.target.value,
+                    });
+                  }}
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">IP Type</div>
                 <Select
                   value={
@@ -284,6 +299,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                     menuButton: () =>
                       "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
                     menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
+                    listItem: () => `px-2 py-1 cursor-pointer text-gray-300 hover:bg-gray-300 hover:text-blue-500`,
                   }}
                 />
               </div>
@@ -318,6 +334,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                     menuButton: () =>
                       "rounded-2xl border-none bg-tertiary text-white flex items-center justify-between px-2",
                     menu: "border-none bg-tertiary text-white flex items-center justify-between absolute z-10 mx-4 py-2",
+                    listItem: () => `px-2 py-1 cursor-pointer text-gray-300 hover:bg-gray-300 hover:text-blue-500`,
                   }}
                 />
               </div>

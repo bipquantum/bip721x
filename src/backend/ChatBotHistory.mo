@@ -82,6 +82,7 @@ module {
       id: Text;
       version: Text;
       date: Time;
+      name: Text;
     }) : Result<(), Text> {
         
       if (Principal.isAnonymous(caller)){
@@ -101,7 +102,7 @@ module {
         return #err("Chat history already exists");
       };
 
-      Map.set(chatHistories.histories, Map.thash, id, {id; date; version; events = ""; aiPrompts = "";});
+      Map.set(chatHistories.histories, Map.thash, id, {id; date; version; name; events = ""; aiPrompts = "";});
       #ok;
     };
 
@@ -126,6 +127,31 @@ module {
         case(null) { Debug.trap("Chat history not found"); };
         case(?h) {
           Map.set(chatHistories.histories, Map.thash, id, {h with events; aiPrompts;});
+          #ok;
+        };
+      };
+    };
+
+    public func renameChatHistory({
+      caller: Principal;
+      id: Text;
+      name: Text;
+    }) : Result<(), Text> {
+
+      let ids = switch(Map.get(chatHistories.byPrincipal, Map.phash, caller)){
+        case(null) { return #err("Chat history not found"); };
+        case(?k) { k; };
+      };
+
+      // Verify that the chat history exists
+      if (not Set.has(ids, Set.thash, id)){
+        return #err("Chat history not found");
+      };
+
+      switch(Map.get(chatHistories.histories, Map.thash, id)){
+        case(null) { Debug.trap("Chat history not found"); };
+        case(?h) {
+          Map.set(chatHistories.histories, Map.thash, id, { h with name });
           #ok;
         };
       };

@@ -1,13 +1,13 @@
 import React from "react";
 
 type ToggleSwitchProps = {
-  vaule: boolean;
+  value: boolean;
   setValue: (value: boolean) => void;
 };
 
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ setValue, vaule }) => {
+const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ setValue, value }) => {
   const onToggle = () => {
-    setValue(!vaule);
+    setValue(!value);
   };
 
   return (
@@ -19,13 +19,13 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ setValue, vaule }) => {
         type="checkbox"
         id="toggle"
         className="sr-only" // sr-only is a Tailwind CSS class to hide input visually but keep it accessible
-        checked={vaule}
+        checked={value}
         onChange={onToggle}
       />
       <span className="block h-full w-full rounded-full bg-gray-200 shadow-inner"></span>
       <span
         className={`${
-          vaule ? "translate-x-6" : "translate-x-0"
+          value ? "translate-x-6" : "translate-x-0"
         } absolute left-1 top-1 h-6 w-6 rounded-full bg-blue-500 shadow transition-transform duration-200 ease-in-out`}
       ></span>
     </label>

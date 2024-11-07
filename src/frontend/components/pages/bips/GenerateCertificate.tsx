@@ -11,6 +11,9 @@ import { fromNullable } from "@dfinity/utils";
 
 // @ts-ignore
 import { getName } from "country-list";
+import VioletButton from "../../common/VioletButton";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> => {
   try {
@@ -124,19 +127,40 @@ interface GenerateCertificateProps {
 
 const GenerateCertificate: React.FC<GenerateCertificateProps> = ({ intPropId, intProp }) => {
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const { data: author } = backendActor.useQueryCall({
     functionName: "get_user",
     args: [intProp.author],
   });
 
+  const downloadCertificate = () => {
+    if (isLoading || author === undefined || author.length === 0) {
+      return;
+    }
+    setIsLoading(true);
+    generatePdf(intPropId, intProp, author[0])
+    .then((pdfData) => {
+      return download(pdfData, `bIP${intPropId}_certificate.pdf`);
+    })
+    .then(() => {
+      setIsLoading(false);
+    })
+    .catch((error) => {
+      setIsLoading(false); // Ensure loading state is reset even if there's an error
+      console.error("Error generating or downloading PDF:", error);
+      toast.error("Error generating or downloading PDF");
+    });
+  }
+
   return (
     (author === undefined || author.length === 0) ? <></> : (
-      <button 
-        className="rounded-lg bg-violet-700 w-full px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
-        onClick={async () => { generatePdf(intPropId, intProp, author[0]).then((data) => download(data, `bIP${intPropId}_certificate.pdf`)); }}
+      <VioletButton 
+        onClick={() => downloadCertificate()}
+        isLoading={isLoading}
       >
         Generate Certificate
-      </button>
+      </VioletButton>
     )
   );
 }

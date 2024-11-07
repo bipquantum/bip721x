@@ -48,7 +48,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_1_0(stableData)) {
+      case(#v0_2_0(stableData)){
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
@@ -60,6 +60,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
           });
         });
       };
+      case(_) { Debug.trap("Unexpected state version: v0_2_0 expected"); };
     };
     
     #ok;
@@ -81,8 +82,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().getChatHistory({ caller; id; });
   };
 
-  public shared({caller}) func create_chat_history({id: Text; version: Text;}) : async Result<(), Text> {
-    getController().createChatHistory({ caller; id; version; date = Time.now(); });
+  public shared({caller}) func create_chat_history({id: Text; version: Text; name: Text;}) : async Result<(), Text> {
+    getController().createChatHistory({ caller; id; version; name; date = Time.now(); });
   };
 
   public shared({caller}) func delete_chat_history({id: Text;}) : async Result<(), Text> {
@@ -91,6 +92,10 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public shared({caller}) func update_chat_history({id: Text; events: Text; aiPrompts: Text}) : async Result<(), Text> {
     getController().updateChatHistory({ caller; id; events; aiPrompts; });
+  };
+
+  public shared({caller}) func rename_chat_history({id: Text; name: Text;}) : async Result<(), Text> {
+    getController().renameChatHistory({ caller; id; name; });
   };
 
   public shared({caller}) func create_int_prop(args: IntPropInput) : async CreateIntPropResult {

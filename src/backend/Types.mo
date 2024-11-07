@@ -1,5 +1,5 @@
 import IntPropTypes "intprop/Types";
-import CurrentTypes "migrations/00-01-00-initial/Types";
+import Types "migrations/Types";
 
 import Result "mo:base/Result";
 
@@ -14,11 +14,11 @@ module {
   public type IntPropInput      = IntPropTypes.IntPropInput;
   public type IntProp           = IntPropTypes.IntProp;
 
-  public type IntPropRegister = CurrentTypes.IntPropRegister;
-  public type User            = CurrentTypes.User;
-  public type ChatHistory     = CurrentTypes.ChatHistory;
-  public type ChatHistories   = CurrentTypes.ChatHistories;
-  public type Airdrop         = CurrentTypes.Airdrop;
+  public type IntPropRegister = Types.Current.IntPropRegister;
+  public type User            = Types.Current.User;
+  public type ChatHistory     = Types.Current.ChatHistory;
+  public type ChatHistories   = Types.Current.ChatHistories;
+  public type Airdrop         = Types.Current.Airdrop;
 
   public type SAirdropInfo = {
     allowed_per_user: Nat;

@@ -78,8 +78,9 @@ module {
       id: Text;
       version: Text;
       date: Time;
+      name: Text;
     }) : Result<(), Text> {
-      chatBotHistory.createChatHistory({caller; id; version; date});
+      chatBotHistory.createChatHistory({caller; id; version; date; name;});
     };
 
     public func deleteChatHistory({
@@ -96,6 +97,14 @@ module {
       aiPrompts: Text;
     }) : Result<(), Text> {
       chatBotHistory.updateChatHistory({caller; id; events; aiPrompts});
+    };
+
+    public func renameChatHistory({
+      caller: Principal;
+      id: Text;
+      name: Text;
+    }) : Result<(), Text> {
+      chatBotHistory.renameChatHistory({caller; id; name});
     };
 
     public func createIntProp(

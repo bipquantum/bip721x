@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Principal } from "@dfinity/principal";
 import { useParams } from "react-router-dom";
 import { fromNullable } from "@dfinity/utils";
@@ -6,6 +6,7 @@ import { fromNullable } from "@dfinity/utils";
 import { backendActor } from "../../actors/BackendActor";
 import {
   formatDate,
+  fromNullableExt,
   intPropLicenseToString,
   intPropTypeToString,
   timeToDate,
@@ -26,6 +27,7 @@ interface IPItemProps {
 }
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
+  
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
 
   const { ipId: intPropId } = useParams();
@@ -36,19 +38,18 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     args: [{ token_id: BigInt(intPropId) }],
   });
 
-  const { data: optOwner, call: getOptOwner } = backendActor.useQueryCall({
+  const { call: getOptOwner } = backendActor.useQueryCall({
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
+    onSuccess(data) {
+      setOwner(fromNullableExt(data));
+    },
   });
 
   const updateBipDetails = () => {
     getIntProp();
     getOptOwner();
   };
-
-  useEffect(() => {
-    setOwner(optOwner ? fromNullable(optOwner) : undefined);
-  }, [optOwner]);
 
   const getPublishingDate = (ip: IntProp) => {
 
@@ -87,6 +88,9 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               <div className="flex flex-col">
                 <div className="py-2 text-xl text-base font-bold">
                   {intProp.ok.V1.title}
+                </div>
+                <div className="py-2 text-md text-base">
+                  {intProp.ok.V1.description}
                 </div>
                 <div className="flex flex-col gap-2 text-lg">
                   <p> Type: {intPropTypeToString(intProp.ok.V1.intPropType)}</p>

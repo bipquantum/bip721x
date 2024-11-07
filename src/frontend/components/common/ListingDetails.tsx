@@ -6,7 +6,6 @@ import { useState } from "react";
 import { backendActor } from "../actors/BackendActor";
 import { dateToTime, fromE8s, toE8s } from "../../utils/conversions";
 
-import SpinnerSvg from "../../assets/spinner.svg";
 import { bip721LedgerActor } from "../actors/Bip721LedgerActor";
 import { canisterId } from "../../../declarations/backend";
 import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/bip721_ledger/bip721_ledger.did";
@@ -14,6 +13,7 @@ import { TOKEN_DECIMALS_ALLOWED } from "../constants";
 import { bqcLedgerActor } from "../actors/BqcLedgerActor";
 import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did";
 import { useBalance } from "./BalanceContext";
+import VioletButton from "./VioletButton";
 
 interface ListingDetailsProps {
   principal: Principal | undefined;
@@ -219,24 +219,19 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       if (getListedPrice() !== null) {
         // To unlist
         return (
-          <div className="flex w-full items-center space-x-2">
+          <div className="flex flex-row w-full items-center space-x-2 justify-between">
             <div className="text-lg font-bold">
               { getListedPrice() } bQC
             </div>
-            <button
-              onClick={() => triggerUnlist(intPropId)}
-              className="items-center justify-center rounded-lg bg-violet-700 w-32 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
-              type="button"
-              disabled={isLoading}
-            >
-              {isLoading ? <img src={SpinnerSvg} alt="" /> : "Unlist"}
-            </button>
+            <VioletButton isLoading={isLoading} onClick={() => triggerUnlist(intPropId)}>
+              Unlist
+            </VioletButton>
           </div>
         );
       } else {
         // To list
         return (
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row w-full items-center space-x-2 justify-between">
             <label
               htmlFor="e8sIcpPrice"
               className="flex items-center justify-center text-nowrap text-sm font-medium"
@@ -258,14 +253,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
                 );
               }}
             />
-            <button
-              onClick={() => triggerList(intPropId, sellPrice)}
-              className="items-center justify-center rounded-lg bg-violet-700 w-32 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
-              type="button"
-              disabled={isLoading}
-            >
-              {isLoading ? <img src={SpinnerSvg} alt="" /> : "List"}
-            </button>
+            <VioletButton isLoading={isLoading} onClick={() => triggerList(intPropId, sellPrice)}>
+              List
+            </VioletButton>
           </div>
         );
       }
@@ -274,18 +264,13 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 
   // To buy
   return (
-    <div className="flex w-full items-center justify-between">
-      <div className="text-primary text-lg font-bold">
+    <div className="flex flex-row space-x-2 w-full items-center justify-between">
+      <div className="text-lg font-bold">
         { getListedPrice() } bQC
       </div>
-      <button
-        onClick={() => triggerBuy(intPropId)}
-        className="items-center justify-center rounded-lg bg-violet-700 w-32 py-2.5 text-center text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
-        type="button"
-        disabled={isLoading}
-      >
-        {isLoading ? <img src={SpinnerSvg} alt="" /> : "Buy"}
-      </button>
+      <VioletButton isLoading={isLoading} onClick={() => triggerBuy(intPropId)}>
+        Buy
+      </VioletButton>
     </div>
   );
 };

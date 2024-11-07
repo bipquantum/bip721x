@@ -6,7 +6,8 @@ import { machine } from "../pages/dashboard/botStateMachine";
 
 interface ChatHistoryContextType {
   chatHistories: ChatHistory[];
-  addChat: () => string;
+  addChat: (name: string) => string;
+  renameChat: (chatId: string, name: string) => void;
   deleteChat: (chatId: string) => void;
 }
 
@@ -45,14 +46,21 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
     },
   });
 
-  const addChat = (): string => {
+  const { call: renameChatHistory } = backendActor.useUpdateCall({
+    functionName: "rename_chat_history",
+    onError: (error) => {
+      console.error("Error renaming chat history:", error);
+    },
+  });
+
+  const addChat = (name: string): string => {
 
     if (machine.version === undefined) {
       throw new Error("Machine version not found");
     };
 
     const newChatId = uuidv4();
-    createChatHistory([{ id: newChatId, version: machine.version }]).then(() => {
+    createChatHistory([{ id: newChatId, version: machine.version, name }]).then(() => {
       fetchChatHistories();
     });
     return newChatId;
@@ -64,8 +72,14 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
     });
   };
 
+  const renameChat = (chatId: string, name: string) => {
+    renameChatHistory([{ id: chatId, name }]).then(() => {
+      fetchChatHistories();
+    });
+  }
+
   return (
-    <ChatHistoryContext.Provider value={{ chatHistories, addChat, deleteChat }}>
+    <ChatHistoryContext.Provider value={{ chatHistories, addChat, deleteChat, renameChat }}>
       {children}
     </ChatHistoryContext.Provider>
   );

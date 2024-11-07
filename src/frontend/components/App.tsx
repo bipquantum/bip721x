@@ -12,7 +12,6 @@ import { Bip721LedgerActorProvider } from './actors/Bip721LedgerActor';
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
-import Balance from "./common/Balance";
 import { BalanceProvider } from "./common/BalanceContext";
 
 interface ThemeContextProps {
