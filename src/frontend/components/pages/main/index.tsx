@@ -23,7 +23,7 @@ const Main = () => {
     <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-lg text-white">
       <div className="flex w-full items-center justify-between py-8 pr-4 sm:p-16">
         <Link to={"/"} className="hidden sm:flex">
-          <img src={LogoSvg} className="h-14 dark:invert" alt="Logo" />
+          <img src={LogoSvg} className="h-14 invert" alt="Logo" />
         </Link>
         <div className="hidden items-center justify-center gap-x-16 sm:flex">
           <Link to={"/about"}>About</Link>
