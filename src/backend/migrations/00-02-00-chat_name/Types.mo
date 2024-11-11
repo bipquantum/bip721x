@@ -44,6 +44,12 @@ module {
     map_distributed: Map.Map<Principal, Nat>;
   };
 
+  public type AccessControl = {
+    var admin: Principal;
+    moderators: Set.Set<Principal>;
+    sensitiveIps: Set.Set<Nat>;
+  };
+
   public type State = {
     users: Map.Map<Principal, User>;
     airdrop: Airdrop;
@@ -53,6 +59,7 @@ module {
     };
     chatHistories: ChatHistories;
     e8sTransferFee: Nat;
+    accessControl: AccessControl;
   };
 
   public type Args = {
@@ -62,8 +69,8 @@ module {
     #none;
   };
 
-  public type InitArgs = { e8sTransferFee: Nat; airdrop_per_user: Nat; };
-  public type UpgradeArgs = {};
+  public type InitArgs = { e8sTransferFee: Nat; airdrop_per_user: Nat; admin: Principal; };
+  public type UpgradeArgs = { admin: Principal; };
   public type DowngradeArgs = {};
 
 };

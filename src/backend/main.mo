@@ -169,6 +169,38 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     #ok;
   };
 
+  public shared({caller}) func tag_sensitive_int_prop({ id: Nat; sensitive: Bool;}) : async Result<(), Text> {
+    getController().tagSensitiveIntProp({ caller; id; sensitive; });
+  };
+
+  public query func is_sensitive_int_prop({ id: Nat; }) : async Bool {
+    getController().isSensitiveIntProp({ id; });
+  };
+
+  public query func get_sensitive_int_props() : async [Nat] {
+    getController().getSensitiveIntProps();
+  };
+
+  public query func get_admin() : async Principal {
+    getController().getAdmin();
+  };
+
+  public shared({caller}) func set_admin({ admin: Principal; }) : async Result<(), Text> {
+    getController().setAdmin({ caller; admin; });
+  };
+
+  public query func get_moderators() : async [Principal] {
+    getController().getModerators();
+  };
+
+  public shared({caller}) func add_moderator({ moderator: Principal; }) : async Result<(), Text> {
+    getController().addModerator({ caller; moderator; });
+  };
+
+  public shared({caller}) func remove_moderator({ moderator: Principal; }) : async Result<(), Text> {
+    getController().removeModerator({ caller; moderator; });
+  };
+
   func getController() : Controller.Controller {
     switch(_controller){
       case (null) { Debug.trap("The controller is not initialized"); };

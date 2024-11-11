@@ -1,6 +1,7 @@
 set -ex
 
 dfx identity use default
+DEPLOYER_PRINCIPAL=$(dfx identity get-principal)
 DEPLOYER_ACCOUNT_ID=$(dfx ledger account-id)
 
 # Create all canisters
@@ -59,7 +60,7 @@ dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal 
 dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})'
 
 dfx deploy backend --argument 'variant {
-  init = record { e8sTransferFee = 10; airdrop_per_user = 100_000_000_000; }
+  init = record { e8sTransferFee = 10; airdrop_per_user = 100_000_000_000; admin = principal "'${DEPLOYER_PRINCIPAL}'" }
 }'
 
 ## Internet identity

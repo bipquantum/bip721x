@@ -224,7 +224,8 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               { getListedPrice() } bQC
             </div>
             <VioletButton isLoading={isLoading} onClick={() => triggerUnlist(intPropId)}>
-              Unlist
+              { "Unlist "}
+              <span style={{ filter: 'grayscale(100%)' }}>🏷️</span>
             </VioletButton>
           </div>
         );
@@ -254,7 +255,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               }}
             />
             <VioletButton isLoading={isLoading} onClick={() => triggerList(intPropId, sellPrice)}>
-              List
+              List 🏷️
             </VioletButton>
           </div>
         );
@@ -269,7 +270,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         { getListedPrice() } bQC
       </div>
       <VioletButton isLoading={isLoading} onClick={() => triggerBuy(intPropId)}>
-        Buy
+        Buy 🛒
       </VioletButton>
     </div>
   );

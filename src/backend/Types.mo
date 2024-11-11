@@ -19,6 +19,7 @@ module {
   public type ChatHistory     = Types.Current.ChatHistory;
   public type ChatHistories   = Types.Current.ChatHistories;
   public type Airdrop         = Types.Current.Airdrop;
+  public type AccessControl   = Types.Current.AccessControl;
 
   public type SAirdropInfo = {
     allowed_per_user: Nat;

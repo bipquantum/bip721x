@@ -1,3 +1,14 @@
+import Types             "Types";
+import Conversions       "intprop/Conversions";
+import TradeManager      "TradeManager";
+import ChatBotHistory    "ChatBotHistory";
+
+import BIP721Ledger      "canister:bip721_ledger";
+import BQCLedger         "canister:bqc_ledger";
+
+import Set               "mo:map/Set";
+import ICRC7             "mo:icrc7-mo";
+
 import Principal         "mo:base/Principal";
 import Result            "mo:base/Result";
 import Map               "mo:map/Map";
@@ -7,16 +18,6 @@ import Option            "mo:base/Option";
 import Int               "mo:base/Int";
 import Time              "mo:base/Time";
 import Nat64             "mo:base/Nat64";
-
-import Types             "Types";
-import Conversions       "intprop/Conversions";
-import TradeManager      "TradeManager";
-import ChatBotHistory    "ChatBotHistory";
-
-import ICRC7             "mo:icrc7-mo";
-
-import BIP721Ledger      "canister:bip721_ledger";
-import BQCLedger         "canister:bqc_ledger";
 
 module {
 
@@ -31,11 +32,13 @@ module {
   type CreateIntPropResult = Types.CreateIntPropResult;
   type Airdrop             = Types.Airdrop;
   type SAirdropInfo        = Types.SAirdropInfo;
+  type AccessControl       = Types.AccessControl;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
 
   public class Controller({
+    accessControl: AccessControl;
     users: Map.Map<Principal, User>;
     intProps: IntPropRegister;
     chatBotHistory: ChatBotHistory.ChatBotHistory;
@@ -380,6 +383,58 @@ module {
 
     public func setAirdropPerUser({ amount : Nat; }) {
       airdrop.allowed_per_user := amount;
+    };
+
+    public func tagSensitiveIntProp({ caller: Principal; id: Nat; sensitive: Bool;}) : Result<(), Text> {
+      if (caller != accessControl.admin and not Set.has(accessControl.moderators, Set.phash, caller)){
+        return #err("Only the admin or moderators can tag an IP as sensitive");
+      };
+      if (sensitive){
+        Set.add(accessControl.sensitiveIps, Set.nhash, id);
+      } else {
+        Set.delete(accessControl.sensitiveIps, Set.nhash, id);
+      };
+      #ok;
+    };
+
+    public func isSensitiveIntProp({ id: Nat; }) : Bool {
+      Set.has(accessControl.sensitiveIps, Set.nhash, id);
+    };
+
+    public func getSensitiveIntProps() : [Nat] {
+      Set.toArray(accessControl.sensitiveIps);
+    };
+
+    public func setAdmin({ caller: Principal; admin: Principal; }) : Result<(), Text> {
+      if (caller != accessControl.admin){
+        return #err("Only the admin can set a new admin");
+      };
+      accessControl.admin := admin;
+      #ok;
+    };
+
+    public func getAdmin() : Principal {
+      accessControl.admin;
+    };
+
+    public func addModerator({ caller: Principal; moderator: Principal; }) : Result<(), Text> {
+      if (caller != accessControl.admin){
+        return #err("Only the admin can add a moderator");
+      };
+      Set.add(accessControl.moderators, Set.phash, moderator);
+      #ok;
+    };
+
+    public func removeModerator({ caller: Principal; moderator: Principal; }) : Result<(), Text> {
+      if (caller != accessControl.admin){
+        return #err("Only the admin can remove a moderator");
+      };
+      Set.delete(accessControl.moderators, Set.phash, moderator);
+      #ok;
+    };
+
+    public func getModerators() : [Principal] {
+      Set.toArray(accessControl.moderators);
     };
 
   };

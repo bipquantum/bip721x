@@ -21,6 +21,9 @@ import { IntProp } from "../../../../declarations/backend/backend.did";
 
 // @ts-ignore
 import { getName } from "country-list";
+import SensitiveContent from "../../common/SensitiveContent";
+import VioletButton from "../../common/VioletButton";
+import TagSensitive from "../../common/TagSensitive";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -32,6 +35,11 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
 
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
+
+  const { data: sensitive, call: getSensitive } = backendActor.useQueryCall({
+    functionName: "is_sensitive_int_prop",
+    args: [{ id: BigInt(intPropId) }],
+  });
 
   const { data: intProp, call: getIntProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
@@ -49,6 +57,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   const updateBipDetails = () => {
     getIntProp();
     getOptOwner();
+    getSensitive();
   };
 
   const getPublishingDate = (ip: IntProp) => {
@@ -83,7 +92,11 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
             </div>
           ) : (
             <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
-              {intProp.ok.V1.dataUri && <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
+              {
+                intProp.ok.V1.dataUri && 
+                <SensitiveContent sensitive={sensitive ?? true}>
+                  <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
+                </SensitiveContent>
               }
               <div className="flex flex-col">
                 <div className="py-2 text-xl text-base font-bold">
@@ -134,6 +147,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               </div>
               <div className="flex flex-row flex-wrap space-x-1 space-y-1 justify-between">
                 <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
+                <TagSensitive principal={principal} intPropId={BigInt(intPropId)} />
                 <div>{owner && (
                   <ListingDetails
                     principal={principal}

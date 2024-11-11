@@ -34,11 +34,16 @@ module {
         byPrincipal = Map.new<Principal, Set.Set<Text>>();
       };
       e8sTransferFee = args.e8sTransferFee;
+      accessControl = {
+        var admin = args.admin;
+        moderators = Set.new<Principal>();
+        sensitiveIps = Set.new<Nat>();
+      };
     });
   };
 
   // From 0.1.0 to 0.2.0
-  public func upgrade(migration_state: State, _: UpgradeArgs): State {
+  public func upgrade(migration_state: State, args: UpgradeArgs): State {
 
     // Access current state
     let state = switch (migration_state) {
@@ -52,7 +57,15 @@ module {
         { chat with name = "New chat"; };
       });
     };
-    #v0_2_0({ state with chatHistories; });
+    #v0_2_0({ 
+      state with
+      chatHistories;
+      accessControl = {
+        var admin = args.admin;
+        moderators = Set.new<Principal>();
+        sensitiveIps = Set.new<Nat>(); 
+      };
+    });
   };
 
   // From 0.2.0 to 0.1.0

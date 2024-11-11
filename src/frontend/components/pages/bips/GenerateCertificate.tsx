@@ -158,7 +158,7 @@ const GenerateCertificate: React.FC<GenerateCertificateProps> = ({ intPropId, in
       return;
     }
     setIsLoading(true);
-    generatePdf(intPropId, intProp, author[0], owner)
+    generatePdf(intPropId, intProp, author[0], fromNullable(owner))
     .then((pdfData) => {
       return download(pdfData, `bIP${intPropId}_certificate.pdf`);
     })
@@ -178,7 +178,7 @@ const GenerateCertificate: React.FC<GenerateCertificateProps> = ({ intPropId, in
         onClick={() => downloadCertificate()}
         isLoading={isLoading}
       >
-        Generate Certificate
+        Generate Certificate 📜
       </VioletButton>
     )
   );
