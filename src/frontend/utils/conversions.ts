@@ -1,5 +1,5 @@
 import { fromNullable } from "@dfinity/utils";
-import { IntPropLicense, IntPropType } from "../../declarations/backend/backend.did";
+import { IntPropLicense, IntPropType, QueryDirection } from "../../declarations/backend/backend.did";
 
 export function intPropLicenseToString(license: IntPropLicense): string {
   if ('GAME_FI'               in license) return 'Game FI';
@@ -101,3 +101,17 @@ export const fromNullableExt = <T>(value: [T] | [] | undefined) : T | undefined 
   else 
     return fromNullable(value);
 };
+
+export enum EQueryDirection {
+  Forward,
+  Backward,
+};
+
+export const toQueryDirection = (e: EQueryDirection) : QueryDirection => {
+  switch (e) {
+    case EQueryDirection.Forward:
+      return { "FORWARD": null };
+    case EQueryDirection.Backward:
+      return { "BACKWARD": null };
+  }
+}

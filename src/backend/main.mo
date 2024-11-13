@@ -24,8 +24,9 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   type ChatHistory           = Types.ChatHistory;
   type IntPropInput          = Types.IntPropInput;
   type VersionnedIntProp     = Types.VersionnedIntProp;
-  type Result<Ok, Err>       = Result.Result<Ok, Err>;
   type CreateIntPropResult   = Types.CreateIntPropResult;
+  type QueryDirection        = Types.QueryDirection;
+  type Result<Ok, Err>       = Result.Result<Ok, Err>;
 
   // STABLE MEMBER
   stable var _state: MigrationTypes.State = Migrations.install(args);
@@ -114,8 +115,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     await BIP721Ledger.icrc7_tokens_of({ owner; subaccount = null }, prev, take);
   };
 
-  public query func get_listed_int_props({prev: ?Nat; take: ?Nat}) : async [Nat] {
-    getController().getListedIntProps({ prev; take; });
+  public query func get_listed_int_props({prev: ?Nat; take: ?Nat; direction: QueryDirection}) : async [Nat] {
+    getController().getListedIntProps({ prev; take; direction; });
   };
 
   public composite query func get_int_prop({token_id: Nat}) : async Result<VersionnedIntProp, Text> {

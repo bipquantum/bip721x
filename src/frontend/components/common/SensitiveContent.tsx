@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface SensitiveContentProps {
   sensitive: boolean;
@@ -8,6 +8,11 @@ interface SensitiveContentProps {
 const SensitiveContent : React.FC<SensitiveContentProps> = ({ sensitive, children }) => {
   
   const [isBlurred, setIsBlurred] = useState(sensitive);
+
+  useEffect(() => {
+    setIsBlurred(sensitive);
+  }
+  , [sensitive]);
 
   const handleReveal = () => {
     setIsBlurred(false);

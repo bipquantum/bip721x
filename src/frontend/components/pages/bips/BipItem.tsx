@@ -13,6 +13,7 @@ import AIBotImg from "../../../assets/ai-bot.png";
 import { Principal } from "@dfinity/principal";
 import ListingDetails from "../../common/ListingDetails";
 import SensitiveContent from "../../common/SensitiveContent";
+import AirdropEligible from "../../common/AirdropEligible";
 
 interface BipItemProps {
   principal: Principal;
@@ -58,7 +59,7 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
-        <SensitiveContent sensitive={sensitive ?? true}>
+        <SensitiveContent sensitive={sensitive !== undefined ? sensitive : true}>
           <Link className="w-44 sm:w-72 sm:p-2" to={`/bip/${intPropId}`}>
             <div className="bg-tertiary flex flex-col gap-y-1 rounded-2xl p-3 text-base text-white sm:p-4">
               {intProp.ok.V1.dataUri ? (
@@ -75,8 +76,11 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
                   alt="Logo"
                 />
               )}
-              <div className="flex items-center justify-between font-semibold">
-                <p className="text-base sm:text-2xl">{intProp.ok.V1.title}</p>
+              <div className="grid grid-cols-6">
+                <p className="text-base truncate sm:text-2xl font-semibold col-span-5">{intProp.ok.V1.title}</p>
+                <div className="justify-self-end">
+                  <AirdropEligible intPropId={intPropId} compact={true}/>
+                </div>
               </div>
               <p className="text-sm font-semibold sm:text-base">
                 Type: {intPropTypeToString(intProp.ok.V1.intPropType)}

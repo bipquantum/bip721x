@@ -9,3 +9,7 @@ export const CALL_TO_ACTIONS = [
   "Organize IP Assets",
   "Sell IP Assets on the bIPQuantum Store",
 ];
+export const MIN_ROYALTY_PERCENTAGE = 1;
+export const MAX_ROYALTY_PERCENTAGE = 20;
+export const BIP_ITEMS_PER_QUERY = 12n;
+export const NUMBER_AIRDROP_IPS = 1000n;

@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
 import { BalanceProvider } from "./common/BalanceContext";
+import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
 
 interface ThemeContextProps {
   theme: string;
@@ -59,7 +60,9 @@ function App() {
                 <BrowserRouter>
                   <ChatHistoryProvider>
                     <BalanceProvider>
-                      <AppContent />
+                      <AirdropBannerProvider>
+                        <AppContent />
+                      </AirdropBannerProvider>
                     </BalanceProvider>
                   </ChatHistoryProvider>
                 </BrowserRouter>
@@ -79,6 +82,7 @@ function AppContent() {
   return (
     <>
       <ToastContainer />
+      <AirdropBanner />
       <NavBar />
       <div className="flex h-full w-full flex-1 flex-col justify-end">
         <Router />

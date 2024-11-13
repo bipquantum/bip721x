@@ -46,4 +46,9 @@ module {
 
   public type CreateIntPropResult = Result<Nat, CreateIntPropResultError>;
 
+  public type QueryDirection = {
+    #FORWARD;
+    #BACKWARD;
+  };
+
 };

@@ -30,12 +30,12 @@ import CheckVerifiedSvg from "../../../assets/check-verified.svg";
 import AIBotImg from "../../../assets/ai-bot.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { ModalPopup } from "../../common/ModalPopup";
-import { fromNullable } from "@dfinity/utils";
+import { fromNullable, toNullable } from "@dfinity/utils";
 import ReactCountryDropdown from "react-country-dropdown";
 
 // @ts-ignore
 import { getName } from "country-list";
-import { DEFAULT_COUNTRY_CODE } from "../../constants";
+import { DEFAULT_COUNTRY_CODE, MAX_ROYALTY_PERCENTAGE, MIN_ROYALTY_PERCENTAGE } from "../../constants";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -117,8 +117,6 @@ const DEFAULT_PUBLISHING = {
   countryCode: DEFAULT_COUNTRY_CODE,
 };
 
-const DEFAULT_PERCENTAGE_ROYALTIES = 2n;
-
 interface NewIPModalProps {
   user: User;
   isOpen: boolean;
@@ -127,11 +125,12 @@ interface NewIPModalProps {
 
 const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   
-  const [step,         setStep        ] = useState(1);
-  const [isLoading,    setIsLoading   ] = useState(false);
-  const [intPropInput, setIntPropInput] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
-  const [dataUri,      setDataUri     ] = useState("");
-  const [ipId,         setIpId        ] = useState<bigint | undefined>(undefined);
+  const [step,             setStep            ] = useState(1);
+  const [isLoading,        setIsLoading       ] = useState(false);
+  const [intPropInput,     setIntPropInput    ] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
+  const [dataUri,          setDataUri         ] = useState("");
+  const [ipId,             setIpId            ] = useState<bigint | undefined>(undefined);
+  const [royaltiesVisible, setRoyaltiesVisible] = useState(false);
 
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
@@ -182,10 +181,17 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   }
 
   // Date output format is "yyyy-MM-dd"
-  const fromDateInputFormat = (date: string) : Date => {
+  const fromDateInputFormat = (date: string) : Date | undefined => {
     // Create a new Date using the picked date parts to be in current timezone
     const [year, month, day] = date.split('-').map(Number);
     const localDate = new Date(year, month - 1, day); // month is 0-indexed
+    // Check if the date is valid
+    if (localDate.getFullYear() !== year || localDate.getMonth() + 1 !== month || localDate.getDate() !== day) {
+      return undefined;
+    }
+    if (!Number.isFinite(localDate.getTime())) {
+      return undefined;
+    }
     return localDate;
   }
 
@@ -357,11 +363,14 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   value={
                     (toDateInputFormat(timeToDate(intPropInput.creationDate)))
                   }
-                  onChange={(e) => {                    
-                    setIntPropInput({
-                      ...intPropInput,
-                      creationDate: dateToTime(fromDateInputFormat(e.target.value)),
-                    });
+                  onChange={(e) => {
+                    const inputDate = fromDateInputFormat(e.target.value);
+                    if (inputDate !== undefined) {         
+                      setIntPropInput({
+                        ...intPropInput,
+                        creationDate: dateToTime(inputDate),
+                      });
+                    }
                   }}
                   type="date"
                 />
@@ -369,26 +378,24 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
               <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1 w-full space-y-1">
                 <label className="flex flex-row items-center justify-between cursor-pointer">
                   <div className="px-4 font-semibold">Royalties</div>
-                  <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
-                    return {...intProp, percentageRoyalties: fromNullable(intProp.percentageRoyalties) ? [] : [DEFAULT_PERCENTAGE_ROYALTIES]};
-                  })} />
+                  <input type="checkbox" value="" className="sr-only peer" onClick={() => setRoyaltiesVisible(!royaltiesVisible)} />
                   <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"/>
                 </label>
                 {
-                  fromNullable(intPropInput.percentageRoyalties) !== undefined && (
+                  royaltiesVisible && (
                     <div className="flex flex-row items-center gap-1 justify-between">
-                      <div className="px-4 font-semibold">Percentage</div>
+                      <div className="px-4 font-semibold">{ "Percentage (max " + MAX_ROYALTY_PERCENTAGE + "%)" }</div>
                       <input
                         className="flex rounded-2xl border-none bg-tertiary px-4 py-2 text-white outline-none w-20"
                         placeholder=""
-                        value={fromNullable(intPropInput.percentageRoyalties)?.toString()}
+                        value={fromNullable(intPropInput.percentageRoyalties) !== undefined ? Number(fromNullable(intPropInput.percentageRoyalties)) : 0}
                         onChange={(e) => {
-                          setIntPropInput((intProp) => {
-                            return {...intProp, percentageRoyalties: [BigInt(e.target.value)] };
-                          });
+                          const value = Number(e.target.value) >= MIN_ROYALTY_PERCENTAGE ?
+                            BigInt(Math.min(Number(e.target.value), MAX_ROYALTY_PERCENTAGE)) : undefined;
+                          setIntPropInput((intProp) => { return {...intProp, percentageRoyalties: toNullable(value)}; });
                         }}
-                        max={20}
-                        min={1}
+                        max={MAX_ROYALTY_PERCENTAGE}
+                        min={0}
                         type="number"
                       />
                     </div>
@@ -413,12 +420,15 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                         placeholder=""
                         value={ getPublishingDate(intPropInput) }
                         onChange={(e) => {
-                          setIntPropInput((intProp) => {
-                            return {...intProp, publishing: [{
-                              date: dateToTime(fromDateInputFormat(e.target.value)),
-                              countryCode: fromNullable(intProp.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode
-                            }]};
-                          })
+                          const inputDate = fromDateInputFormat(e.target.value);
+                          if (inputDate !== undefined) {         
+                            setIntPropInput((intProp) => {  
+                              return {...intProp, publishing: [{
+                                date: dateToTime(inputDate),
+                                countryCode: fromNullable(intProp.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode
+                              }]};
+                            });
+                          }
                         }}
                         type="date"
                       />

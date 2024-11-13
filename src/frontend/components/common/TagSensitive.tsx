@@ -43,7 +43,7 @@ const TagSensitive : React.FC<TagSensitiveProps> = ({ principal, intPropId }) =>
         onClick={() => { tagSensitive([{ id: intPropId, sensitive: !sensitive }]).then(() => getSensitive()); }}
         isLoading={loading}
       >
-        {`${sensitive ? "Untag Sensitive" : "Tag Sensitive"} 👁️`}
+        <span style={{ filter: sensitive ? 'grayscale(100%)' : '' }} >{`${sensitive ? "Untag Sensitive" : "Tag Sensitive"} 👁️`}</span>
       </VioletButton>
     ) : (
       <></>

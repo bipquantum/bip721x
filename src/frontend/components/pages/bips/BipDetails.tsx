@@ -22,8 +22,8 @@ import { IntProp } from "../../../../declarations/backend/backend.did";
 // @ts-ignore
 import { getName } from "country-list";
 import SensitiveContent from "../../common/SensitiveContent";
-import VioletButton from "../../common/VioletButton";
 import TagSensitive from "../../common/TagSensitive";
+import AirdropEligible from "../../common/AirdropEligible";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -94,7 +94,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
             <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
               {
                 intProp.ok.V1.dataUri && 
-                <SensitiveContent sensitive={sensitive ?? true}>
+                <SensitiveContent sensitive={sensitive !== undefined ? sensitive : true}>
                   <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
                 </SensitiveContent>
               }
@@ -102,6 +102,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                 <div className="py-2 text-xl text-base font-bold">
                   {intProp.ok.V1.title}
                 </div>
+                <AirdropEligible intPropId={BigInt(intPropId)}/>
                 <div className="py-2 text-md text-base">
                   {intProp.ok.V1.description}
                 </div>

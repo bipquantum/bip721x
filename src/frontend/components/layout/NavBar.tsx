@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
 import WindowSvg from "../../assets/window.svg";
+import MarketSvg from "../../assets/market.svg";
 import ProfileSvg from "../../assets/profile.png";
 import LogoutSvg from "../../assets/logout.svg";
 import LogoSvg from "../../assets/logo.png";
@@ -50,7 +51,7 @@ const NavBar = () => {
       link: "bips",
     },
     {
-      svg: WindowSvg, // TODO: replace with marketplace icon
+      svg: MarketSvg, // TODO: replace with marketplace icon
       label: "Market place",
       link: "marketplace",
     },
@@ -84,7 +85,10 @@ const NavBar = () => {
                   >
                     <img
                       src={item.svg}
-                      className={`${item.link === "profile" ? "h-9 rounded-full" : "h-7 invert"}`}
+                      className={`${item.link === "profile" ? "h-9 rounded-full" : 
+                        item.link === "bips" ? "h-8 invert" :
+                        item.link === "marketplace" ? "h-11 invert -my-1" : "h-7 invert"
+                      }`}
                     />
                     <p className={`text-[10px] font-bold`}>{item.label}</p>
                   </Link>

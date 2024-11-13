@@ -33,6 +33,7 @@ module {
   type Airdrop             = Types.Airdrop;
   type SAirdropInfo        = Types.SAirdropInfo;
   type AccessControl       = Types.AccessControl;
+  type QueryDirection      = Types.QueryDirection;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -202,9 +203,14 @@ module {
     public func getListedIntProps({
       prev: ?Nat;
       take: ?Nat;
+      direction: QueryDirection;
     }) : [Nat] {
-      var listed_ids = Buffer.Buffer<Nat>(0);
-      for (key in Map.keysFrom(intProps.e8sIcpPrices, Map.nhash, prev)){
+      let iter_keys = switch(direction){
+        case(#FORWARD) { Map.keysFrom; };
+        case(#BACKWARD) { Map.keysFromDesc; };
+      };
+      let listed_ids = Buffer.Buffer<Nat>(0);
+      for (key in iter_keys(intProps.e8sIcpPrices, Map.nhash, prev)){
         switch(take){
           case(null) {};
           case(?take) {
