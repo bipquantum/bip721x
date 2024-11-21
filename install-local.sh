@@ -12,7 +12,7 @@ BACKEND_CANISTER=$(dfx canister id backend)
 # Deploy all canisters
 
 dfx deploy bip721_ledger --argument 'record {
-    deployer = principal "'${BACKEND_CANISTER}'";
+  deployer = principal "'${BACKEND_CANISTER}'";
 }'
 
 dfx deploy bqc_ledger --argument 'record {
@@ -32,23 +32,13 @@ dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
 })"
 
 # TODO sardariuss 2024-09-25: Deploy our own cf proxy
-# TODO sardariuss 2024-09-25: Why 3 records of the same proxy are needed?
+# TODO: verify if dividing by 3 the max_cycles reduced cycles cost
 dfx canister call idempotent_proxy_canister admin_set_agents '
   (vec {
     record {
       name = "LDCLabs";
       endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
-      max_cycles = 100000000000;
-      proxy_token = null;
-    }; record {
-      name = "LDCLabs";
-      endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
-      max_cycles = 100000000000;
-      proxy_token = null;
-    }; record {
-      name = "LDCLabs";
-      endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
-      max_cycles = 100000000000;
+      max_cycles = 30000000000;
       proxy_token = null;
     };
   })
