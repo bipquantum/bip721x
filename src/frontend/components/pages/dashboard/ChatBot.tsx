@@ -46,10 +46,10 @@ const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps
   return (
     <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
       <ChatBox chats={chats} sendEvent={sendEvent} aiPrompts={aiPrompts} principal={principal} />
-      <div className="w-full bg-gray-300 p-6 sm:px-8 sm:py-10">
+      <div className="w-full flex flex-col bg-gray-300 p-2 sm:px-8 sm:py-4">
         <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
           <textarea
-            className="w-full text-lg outline-none sm:px-4"
+            className="w-full text-lg outline-none sm:px-4 min-h-20"
             placeholder="What do you want to protect?"
             value={userInput}
             onChange={(e) => {
@@ -72,6 +72,9 @@ const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps
           >
             <img src={userInput ? SendMessageSvg : SearchSvg} className="h-10" />
           </button>
+        </div>
+        <div className="flex self-end justify-end text-sm">
+          bIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.
         </div>
       </div>
     </div>

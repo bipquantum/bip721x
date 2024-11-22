@@ -51,7 +51,7 @@ const NavBar = () => {
       link: "bips",
     },
     {
-      svg: MarketSvg, // TODO: replace with marketplace icon
+      svg: MarketSvg,
       label: "Market place",
       link: "marketplace",
     },

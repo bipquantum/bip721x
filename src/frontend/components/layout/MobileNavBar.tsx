@@ -3,6 +3,7 @@ import { Link,  useLocation } from "react-router-dom";
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
 import WindowSvg from "../../assets/window.svg";
+import MarketSvg from "../../assets/market.svg";
 import ProfileSvg from "../../assets/profile.png";
 
 import { useAuth } from "@ic-reactor/react";
@@ -24,7 +25,7 @@ const MobileNavBarItems = [
     link: "bips",
   },
   {
-    svg: WindowSvg, // TODO: replace with marketplace icon
+    svg: MarketSvg,
     label: "Market place",
     link: "marketplace",
   },
@@ -55,7 +56,10 @@ const MobileNavBar = () => {
         >
           <img
             src={item.svg}
-            className={`${item.link === "profile" ? "h-10 rounded-full" : "h-7 invert"}`}
+            className={`${item.link === "profile" ? "h-9 rounded-full" : 
+              item.link === "bips" ? "h-8 invert" :
+              item.link === "marketplace" ? "h-11 invert -my-1" : "h-7 invert"
+            }`}
           />
         </Link>
       ))}
