@@ -12,10 +12,10 @@ const AirdropEligible : React.FC<AirdropEligibleProps> = ({ intPropId, compact =
   };
 
   return (
-    compact? <span>🥇🚀</span> :
+    compact? <span>♛</span> :
     <div className="text-sm flex flex-row space-x-1 items-center">
-      <span className="text-blue-200 italic">Qualified for the bIPQuantum Token Airdrop</span>
-      <span>🥇🚀</span>
+      <span className="text-blue-200 italic">You are Qualified for the bIPQuantum Token Airdrop</span>
+      <span>♛</span>
     </div>
   );
 }

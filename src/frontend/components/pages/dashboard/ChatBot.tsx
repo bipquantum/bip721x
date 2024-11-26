@@ -1,4 +1,4 @@
-import { useRef, useState, KeyboardEvent } from "react";
+import { useRef, useState, KeyboardEvent, useEffect } from "react";
 
 import SearchSvg from "../../../assets/search.svg";
 import SendMessageSvg from "../../../assets/send-message.svg";
@@ -6,6 +6,7 @@ import { AiPrompt, ChatElem } from "./types";
 import ChatBox from "./ChatBox";
 import { Principal } from "@dfinity/principal";
 import { AnyEventObject } from "xstate";
+import { AUTOMATIC_CHATBOT_TRANSITION } from "../../constants";
 
 interface ChatBotProps {
   principal: Principal | undefined;
@@ -42,6 +43,19 @@ const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps
       setUserInput("");
     }
   }
+
+  useEffect(() => {
+    // TODO: fix very ugly way to automatically transition to the next chat
+    if (Array.isArray(chats) && chats.length > 0) {
+      const lastChat = chats[chats.length - 1]?.answers;
+      if (Array.isArray(lastChat) && lastChat.length > 0) {
+        const answer = lastChat[0];
+        if (answer?.text === AUTOMATIC_CHATBOT_TRANSITION) {
+          sendEvent({ type: answer.text });
+        }
+      }
+    }
+  }, [chats]);
 
   return (
     <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">

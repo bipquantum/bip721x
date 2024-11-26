@@ -3,12 +3,15 @@ import { ChatElem, ChatAnswerState, AiPrompt} from "./types";
 import NewIP from "../new-ip/NewIp";
 import ProfileSvg from "../../../assets/profile.png";
 import AIBotImg from "../../../assets/ai-bot.png";
+import CopySvg from "../../../assets/copy.svg";
 
 import { useEffect, useRef, useState } from "react";
 import { Principal } from "@dfinity/principal";
 import { AnyEventObject } from "xstate";
 import Markdown from "react-markdown";
 import remarkGfm from 'remark-gfm';
+import CopyIcon from "../../common/CopyIcon";
+import { AUTOMATIC_CHATBOT_TRANSITION } from "../../constants";
 
 interface ChatBoxProps {
   principal: Principal | undefined;
@@ -95,36 +98,47 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
               <Markdown remarkPlugins={[remarkGfm]}>
                 {chat.question}
               </Markdown>
+              { 
+                // Add copy button for the knowledge base questions
+                (chat.key === "expertLevel" || chat.key === "intermediateLevel" || chat.key === "beginnerLevel") &&
+                <div className="self-end h-6 w-6 cursor-pointer" onClick={() => navigator.clipboard.writeText(chat.question)}>
+                  <CopyIcon className="hover:text-black text-gray-700"/>
+                </div>
+              }
             </div>
             <span className="flex flex-col px-5"> { /* spacer */ } </span>
           </div>
-          <div className="flex flex-row py-2 gap-2 justify-start flex-wrap flex-row-reverse">
-            { chat.answers.length > 0 && <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />}
-            {
-            chat.answers.map((answer, answer_index) => (
-              <button
-                className={`rounded-xl px-4 py-2 bg-blue-600 text-white 
-                  ${answer.state === ChatAnswerState.Unselectable || answer.text === "US Copyright Certificate" && "bg-gray-400"}
-                  ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-blue-800"}
-                  ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-blue-800"}
-                `}
-                // TODO: temporary solution to prevent the user from selecting the "US Copyright Certificate"
-                disabled={answer.state !== ChatAnswerState.Selectable || answer.text === "US Copyright Certificate"}
-                key={answer_index}
-                // TODO: have guards in the state machine to prevent code like this
-                onClick={() => { answer.text === "bIP certificate" ? setCreatingIp(answer_index) : transition(answer_index); } } 
-              >
-                {answer.text.split("\n").map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    <br />
-                  </span>
-                ))}
-              </button>
-            ))
-            }
-            <span className="flex flex-col px-5"> { /* spacer */ } </span>
-          </div>
+          {
+            // TODO: fix very ugly way to hide the automatic transition
+            (chat.answers.length === 1 && chat.answers[0].text === AUTOMATIC_CHATBOT_TRANSITION) ? <></> :
+            <div className="flex flex-row py-2 gap-2 justify-start flex-wrap flex-row-reverse">
+              { chat.answers.length > 0 && <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />}
+              {
+              chat.answers.map((answer, answer_index) => (
+                <button
+                  className={`rounded-xl px-4 py-2 bg-blue-600 text-white 
+                    ${answer.state === ChatAnswerState.Unselectable || answer.text === "US Copyright Certificate" && "bg-gray-400"}
+                    ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-blue-800"}
+                    ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-blue-800"}
+                  `}
+                  // TODO: temporary solution to prevent the user from selecting the "US Copyright Certificate"
+                  disabled={answer.state !== ChatAnswerState.Selectable || answer.text === "US Copyright Certificate"}
+                  key={answer_index}
+                  // TODO: have guards in the state machine to prevent code like this
+                  onClick={() => { answer.text === "bIP certificate" ? setCreatingIp(answer_index) : transition(answer_index); } } 
+                >
+                  {answer.text.split("\n").map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
+                </button>
+              ))
+              }
+              <span className="flex flex-col px-5"> { /* spacer */ } </span>
+            </div>
+          }
         </div>
       ))}
       <div ref={messagesEndRef}></div>

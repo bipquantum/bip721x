@@ -13,3 +13,4 @@ export const MIN_ROYALTY_PERCENTAGE = 1;
 export const MAX_ROYALTY_PERCENTAGE = 20;
 export const BIP_ITEMS_PER_QUERY = 12n;
 export const NUMBER_AIRDROP_IPS = 1000n;
+export const AUTOMATIC_CHATBOT_TRANSITION = "I get it, let's start!";
