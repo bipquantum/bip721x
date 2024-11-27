@@ -36,6 +36,7 @@ import ReactCountryDropdown from "react-country-dropdown";
 // @ts-ignore
 import { getName } from "country-list";
 import { DEFAULT_COUNTRY_CODE, MAX_ROYALTY_PERCENTAGE, MIN_ROYALTY_PERCENTAGE } from "../../constants";
+import FilePreview from "../../common/FilePreview";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -346,14 +347,22 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
               </div>
               <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">
-                  Upload IP File (SIZE LIMITED TO 1.5 MB)
+                  IP File
                 </div>
                 <FileUploader
-                  dataUri={intPropInput.dataUri}
                   setDataUri={(dataUri) => {
                     setDataUri(dataUri ?? "");
                   }}
-                />
+                  acceptedFiles="image/*,audio/*,application/pdf,text/*"
+                >
+                  { dataUri ? 
+                    FilePreview({ dataUri }) : 
+                    <p className="h-26 text-gray-500 flex-col items-center text-center justify-center rounded-2xl border-none bg-tertiary p-4">
+                      Drag and drop or click to upload file <br /> 
+                      SIZE LIMITED TO 1.5 MB
+                    </p>
+                  }
+                </FileUploader>
               </div>
               <div className="flex flex-col gap-1 w-full">
                 <div className="px-4 font-semibold">Creation Date</div>

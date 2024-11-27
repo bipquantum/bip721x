@@ -19,16 +19,24 @@ const FilePreview: React.FC<FilePreviewProps> = ({ dataUri, className }) => {
           <img
             src={dataUri}
             alt={fileName}
-            className={`max-w-full rounded-lg shadow-md border border-gray-300 ${className}`}
+            className={className ?? "max-w-full rounded-lg shadow-md border border-gray-300"}
           />
         )}
         {mimeType.startsWith("audio/") && (
-          <audio controls src={dataUri} className={`max-w-full rounded-lg shadow-md border border-gray-300 ${className}`}>
+          <audio 
+            controls 
+            src={dataUri}
+            className={className ?? "max-w-full rounded-lg shadow-md border border-gray-300"}
+          >
             Your browser does not support the audio element.
           </audio>
         )}
         {mimeType.startsWith("video/") && (
-          <video controls src={dataUri} className={`max-w-full rounded-lg shadow-md border border-gray-300 ${className}`}>
+          <video 
+            controls
+            src={dataUri}
+            className={className ?? "max-w-full rounded-lg shadow-md border border-gray-300"}
+          >
             Your browser does not support the video element.
           </video>
         )}
@@ -36,7 +44,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({ dataUri, className }) => {
           <embed
             src={dataUri}
             type="application/pdf"
-            className={`max-w-full rounded-lg shadow-md border border-gray-300 ${className}`}
+            className={className ?? "max-w-full rounded-lg shadow-md border border-gray-300"}
           />
         )}
       </div>

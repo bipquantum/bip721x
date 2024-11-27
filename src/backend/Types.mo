@@ -21,6 +21,15 @@ module {
   public type Airdrop         = Types.Current.Airdrop;
   public type AccessControl   = Types.Current.AccessControl;
 
+  public type CreateUserArgs = {
+    firstName: Text;
+    lastName: Text;
+    nickName: Text;
+    specialty: Text;
+    countryCode: Text;
+    imageUri: Text;
+  };
+
   public type SAirdropInfo = {
     allowed_per_user: Nat;
     total_distributed: Nat;

@@ -20,6 +20,7 @@ import Time          "mo:base/Time";
 shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = this {
 
   type User                  = Types.User;
+  type CreateUserArgs        = Types.CreateUserArgs;
   type Account               = Types.Account;
   type ChatHistory           = Types.ChatHistory;
   type IntPropInput          = Types.IntPropInput;
@@ -49,7 +50,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_2_0(stableData)){
+      case(#v0_3_0(stableData)){
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
@@ -61,13 +62,13 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
           });
         });
       };
-      case(_) { Debug.trap("Unexpected state version: v0_2_0 expected"); };
+      case(_) { Debug.trap("Unexpected state version: v0_3_0 expected"); };
     };
     
     #ok;
   };
 
-  public shared({caller}) func set_user(user: User): async Result<(), Text> {
+  public shared({caller}) func set_user(user: CreateUserArgs): async Result<(), Text> {
     getController().setUser({ user with caller;} );
   };
 
@@ -119,7 +120,29 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().getListedIntProps({ prev; take; direction; });
   };
 
-  public composite query func get_int_prop({token_id: Nat}) : async Result<VersionnedIntProp, Text> {
+  public composite query({caller}) func get_int_prop({token_id: Nat}) : async Result<VersionnedIntProp, Text> {
+    
+    label check_authorized do {
+      
+      // Check if the caller is the owner of the token
+      let accounts = await BIP721Ledger.icrc7_owner_of([token_id]);
+      switch(getController().extractOwner(accounts)){
+        case(null) {};
+        case(?owner) {
+          if (Principal.equal(owner, caller)) {
+            break check_authorized;
+          };
+        };
+      };
+
+      // Check if the IP is listed
+      if (getController().isListedIntProp(token_id)){
+        break check_authorized;
+      };
+
+      return #err("You are not authorized to query this IP");
+    };
+
     let metadata = await BIP721Ledger.icrc7_token_metadata([token_id]);
     #ok(Conversions.metadataToIntProp(metadata[0])); // TODO sardariuss 2024-09-07: better error handling
   };
@@ -170,16 +193,36 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     #ok;
   };
 
-  public shared({caller}) func tag_sensitive_int_prop({ id: Nat; sensitive: Bool;}) : async Result<(), Text> {
-    getController().tagSensitiveIntProp({ caller; id; sensitive; });
+  public shared({caller}) func ban_int_prop({ id: Nat; ban_author: Bool;}) : async Result<(), Text> {
+    await* getController().banIntProp({ caller; id; ban_author; });
   };
 
-  public query func is_sensitive_int_prop({ id: Nat; }) : async Bool {
-    getController().isSensitiveIntProp({ id; });
+  public shared({caller}) func unban_int_prop({ id: Nat; }) : async Result<(), Text> {
+    await* getController().unbanIntProp({ caller; id; });
   };
 
-  public query func get_sensitive_int_props() : async [Nat] {
-    getController().getSensitiveIntProps();
+  public query func is_banned_int_prop({ id: Nat; }) : async Bool {
+    getController().isBannedIntProp({ id; });
+  };
+
+  public query func get_banned_int_props() : async [Nat] {
+    getController().getBannedIntProps();
+  };
+
+  public shared({caller}) func ban_author({ author: Principal; }) : async Result<(), Text> {
+    getController().banAuthor({ caller; author; });
+  };
+
+  public shared({caller}) func unban_author({ author: Principal; }) : async Result<(), Text> {
+    getController().unbanAuthor({ caller; author; });
+  };
+
+  public query func is_banned_author({ author: Principal; }) : async Bool {
+    getController().isBannedAuthor({ author; });
+  };
+
+  public query func get_banned_authors() : async [(Principal, User)] {
+    getController().getBannedAuthors();
   };
 
   public query func get_admin() : async Principal {

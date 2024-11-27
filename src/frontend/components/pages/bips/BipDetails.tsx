@@ -21,8 +21,7 @@ import { IntProp } from "../../../../declarations/backend/backend.did";
 
 // @ts-ignore
 import { getName } from "country-list";
-import SensitiveContent from "../../common/SensitiveContent";
-import TagSensitive from "../../common/TagSensitive";
+import BanIntProp from "../../common/BanIntProp";
 import AirdropEligible from "../../common/AirdropEligible";
 
 interface IPItemProps {
@@ -36,8 +35,8 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
 
-  const { data: sensitive, call: getSensitive } = backendActor.useQueryCall({
-    functionName: "is_sensitive_int_prop",
+  const { data: isBanned, call: getIsBanned } = backendActor.useQueryCall({
+    functionName: "is_banned_int_prop",
     args: [{ id: BigInt(intPropId) }],
   });
 
@@ -57,7 +56,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   const updateBipDetails = () => {
     getIntProp();
     getOptOwner();
-    getSensitive();
+    getIsBanned();
   };
 
   const getPublishingDate = (ip: IntProp) => {
@@ -93,16 +92,18 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
           ) : (
             <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
               {
-                intProp.ok.V1.dataUri && 
-                <SensitiveContent sensitive={sensitive !== undefined ? sensitive : true}>
-                  <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
-                </SensitiveContent>
+                intProp.ok.V1.dataUri && <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
               }
               <div className="flex flex-col">
                 <div className="py-2 text-xl text-base font-bold">
                   {intProp.ok.V1.title}
                 </div>
-                <AirdropEligible intPropId={BigInt(intPropId)}/>
+                { isBanned ? 
+                  <div className="text-base text-red-500">
+                    This IP has been banned ❌
+                  </div> : 
+                  <AirdropEligible intPropId={BigInt(intPropId)}/>
+                }
                 <div className="py-2 text-md text-base">
                   {intProp.ok.V1.description}
                 </div>
@@ -148,7 +149,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               </div>
               <div className="flex flex-row flex-wrap space-x-1 space-y-1 justify-between">
                 <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
-                <TagSensitive principal={principal} intPropId={BigInt(intPropId)} />
+                <BanIntProp principal={principal} intPropId={BigInt(intPropId)} />
                 <div>{owner && (
                   <ListingDetails
                     principal={principal}

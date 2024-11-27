@@ -2,12 +2,12 @@ import { Principal } from "@dfinity/principal";
 import { backendActor } from "../actors/BackendActor";
 import VioletButton from "./VioletButton";
 
-interface TagSensitiveProps {
+interface BanIntPropProps {
   principal: Principal | undefined;
   intPropId: bigint;
 };
 
-const TagSensitive : React.FC<TagSensitiveProps> = ({ principal, intPropId }) => {
+const BanIntProp : React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
 
   const { data: admin } = backendActor.useQueryCall({
     functionName: "get_admin",
@@ -19,17 +19,17 @@ const TagSensitive : React.FC<TagSensitiveProps> = ({ principal, intPropId }) =>
     args: [],
   });
 
-  const { data: sensitive, call: getSensitive } = backendActor.useQueryCall({
-    functionName: "is_sensitive_int_prop",
+  const { data: isBanned, call: getIsBanned } = backendActor.useQueryCall({
+    functionName: "is_banned_int_prop",
     args: [{ id: intPropId }],
   });
 
-  const { call: tagSensitive, loading } = backendActor.useUpdateCall({
-    functionName: "tag_sensitive_int_prop",
+  const { call: banIntProp, loading } = backendActor.useUpdateCall({
+    functionName: "ban_int_prop",
   });
 
   return (
-    principal === undefined || admin === undefined || moderators === undefined || sensitive === undefined ? (
+    principal === undefined || admin === undefined || moderators === undefined || isBanned === undefined ? (
       <div
         className="text-center text-white"
         style={{
@@ -40,10 +40,10 @@ const TagSensitive : React.FC<TagSensitiveProps> = ({ principal, intPropId }) =>
       </div>
     ) : principal === admin || moderators.find((moderator) => moderator.compareTo(principal) === "eq") ? (
       <VioletButton
-        onClick={() => { tagSensitive([{ id: intPropId, sensitive: !sensitive }]).then(() => getSensitive()); }}
+        onClick={() => { banIntProp([{ id: intPropId, ban_author: true }]).then(() => getIsBanned()); }}
         isLoading={loading}
       >
-        <span style={{ filter: sensitive ? 'grayscale(100%)' : '' }} >{`${sensitive ? "Untag Sensitive" : "Tag Sensitive"} 👁️`}</span>
+        <span style={{ filter: isBanned ? 'grayscale(100%)' : '' }} >{`${isBanned ? "Unban" : "Ban"} 🚫`}</span>
       </VioletButton>
     ) : (
       <></>
@@ -51,4 +51,4 @@ const TagSensitive : React.FC<TagSensitiveProps> = ({ principal, intPropId }) =>
   )
 }
 
-export default TagSensitive;
+export default BanIntProp;

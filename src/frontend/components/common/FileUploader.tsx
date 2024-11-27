@@ -1,14 +1,14 @@
 import React, { useCallback, useRef, useState } from "react";
 
-import FilePreview from "./FilePreview";
 import { MAX_IP_SIZE_BYTES } from "../constants";
 
 interface FileUploaderProps {
-  dataUri: string | null;
   setDataUri: React.Dispatch<string | null>;
+  acceptedFiles: string;
+  children?: React.ReactNode;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
+const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, children }) => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -87,16 +87,13 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
     <div>
       <input
         type="file"
-        accept="image/*,audio/*,video/*,application/pdf,text/*"
+        accept={acceptedFiles}
         className="sr-only"
         onChange={handleFileChange}
         ref={fileInputRef}
       />
-      {dataUri ? (
-        FilePreview({ dataUri, className: "h-60 w-full object-cover " })
-      ) : (
         <div
-          className="flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-none bg-tertiary p-4"
+          className="flex w-full items-center justify-center cursor-pointer"
           onDrop={handleDrop}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -105,13 +102,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ dataUri, setDataUri }) => {
             if (fileInputRef) fileInputRef.current?.click();
           }}
         >
-          <p className="text-gray-500">
-            Drag and drop or click to upload. You may change this after
-            deploying your contract.
-          </p>
+          {children}
         </div>
-      )}
-      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
     </div>
   );
 };

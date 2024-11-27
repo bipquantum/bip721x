@@ -23,7 +23,6 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
   const [loading, setLoading] = useState(false); // Loading state to prevent double fetch
 
   const loadEntries = async () => {
-    console.log("Loading entries...");
     if (loading) return; // Ensure no double-fetch
     setLoading(true);
     const result = await fetchBips(prev, toQueryDirection(queryDirection));
@@ -34,11 +33,8 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
         return newEntries;
       });
       setPrev(fromNullable([BigInt(result[result.length - 1])]));
-      console.log("Prev: ", fromNullable([BigInt(result[result.length - 1])]));
     } else {
       setPrev(undefined);
-      console.log("Prev: ", undefined);
-      console.log("No more entries to fetch");
     }
     setLoading(false);
   };

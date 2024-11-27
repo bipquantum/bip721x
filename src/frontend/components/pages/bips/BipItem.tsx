@@ -12,7 +12,6 @@ import FilePreview from "../../common/FilePreview";
 import AIBotImg from "../../../assets/ai-bot.png";
 import { Principal } from "@dfinity/principal";
 import ListingDetails from "../../common/ListingDetails";
-import SensitiveContent from "../../common/SensitiveContent";
 import AirdropEligible from "../../common/AirdropEligible";
 
 interface BipItemProps {
@@ -27,11 +26,6 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
-  });
-
-  const { data: sensitive } = backendActor.useQueryCall({
-    functionName: "is_sensitive_int_prop",
-    args: [{ id: intPropId }],
   });
 
   const {} = backendActor.useQueryCall({
@@ -59,42 +53,40 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
-        <SensitiveContent sensitive={sensitive !== undefined ? sensitive : true}>
-          <Link className="w-44 sm:w-72 sm:p-2" to={`/bip/${intPropId}`}>
-            <div className="bg-tertiary flex flex-col gap-y-1 rounded-2xl p-3 text-base text-white sm:p-4">
-              {intProp.ok.V1.dataUri ? (
-                <div className="w-full">
-                  <FilePreview
-                    dataUri={intProp.ok.V1.dataUri}
-                    className="h-[111px] w-full rounded-xl object-cover sm:h-[184px]"
-                  />
-                </div>
-              ) : (
-                <img
-                  src={AIBotImg}
-                  className="mb-2 h-[111px] w-full rounded-xl border border-gray-300 object-cover shadow-md sm:h-[184px]"
-                  alt="Logo"
+        <Link className="w-44 sm:w-72 sm:p-2" to={`/bip/${intPropId}`}>
+          <div className="bg-tertiary flex flex-col gap-y-1 rounded-2xl p-3 text-base text-white sm:p-4">
+            {intProp.ok.V1.dataUri ? (
+              <div className="w-full">
+                <FilePreview
+                  dataUri={intProp.ok.V1.dataUri}
+                  className="h-[111px] w-full rounded-xl object-cover sm:h-[184px]"
                 />
-              )}
-              <div className="grid grid-cols-6">
-                <p className="text-base truncate sm:text-2xl font-semibold col-span-5">{intProp.ok.V1.title}</p>
-                <div className="justify-self-end">
-                  <AirdropEligible intPropId={intPropId} compact={true}/>
-                </div>
               </div>
-              <p className="text-sm font-semibold sm:text-base">
-                Type: {intPropTypeToString(intProp.ok.V1.intPropType)}
-              </p>
-              {
-                intProp.ok.V1.intPropLicenses.length > 0 && 
-                <p className="text-sm font-semibold sm:text-base">
-                  Licenses: {intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}
-                </p>
-              }
-              { owner && <ListingDetails principal={principal} owner={owner} intPropId={intPropId} updateBipDetails={() => {}} /> }
+            ) : (
+              <img
+                src={AIBotImg}
+                className="mb-2 h-[111px] w-full rounded-xl border border-gray-300 object-cover shadow-md sm:h-[184px]"
+                alt="Logo"
+              />
+            )}
+            <div className="grid grid-cols-6">
+              <p className="text-base truncate sm:text-2xl font-semibold col-span-5">{intProp.ok.V1.title}</p>
+              <div className="justify-self-end">
+                <AirdropEligible intPropId={intPropId} compact={true}/>
+              </div>
             </div>
-          </Link>
-        </SensitiveContent>
+            <p className="text-sm font-semibold sm:text-base">
+              Type: {intPropTypeToString(intProp.ok.V1.intPropType)}
+            </p>
+            {
+              intProp.ok.V1.intPropLicenses.length > 0 && 
+              <p className="text-sm font-semibold sm:text-base">
+                Licenses: {intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}
+              </p>
+            }
+            { owner && <ListingDetails principal={principal} owner={owner} intPropId={intPropId} updateBipDetails={() => {}} /> }
+          </div>
+        </Link>
       )}
     </>
   );

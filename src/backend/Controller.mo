@@ -34,6 +34,7 @@ module {
   type SAirdropInfo        = Types.SAirdropInfo;
   type AccessControl       = Types.AccessControl;
   type QueryDirection      = Types.QueryDirection;
+  type CreateUserArgs      = Types.CreateUserArgs;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -48,7 +49,7 @@ module {
   }) {
 
     public func setUser(
-      args: User and {
+      args: CreateUserArgs and {
         caller: Principal;
     }) : Result<(), Text> {
 
@@ -56,7 +57,7 @@ module {
         return #err("Cannot create a user with from anonymous principal");
       };
 
-      Map.set(users, Map.phash, args.caller, args);
+      Map.set(users, Map.phash, args.caller, { args with banned = false; });
       #ok;
     };
 
@@ -116,8 +117,15 @@ module {
         author: Principal;
     }) : async CreateIntPropResult {
 
-      if (not Map.has(users, Map.phash, args.author)){
-        return #err(#GenericError({ error_code = 100; message = "A user profile is required to mint a new IP"; }));
+      switch(Map.get(users, Map.phash, args.author)){
+        case(null) {
+          return #err(#GenericError({ error_code = 100; message = "A user profile is required to mint a new IP"; }));
+        };
+        case(?user) {
+          if (user.banned){
+            return #err(#GenericError({ error_code = 101; message = "Blacklisted users cannot mint new IPs"; }));
+          };
+        };
       };
 
       let id = intProps.index;
@@ -178,6 +186,10 @@ module {
         return #err("You cannot list an IP that you do not own");
       };
 
+      if (Set.has(accessControl.bannedIps, Set.nhash, id)){
+        return #err("You cannot list a banned IP");
+      };
+
       Map.set(intProps.e8sIcpPrices, Map.nhash, id, e8sIcpPrice);
       #ok;
     };
@@ -224,6 +236,10 @@ module {
       Buffer.toArray(listed_ids);
     };
 
+    public func isListedIntProp(id: Nat) : Bool {
+      Map.has(intProps.e8sIcpPrices, Map.nhash, id);
+    };
+
     public func getE8sPrice({id: Nat}) : Result<Nat, Text> {
       switch(Map.get(intProps.e8sIcpPrices, Map.nhash, id)){
         case(null) { #err("IP is not listed"); };
@@ -253,14 +269,9 @@ module {
         return #err("You cannot buy your own IP");
       };
 
-      let metadata = await BIP721Ledger.icrc7_token_metadata([id]);
-
-      if (metadata.size() != 1){
-        return #err("IP not found");
-      };
-
-      let intProp = switch(Conversions.metadataToIntProp(metadata[0])){
-        case(#V1(ip)) { ip; };
+      let intProp = switch(await* queryIntProp(id)){
+        case(#err(err)){ return #err(err); };
+        case(#ok(ip)){ ip; };
       };
       
       let royalties = Option.map(
@@ -304,6 +315,19 @@ module {
         case(?acc) { acc; };
       };
       #ok(account.owner);
+    };
+
+    func queryIntProp(id: Nat) : async* Result<IntProp, Text> {
+      
+      let metadata = await BIP721Ledger.icrc7_token_metadata([id]);
+
+      if (metadata.size() != 1){
+        return #err("IP not found");
+      };
+
+      switch(Conversions.metadataToIntProp(metadata[0])){
+        case(#V1(ip)) { #ok(ip); };
+      };
     };
 
     public func extractOwner(accounts: [?Account]) : ?Principal {
@@ -391,24 +415,102 @@ module {
       airdrop.allowed_per_user := amount;
     };
 
-    public func tagSensitiveIntProp({ caller: Principal; id: Nat; sensitive: Bool;}) : Result<(), Text> {
+    public func banIntProp({ 
+      caller: Principal;
+      id: Nat;
+      ban_author: Bool;
+    }) : async* Result<(), Text> {
       if (caller != accessControl.admin and not Set.has(accessControl.moderators, Set.phash, caller)){
-        return #err("Only the admin or moderators can tag an IP as sensitive");
+        return #err("Only the admin or moderators can ban or unban IPs");
       };
-      if (sensitive){
-        Set.add(accessControl.sensitiveIps, Set.nhash, id);
-      } else {
-        Set.delete(accessControl.sensitiveIps, Set.nhash, id);
+      // Add it to the banned IPs
+      Set.add(accessControl.bannedIps, Set.nhash, id);
+      // Remove it from the marketplace if it is currently listed
+      Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+      // Ban the author
+      if (ban_author) {
+        let author = switch(await* queryIntProp(id)){
+          case(#err(err)){ return #err(err); };
+          case(#ok(ip)){ ip.author; };
+        };
+        ignore Map.update(users, Map.phash, author, func(_: Principal, user: ?User) : ?User {
+          switch(user){
+            case(null) { return null; };
+            case(?user) { ?{ user with banned = true; }; };
+          };
+        });
       };
       #ok;
     };
 
-    public func isSensitiveIntProp({ id: Nat; }) : Bool {
-      Set.has(accessControl.sensitiveIps, Set.nhash, id);
+    public func unbanIntProp({
+      caller: Principal;
+      id: Nat;
+    }) : async* Result<(), Text> {
+      if (caller != accessControl.admin and not Set.has(accessControl.moderators, Set.phash, caller)){
+        return #err("Only the admin or moderators can ban or unban IPs");
+      };
+      Set.delete(accessControl.bannedIps, Set.nhash, id);
+      #ok;
     };
 
-    public func getSensitiveIntProps() : [Nat] {
-      Set.toArray(accessControl.sensitiveIps);
+    public func isBannedIntProp({ id: Nat; }) : Bool {
+      Set.has(accessControl.bannedIps, Set.nhash, id);
+    };
+
+    public func getBannedIntProps() : [Nat] {
+      Set.toArray(accessControl.bannedIps);
+    };
+
+    public func banAuthor({
+      caller: Principal;
+      author: Principal;
+    }) : Result<(), Text> {
+      if (caller != accessControl.admin and not Set.has(accessControl.moderators, Set.phash, caller)){
+        return #err("Only the admin or moderators can ban or unban an author");
+      };
+      ignore Map.update(users, Map.phash, author, func(_: Principal, user: ?User) : ?User {
+        switch(user){
+          case(null) { return null; };
+          case(?user) { ?{ user with banned = true; }; };
+        };
+      });
+      #ok;
+    };
+
+    public func unbanAuthor({
+      caller: Principal;
+      author: Principal;
+    }) : Result<(), Text> {
+      if (caller != accessControl.admin and not Set.has(accessControl.moderators, Set.phash, caller)){
+        return #err("Only the admin or moderators can ban or unban an author");
+      };
+      ignore Map.update(users, Map.phash, author, func(_: Principal, user: ?User) : ?User {
+        switch(user){
+          case(null) { return null; };
+          case(?user) { ?{ user with banned = false; }; };
+        };
+      });
+      #ok;
+    };
+
+    public func isBannedAuthor({
+      author: Principal;
+    }) : Bool {
+      switch(Map.get(users, Map.phash, author)){
+        case(null) { false; };
+        case(?user) { user.banned; };
+      };
+    };
+
+    public func getBannedAuthors() : [(Principal, User)] {
+      Map.toArray(Map.mapFilter<Principal, User, User>(users, Map.phash, func(_: Principal, user: User) : ?User {
+        if (user.banned){
+          return ?user;
+        } else {
+          return null;
+        };
+      }));
     };
 
     public func setAdmin({ caller: Principal; admin: Principal; }) : Result<(), Text> {
