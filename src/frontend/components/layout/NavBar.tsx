@@ -14,7 +14,10 @@ import ChatHistoryBar from "./ChatHistoryBar";
 import { backendActor } from "../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../constants";
 import { ModalPopup } from "../common/ModalPopup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fromNullable } from "@dfinity/utils";
+import { User } from "../../../declarations/backend/backend.did";
+import FilePreview from "../common/FilePreview";
 
 const NavBar = () => {
 
@@ -28,11 +31,21 @@ const NavBar = () => {
   }
 
   const [showChatHistory, setShowChatHistory] = useState(false);
+  const [user, setUser] = useState<User | undefined>(undefined);
 
   const { data: queriedUser } = backendActor.useQueryCall({
     functionName: "get_user",
     args: [identity?.getPrincipal()],
   });
+
+  useEffect(() => {
+    if (queriedUser !== undefined){
+      setUser(fromNullable(queriedUser));
+    } else {
+      setUser(undefined);
+    }
+  }
+  ,[queriedUser]);
 
   const NavBarItems = [
     {
@@ -57,7 +70,7 @@ const NavBar = () => {
     },
     {
       svg: ProfileSvg,
-      label: queriedUser?.length === 0 ? NEW_USER_NICKNAME : queriedUser?.[0]?.nickName,
+      label: (user === undefined || user.nickName.length === 0) ? NEW_USER_NICKNAME : user.nickName,
       link: "profile",
     },
   ];
@@ -83,13 +96,16 @@ const NavBar = () => {
                     to={item.link}
                     key={index}
                   >
-                    <img
-                      src={item.svg}
-                      className={`${item.link === "profile" ? "h-9 rounded-full" : 
-                        item.link === "bips" ? "h-8 invert" :
-                        item.link === "marketplace" ? "h-11 invert -my-1" : "h-7 invert"
-                      }`}
-                    />
+                    { item.link === "profile" ? 
+                      (user !== undefined && user.imageUri !== "") ? 
+                        FilePreview({ dataUri: user.imageUri, className:"h-9 w-9 rounded-full object-cover"}) : 
+                        <img src={ProfileSvg} className="h-9 w-9 rounded-full object-cover" />
+                      :
+                      <img
+                        src={item.svg}
+                        className={`${item.link === "bips" ? "h-8 invert" : item.link === "marketplace" ? "h-11 invert -my-1" : "h-7 invert"}`}
+                      />
+                    }
                     <p className={`text-[10px] font-bold`}>{item.label}</p>
                   </Link>
                 ))}

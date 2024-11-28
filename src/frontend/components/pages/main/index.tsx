@@ -1,10 +1,11 @@
 import { useAuth } from "@ic-reactor/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import LogoSvg from "../../../assets/logo.png";
 import ProfileSvg from "../../../assets/profile.png";
 import { backendActor } from "../../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../constants";
+import { useChatHistory } from "../../layout/ChatHistoryContext";
 
 const Main = () => {
 
@@ -13,6 +14,15 @@ const Main = () => {
   if (!authenticated || !identity) {
     return <></>;
   }
+
+  const { addChat } = useChatHistory();
+
+  const navigate = useNavigate();
+
+  const newChat = (name: string) => {
+    const newChatId = addChat(name);
+    navigate(`/chat/${newChatId}`);
+  };
 
   const { data: queriedUser } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -37,10 +47,10 @@ const Main = () => {
       </div>
       <div className="flex h-full flex-col items-center">
         <div className="mx-4 flex w-full flex-col items-center gap-6 rounded-2xl bg-white p-12 text-center font-bold text-secondary sm:w-[440px]">
-          <p className="w-full px-4 text-start">IP Creation Option</p>
-          <Link to={"/dashboard"} className="w-full rounded-2xl border-[2px] border-secondary bg-white py-2">
+          <p className="w-full px-4">IP Creation Option</p>
+          <button className="w-full rounded-2xl border-[2px] border-secondary bg-white py-2" onClick={() => newChat("New chat")}>
             AI-Assisted IP Creation
-          </Link>
+          </button>
           <Link to={"/new"} className="w-full rounded-2xl border-[2px] border-secondary bg-white py-2">
             Manual IP Creation
           </Link>

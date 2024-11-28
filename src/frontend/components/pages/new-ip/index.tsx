@@ -3,6 +3,7 @@ import { Principal } from "@dfinity/principal";
 
 import NewIP from "./NewIp";
 import { useNavigate } from "react-router-dom";
+import { useChatHistory } from "../../layout/ChatHistoryContext";
 
 interface NewIPButtonProps {
   principal: Principal | undefined;
@@ -11,8 +12,15 @@ interface NewIPButtonProps {
 const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const navigate = useNavigate();
+
+  const { addChat } = useChatHistory();
   
   const [createIp, setCreateIp] = useState<boolean>(false);
+
+  const newChat = (name: string) => {
+    const newChatId = addChat(name);
+    navigate(`/chat/${newChatId}`);
+  };
 
   const onIpCreated = (ipId: bigint | undefined) => {
     setCreateIp(false);
@@ -23,19 +31,22 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   return (
     <div
-      className={`flex h-full w-full flex-1 flex-col items-center justify-center gap-4 overflow-auto bg-white sm:justify-start`}
+      className={`flex w-full flex-1 flex-col items-center justify-center gap-4 bg-white`}
     >
       { !createIp ? (
-        <div className="flex h-full flex-col items-center justify-center gap-6 text-primary-text">
-          <p className="mx-3 min-w-24 text-center text-2xl font-semibold leading-10">
-            Unlock the full potential of your intellectual property by listing
-            it on bIPQuantum, where innovation meets opportunity.
-          </p>
+        <div className="flex flex-col items-center justify-center gap-6 text-primary-text">
+          <p className="flex flex-col items-center gap-2 py-4 text-center text-xl font-bold tracking-wider sm:text-start sm:text-[24px]">IP Creation Option</p>
           <button
-            className="rounded-2xl bg-secondary py-2 px-4 text-xl font-semibold text-white"
+            className="w-full max-w-[400px] rounded-2xl bg-secondary py-3 text-lg font-semibold text-white transition hover:bg-secondary-dark px-4 py-2"
+            onClick={() => newChat("New chat")}
+          >
+            AI-Assisted IP Creation
+          </button>
+          <button
+            className="w-full max-w-[400px] rounded-2xl bg-secondary py-3 text-lg font-semibold text-white transition hover:bg-secondary-dark px-4 py-2"
             onClick={() => setCreateIp(true)}
           >
-            Create New IP
+            Manual IP Creation
           </button>
         </div>
         ) : <NewIP principal={principal} isOpen={createIp} onClose={onIpCreated}/>
