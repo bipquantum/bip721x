@@ -19,6 +19,7 @@ interface ListingDetailsProps {
   principal: Principal | undefined;
   owner: Principal;
   intPropId: bigint;
+  showRecommendation?: boolean;
   updateBipDetails: () => void;
 }
 
@@ -26,6 +27,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
   owner,
   intPropId,
+  showRecommendation,
   updateBipDetails,
 }) => {
   
@@ -224,24 +226,20 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               { getListedPrice() } bQC
             </div>
             <VioletButton isLoading={isLoading} onClick={() => triggerUnlist(intPropId)}>
-              { "Unlist "}
-              <span style={{ filter: 'grayscale(100%)' }}>🏷️</span>
+              <div className="flex flex-row items-center">
+                { "Unlist "}
+                <span style={{ filter: 'grayscale(100%)' }}>🏷️</span>
+              </div>
             </VioletButton>
           </div>
         );
       } else {
         // To list
         return (
-          <div className="flex flex-col items-center w-full space-y-1">
-            <div className="flex flex-row w-full items-center space-x-2 justify-between">
-              <label
-                htmlFor="e8sIcpPrice"
-                className="flex items-center justify-center text-nowrap text-sm font-medium"
-              >
-                List for (bQC)
-              </label>
+          <div className="flex flex-col relative items-center w-full space-y-1 ">
+            <div className="flex flex-row w-full items-center space-x-1 justify-between bg-violet-800 rounded-lg">
               <NumericFormat
-                className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
+                className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400 text-right ml-1"
                 thousandSeparator=","
                 decimalScale={TOKEN_DECIMALS_ALLOWED}
                 value={Number(fromE8s(sellPrice))}
@@ -254,14 +252,20 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
                     ),
                   );
                 }}
+                prefix="bQC "
+                spellCheck="false"
               />
               <VioletButton isLoading={isLoading} onClick={() => triggerList(intPropId, sellPrice)}>
                 List 🏷️
               </VioletButton>
             </div>
-            <div className="text-xs item-center">
-              Recommended price: 1 to 50 bQC
-            </div>
+            {
+              (showRecommendation === true) && (
+              <div className="text-xs item-center absolute -bottom-4 whitespace-nowrap">
+                Recommended price: 1 to 50 bQC
+              </div>
+              )
+            }
           </div>
         );
       }

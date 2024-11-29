@@ -24,7 +24,7 @@ const CopyToClipboard: React.FC<ClipboardProps> = ({ copiedText }) => {
     <div>
       <img
         onClick={copyToClipboard}
-        className="mt-2 h-4 w-4 cursor-pointer"
+        className="h-4 w-4 sm:h-6 sm:w-6 cursor-pointer"
         src={CopySvg}
       />
       {copySuccess && <div className="absolute">{copySuccess}</div>}

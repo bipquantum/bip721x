@@ -23,6 +23,7 @@ import { IntProp } from "../../../../declarations/backend/backend.did";
 import { getName } from "country-list";
 import BanIntProp from "../../common/BanIntProp";
 import AirdropEligible from "../../common/AirdropEligible";
+import UserNickName from "../../common/UserNickname";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -31,6 +32,7 @@ interface IPItemProps {
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
+  const [showUserDetails, setShowUserDetails] = useState(false);
 
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
@@ -71,10 +73,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   }
 
   return (
-    <div className="flex w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white">
+    <div className="flex w-full flex-1 flex-col items-start justify-start gap-y-4 overflow-auto bg-primary text-white h-full">
       <BipsHeader/>
-      <div className="w-full sm:p-8 md:p-4">
-        <div className="flex w-full flex-1 flex-col items-center justify-center overflow-auto rounded-xl bg-tertiary sm:rounded-3xl">
+      <div className="w-full h-full sm:p-8 md:p-4">
+        <div className="flex w-full h-full flex-1 flex-col items-center justify-center overflow-auto bg-tertiary sm:rounded-xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -85,16 +87,23 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               Loading...
             </div>
           ) : "err" in intProp ? (
-            <div>
-              <h1>Error</h1>
-              <p>{"Cannot find IP"}</p>
+            <div className="flex flex-col items-center justify-center h-full">
+              <h1>❌ Error</h1>
+              <div className="flex flex-col items-center justify-center text-center space-y-3">
+                <div className="flex flex-col items-center justify-center text-xl font-bold">
+                  IP Not Accessible
+                </div>
+                <div className="flex flex-col items-center justify-center text-medium">
+                  This IP address is either unlisted or not in your ownership. Only IP owners can view their assets in their bIP Wallet.
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="flex w-full flex-col gap-y-4 rounded-3xl p-4 sm:w-2/3 sm:px-12 sm:py-4">
+            <div className="flex w-full flex-col gap-y-4 rounded-xl p-4 sm:w-2/3 sm:px-12 sm:py-4 items-center">
               {
-                intProp.ok.V1.dataUri && <FilePreview dataUri={intProp.ok.V1.dataUri} className="h-60 w-full object-cover sm:w-96"/>
+                intProp.ok.V1.dataUri && <FilePreview dataUri={intProp.ok.V1.dataUri} className="w-60 w-full object-cover sm:w-96"/>
               }
-              <div className="flex flex-col">
+              <div className="flex flex-col items-center w-full grow">
                 <div className="py-2 text-xl text-base font-bold">
                   {intProp.ok.V1.title}
                 </div>
@@ -107,55 +116,83 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                 <div className="py-2 text-md text-base">
                   {intProp.ok.V1.description}
                 </div>
-                <div className="flex flex-col gap-2 text-lg">
-                  <p> Type: {intPropTypeToString(intProp.ok.V1.intPropType)}</p>
-                  {
-                    intProp.ok.V1.intPropLicenses.length > 0 && 
-                    <p>
-                      Licenses: {intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}
-                    </p>
-                  }
-                  <p>
-                    Creation Date:{" "}
+                <div className="relative overflow-x-auto w-full">
+                  <table className="w-full text-left rtl:text-right">
+                    <tr className="border-b">
+                      <th className="whitespace-nowrap font-medium text-white">💎 Type </th>
+                      <td className="font-semibold text-right"> {intPropTypeToString(intProp.ok.V1.intPropType)}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <th className="whitespace-nowrap font-medium text-white">⚖️ Licenses</th>
+                      <td className="font-semibold text-right">
+                      {
+                        intProp.ok.V1.intPropLicenses.length === 0 ? 
+                          <div className="italic font-light">None</div> :
+                          <div>{intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}</div>
+                      }
+                      </td>
+                    </tr>
+                    <tr className="border-b">
+                      <th className="whitespace-nowrap font-medium text-white">📅 Creation Date</th>
+                      <td className="font-semibold text-right">{formatDate(timeToDate(intProp.ok.V1.creationDate))}</td>
+                    </tr>
+                    <tr className="border-b">
+                      <th className="whitespace-nowrap font-medium text-white">👑 Royalties</th>
+                      <td className="font-semibold text-right">
+                        { fromNullable(intProp.ok.V1.percentageRoyalties) ?
+                          <div>{fromNullable(intProp.ok.V1.percentageRoyalties)?.toString()}%</div> : <div className="italic font-light">None</div>
+                        }</td>
+                    </tr>
+                    <tr className="border-b">
+                      <th className="whitespace-nowrap font-medium text-white">📜 Publishing</th>
+                      <td className="font-semibold text-right">
+                        {
+                          fromNullable(intProp.ok.V1.publishing) ? 
+                          <div className="flex flex-row space-x-1 justify-end"> 
+                            {getName(fromNullable(intProp.ok.V1.publishing)?.countryCode)}
+                            {", "}	
+                            { getPublishingDate(intProp.ok.V1) }</div> 
+                          : <div className="italic font-light">None</div>
+                        }
+                        
+                      </td>
+                    </tr>
+                    <tr className={`${showUserDetails ? "" : "border-b"} hover:cursor-pointer hover:bg-blue-800`} onClick={() => setShowUserDetails(!showUserDetails)}>
+                      <th className="whitespace-nowrap font-medium text-white">👨‍🎨 Author</th>
+                      <td className="font-semibold flex flex-row space-x-1 justify-end">
+                        {!showUserDetails && <UserNickName principal={intProp.ok.V1.author} />}
+                      </td> 
+                    </tr>
                     {
-                      formatDate(timeToDate(intProp.ok.V1.creationDate))
-                    }
-                  </p>
-                  {
-                    fromNullable(intProp.ok.V1.percentageRoyalties) !== undefined && <p>
-                      Royalties: {fromNullable(intProp.ok.V1.percentageRoyalties)?.toString()}%
-                    </p>
+                    showUserDetails && (
+                      <tr>
+                        <td colSpan={2} className="border-b w-full px-5 text-gray-200">
+                          <UserDetails
+                            principal={intProp.ok.V1.author}
+                          />
+                        </td>
+                      </tr>
+                    )
                   }
-                  {
-                    fromNullable(intProp.ok.V1.publishing) && <p>
-                      Publishing Date:{" "}
-                      { getPublishingDate(intProp.ok.V1) }
-                    </p>
-                  }
-                  {
-                    fromNullable(intProp.ok.V1.publishing) && <p>
-                      Publishing country: {" "}
-                      {getName(fromNullable(intProp.ok.V1.publishing)?.countryCode)}
-                    </p>
-                  }
-                  <UserDetails
-                    principal={intProp.ok.V1.author}
-                    title="Author(s) Details"
-                  />
-                  {owner && (
-                    <UserDetails principal={owner} title="Owner(s) Details" />
-                  )}
+                    <tr>
+                      <th className="whitespace-nowrap font-medium text-white">🗝️ Owner</th>
+                      <th className="text-sm font-medium text-right">
+                        { owner?.toString() }
+                      </th>
+                    </tr>
+                  </table>
                 </div>
               </div>
-              <div className="flex flex-row flex-wrap space-x-1 space-y-1 justify-between">
+              <div className="flex flex-col space-y-1 space-x-0 sm:flex-row sm:space-x-1 sm:space-y-0 items-right w-full justify-end">
                 <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
                 <BanIntProp principal={principal} intPropId={BigInt(intPropId)} />
-                <div>{owner && (
+                <div className="flex items-center justify-center">{owner && (
                   <ListingDetails
                     principal={principal}
                     owner={owner}
                     intPropId={BigInt(intPropId)}
                     updateBipDetails={updateBipDetails}
+                    showRecommendation={true}
                   />
                 )}
                 </div>

@@ -544,21 +544,16 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
           </>
         )}
         {step === 3 && (
-          <div className="flex flex-col items-center sm:gap-4">
+          <div className="flex flex-col items-center gap-4 sm:gap-8">
             <img
-              className="rounded-[32px] md:w-1/2"
+              className="w-2/5 rounded-[32px] md:w-1/2"
               src={AIBotImg}
               alt=""
             />
-            <div className="flex flex-row items-center">
-              <img
-                className="w-36 sm:h-48 sm:w-48"
-                src={CheckVerifiedSvg}
-                alt=""
-              />
-              <p className="w-[320px] text-center text-2xl font-semibold text-white sm:text-start sm:text-3xl">
-                Congratulations!
-                <br /> Your IP has been successfully minted!
+            <div className="flex flex-row items-center justify-center">
+              <p className="w-[320px] text-center text-2xl font-semibold text-white sm:text-3xl">
+                🎉 Congratulations! 
+                <br /> Your IP has been successfully created.
               </p>
             </div>
           </div>

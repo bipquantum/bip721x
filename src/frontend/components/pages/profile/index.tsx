@@ -91,7 +91,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center justify-center gap-4 overflow-auto bg-white font-semibold text-primary sm:gap-8 mb-2">
+    <div className="flex flex-col w-full h-full items-center justify-center overflow-auto bg-white font-semibold text-primary justify-between sm:justify-evenly p-2">
       <FileUploader
         setDataUri={(dataUri) => {
           if (dataUri !== null){
@@ -101,24 +101,24 @@ const Profile = () => {
         acceptedFiles="image/*,audio/*,application/pdf,text/*"
       >
         { userArgs.imageUri !== "" ? 
-          FilePreview({ dataUri: userArgs.imageUri, className:"h-16 w-16 sm:h-32 sm:w-32 rounded-full mt-24 sm:mt-12 object-cover"}) : 
-          <img src={ProfileSvg} className="h-16 w-16 sm:h-32 sm:w-32 rounded-full mt-24 sm:mt-12 object-cover" />
+          FilePreview({ dataUri: userArgs.imageUri, className:"h-20 w-20 sm:h-32 sm:w-32 rounded-full object-cover"}) : 
+          <img src={ProfileSvg} className="h-16 w-16 sm:h-32 sm:w-32 rounded-full object-cover" />
         }
       </FileUploader>
-      <div className="flex gap-1 px-10 text-center text-sm">
+      <div className="flex flex-row gap-0 sm:gap-1 text-center text-xs sm:text-sm items-center">
         {identity?.getPrincipal().toString()}
         <CopyToClipboard copiedText={identity?.getPrincipal().toString()} />
       </div>
-      <div className="flex w-80 flex-col gap-2 py-4 text-base text-primary-text sm:mt-4">
+      <div className="flex w-80 flex-col text-base text-primary-text sm:mt-4 gap-1">
         {ProfileFields.map((field, index) => (
-          <div className="flex w-full flex-col justify-start gap-2" key={index}>
-            <div className="text-sm">{field.label}</div>
+          <div className="flex w-full flex-col justify-start sm:gap-2" key={index}>
+            <div className="text-xs sm:text-sm">{field.label}</div>
             {
               field.name === "countryCode" ? 
               <ReactCountryDropdown defaultCountry={userArgs.countryCode} onSelect={(val) => setUserArgs({ ...userArgs, countryCode: val.code })} /> :
               field.name !== "imageUri" ?
               <input
-                className="w-full rounded-2xl border border-gray-300 bg-white bg-opacity-35 px-4 py-2 text-gray-600 placeholder-white outline-none"
+                className="w-full text-sm sm:text-md rounded-2xl border border-gray-300 bg-white bg-opacity-35 px-4 py-2 text-gray-600 placeholder-white outline-none"
                 defaultValue={userArgs[field.name]}
                 onChange={(e) => {
                   const copiedUser = { ...userArgs };
@@ -137,7 +137,7 @@ const Profile = () => {
         onClick={() => onUpdateBtnClicked()}
         disabled={isLoading}
       >
-        {isLoading ? <img src={SpinnerSvg} alt="" /> : "+Add/Update User"}
+        {isLoading ? <img src={SpinnerSvg} alt="" /> : "Add/Update User"}
       </button>
     </div>
   );

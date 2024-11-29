@@ -27,33 +27,22 @@ dfx deploy icrc7 --ic --argument 'record {
   icrc37_args = null;
   icrc3_args = null;
 }'
-dfx deploy idempotent_proxy_canister  --argument "(opt variant {Init =
+# TODO sardariuss 2024-09-25: multiply interval by 2, divide fee by 2
+dfx deploy idempotent_proxy_canister  --argument "(opt variant {Upgrade =
   record {
-    ecdsa_key_name = \"key_1\";
-    proxy_token_refresh_interval = 3600;
+    proxy_token_refresh_interval = 7200;
     subnet_size = 13;
-    service_fee = 10_000_000;
+    service_fee = 5_000_000;
   }
-})" --ic --mode=reinstall
+})" --ic
 
 # TODO sardariuss 2024-09-25: Deploy our own cf proxy
-# TODO sardariuss 2024-09-25: Why 3 records of the same proxy are needed?
 dfx canister call idempotent_proxy_canister admin_set_agents '
   (vec {
     record {
       name = "LDCLabs";
       endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
-      max_cycles = 100000000000;
-      proxy_token = null;
-    }; record {
-      name = "LDCLabs";
-      endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
-      max_cycles = 100000000000;
-      proxy_token = null;
-    }; record {
-      name = "LDCLabs";
-      endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
-      max_cycles = 100000000000;
+      max_cycles = 30000000000;
       proxy_token = null;
     };
   })

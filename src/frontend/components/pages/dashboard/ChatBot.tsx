@@ -63,7 +63,7 @@ const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps
       <div className="w-full flex flex-col bg-gray-300 p-2 sm:px-8 sm:py-4">
         <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
           <textarea
-            className="w-full text-lg outline-none sm:px-4 min-h-20"
+            className="w-full text-lg outline-none sm:px-4 min-h-10 sm:min-h-20"
             placeholder="What do you want to protect?"
             value={userInput}
             onChange={(e) => {

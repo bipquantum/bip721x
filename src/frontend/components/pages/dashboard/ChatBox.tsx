@@ -13,6 +13,27 @@ import remarkGfm from 'remark-gfm';
 import CopyIcon from "../../common/CopyIcon";
 import { AUTOMATIC_CHATBOT_TRANSITION } from "../../constants";
 
+const MARKDOWN_COMPONENTS = {
+  h1: ({ node, ...props } : any) => (
+    <h1
+      className="text-xl sm:text-2xl font-bold"
+      {...props}
+    />
+  ),
+  h2: ({ node, ...props } : any) => (
+    <h2
+      className="text-lg sm:text-xl font-semibold"
+      {...props}
+    />
+  ),
+  h3: ({ node, ...props } : any) => (
+    <h3
+      className="text-md sm:text-lg font-medium"
+      {...props}
+    />
+  )
+}
+
 interface ChatBoxProps {
   principal: Principal | undefined;
   chats: ChatElem[];
@@ -63,7 +84,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
 
   return (
     <div
-      className="flex h-full w-full flex-col gap-2 overflow-y-auto bg-white px-4 py-2 text-lg"
+      className="flex h-full w-full flex-col gap-2 overflow-y-auto bg-white px-4 py-2 text-sm sm:text-lg leading-normal sm:leading-relaxed"
       ref={messagesContainerRef}
     >
       {chats.map((chat, elem_index) => (
@@ -73,18 +94,22 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
               <div key={prompt_index} className="flex flex-col gap-2 pt-2">
                 <div className="flex flex-row gap-2 justify-end">
                   <span className="flex flex-col px-5"> { /* spacer */ } </span>
-                  <div className="rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
+                  <div className="flex rounded-xl items-center px-3 py-0 sm:px-4 sm:py-2 bg-slate-300 text-black markdown-link">
                     {prompt.question}
                   </div>
                   <img src={ProfileSvg} className={`h-10 rounded-full`} />
                 </div>
                 <div className="flex flex-row gap-2">
                   <img src={AIBotImg} className={`h-10 rounded-full`} />
-                  <div className="rounded-xl px-4 py-2 bg-slate-300 text-black markdown-link">
+                  <div className="flex rounded-xl items-center-xl px-3 py-2 sm:px-4 sm:py-2 bg-slate-300 text-black markdown-link">
                     {prompt.answer === undefined ? (
                       <img src={SpinnerSvg} alt="Loading..." />
                     ) : (
-                      <Markdown>{prompt.answer}</Markdown>
+                      <Markdown
+                        components={MARKDOWN_COMPONENTS}
+                      >
+                        {prompt.answer}
+                      </Markdown>
                     )}
                   </div>
                   <span className="flex flex-col px-5"> { /* spacer */ } </span>
@@ -94,14 +119,16 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
           }
           <div className="flex flex-row gap-2 py-2">
             <img src={AIBotImg} className={`h-10 rounded-full`} />
-            <div className="flex flex-col rounded-xl bg-slate-300 px-4 py-2 text-black markdown-link">
-              <Markdown remarkPlugins={[remarkGfm]}>
+            <div className="flex flex-col rounded-xl bg-slate-300 px-3 py-0 sm:px-4 sm:py-2 text-black markdown-link">
+              <Markdown 
+                remarkPlugins={[remarkGfm]}
+                components={MARKDOWN_COMPONENTS}>
                 {chat.question}
               </Markdown>
               { 
                 // Add copy button for the knowledge base questions
                 (chat.key === "expertLevel" || chat.key === "intermediateLevel" || chat.key === "beginnerLevel") &&
-                <div className="self-end h-6 w-6 cursor-pointer" onClick={() => navigator.clipboard.writeText(chat.question)}>
+                <div className="self-end h-5 w-5 sm:h-6 sm:w-6 cursor-pointer mt-1 mb-2 sm:mt-0 sm:mb-1" onClick={() => navigator.clipboard.writeText(chat.question)}>
                   <CopyIcon className="hover:text-black text-gray-700"/>
                 </div>
               }
@@ -116,7 +143,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
               {
               chat.answers.map((answer, answer_index) => (
                 <button
-                  className={`rounded-xl px-4 py-2 bg-blue-600 text-white 
+                  className={`rounded-xl h-10 px-3 sm:px-4 bg-blue-600 text-white 
                     ${answer.state === ChatAnswerState.Unselectable || answer.text === "US Copyright Certificate" && "bg-gray-400"}
                     ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-blue-800"}
                     ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-blue-800"}

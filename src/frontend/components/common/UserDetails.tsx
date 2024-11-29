@@ -8,10 +8,9 @@ import { getName } from "country-list";
 
 type UserDetailsArgs = {
   principal: Principal;
-  title?: string;
 };
 
-const UserDetails = ({ principal, title }: UserDetailsArgs) => {
+const UserDetails = ({ principal }: UserDetailsArgs) => {
   
   const { data: author } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -19,36 +18,33 @@ const UserDetails = ({ principal, title }: UserDetailsArgs) => {
   });
 
   return (
-    <div className="rounded-lg border border-gray-300 p-2">
-      <div className="flex flex-col gap-2">
-        {title && <p>{title}</p>}
-        {author === undefined || fromNullable(author) === undefined ? (
-          <div className="text-center text-white">Anonymous</div>
-        ) : (
-          <div className="grid grid-cols-2 gap-1 md:grid-cols-5">
-            <div>
-              <p>First Name</p>
-              <div className="font-bold">{fromNullable(author)?.firstName}</div>
-            </div>
-            <div>
-              <p>Nickname</p>
-              <div className="font-bold">{fromNullable(author)?.nickName}</div>
-            </div>
-            <div>
-              <p>Last Name</p>
-              <div className="font-bold">{fromNullable(author)?.lastName}</div>
-            </div>
-            <div>
-              <p>Specialty</p>
-              <div className="font-bold">{fromNullable(author)?.specialty}</div>
-            </div>
-            <div>
-              <p>Country</p>
-              <div className="font-bold">{getName(fromNullable(author)?.countryCode)}</div>
-            </div>
-          </div>
-        )}
-      </div>
+    <div className="relative overflow-x-auto w-full">
+      {author === undefined || fromNullable(author) === undefined ? (
+        <div className="text-center text-white">Anonymous</div>
+      ) : (
+        <table className="w-full text-left rtl:text-right">
+          <tr>
+            <th className="whitespace-nowrap font-medium text-white">First Name</th>
+            <td className="font-semibold text-right">{fromNullable(author)?.firstName}</td>
+          </tr>
+          <tr>
+            <th className="whitespace-nowrap font-medium text-white">Nickname</th>
+            <td className="font-semibold text-right">{fromNullable(author)?.nickName}</td>
+          </tr>
+          <tr>
+            <th className="whitespace-nowrap font-medium text-white">Last Name</th>
+            <td className="font-semibold text-right">{fromNullable(author)?.lastName}</td>
+          </tr>
+          <tr>
+            <th className="whitespace-nowrap font-medium text-white">Specialty</th>
+            <td className="font-semibold text-right">{fromNullable(author)?.specialty}</td>
+          </tr>
+          <tr>
+            <th className="whitespace-nowrap font-medium text-white">Country</th>
+            <td className="font-semibold text-right">{getName(fromNullable(author)?.countryCode)}</td>
+          </tr>
+        </table>
+      )}
     </div>
   );
 };

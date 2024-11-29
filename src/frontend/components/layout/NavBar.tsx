@@ -92,7 +92,7 @@ const NavBar = () => {
               <div className="flex flex-col items-center justify-start gap-12">
                 {NavBarItems.map((item, index) => (
                   <Link
-                    className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "profile" !== item.link && "opacity-40"}`}
+                    className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "opacity-40"}`}
                     to={item.link}
                     key={index}
                   >
@@ -123,7 +123,7 @@ const NavBar = () => {
               </button>
             </div>
           </div>
-          <div className="flex h-28 w-full items-center justify-between bg-secondary pl-4 pr-8 sm:hidden">
+          <div className="flex h-20 sm:h-28 w-full items-center justify-between bg-secondary pl-4 pr-8 sm:hidden">
             <img src={LogoSvg} className="h-14 invert" alt="Logo" />
             <img src={MessagesSvg} className="h-8" alt="Logo" onClick={() => setShowChatHistory(true)} />
           </div>

@@ -49,7 +49,7 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
         </div>
       ) : "err" in intProp ? (
         <div>
-          <h1>Error</h1>
+          <h1>❌ Error</h1>
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
