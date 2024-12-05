@@ -30,11 +30,11 @@ dfx deploy icrc7 --ic --argument 'record {
 # TODO sardariuss 2024-09-25: multiply interval by 2, divide fee by 2
 dfx deploy idempotent_proxy_canister  --argument "(opt variant {Upgrade =
   record {
-    proxy_token_refresh_interval = 7200;
-    subnet_size = 13;
-    service_fee = 5_000_000;
+    proxy_token_refresh_interval = opt 86_400;
+    subnet_size = opt 13;
+    service_fee = opt 10_000_000;
   }
-})" --ic
+})" --ic --upgrade-unchanged
 
 # TODO sardariuss 2024-09-25: Deploy our own cf proxy
 dfx canister call idempotent_proxy_canister admin_set_agents '
