@@ -49,7 +49,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
         <Balance principal={principal} />
       </div>
       <BipList 
-        scrollableClassName="grid grid-cols-2 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+        scrollableClassName="grid grid-cols-1 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
         principal={principal}
         fetchBips={fetchBips}
         queryDirection={queryDirection}

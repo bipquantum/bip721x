@@ -53,38 +53,52 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
-        <Link className="w-44 sm:w-72 sm:p-2" to={`/bip/${intPropId}`}>
-          <div className="bg-tertiary flex flex-col gap-y-1 rounded-2xl p-3 text-base text-white sm:p-4">
+        <Link className="w-full h-96 sm:w-72" to={`/bip/${intPropId}`}>
+          <div className="bg-tertiary flex flex-col gap-y-1 rounded-2xl p-3 text-base text-white h-full">
             {intProp.ok.V1.dataUri ? (
               <div className="w-full">
                 <FilePreview
                   dataUri={intProp.ok.V1.dataUri}
-                  className="h-[111px] w-full rounded-xl object-cover sm:h-[184px]"
+                  className="h-48 w-full rounded-xl object-cover flex flex-col items-center justify-center"
                 />
               </div>
             ) : (
               <img
                 src={AIBotImg}
-                className="mb-2 h-[111px] w-full rounded-xl border border-gray-300 object-cover shadow-md sm:h-[184px]"
+                className="h-48 w-full rounded-xl border border-gray-300 object-cover shadow-md "
                 alt="Logo"
               />
             )}
             <div className="grid grid-cols-6">
-              <p className="text-base truncate sm:text-2xl font-semibold col-span-5">{intProp.ok.V1.title}</p>
+              <p className="truncate text-2xl font-semibold col-span-5">
+                {intProp.ok.V1.title}
+              </p>
               <div className="justify-self-end">
-                <AirdropEligible intPropId={intPropId} compact={true}/>
+                <AirdropEligible intPropId={intPropId} compact={true} />
               </div>
             </div>
-            <p className="text-sm font-semibold sm:text-base">
+            <p className="truncate font-semibold text-base">
               Type: {intPropTypeToString(intProp.ok.V1.intPropType)}
             </p>
-            {
-              intProp.ok.V1.intPropLicenses.length > 0 && 
-              <p className="text-sm font-semibold sm:text-base">
-                Licenses: {intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}
+            {intProp.ok.V1.intPropLicenses.length > 0 && (
+              <p className="truncate font-semibold text-base">
+                Licenses: {intProp.ok.V1.intPropLicenses
+                  .map(intPropLicenseToString)
+                  .join(", ")}
               </p>
-            }
-            { owner && <ListingDetails principal={principal} owner={owner} intPropId={intPropId} updateBipDetails={() => {}} /> }
+            )}
+            {/* Use `flex-grow` to push the last child to the bottom */}
+            <div className="flex-grow"></div>
+            <div>
+              {owner && (
+                <ListingDetails
+                  principal={principal}
+                  owner={owner}
+                  intPropId={intPropId}
+                  updateBipDetails={() => {}}
+                />
+              )}
+            </div>
           </div>
         </Link>
       )}
