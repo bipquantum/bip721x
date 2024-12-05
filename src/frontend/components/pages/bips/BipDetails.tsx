@@ -179,7 +179,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   </th>
                 </tr>
               </table>
-              <div className="flex flex-col space-y-1 space-x-0 sm:flex-row sm:space-x-1 sm:space-y-0 items-right w-full justify-end">
+              <div className="flex flex-col space-y-1 space-x-0 sm:flex-row sm:space-x-1 sm:space-y-0 items-right w-full justify-end pb-4">
                 <GenerateCertificate intPropId={intPropId} intProp={intProp.ok.V1}/>
                 <BanIntProp principal={principal} intPropId={BigInt(intPropId)} />
                 <div className="flex items-center justify-center">{owner && (
