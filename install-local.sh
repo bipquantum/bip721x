@@ -43,7 +43,6 @@ dfx canister call idempotent_proxy_canister admin_set_agents '
   })
 '
 
-# TODO sardariuss 2024-09-25: Not sure it's needed
 dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal "'${BACKEND_CANISTER}'"})'
 
 dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})'

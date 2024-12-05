@@ -45,3 +45,13 @@ mops test
     - validate that it is today or in the past
 - publication date: it should not be mandatory
 - once created, IP shall not be listed on the marketplace yet, but only in the user's owned IP
+
+## TODOs
+- Verify the idempotent proxy cycles consomption has been reduced by putting the timer every day
+- Inject the chatgpt API key instead of hardcoding it
+- Fix Conversions.intPropToMetadata to be able to use it
+- Harmonize the error messages returned by the backend canister
+- Be able to add a subaccount when creating IPs
+- Code review of implementation of ICRC-7/ICRC-37/ICRC-3, ideally have them audited
+- Have a proper approve flow (comes with NFID)
+- Misc frontend todos, nothing blocking or critical
