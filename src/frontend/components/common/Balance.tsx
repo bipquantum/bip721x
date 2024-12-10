@@ -50,7 +50,7 @@ const Balance = ({ principal }: BalanceProps) => {
   , []);
 
   return (
-    <div className="flex flex-row items-center gap-2 text-sm sm:text-xl">
+    <div className="flex flex-row items-center gap-2 text-lg sm:text-xl">
       <span>Balance: {fromE8s(balance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} bQC</span>
       {
         isAirdropAvailable ?

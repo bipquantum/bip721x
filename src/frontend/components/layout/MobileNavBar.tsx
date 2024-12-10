@@ -69,7 +69,7 @@ const MobileNavBar = () => {
   ,[queriedUser]);
 
   return (
-    <div className="flex w-full items-center justify-between bg-secondary px-4 h-20 sticky space-x-2 sm:hidden">
+    <div className="flex w-full items-center justify-between bg-secondary px-4 h-16 min-h-16 sticky space-x-2 sm:hidden">
       {MobileNavBarItems.map((item, index) => (
         <Link
           className={`rounded-xl ${pathname !== "/" + item.link && "profile" !== item.link && "opacity-40"} ${pathname === "/" + item.link && "profile" !== item.link && "bg-white bg-opacity-25"}`}

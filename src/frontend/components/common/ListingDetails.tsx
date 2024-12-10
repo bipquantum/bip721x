@@ -226,10 +226,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               { getListedPrice() } bQC
             </div>
             <VioletButton isLoading={isLoading} onClick={() => triggerUnlist(intPropId)}>
-              <div className="flex flex-row items-center">
-                { "Unlist "}
-                <span style={{ filter: 'grayscale(100%)' }}>🏷️</span>
-              </div>
+              <span style={{ filter: 'grayscale(100%)' }}>Unlist 🏷️</span>
             </VioletButton>
           </div>
         );

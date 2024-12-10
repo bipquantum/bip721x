@@ -123,10 +123,6 @@ const NavBar = () => {
               </button>
             </div>
           </div>
-          <div className="flex h-20 sm:h-28 w-full items-center justify-between bg-secondary pl-4 pr-8 sm:hidden">
-            <img src={LogoSvg} className="h-14 invert" alt="Logo" />
-            <img src={MessagesSvg} className="h-8" alt="Logo" onClick={() => setShowChatHistory(true)} />
-          </div>
           <div
             className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
           >

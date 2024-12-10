@@ -14,6 +14,7 @@ import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
 import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
+import MobileHeader from "./layout/MobileHeader";
 
 interface ThemeContextProps {
   theme: string;
@@ -85,8 +86,9 @@ function AppContent() {
       <AirdropBanner />
       <NavBar />
       <div className="flex h-full w-full flex-1 flex-col justify-end">
+        {pathname !== "/login" && <MobileHeader /> }
         <Router />
-        {pathname !== "/" && pathname !== "/login" && <MobileNavBar />}
+        {pathname !== "/login" && <MobileNavBar />}
       </div>
     </>
   );
