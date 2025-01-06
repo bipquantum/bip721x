@@ -27,21 +27,21 @@ dfx deploy icrc7 --ic --argument 'record {
   icrc37_args = null;
   icrc3_args = null;
 }'
-# TODO sardariuss 2024-09-25: multiply interval by 2, divide fee by 2
-dfx deploy idempotent_proxy_canister  --argument "(opt variant {Upgrade =
-  record {
-    proxy_token_refresh_interval = opt 86_400;
-    subnet_size = opt 13;
-    service_fee = opt 10_000_000;
-  }
-})" --ic --upgrade-unchanged
 
-# TODO sardariuss 2024-09-25: Deploy our own cf proxy
+dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
+  record {
+    ecdsa_key_name = \"key_1\";
+    proxy_token_refresh_interval = 86_400;
+    subnet_size = 13;
+    service_fee = 10_000_000;
+  }
+})" --ic --mode=reinstall
+
 dfx canister call idempotent_proxy_canister admin_set_agents '
   (vec {
     record {
-      name = "LDCLabs";
-      endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
+      name = "bIPQuantumWorker";
+      endpoint = "https://idempotent-proxy-cf-worker.bipquantum.workers.dev";
       max_cycles = 30000000000;
       proxy_token = null;
     };

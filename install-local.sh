@@ -31,7 +31,6 @@ dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
   }
 })"
 
-# TODO sardariuss 2024-09-25: Deploy our own cf proxy
 dfx canister call idempotent_proxy_canister admin_set_agents '
   (vec {
     record {
