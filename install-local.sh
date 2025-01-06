@@ -35,8 +35,8 @@ dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
 dfx canister call idempotent_proxy_canister admin_set_agents '
   (vec {
     record {
-      name = "LDCLabs";
-      endpoint = "https://idempotent-proxy-cf-worker.zensh.workers.dev";
+      name = "bIPQuantumWorker";
+      endpoint = "https://idempotent-proxy-cf-worker.bipquantum.workers.dev";
       max_cycles = 30000000000;
       proxy_token = null;
     };
