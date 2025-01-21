@@ -16,6 +16,11 @@ import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
 import MobileHeader from "./layout/MobileHeader";
 
+import { canisterId as backendId } from "../../declarations/backend/index.js";
+
+import { IdentityKitProvider } from "@nfid/identitykit/react"
+import { IdentityKitSignerConfig, InternetIdentity, MockedSigner, NFIDW, OISY, Plug, Stoic } from "@nfid/identitykit";
+
 interface ThemeContextProps {
   theme: string;
   setTheme: (theme: string) => void;
@@ -51,6 +56,27 @@ function App() {
     }, [theme]);
   }
 
+  const mockedSignerProviderUrl = import.meta.env.VITE_MOCKED_SIGNER_PROVIDER_URL
+  const nfidSignerProviderUrl = import.meta.env.VITE_MOCKED_NFID_SIGNER_PROVIDER_URL
+  const environment = import.meta.env.VITE_ENVIRONMENT
+
+  const nfidw: IdentityKitSignerConfig = { ...NFIDW, providerUrl: nfidSignerProviderUrl }
+  const signers = [nfidw, Plug, InternetIdentity, Stoic, OISY].concat(
+    environment === "dev"
+      ? [
+          {
+            ...MockedSigner,
+            providerUrl: mockedSignerProviderUrl,
+          },
+        ]
+      : []
+  )
+  
+  console.log("mockedSignerProviderUrl: ", mockedSignerProviderUrl)
+  console.log("nfidSignerProviderUrl: ", nfidSignerProviderUrl)
+  console.log("environment: ", environment)
+  console.log("backendId: ", backendId)
+
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
       <div className="flex h-screen w-full flex-col sm:flex-row">
@@ -62,7 +88,15 @@ function App() {
                   <ChatHistoryProvider>
                     <BalanceProvider>
                       <AirdropBannerProvider>
-                        <AppContent />
+                        <IdentityKitProvider 
+                          signers={signers}
+                          featuredSigner={nfidw}
+                          signerClientOptions={{
+                            targets: [backendId],
+                          }}
+                        >
+                          <AppContent />
+                        </IdentityKitProvider>
                       </AirdropBannerProvider>
                     </BalanceProvider>
                   </ChatHistoryProvider>

@@ -1,4 +1,3 @@
-import { useAuth } from "@ic-reactor/react";
 import { Navigate } from "react-router-dom";
 
 import LogoSvg from "../../../assets/logo.png";
@@ -6,14 +5,58 @@ import DfinitySvg from "../../../assets/dfinity.svg";
 import NfidSvg from "../../../assets/nfid-logo.svg";
 import LoginSvg from "../../../assets/login.svg";
 
+import "@nfid/identitykit/react/styles.css"
+import { ConnectWallet, useAgent, useIdentity } from "@nfid/identitykit/react"
+import { useEffect, useMemo, useState } from "react";
+import { Actor, ActorSubclass, HttpAgent } from "@dfinity/agent";
+import { idlFactory as backendIdlFactory, canisterId as backendId } from "../../../../declarations/backend/index.js";
+import { _SERVICE as BackendService, SupportedStandard } from "../../../../declarations/backend/backend.did.js";
+
 const APP_NAME = "BIP QUANTUM";
 const APP_LOGO = "https://nfid.one/icons/favicon-96x96.png";
 const CONFIG_QUERY = `?applicationName=${APP_NAME}&applicationLogo=${APP_LOGO}`;
 
 const Login = () => {
-  const { login, authenticated } = useAuth({});
+  
+  //const authenticated2 = useAgent();
+  //if (authenticated || authenticated2 ) return <Navigate to="/" />;
 
-  if (authenticated) return <Navigate to="/" />;
+  const isLocal = false;
+  const customHost = isLocal ? 'http://localhost:4943' : 'https://icp-api.io';
+  const authenticatedAgent = useAgent({
+    host: customHost,
+    retryTimes: 10,
+  });
+
+  const backendActor : ActorSubclass<BackendService> | undefined = useMemo(() => {
+    return (
+      authenticatedAgent &&
+      // or nonTargetIdlFactory
+      Actor.createActor(backendIdlFactory, {
+        agent: authenticatedAgent,
+        canisterId: backendId, // or NON_TARGET_CANISTER_ID_TO_CALL
+      })
+    )
+  }, [authenticatedAgent, backendIdlFactory])
+
+  const [standards, setStandars] = useState<SupportedStandard[]>([]);
+
+  useEffect(() => {
+    if (!backendActor) return;
+    backendActor.icrc10_supported_standards().then((standards) => {
+      setStandars(standards);
+    });
+  }, [backendActor]);
+
+
+//  const agent = useMemo(() => {
+//    if (!identity) return undefined;
+//    return HttpAgent.createSync({
+//      host: customHost,
+//      identity,
+//      retryTimes: 10,
+//    });
+//  }, [identity]);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">
@@ -44,28 +87,33 @@ const Login = () => {
         <div className="flex w-full flex-col items-center justify-center gap-y-3">
           <button
             className="flex w-11/12 items-center justify-center gap-x-2 rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]"
-            onClick={() => {
-              login();
-            }}
+            onClick={() => {}}
           >
             Connect with
             <img src={DfinitySvg} className="h-4" alt="Logo" />
           </button>
-          <div className="relative group flex w-11/12 items-center justify-center rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]">
-            <button
-              className="opacity-50 flex flex-row items-center gap-x-2"
-              onClick={() => {
-                login({
-                  identityProvider: `https://nfid.one/authenticate${CONFIG_QUERY}`,
-                });
-              }}
-              disabled={true}
-            >
-              Connect with <img src={NfidSvg} className="h-4" alt="Logo" />
-            </button>
-            <span className="absolute bottom-full mb-2 hidden w-max px-2 py-1 text-sm text-white bg-black rounded opacity-75 group-hover:block items-center">
-              Coming Soon!
-            </span>
+          <div className="relative group flex w-full items-center justify-center rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]">
+            <ConnectWallet/>
+          </div>
+          <div>{
+            authenticatedAgent ? <span>Connected!</span> : <span>Not connected</span>
+          }
+          </div>
+          <div>
+            {
+              backendActor ? 
+                <ul>
+                  {
+                    standards.map((standard, index) => (
+                      <li key={index}>
+                        <div>{standard.name}</div>
+                        <div>{standard.url}</div>
+                      </li>
+                    ))
+                  }
+                </ul>:
+                <span>Backend Actor not created</span>
+            }
           </div>
         </div>
       </div>
