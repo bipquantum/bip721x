@@ -1,19 +1,18 @@
-import { useAuth } from "@ic-reactor/react";
 import { Link, useNavigate } from "react-router-dom";
-
 import LogoSvg from "../../../assets/logo.png";
 import ProfileSvg from "../../../assets/profile.png";
-import { backendActor } from "../../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../constants";
 import { useChatHistory } from "../../layout/ChatHistoryContext";
+import { useIdentity } from "@nfid/identitykit/react";
+import { useActors } from "../../common/ActorsContext.js";
+import { useEffect, useState } from "react";
+import { fromNullable } from "@dfinity/utils";
+import { User } from "../../../../declarations/backend/backend.did.js";
 
 const Main = () => {
 
-  const { authenticated, identity } = useAuth({});
-
-  if (!authenticated || !identity) {
-    return <></>;
-  }
+  const { unauthenticated } = useActors();
+  const identity = useIdentity();
 
   const { addChat } = useChatHistory();
 
@@ -24,10 +23,15 @@ const Main = () => {
     navigate(`/chat/${newChatId}`);
   };
 
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: [identity?.getPrincipal()],
-  });
+  const [user, setUser] = useState<User | undefined>(undefined);
+
+  useEffect(() => {
+    if (identity && unauthenticated) {
+      unauthenticated?.backend.get_user(identity?.getPrincipal()).then((user) => {
+        setUser(fromNullable(user));
+      });
+    }
+  }, [unauthenticated, identity]);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-lg text-white">
@@ -41,7 +45,7 @@ const Main = () => {
           <Link to={"/marketplace"}>Market place</Link>
         </div>
         <Link to={"profile"} className="hidden items-center gap-4 sm:flex">
-          { queriedUser?.length === 0 ? NEW_USER_NICKNAME : queriedUser?.[0]?.nickName }
+          { user  ? user.nickName : NEW_USER_NICKNAME }
           <img src={ProfileSvg} className="h-10 rounded-full" alt="Logo" />
         </Link>
       </div>

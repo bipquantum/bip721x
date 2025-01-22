@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, redirect, useNavigate } from "react-router-dom";
 
 import LogoSvg from "../../../assets/logo.png";
 import DfinitySvg from "../../../assets/dfinity.svg";
@@ -21,6 +21,8 @@ const Login = () => {
   //const authenticated2 = useAgent();
   //if (authenticated || authenticated2 ) return <Navigate to="/" />;
 
+  const navigate = useNavigate();
+
   const isLocal = false;
   const customHost = isLocal ? 'http://localhost:4943' : 'https://icp-api.io';
   const authenticatedAgent = useAgent({
@@ -28,35 +30,32 @@ const Login = () => {
     retryTimes: 10,
   });
 
-  const backendActor : ActorSubclass<BackendService> | undefined = useMemo(() => {
-    return (
-      authenticatedAgent &&
-      // or nonTargetIdlFactory
-      Actor.createActor(backendIdlFactory, {
-        agent: authenticatedAgent,
-        canisterId: backendId, // or NON_TARGET_CANISTER_ID_TO_CALL
-      })
-    )
-  }, [authenticatedAgent, backendIdlFactory])
-
-  const [standards, setStandars] = useState<SupportedStandard[]>([]);
-
   useEffect(() => {
-    if (!backendActor) return;
-    backendActor.icrc10_supported_standards().then((standards) => {
-      setStandars(standards);
-    });
-  }, [backendActor]);
+    if (authenticatedAgent) {
+      console.log("Navigating to /");
+      navigate("/");
+    }
+  }, [authenticatedAgent]);
 
-
-//  const agent = useMemo(() => {
-//    if (!identity) return undefined;
-//    return HttpAgent.createSync({
-//      host: customHost,
-//      identity,
-//      retryTimes: 10,
+//  const backendActor : ActorSubclass<BackendService> | undefined = useMemo(() => {
+//    return (
+//      authenticatedAgent &&
+//      // or nonTargetIdlFactory
+//      Actor.createActor(backendIdlFactory, {
+//        agent: authenticatedAgent,
+//        canisterId: backendId, // or NON_TARGET_CANISTER_ID_TO_CALL
+//      })
+//    )
+//  }, [authenticatedAgent, backendIdlFactory])
+//
+//  const [standards, setStandars] = useState<SupportedStandard[]>([]);
+//
+//  useEffect(() => {
+//    if (!backendActor) return;
+//    backendActor.icrc10_supported_standards().then((standards) => {
+//      setStandars(standards);
 //    });
-//  }, [identity]);
+//  }, [backendActor]);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">
@@ -94,26 +93,6 @@ const Login = () => {
           </button>
           <div className="relative group flex w-full items-center justify-center rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]">
             <ConnectWallet/>
-          </div>
-          <div>{
-            authenticatedAgent ? <span>Connected!</span> : <span>Not connected</span>
-          }
-          </div>
-          <div>
-            {
-              backendActor ? 
-                <ul>
-                  {
-                    standards.map((standard, index) => (
-                      <li key={index}>
-                        <div>{standard.name}</div>
-                        <div>{standard.url}</div>
-                      </li>
-                    ))
-                  }
-                </ul>:
-                <span>Backend Actor not created</span>
-            }
           </div>
         </div>
       </div>

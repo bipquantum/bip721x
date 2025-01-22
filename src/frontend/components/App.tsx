@@ -20,6 +20,7 @@ import { canisterId as backendId } from "../../declarations/backend/index.js";
 
 import { IdentityKitProvider } from "@nfid/identitykit/react"
 import { IdentityKitSignerConfig, InternetIdentity, MockedSigner, NFIDW, OISY, Plug, Stoic } from "@nfid/identitykit";
+import { ActorsProvider } from "./common/ActorsContext.js";
 
 interface ThemeContextProps {
   theme: string;
@@ -95,7 +96,9 @@ function App() {
                             targets: [backendId],
                           }}
                         >
-                          <AppContent />
+                          <ActorsProvider>
+                            <AppContent />
+                          </ActorsProvider>
                         </IdentityKitProvider>
                       </AirdropBannerProvider>
                     </BalanceProvider>

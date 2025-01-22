@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
@@ -18,34 +18,29 @@ import { useEffect, useState } from "react";
 import { fromNullable } from "@dfinity/utils";
 import { User } from "../../../declarations/backend/backend.did";
 import FilePreview from "../common/FilePreview";
+import { useActors } from "../common/ActorsContext.js";
+import { useIdentity } from "@nfid/identitykit/react";
+import { useChatHistory } from "./ChatHistoryContext.js";
 
 const NavBar = () => {
 
   const location = useLocation();
   const { pathname } = location;
 
-  const { identity, authenticated, logout } = useAuth({});
-
-  if (!identity || !authenticated) {
-    return <></>;
-  }
-
   const [showChatHistory, setShowChatHistory] = useState(false);
+
+  const { unauthenticated } = useActors();
+  const identity = useIdentity();
+
   const [user, setUser] = useState<User | undefined>(undefined);
 
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: [identity?.getPrincipal()],
-  });
-
   useEffect(() => {
-    if (queriedUser !== undefined){
-      setUser(fromNullable(queriedUser));
-    } else {
-      setUser(undefined);
+    if (identity && unauthenticated) {
+      unauthenticated?.backend.get_user(identity?.getPrincipal()).then((user) => {
+        setUser(fromNullable(user));
+      });
     }
-  }
-  ,[queriedUser]);
+  }, [unauthenticated, identity]);
 
   const NavBarItems = [
     {
@@ -111,7 +106,7 @@ const NavBar = () => {
                 ))}
               </div>
               <button
-                onClick={() => logout()}
+                onClick={() => {}} // @todo: implement logout
                 className="flex flex-col items-center justify-center gap-2"
               >
                 <img
