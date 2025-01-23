@@ -1,22 +1,22 @@
 import { toast } from "react-toastify";
 import { Principal } from "@dfinity/principal";
 import { NumericFormat } from "react-number-format";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import { backendActor } from "../actors/BackendActor";
-import { dateToTime, fromE8s, toE8s } from "../../utils/conversions";
+import { backendActor } from "../actors/BackendActor.js";
+import { dateToTime, fromE8s, toE8s } from "../../utils/conversions.js";
 
-import { bip721LedgerActor } from "../actors/Bip721LedgerActor";
-import { canisterId } from "../../../declarations/backend";
-import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/bip721_ledger/bip721_ledger.did";
-import { TOKEN_DECIMALS_ALLOWED } from "../constants";
-import { bqcLedgerActor } from "../actors/BqcLedgerActor";
-import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did";
-import { useBalance } from "./BalanceContext";
-import VioletButton from "./VioletButton";
+import { bip721LedgerActor } from "../actors/Bip721LedgerActor.js";
+import { canisterId } from "../../../declarations/backend/index.js";
+import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/bip721_ledger/bip721_ledger.did.js";
+import { TOKEN_DECIMALS_ALLOWED } from "../constants.js";
+import { bqcLedgerActor } from "../actors/BqcLedgerActor.js";
+import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did.js";
+import { useBalance } from "./BalanceContext.js";
+import VioletButton from "./VioletButton.js";
+import { useIdentity } from "@nfid/identitykit/react";
 
 interface ListingDetailsProps {
-  principal: Principal | undefined;
   owner: Principal;
   intPropId: bigint;
   showRecommendation?: boolean;
@@ -24,12 +24,14 @@ interface ListingDetailsProps {
 }
 
 const ListingDetails: React.FC<ListingDetailsProps> = ({
-  principal,
   owner,
   intPropId,
   showRecommendation,
   updateBipDetails,
 }) => {
+
+  const identity = useIdentity();
+  let principal = useMemo(() => identity?.getPrincipal(), [identity]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));

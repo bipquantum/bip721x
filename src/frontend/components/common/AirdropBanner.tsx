@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { NUMBER_AIRDROP_IPS } from "../constants";
+import { NUMBER_AIRDROP_IPS } from "../constants.js";
 
 interface AirdropBannerContextType {
   visible: boolean;

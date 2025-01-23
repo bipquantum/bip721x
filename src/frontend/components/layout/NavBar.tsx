@@ -27,6 +27,8 @@ const NavBar = () => {
   const location = useLocation();
   const { pathname } = location;
 
+  const { logout } = useAuth({});
+
   const [showChatHistory, setShowChatHistory] = useState(false);
 
   const { unauthenticated } = useActors();
@@ -106,7 +108,7 @@ const NavBar = () => {
                 ))}
               </div>
               <button
-                onClick={() => {}} // @todo: implement logout
+                onClick={() => { logout() }} // @todo: implement logout
                 className="flex flex-col items-center justify-center gap-2"
               >
                 <img

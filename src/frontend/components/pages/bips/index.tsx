@@ -1,34 +1,32 @@
-import { Principal } from "@dfinity/principal";
-
-import Balance from "../../common/Balance";
-
+import Balance from "../../common/Balance.js";
 import SortUp from "../../../assets/sort-up.svg";
 import SortDown from "../../../assets/sort-down.svg";
-import BipsHeader from "./BipsHeader";
-import BipList from "./BipList";
-import { backendActor } from "../../actors/BackendActor";
+import BipsHeader from "./BipsHeader.js";
+import BipList from "./BipList.js";
 import { toNullable } from "@dfinity/utils";
 import { useState } from "react";
-import { QueryDirection } from "../../../../declarations/backend/backend.did";
-import { EQueryDirection } from "../../../utils/conversions";
-import { BIP_ITEMS_PER_QUERY } from "../../constants";
+import { QueryDirection } from "../../../../declarations/backend/backend.did.js";
+import { EQueryDirection } from "../../../utils/conversions.js";
+import { BIP_ITEMS_PER_QUERY } from "../../constants.js";
+import { useIdentity } from "@nfid/identitykit/react";
+import { useActors } from "../../common/ActorsContext.js";
 
-interface BipsProps {
-  principal: Principal | undefined;
-}
+const Bips = () => {
 
-const Bips: React.FC<BipsProps> = ({ principal }) => {
+  const identity = useIdentity();
 
-  if (!principal) return <></>;
+  const { unauthenticated } = useActors();
 
   const [queryDirection, setQueryDirection] = useState<EQueryDirection>(EQueryDirection.Forward);
 
-  const { call: getListedIntProps } = backendActor.useQueryCall({
-    functionName: "get_listed_int_props",
-  });
-
   const fetchBips = async (prev: bigint | undefined, direction: QueryDirection) => {
-    return await getListedIntProps([{ prev: toNullable(prev), take: toNullable(BIP_ITEMS_PER_QUERY), direction }]);
+    console.log("Fetching bips...");
+    if (unauthenticated) {
+      return await unauthenticated.backend.get_listed_int_props({ prev: toNullable(prev), take: toNullable(BIP_ITEMS_PER_QUERY), direction });
+    } else {
+      console.error("Unauthenticated actors not available");
+      return [];
+    }
   }
 
   const changeQueryDirection = () => {
@@ -46,11 +44,10 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
             className="h-10 invert" 
           />
         </button>
-        <Balance principal={principal} />
+        { identity && <Balance principal={identity.getPrincipal()} /> }
       </div>
       <BipList 
         scrollableClassName="grid grid-cols-1 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pb-2"
-        principal={principal}
         fetchBips={fetchBips}
         queryDirection={queryDirection}
       />

@@ -1,19 +1,19 @@
 import { Route, Routes } from "react-router-dom";
 import { useAuth } from "@ic-reactor/react";
 
-import PrivateRoute from "./PrivateRoute";
-import Dashboard from "../pages/dashboard";
-import NewIPButton from "../pages/new-ip";
-import Profile from "../pages/profile";
-import Bips from "../pages/bips";
-import Login from "../pages/login";
-import Main from "../pages/main";
-import About from "../pages/about";
-import BipDetails from "../pages/bips/BipDetails";
-import Copyright from "../pages/copyright";
-import WhoAreYou from "../pages/poll";
-import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
-import Wallet from "../pages/wallet";
+import PrivateRoute from "./PrivateRoute.js";
+import Dashboard from "../pages/dashboard/index.js";
+import NewIPButton from "../pages/new-ip/index.js";
+import Profile from "../pages/profile/index.js";
+import Bips from "../pages/bips/index.js";
+import Login from "../pages/login/index.js";
+import Main from "../pages/main/index.js";
+import About from "../pages/about/index.js";
+import BipDetails from "../pages/bips/BipDetails.js";
+import Copyright from "../pages/copyright/index.js";
+import WhoAreYou from "../pages/poll/index.js";
+import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper.js";
+import Wallet from "../pages/wallet/index.js";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -35,7 +35,7 @@ const Router = () => {
       />
       <Route
         path={"/marketplace"}
-        element={<PrivateRoute element={<Bips principal={identity?.getPrincipal()}/>} />}
+        element={<Bips/>}
       />
       <Route
         path={"/new"}

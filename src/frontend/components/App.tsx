@@ -2,19 +2,19 @@ import { createContext, useState, useEffect } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
-import Router from "./router";
-import NavBar from "./layout/NavBar";
+import Router from "./router/index.js";
+import NavBar from "./layout/NavBar.js";
 import { AgentProvider } from "@ic-reactor/react";
-import { BackendActorProvider } from "./actors/BackendActor"
-import { BqcLedgerActorProvider} from "./actors/BqcLedgerActor"
-import { Bip721LedgerActorProvider } from './actors/Bip721LedgerActor';
+import { BackendActorProvider } from "./actors/BackendActor.js"
+import { BqcLedgerActorProvider} from "./actors/BqcLedgerActor.js"
+import { Bip721LedgerActorProvider } from './actors/Bip721LedgerActor.js';
 
 import "react-toastify/dist/ReactToastify.css";
-import MobileNavBar from "./layout/MobileNavBar";
-import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
-import { BalanceProvider } from "./common/BalanceContext";
-import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
-import MobileHeader from "./layout/MobileHeader";
+import MobileNavBar from "./layout/MobileNavBar.js";
+import { ChatHistoryProvider } from "./layout/ChatHistoryContext.js";
+import { BalanceProvider } from "./common/BalanceContext.js";
+import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner.js";
+import MobileHeader from "./layout/MobileHeader.js";
 
 import { canisterId as backendId } from "../../declarations/backend/index.js";
 

@@ -1,22 +1,20 @@
 import { useEffect, useState } from "react";
 
-import BipItem from "./BipItem";
+import BipItem from "./BipItem.js";
 
 import { fromNullable, toNullable } from "@dfinity/utils";
-import { Principal } from "@dfinity/principal";
 import useInfiniteScroll from "react-infinite-scroll-hook";
-import { QueryDirection } from "../../../../declarations/backend/backend.did";
-import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
+import { QueryDirection } from "../../../../declarations/backend/backend.did.js";
+import { EQueryDirection, toQueryDirection } from "../../../utils/conversions.js";
 
 interface BipsProps {
-  principal: Principal;
   scrollableClassName: string;
   fetchBips: (prev: bigint | undefined, direction: QueryDirection) => Promise<bigint[] | undefined>;
   queryDirection: EQueryDirection;
-  BipItemComponent?: React.ComponentType<{ intPropId: bigint, principal: Principal }>;
+  BipItemComponent?: React.ComponentType<{ intPropId: bigint }>;
 }
 
-const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBips, queryDirection, BipItemComponent = BipItem }) => {
+const BipList: React.FC<BipsProps> = ({ scrollableClassName, fetchBips, queryDirection, BipItemComponent = BipItem }) => {
 
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
   const [prev,    setPrev   ] = useState<bigint | undefined>(undefined); // Keep track of previous entries
@@ -42,7 +40,7 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
   // Load initial entries on component mount
   useEffect(() => {
     loadEntries();
-  }, []);
+  }, [fetchBips]);
 
   // TODO: the infinite scroll component does not get refreshed when the queryDirection changes
   useEffect(() => {
@@ -71,7 +69,7 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
     <div className="h-full w-full overflow-y-auto px-4" id="scrollableDiv">
       <div className={scrollableClassName}>
         {Array.from(entries).map((intPropId) => (
-          <BipItemComponent principal={principal} intPropId={intPropId} key={intPropId} />
+          <BipItemComponent intPropId={intPropId} key={intPropId} />
         ))}
       </div>
       {(loading || prev !== undefined) && (
