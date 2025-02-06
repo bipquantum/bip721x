@@ -1,4 +1,4 @@
-import { Link,  useLocation } from "react-router-dom";
+import { Link,  useLocation, useNavigate } from "react-router-dom";
 
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
@@ -78,7 +78,7 @@ const MobileNavBar = () => {
         >
           { item.link === "profile" ? 
             (user !== undefined && user.imageUri !== "") ? 
-              FilePreview({ dataUri: user.imageUri, className:"h-8 w-8 rounded-full object-cover"}) : 
+              <FilePreview dataUri={user.imageUri} className={"h-8 w-8 rounded-full object-cover"} /> :
               <img src={ProfileSvg} className="h-8 w-8 rounded-full object-cover" />
             :
           <img

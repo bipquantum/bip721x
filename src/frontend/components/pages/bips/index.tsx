@@ -14,12 +14,10 @@ import { EQueryDirection } from "../../../utils/conversions";
 import { BIP_ITEMS_PER_QUERY } from "../../constants";
 
 interface BipsProps {
-  principal: Principal | undefined;
+  principal: Principal | undefined; // TODO: it does not need to be optional, apparently principal is always defined but anonymous if not logged in
 }
 
 const Bips: React.FC<BipsProps> = ({ principal }) => {
-
-  if (!principal) return <></>;
 
   const [queryDirection, setQueryDirection] = useState<EQueryDirection>(EQueryDirection.Forward);
 
@@ -46,7 +44,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
             className="h-10 invert" 
           />
         </button>
-        <Balance principal={principal} />
+        { principal !== undefined && !principal.isAnonymous() && <Balance principal={principal} /> }
       </div>
       <BipList 
         scrollableClassName="grid grid-cols-1 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pb-2"

@@ -14,6 +14,8 @@ import { bqcLedgerActor } from "../actors/BqcLedgerActor";
 import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did";
 import { useBalance } from "./BalanceContext";
 import VioletButton from "./VioletButton";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@ic-reactor/react";
 
 interface ListingDetailsProps {
   principal: Principal | undefined;
@@ -30,6 +32,8 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   showRecommendation,
   updateBipDetails,
 }) => {
+
+  const { login } = useAuth();
   
   const [isLoading, setIsLoading] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
@@ -73,6 +77,10 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   }
 
   const triggerBuy = (intPropId: bigint) => {
+
+    if (principal === undefined || principal.isAnonymous()) {
+      login();
+    };
 
     if (e8sPrice === undefined || "ok" in e8sPrice === false) {
       throw new Error("Price not available");

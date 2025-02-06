@@ -9,11 +9,11 @@ import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
 
 interface BipsProps {
-  principal: Principal;
+  principal: Principal | undefined;
   scrollableClassName: string;
   fetchBips: (prev: bigint | undefined, direction: QueryDirection) => Promise<bigint[] | undefined>;
   queryDirection: EQueryDirection;
-  BipItemComponent?: React.ComponentType<{ intPropId: bigint, principal: Principal }>;
+  BipItemComponent?: React.ComponentType<{ intPropId: bigint, principal: Principal | undefined }>;
 }
 
 const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBips, queryDirection, BipItemComponent = BipItem }) => {

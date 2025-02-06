@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
@@ -6,8 +6,7 @@ import WindowSvg from "../../assets/window.svg";
 import MarketSvg from "../../assets/market.svg";
 import ProfileSvg from "../../assets/profile.png";
 import LogoutSvg from "../../assets/logout.svg";
-import LogoSvg from "../../assets/logo.png";
-import MessagesSvg from "../../assets/messages.svg";
+import LoginSvg from "../../assets/login.svg";
 
 import { useAuth } from "@ic-reactor/react";
 import ChatHistoryBar from "./ChatHistoryBar";
@@ -24,18 +23,14 @@ const NavBar = () => {
   const location = useLocation();
   const { pathname } = location;
 
-  const { identity, authenticated, logout } = useAuth({});
-
-  if (!identity || !authenticated) {
-    return <></>;
-  }
+  const { identity, authenticated, logout, login } = useAuth({});
 
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [user, setUser] = useState<User | undefined>(undefined);
 
   const { data: queriedUser } = backendActor.useQueryCall({
     functionName: "get_user",
-    args: [identity?.getPrincipal()],
+    args: identity ? [identity?.getPrincipal()] : undefined,
   });
 
   useEffect(() => {
@@ -80,25 +75,27 @@ const NavBar = () => {
            pathname.includes("/marketplace")|| 
            pathname.includes("/bip/") ||
            pathname.includes("/poll") ||
+           pathname.includes("/login") ||
            pathname.includes("/about");
   }
 
   return (
     <>
-      {!(pathname === "login") && (
+      {!(pathname === "/login") && (
         <div className="flex flex-row static">
           <div className="hidden h-screen w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
             <div className="flex flex-grow flex-col items-center justify-between py-10">
               <div className="flex flex-col items-center justify-start gap-12">
                 {NavBarItems.map((item, index) => (
                   <Link
-                    className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "opacity-40"}`}
+                    className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "opacity-40"} 
+                      ${(item.link !== "marketplace" && !authenticated) && "hidden"}`}
                     to={item.link}
                     key={index}
                   >
                     { item.link === "profile" ? 
                       (user !== undefined && user.imageUri !== "") ? 
-                        FilePreview({ dataUri: user.imageUri, className:"h-9 w-9 rounded-full object-cover"}) : 
+                        <FilePreview dataUri={user.imageUri} className={"h-9 w-9 rounded-full object-cover"}/> : 
                         <img src={ProfileSvg} className="h-9 w-9 rounded-full object-cover" />
                       :
                       <img
@@ -111,15 +108,15 @@ const NavBar = () => {
                 ))}
               </div>
               <button
-                onClick={() => logout()}
+                onClick={() => { authenticated ? logout() : login() } }
                 className="flex flex-col items-center justify-center gap-2"
               >
                 <img
-                  src={LogoutSvg}
+                  src={authenticated ? LogoutSvg : LoginSvg}
                   alt=""
                   className="mt-2 h-8 cursor-pointer invert"
                 />
-                <p className={`text-sm`}>Logout</p>
+                <p className={`text-sm`}>{authenticated ? "Logout" : "Login"}</p>
               </button>
             </div>
           </div>

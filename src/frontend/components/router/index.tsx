@@ -35,7 +35,7 @@ const Router = () => {
       />
       <Route
         path={"/marketplace"}
-        element={<PrivateRoute element={<Bips principal={identity?.getPrincipal()}/>} />}
+        element={<Bips principal={identity?.getPrincipal()}/>}
       />
       <Route
         path={"/new"}
@@ -64,12 +64,10 @@ const Router = () => {
       <Route
         path={"/bip/:ipId"}
         element={
-          <PrivateRoute
-            element={<BipDetails principal={identity?.getPrincipal()} />}
-          />
+          <BipDetails principal={identity?.getPrincipal()} />
         }
       />
-      <Route path={"/about"} element={<PrivateRoute element={<About />} />} />
+      <Route path={"/about"} element={<About />} />
       <Route path={"/login"} element={<Login />} />
     </Routes>
   );

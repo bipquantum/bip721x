@@ -15,7 +15,7 @@ import ListingDetails from "../../common/ListingDetails";
 import AirdropEligible from "../../common/AirdropEligible";
 
 interface BipItemProps {
-  principal: Principal;
+  principal: Principal | undefined;
   intPropId: bigint;
 }
 

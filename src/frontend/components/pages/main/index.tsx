@@ -1,7 +1,7 @@
 import { useAuth } from "@ic-reactor/react";
 import { Link, useNavigate } from "react-router-dom";
 
-import LogoSvg from "../../../assets/logo.png";
+import LogoSvg from "../../../assets/logo_beta.png";
 import ProfileSvg from "../../../assets/profile.png";
 import { backendActor } from "../../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../constants";
@@ -33,7 +33,7 @@ const Main = () => {
     <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-lg text-white">
       <div className="flex w-full items-center justify-between py-8 pr-4 sm:p-16">
         <Link to={"/"} className="hidden sm:flex">
-          <img src={LogoSvg} className="h-14 invert" alt="Logo" />
+          <img src={LogoSvg} className="h-14" alt="Logo" />
         </Link>
         <div className="hidden items-center justify-center gap-x-16 sm:flex">
           <Link to={"/about"}>About</Link>
@@ -42,7 +42,7 @@ const Main = () => {
         </div>
         <Link to={"profile"} className="hidden items-center gap-4 sm:flex">
           { queriedUser?.length === 0 ? NEW_USER_NICKNAME : queriedUser?.[0]?.nickName }
-          <img src={ProfileSvg} className="h-10 rounded-full" alt="Logo" />
+          <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />
         </Link>
       </div>
       <div className="flex h-full flex-col items-center">
