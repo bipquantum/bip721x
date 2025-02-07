@@ -37,6 +37,7 @@ import ReactCountryDropdown from "react-country-dropdown";
 import { getName } from "country-list";
 import { DEFAULT_COUNTRY_CODE, MAX_ROYALTY_PERCENTAGE, MIN_ROYALTY_PERCENTAGE } from "../../constants";
 import FilePreview from "../../common/FilePreview";
+import SuperJSON from "superjson";
 
 // TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_TYPE_OPTIONS: Option[] = [
@@ -118,6 +119,27 @@ const DEFAULT_PUBLISHING = {
   countryCode: DEFAULT_COUNTRY_CODE,
 };
 
+const loadIntPropInput = () => {
+  const storedValue = sessionStorage.getItem("intPropInput");
+  return storedValue ? SuperJSON.parse<IntPropInput>(storedValue) : INITIAL_INT_PROP_INPUT;
+}
+
+const loadDataUri = () => {
+  const storedValue = sessionStorage.getItem("dataUri");
+  return storedValue ? storedValue : "";
+}
+
+const loadRoyaltiesVisible = () => {
+  const storedValue = sessionStorage.getItem("royaltiesVisible");
+  return storedValue ? JSON.parse(storedValue) : false;
+}
+
+const save = (intPropInput: IntPropInput, dataUri: string, royaltiesVisible: boolean) => {
+  sessionStorage.setItem("intPropInput", SuperJSON.stringify(intPropInput));
+  sessionStorage.setItem("dataUri", dataUri);
+  sessionStorage.setItem("royaltiesVisible", JSON.stringify(royaltiesVisible));
+}
+
 interface NewIPModalProps {
   user: User;
   isOpen: boolean;
@@ -128,11 +150,11 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   
   const [step,             setStep            ] = useState(1);
   const [isLoading,        setIsLoading       ] = useState(false);
-  const [intPropInput,     setIntPropInput    ] = useState<IntPropInput>(INITIAL_INT_PROP_INPUT);
-  const [dataUri,          setDataUri         ] = useState("");
   const [ipId,             setIpId            ] = useState<bigint | undefined>(undefined);
-  const [royaltiesVisible, setRoyaltiesVisible] = useState(false);
-
+  const [intPropInput,     setIntPropInput    ] = useState<IntPropInput>(loadIntPropInput());
+  const [dataUri,          setDataUri         ] = useState<string>(loadDataUri());
+  const [royaltiesVisible, setRoyaltiesVisible] = useState<boolean>(loadRoyaltiesVisible()); 
+  
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
     onSuccess: (data) => {
@@ -197,7 +219,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   }
 
   return (
-    <ModalPopup onClose={() => onClose(ipId)} isOpen={isOpen}>
+    <ModalPopup onClose={() => { save(intPropInput, dataUri, royaltiesVisible); onClose(ipId); }} isOpen={isOpen}>
       <div className="flex w-full flex-col items-center justify-start gap-8 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
         <div className="flex w-full items-center flex-col gap-1 w-full">
           <div className="flex flex-col items-center justify-around gap-3">

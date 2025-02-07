@@ -37,6 +37,7 @@
     "react-tailwindcss-select": "^1.8.5",
     "react-toastify": "^10.0.5",
     "remark-gfm": "^4.0.0",
+    "superjson": "^2.2.2",
     "uuid": "^10.0.0",
     "xstate": "^5.18.2"
   },
