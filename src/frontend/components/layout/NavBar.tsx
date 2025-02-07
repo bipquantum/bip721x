@@ -81,7 +81,7 @@ const NavBar = () => {
 
   return (
     <>
-      {!(pathname === "/login") && (
+      {!(pathname.includes("login") || pathname.includes("certificate")) && (
         <div className="flex flex-row static">
           <div className="hidden h-screen w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
             <div className="flex flex-grow flex-col items-center justify-between py-10">

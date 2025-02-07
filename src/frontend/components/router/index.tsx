@@ -14,6 +14,7 @@ import Copyright from "../pages/copyright";
 import WhoAreYou from "../pages/poll";
 import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
+import CertificatePage from "../pages/bips/CertificatePage";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -69,6 +70,7 @@ const Router = () => {
       />
       <Route path={"/about"} element={<About />} />
       <Route path={"/login"} element={<Login />} />
+      <Route path="/bip/:intPropId/certificate" element={<CertificatePage />} />
     </Routes>
   );
 };

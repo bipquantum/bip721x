@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 import BipCertificateTemplate from "../../../assets/bIP_certificate_editable.pdf";
 
@@ -11,9 +13,6 @@ import { fromNullable } from "@dfinity/utils";
 
 // @ts-ignore
 import { getName } from "country-list";
-import VioletButton from "../../common/VioletButton";
-import { useState } from "react";
-import { toast } from "react-toastify";
 import { Principal } from "@dfinity/principal";
 
 const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> => {
@@ -87,7 +86,7 @@ const generatePdf = async (intPropId: string, intProp: IntProp, author: User, ow
   form.flatten();
 
   // Generate QR code for the bIP
-  const qrCodeData = `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io/bip/${intPropId}`;
+  const qrCodeData = `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io/bip/${intPropId}/certificate`;
   const qrCodeDataUrl = await toDataURL(qrCodeData, {
     width: 150,
     margin: 1,
@@ -111,77 +110,76 @@ const generatePdf = async (intPropId: string, intProp: IntProp, author: User, ow
   return await pdfDoc.save();
 }
 
-const download = async (data: Uint8Array, filename: string) => {
-  try {
-    // Convert Uint8Array to Blob
-    const blob = new Blob([data], { type: 'application/octet-stream' });
+const CertificatePage = () => {
+  const { intPropId } = useParams();
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-    // Create a link to initiate download
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.id = '_download_link';
-    link.style.display = 'none';
+  const [intProp, setIntProp] = useState<IntProp>();
+  const [error, setError] = useState<string | undefined>(undefined);
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Revoke object URL after download
-    setTimeout(() => URL.revokeObjectURL(link.href), 100);
-  } catch (error) {
-    console.error("Error downloading file:", error);
-  }
-}
-
-interface GenerateCertificateProps {
-  intPropId: string;
-  intProp: IntProp;
-}
-
-const GenerateCertificate: React.FC<GenerateCertificateProps> = ({ intPropId, intProp }) => {
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { data: author } = backendActor.useQueryCall({
+  const { data: author, call: getAuthor } = backendActor.useQueryCall({
     functionName: "get_user",
-    args: [intProp.author],
   });
 
-  const { data: owner } = backendActor.useQueryCall({
+  const { call: getIntProp } = backendActor.useQueryCall({
+      functionName: "get_int_prop",
+  });
+
+  const { data: owner, call: getOwner } = backendActor.useQueryCall({
     functionName: "owner_of",
-    args: [{ token_id: BigInt(intPropId) }],
   });
 
-  const downloadCertificate = () => {
-    if (isLoading || author === undefined || author.length === 0 || owner === undefined) {
-      return;
+  useEffect(() => {
+    if (intPropId !== undefined) {
+        getIntProp([{ token_id: BigInt(intPropId) }]).then((res) => {
+            if (res !== undefined && 'ok' in res) {
+              setIntProp(res.ok.V1);
+            } else {
+              console.error("Error fetching the intProp:", res);
+              setError("IP not found");
+            }
+        });
+        getOwner([{ token_id: BigInt(intPropId) }]);
     }
-    setIsLoading(true);
-    generatePdf(intPropId, intProp, author[0], fromNullable(owner))
-    .then((pdfData) => {
-      return download(pdfData, `bIP${intPropId}_certificate.pdf`);
-    })
-    .then(() => {
-      setIsLoading(false);
-    })
-    .catch((error) => {
-      setIsLoading(false); // Ensure loading state is reset even if there's an error
-      console.error("Error generating or downloading PDF:", error);
-      toast.error("Error generating or downloading PDF");
-    });
-  }
+  }, [intPropId]);
 
-  return (
-    (author === undefined || author.length === 0) ? <></> : (
-      <VioletButton 
-        onClick={() => downloadCertificate()}
-        isLoading={isLoading}
-      >
-        Generate Certificate 📜
-      </VioletButton>
-    )
-  );
-}
+  useEffect(() => {
+    if (intProp !== undefined) {
+        getAuthor([intProp.author]);
+    }
+  }, [intProp]);
 
-export default GenerateCertificate;
+  useEffect(() => {
+    
+    const actualAuthor = author ? fromNullable(author) : undefined;
+    const actualOwner = owner ? fromNullable(owner) : undefined;
+
+    if (!intPropId || !intProp || !actualAuthor || !actualOwner) {
+      return;
+    };
+
+    // Fetch or generate the PDF
+    generatePdf(intPropId, intProp, actualAuthor as User, actualOwner)
+      .then((data) => {
+        const pdfData = new Blob([data], { type: "application/pdf" });
+        setPdfUrl(URL.createObjectURL(pdfData));
+      })
+      .catch((error) => {
+        console.error("Error generating PDF:", error);
+        setError("Error generating PDF");
+      });
+  }, [intPropId, intProp, author, owner]);
+
+  return <div className="flex flex-col w-full h-full items-center justify-center">
+    {
+      error !== undefined ? <div className="text-center" style={{ padding: "100px" }}>
+        {error}
+      </div> :
+      !pdfUrl ? <div className="text-center" style={{ padding: "100px" }}>
+        Loading...
+      </div> : <iframe src={pdfUrl} width="100%" height="100%" />
+    }
+  </div>
+};
+
+export default CertificatePage;

@@ -1,5 +1,5 @@
 import { useAuth } from "@ic-reactor/react";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 import LogoSvg from "../../../assets/logo_beta.png";
 import DfinitySvg from "../../../assets/dfinity.svg";
@@ -18,11 +18,11 @@ const Login = () => {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">
       <div className="absolute top-0 w-full">
-        <div className="flex items-center justify-center p-16 text-white sm:justify-between">
+        <div className="flex flex-col sm:flex-row space-x-1 space-y-1 items-center justify-center pt-6 sm:pt-16 px-4 sm:px-20 text-white sm:justify-between">
           <img src={LogoSvg} className="h-22 sm:h-14" alt="Logo" />
-          <button className="hidden h-14 w-40 cursor-pointer rounded-xl border border-white text-lg font-bold leading-6 sm:block">
-            Learn Home
-          </button>
+          <Link className="flex h-14 w-40 cursor-pointer rounded-xl border border-white text-lg font-bold leading-6 items-center justify-center" to="/marketplace">
+            Marketplace
+          </Link>
         </div>
       </div>
       <div className="flex h-[329px] w-full flex-col justify-center gap-6 rounded-2xl bg-white text-center text-xl text-secondary sm:w-[564px]">

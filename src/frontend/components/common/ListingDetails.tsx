@@ -80,6 +80,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 
     if (principal === undefined || principal.isAnonymous()) {
       login();
+      return;
     };
 
     if (e8sPrice === undefined || "ok" in e8sPrice === false) {

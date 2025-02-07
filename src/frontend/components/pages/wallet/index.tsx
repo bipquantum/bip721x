@@ -1,7 +1,7 @@
 import { Principal } from "@dfinity/principal";
 import { backendActor } from "../../actors/BackendActor";
 import { formatDate, timeToDate } from "../../../utils/conversions";
-import GenerateCertificate from "../bips/GenerateCertificate";
+import CertificateButton from "../bips/CertificateButton";
 import ListingDetails from "../../common/ListingDetails";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { Link } from "react-router-dom";
@@ -32,7 +32,7 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
         <ListingDetails principal={principal} owner={principal} intPropId={intPropId} updateBipDetails={() => {}} />
       </div>
       <div className="col-span-3 justify-self-end">
-        <GenerateCertificate intPropId={intPropId.toString()} intProp={intProp.ok.V1}/>
+        <CertificateButton intPropId={intPropId.toString()} intProp={intProp.ok.V1}/>
       </div>
     </div>
   );
