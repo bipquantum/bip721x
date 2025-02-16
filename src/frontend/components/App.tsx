@@ -5,9 +5,9 @@ import { ToastContainer } from "react-toastify";
 import Router from "./router";
 import NavBar from "./layout/NavBar";
 import { AgentProvider } from "@ic-reactor/react";
-import { BackendActorProvider } from "./actors/BackendActor"
-import { BqcLedgerActorProvider} from "./actors/BqcLedgerActor"
-import { Bip721LedgerActorProvider } from './actors/Bip721LedgerActor';
+import { BackendActorProvider } from "./actors/BackendActor";
+import { BqcLedgerActorProvider } from "./actors/BqcLedgerActor";
+import { Bip721LedgerActorProvider } from "./actors/Bip721LedgerActor";
 
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
@@ -15,6 +15,8 @@ import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
 import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
 import MobileHeader from "./layout/MobileHeader";
+import TopBar from "./layout/TopBar";
+import ChatHistory from "./layout/ChatHistory";
 
 interface ThemeContextProps {
   theme: string;
@@ -43,7 +45,7 @@ function App() {
       const initialTheme = window.localStorage.getItem("color-theme");
       window.matchMedia("(prefers-color-scheme: dark)").matches && !initialTheme
         ? rawSetTheme("dark")
-        : rawSetTheme(initialTheme || "light");
+        : rawSetTheme(initialTheme || "dark");
     }, []);
 
     useEffect(() => {
@@ -53,7 +55,7 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex h-screen w-full flex-col sm:flex-row">
+      <div className="flex h-screen w-full flex-col sm:flex-row bg-background dark:bg-background-dark">
         <AgentProvider withProcessEnv>
           <BackendActorProvider>
             <BqcLedgerActorProvider>
@@ -86,8 +88,14 @@ function AppContent() {
       <AirdropBanner />
       <NavBar />
       <div className="flex h-full w-full flex-1 flex-col justify-end">
-        {pathname !== "/login" && <MobileHeader /> }
-        <Router />
+        {pathname !== "/login" && <TopBar />}
+        {pathname !== "/login" && <MobileHeader />}
+        <div className="flex h-full flex-row items-start justify-start">
+          <div className="flex h-full w-fit items-center justify-center">
+            <ChatHistory />
+            </div>
+          <Router />
+        </div>
         {pathname !== "/login" && <MobileNavBar />}
       </div>
     </>

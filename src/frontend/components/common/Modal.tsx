@@ -26,7 +26,7 @@ const Modal = ({ isVisible, children, onClose }: Props) => {
       className="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-black"
       onClick={handleOverlayClick}
     >
-      <div className="rounded-xl bg-white p-4" onClick={handleModalClick}>
+      <div className="rounded-xl dark:bg-background-dark bg-background p-4" onClick={handleModalClick}>
         <div className="flex w-full justify-end">
           <button onClick={onClose}>X</button>
         </div>

@@ -238,9 +238,9 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   }
 
   return (
-    <ModalPopup onClose={() => closeModal()} isOpen={isOpen}>
-      <div className="flex w-full flex-col items-center justify-start gap-8 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
-        <div className="flex w-full items-center flex-col gap-1 w-full">
+    <ModalPopup onClose={() => { save(intPropInput, dataUri, royaltiesVisible); onClose(ipId); }} isOpen={isOpen}>
+      <div className="flex w-full flex-col items-center justify-start bg-transparent gap-8 h-full overflow-y-auto text-base text-white sm:border-l">
+        <div className="flex items-center flex-col gap-1 w-full">
           <div className="flex flex-col items-center justify-around gap-3">
             <div className="text-2xl font-bold">Create New IP</div>
           </div>
@@ -425,7 +425,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   type="date"
                 />
               </div>
-              <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1 w-full space-y-1">
+              <div className="flex flex-col gap-1 border-white border rounded-2xl p-1 w-full space-y-1">
                 <label className="flex flex-row items-center justify-between cursor-pointer">
                   <div className="px-4 font-semibold">Royalties</div>
                   <input type="checkbox" value="" className="sr-only peer" onClick={() => setRoyaltiesVisible(!royaltiesVisible)} />
@@ -452,8 +452,8 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
                   )
                 }
               </div>
-              <div className="flex flex-col gap-1 border border-white border rounded-2xl p-1 w-full space-y-1">
-                <label className="flex flex-row items-center justify-between items-center cursor-pointer">
+              <div className="flex flex-col gap-1 border border-white rounded-2xl p-1 w-full space-y-1">
+                <label className="flex flex-row items-center justify-between cursor-pointer">
                   <div className="px-4 font-semibold">Publishing</div>
                   <input type="checkbox" value="" className="sr-only peer" onClick={() => setIntPropInput((intProp) => {
                     return {...intProp, publishing: fromNullable(intProp.publishing) ? [] : [DEFAULT_PUBLISHING]};

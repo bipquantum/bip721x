@@ -2,9 +2,6 @@ import { useAuth } from "@ic-reactor/react";
 import { Link, useNavigate } from "react-router-dom";
 
 import LogoSvg from "../../../assets/logo_beta.png";
-import ProfileSvg from "../../../assets/profile.png";
-import { backendActor } from "../../actors/BackendActor";
-import { NEW_USER_NICKNAME } from "../../constants";
 import { useChatHistory } from "../../layout/ChatHistoryContext";
 
 const Main = () => {
@@ -24,39 +21,28 @@ const Main = () => {
     navigate(`/chat/${newChatId}`);
   };
 
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: [identity?.getPrincipal()],
-  });
+  
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-start overflow-auto bg-primary text-lg text-white">
-      <div className="flex w-full items-center justify-between py-8 pr-4 sm:p-16">
+    <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-background dark:bg-background-dark text-lg dark:text-white text-black">
+      {/* <div className="flex w-full items-center justify-between py-8 pr-4 sm:p-16">
         <Link to={"/"} className="hidden sm:flex">
           <img src={LogoSvg} className="h-14" alt="Logo" />
         </Link>
-        <div className="hidden items-center justify-center gap-x-16 sm:flex">
-          <Link to={"/about"}>About</Link>
-          <Link to={"/new"}>Add your Intellectual Property</Link>
-          <Link to={"/marketplace"}>Market place</Link>
-        </div>
-        <Link to={"profile"} className="hidden items-center gap-4 sm:flex">
-          { queriedUser?.length === 0 ? NEW_USER_NICKNAME : queriedUser?.[0]?.nickName }
-          <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />
-        </Link>
-      </div>
-      <div className="flex h-full flex-col items-center">
-        <div className="mx-4 flex w-full flex-col items-center gap-6 rounded-2xl bg-white p-12 text-center font-bold text-secondary sm:w-[440px]">
-          <p className="w-full px-4">IP Creation Option</p>
-          <button className="w-full rounded-2xl border-[2px] border-secondary bg-white py-2" onClick={() => newChat("New chat")}>
+        
+      </div> */}
+        <div className="bg-white/20 backdrop-blur-[10px] flex flex-col items-center justify-center gap-6 rounded-[40px] border border-primary px-[72px] py-[55px] text-primary-text shadow-lg shadow-secondary/20">
+          <p className="text-center text-xl font-extrabold uppercase">Create New IP</p>
+          <div className="flex flex-col gap-[10px]">
+          <button className="w-full text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-base text-center uppercase text-white hover:cursor-pointer hover:bg-blue-800" onClick={() => newChat("New chat")}>
             AI-Assisted IP Creation
           </button>
-          <Link to={"/new"} className="w-full rounded-2xl border-[2px] border-secondary bg-white py-2">
+          <Link to={"/new"} className="w-full text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-base text-center uppercase text-white hover:cursor-pointer hover:bg-blue-800">
             Manual IP Creation
           </Link>
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

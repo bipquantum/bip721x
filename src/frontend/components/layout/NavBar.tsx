@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation} from "react-router-dom";
 
 import HomeSvg from "../../assets/home.svg";
 import EditSvg from "../../assets/edit.svg";
@@ -7,25 +7,23 @@ import MarketSvg from "../../assets/market.svg";
 import ProfileSvg from "../../assets/profile.png";
 import LogoutSvg from "../../assets/logout.svg";
 import LoginSvg from "../../assets/login.svg";
+import Logo from "../../assets/logoWhite.svg"
 
 import { useAuth } from "@ic-reactor/react";
-import ChatHistoryBar from "./ChatHistoryBar";
 import { backendActor } from "../actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../constants";
-import { ModalPopup } from "../common/ModalPopup";
 import { useEffect, useState } from "react";
 import { fromNullable } from "@dfinity/utils";
 import { User } from "../../../declarations/backend/backend.did";
 import FilePreview from "../common/FilePreview";
+import { ThemeContext } from "../App";
 
 const NavBar = () => {
-
-  const location = useLocation();
-  const { pathname } = location;
+  const { pathname } = useLocation();
 
   const { identity, authenticated, logout, login } = useAuth({});
 
-  const [showChatHistory, setShowChatHistory] = useState(false);
+
   const [user, setUser] = useState<User | undefined>(undefined);
 
   const { data: queriedUser } = backendActor.useQueryCall({
@@ -70,38 +68,36 @@ const NavBar = () => {
     },
   ];
 
-  const hideHistoryBar = () => {
-    return pathname == "/" || 
-           pathname.includes("/marketplace")|| 
-           pathname.includes("/bip/") ||
-           pathname.includes("/poll") ||
-           pathname.includes("/login") ||
-           pathname.includes("/about");
-  }
+  
 
   return (
     <>
       {!(pathname.includes("login") || pathname.includes("certificate")) && (
-        <div className="flex flex-row static">
-          <div className="hidden h-screen w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
-            <div className="flex flex-grow flex-col items-center justify-between py-10">
-              <div className="flex flex-col items-center justify-start gap-12">
+        <div className="flex flex-row static border-r border-black/30 dark:border-white/30 shadow-black/30 dark:shadow-white/30 shadow z-[999]">
+          <div className="hidden h-screen w-fit flex-col items-center overflow-auto bg-background dark:bg-background-dark pt-8 font-bold text-black dark:text-white sm:flex">
+            <div className="flex flex-grow flex-col items-center justify-between">
+              <div className="flex flex-col items-center justify-start">
+                <Link to={"/"} className="size-[48px] mb-[40px]">
+                  <img src={Logo} alt="" className={`size-[46px] `} />
+                </Link>
                 {NavBarItems.map((item, index) => (
                   <Link
-                    className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "opacity-40"} 
+                    className={`flex h-full w-full flex-col items-center justify-center p-2 gap-2 text-black dark:text-white ${pathname !== "/" + item.link && "opacity-40"} 
                       ${(item.link !== "marketplace" && !authenticated) && "hidden"}`}
                     to={item.link}
                     key={index}
                   >
                     { item.link === "profile" ? 
                       (user !== undefined && user.imageUri !== "") ? 
-                        <FilePreview dataUri={user.imageUri} className={"h-9 w-9 rounded-full object-cover"}/> : 
-                        <img src={ProfileSvg} className="h-9 w-9 rounded-full object-cover" />
+                        <FilePreview dataUri={user.imageUri} className={"size-[48px] rounded-full object-cover"}/> : 
+                        <img src={ProfileSvg} className="size-[28px] rounded-full object-cover" />
                       :
+                      <div className="size-[48px] flex items-center justify-center ">
                       <img
                         src={item.svg}
-                        className={`${item.link === "bips" ? "h-8 invert" : item.link === "marketplace" ? "h-11 invert -my-1" : "h-7 invert"}`}
-                      />
+                        className={`${item.link === "bips" ? "size-[28px] invert" : item.link === "marketplace" ? "h-11 invert -my-1" : "h-7 invert"}`}
+                        />
+                        </div>
                     }
                     <p className={`text-[10px] font-bold`}>{item.label}</p>
                   </Link>
@@ -120,16 +116,10 @@ const NavBar = () => {
               </button>
             </div>
           </div>
-          <div
-            className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
-          >
-            <ChatHistoryBar onChatSelected={() => {}}/>
-          </div>
+          
         </div>
       )}
-      <ModalPopup onClose={() => {setShowChatHistory(false)}} isOpen={showChatHistory}>
-        <ChatHistoryBar onChatSelected={() => setShowChatHistory(false)}/>
-      </ModalPopup>
+      
     </>
   );
 };
