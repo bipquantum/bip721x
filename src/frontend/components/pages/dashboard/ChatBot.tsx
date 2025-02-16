@@ -7,6 +7,8 @@ import ChatBox from "./ChatBox";
 import { Principal } from "@dfinity/principal";
 import { AnyEventObject } from "xstate";
 import { AUTOMATIC_CHATBOT_TRANSITION } from "../../constants";
+import { BiMicrophone } from "react-icons/bi";
+import { IoArrowUp } from "react-icons/io5";
 
 interface ChatBotProps {
   principal: Principal | undefined;
@@ -14,14 +16,19 @@ interface ChatBotProps {
   sendEvent: (event: AnyEventObject) => void;
   aiPrompts: Map<number, AiPrompt[]>;
   askAI: (question: string) => Promise<void>;
-};
+}
 
-const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps) => {
-
-  const [userInput,    setUserInput   ] = useState("");
+const ChatBot = ({
+  principal,
+  chats,
+  sendEvent,
+  aiPrompts,
+  askAI,
+}: ChatBotProps) => {
+  const [userInput, setUserInput] = useState("");
   const [shiftPressed, setShiftPressed] = useState(false);
-  const [isCalling,    setIsCalling   ] = useState(false);
-  const textAreaRef                     = useRef<HTMLTextAreaElement>(null);
+  const [isCalling, setIsCalling] = useState(false);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleEnterPress = async (
     event: KeyboardEvent<HTMLTextAreaElement>,
@@ -42,7 +49,7 @@ const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps
       });
       setUserInput("");
     }
-  }
+  };
 
   useEffect(() => {
     // TODO: fix very ugly way to automatically transition to the next chat
@@ -58,12 +65,22 @@ const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps
   }, [chats]);
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col justify-between overflow-auto">
-      <ChatBox chats={chats} sendEvent={sendEvent} aiPrompts={aiPrompts} principal={principal} />
-      <div className="w-full flex flex-col bg-gray-300 p-2 sm:px-8 sm:py-4">
-        <div className="flex h-full w-full items-center justify-between gap-4 rounded-md bg-white px-4">
+    <div className="flex overflow-y-auto h-[85vh] w-full flex-1 flex-col justify-between overflow-auto pb-[15px] relative">
+      <div>
+        <p className="w-full pt-2 text-center text-3xl font-extrabold uppercase dark:text-white text-black">
+          What can I help with?
+        </p>
+        <ChatBox
+          chats={chats}
+          sendEvent={sendEvent}
+          aiPrompts={aiPrompts}
+          principal={principal}
+        />
+      </div>
+      <div className="flex w-full flex-row items-center gap-4 px-4">
+        <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border px-3 bg-white">
           <textarea
-            className="w-full text-lg outline-none sm:px-4 min-h-10 sm:min-h-20"
+            className="w-full resize-none border-none outline-none"
             placeholder="What do you want to protect?"
             value={userInput}
             onChange={(e) => {
@@ -79,20 +96,25 @@ const ChatBot = ({ principal, chats, sendEvent, aiPrompts, askAI }: ChatBotProps
             ref={textAreaRef}
             disabled={isCalling}
           />
+          <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1 text-black">
+            <BiMicrophone size={34} />
+          </div>
+        </div>
           <button
             onClick={() => {
               if (userInput) submitUserInput();
             }}
+            className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gray-200"
           >
-            <img src={userInput ? SendMessageSvg : SearchSvg} className="h-10" />
+            <IoArrowUp size={40} className="text-black" />
           </button>
-        </div>
-        <div className="flex self-end justify-end text-sm">
-          bIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.
-        </div>
+        {/* <div className="flex justify-end self-end text-sm">
+          bIPQuantum AI is here to assist, but always consult an IP lawyer to
+          ensure accuracy.
+        </div> */}
       </div>
     </div>
   );
-}
+};
 
 export default ChatBot;

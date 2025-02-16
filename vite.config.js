@@ -1,15 +1,14 @@
-import { fileURLToPath, URL } from 'url';
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
-import environment from 'vite-plugin-environment';
-import dotenv from 'dotenv';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import environment from "vite-plugin-environment";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 export default defineConfig({
-  root: 'src/frontend',
+  root: "src/frontend",
   build: {
-    outDir: 'dist',
+    outDir: "dist",
     emptyOutDir: true,
   },
   optimizeDeps: {
@@ -26,6 +25,13 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    watch: {
+      usePolling: true, // ✅ Fix for file change detection
+      interval: 300, // ✅ Poll every 300ms
+    },
+    hmr: {
+      overlay: true, // ✅ Show errors in browser
+    },
   },
   plugins: [
     react(),
@@ -33,6 +39,6 @@ export default defineConfig({
     environment("all", { prefix: "DFX_" }),
   ],
   resolve: {
-    preserveSymlinks: true, // this is the fix!
+    preserveSymlinks: true, // ✅ Ensure proper module resolution
   },
 });
