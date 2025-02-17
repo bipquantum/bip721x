@@ -65,20 +65,20 @@ const dummyData = {
 
 const BipMarketplace = () => {
   return (
-    <div className="flex flex-col gap-[30px] px-[30px] w-full">
+    <div className="flex flex-col gap-[10px] md:gap-[30px] px-[10px] md:px-[30px] w-full">
       {Object.entries(dummyData).map(([category, items]) => (
         <div key={category} className="flex flex-col gap-[10px]">
-          <p className="text-lg font-bold uppercase text-black dark:text-white">
+          <p className="text-lg font-momentum font-extrabold uppercase text-black dark:text-white">
             {category}
           </p>
-          <div className="grid grid-cols-3 gap-[20px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-[10px] md:gap-[20px] mx-auto">
             {items.map((item) => (
               <Link
                 key={item.id}
-                className="min-h-[450px] w-[400px] rounded-2xl border-2 border-white/50 bg-white/10 backdrop-blur-[10px]"
+                className="md:min-h-[450px] min-h-[350px] w-[300px] md:w-[400px] rounded-2xl border-2 border-primary/10 dark:border-white/50 bg-white dark:bg-white/10 backdrop-blur-[10px]"
                 to={`/bip/${item.id}`}
               >
-                <div className="flex h-full flex-col gap-y-1 p-2 text-base text-white">
+                <div className="flex h-full flex-col gap-y-1 p-2 text-base text-black dark:text-white">
                   <div className="relative h-[260px] w-full rounded-lg">
                     {/* <FilePreview
                       dataUri={item.image}
@@ -124,7 +124,7 @@ const BipMarketplace = () => {
                       </div>
                     </div>
                     <div className="flex w-full flex-row items-center justify-between gap-8 px-2 pb-2 pt-4">
-                      <div className="flex flex-row items-center gap-1 text-white">
+                      <div className="flex flex-row items-center gap-1 text-black dark:text-white">
                         <IoIosPricetags size={22} />
                         <p className="text-nowrap text-[22px]">{item.price}</p>
                       </div>

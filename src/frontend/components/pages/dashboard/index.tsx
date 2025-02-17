@@ -19,11 +19,11 @@ const Dashboard = () => {
     <div className="dark:bg-background-dark bg-background flex h-full w-full flex-col items-center justify-between px-4 pb-[15px] text-primary-text">
       <div className="mx-auto w-full">
         <div className="flex flex-col items-center gap-2 py-4 sm:py-8">
-          <p className="text-center text-2xl font-extrabold uppercase text-black dark:text-white">
+          <p className="text-center text-lg sm:text-2xl font-momentum font-extrabold uppercase text-black dark:text-white">
             Meet bIPQuantum Your Intellectual Property Guardian.
           </p>
         </div>
-        <div className="mx-auto grid w-fit grid-cols-3 items-center gap-4 text-center text-white">
+        <div className="mx-auto grid w-fit grid-cols-1 sm:grid-cols-3 items-center gap-4 text-center text-white">
           <button
             className="w-fit text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-sm uppercase"
             onClick={() => newChat(CALL_TO_ACTIONS[0])}
@@ -46,7 +46,7 @@ const Dashboard = () => {
           </button>
 
           <button
-            className="col-span-3 mx-auto w-fit text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-sm uppercase"
+            className="col-span-1 md:col-span-3 mx-auto w-fit text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-sm uppercase"
             onClick={() => newChat(CALL_TO_ACTIONS[3])}
           >
             {CALL_TO_ACTIONS[3]}

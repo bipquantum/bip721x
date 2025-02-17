@@ -158,7 +158,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
             onClick={() => setStep(step + 1)}
-            className="flex size-[72px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black"
+            className="flex size-[32px] sm:size-[72px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black"
           >
             <TbArrowRight size={60} />
           </button>
@@ -168,23 +168,23 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         <div className="absolute left-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
             onClick={() => setStep(step - 1)}
-            className="flex size-[72px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black"
+            className="flex size-[32px] sm:size-[72px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black"
           >
             <TbArrowLeft size={60} />
           </button>
         </div>
       )}
-      <div className="flex h-[85vh] min-w-[60vw] flex-col gap-[30px] overflow-y-auto rounded-[40px] bg-white px-[60px] py-[20px] backdrop-blur-[10px] dark:bg-white/10">
+      <div className="flex h-[70vh] sm:h-[85vh] w-full sm:min-w-[60vw] flex-col gap-[30px] overflow-y-auto mx-[10px] rounded-[10px] md:rounded-[40px] bg-white px-[10px] sm:px-[60px] py-[20px] backdrop-blur-[10px] dark:bg-white/10">
         {step === 1 && (
           <div className="flex w-full flex-col items-center gap-[30px]">
             <div className="flex flex-col items-center gap-[15px]">
-              <p className="text-lg font-extrabold uppercase text-black dark:text-white">
+              <p className="text-lg font-momentum uppercase text-black dark:text-white">
                 STep 1 : Create new IP
               </p>
               <div className="flex w-full flex-row items-center gap-1">
-                <div className="h-[4px] min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
-                <div className="h-[4px] min-w-[200px] rounded-full bg-[#C4C4C4]" />
-                <div className="h-[4px] min-w-[200px] rounded-full bg-[#C4C4C4]" />
+                <div className="h-[4px] w-[100px] sm:min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-[100px] sm:min-w-[200px] rounded-full bg-[#C4C4C4]" />
+                <div className="h-[4px] w-[100px] sm:min-w-[200px] rounded-full bg-[#C4C4C4]" />
               </div>
             </div>
             <div className="flex w-full flex-col gap-[30px]">
@@ -202,8 +202,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
               <div className="flex w-full flex-col gap-[30px]">
                 {/* Upload and calendar */}
-                <div className="flex w-full flex-row gap-[40px]">
-                  <div className="w-6/12">
+                <div className="flex w-full flex-col sm:flex-row gap-[20px] sm:gap-[40px]">
+                  <div className="w-full md:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
                         className={
@@ -222,7 +222,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       </label>
                     </div>
                   </div>
-                  <div className="w-6/12">
+                  <div className="w-full md:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400 p-[13px]">
                       <p
                         className={
@@ -255,8 +255,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   </div>
                 </div>
                 {/* IP Title and Description */}
-                <div className="flex w-full flex-row gap-[40px]">
-                  <div className="w-6/12">
+                <div className="flex w-full flex-col md:flex-row gap-[20px] md:gap-[40px]">
+                  <div className="w-full md:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
                         className={
@@ -272,7 +272,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       />
                     </div>
                   </div>
-                  <div className="w-6/12">
+                  <div className="w-full md:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
                         className={
@@ -290,8 +290,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   </div>
                 </div>
                 {/* dropdowns */}
-                <div className="flex w-full flex-row gap-[40px]">
-                  <div className="w-6/12">
+                <div className="flex w-full flex-col md:flex-row gap-[20px] md:gap-[40px]">
+                  <div className="w-full md:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
                         className={
@@ -311,7 +311,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       />
                     </div>
                   </div>
-                  <div className="w-6/12">
+                  <div className="w-full md:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
                         className={
@@ -339,9 +339,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
             </div>
             <div className="flex w-full flex-col gap-[30px]">
-              <div className="flex w-full flex-row">
-                <div className="flex w-6/12 flex-row items-center justify-between gap-[30px]">
-                  <div className="flex w-6/12 flex-row items-center justify-between">
+              <div className="flex w-full flex-col md:flex-row">
+                <div className="flex w-full md:w-6/12 flex-col md:flex-row items-center justify-between gap-[30px]">
+                  <div className="flex w-full md:w-6/12 flex-row items-center justify-between">
                     <p className="text-[16px] font-semibold text-black dark:text-white">
                       Royalties
                     </p>
@@ -356,7 +356,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="ml-auto flex w-6/12 flex-row items-center justify-between">
+                  <div className="md:ml-auto flex w-full md:w-6/12 flex-row items-center justify-between">
                     <p className="text-[16px] font-semibold text-black dark:text-white">
                       percent %
                     </p>
@@ -367,9 +367,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   </div>
                 </div>
               </div>
-              <div className="flex w-full flex-row">
-                <div className="flex w-6/12 flex-row items-center justify-between gap-[30px]">
-                  <div className="flex w-6/12 flex-row items-center justify-between">
+              <div className="flex w-full flex-col md:flex-row gap-[30px]">
+                <div className="flex w-full md:w-6/12 flex-col md:flex-row items-center justify-between gap-[30px]">
+                  <div className="flex w-full md:w-6/12 flex-row items-center justify-between">
                     <p className="text-[16px] font-semibold text-black dark:text-white">
                       Publishing
                     </p>
@@ -384,7 +384,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="ml-auto flex w-6/12 flex-row items-center justify-between">
+                  <div className="ml-auto flex w-full md:w-6/12 flex-row items-center justify-between">
                     <p className="text-[16px] font-semibold text-black dark:text-white">
                       Country
                     </p>
@@ -408,11 +408,11 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       /> */}
                   </div>
                 </div>
-                <div className="flex w-6/12 flex-row items-center justify-center gap-[30px]">
+                <div className="flex w-full md:w-6/12 flex-row items-center justify-between md:justify-center gap-[30px]">
                   <p className="text-[16px] font-semibold text-black dark:text-white">
                     Date
                   </p>
-                  <div className="relative w-[140px] rounded-lg bg-white/10 px-4 py-1">
+                  <div className="relative w-[140px] rounded-lg bg-background dark:bg-white/10 px-4 py-1">
                     <DatePicker
                       selected={selectedDate}
                       onChange={(date: SetStateAction<null>) =>
@@ -440,16 +440,16 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         {step === 2 && (
           <div className="flex w-full flex-col items-center gap-[30px]">
             <div className="flex flex-col items-center gap-[15px]">
-              <p className="text-lg font-extrabold uppercase text-black dark:text-white">
+              <p className="text-lg font-momentum uppercase text-black dark:text-white">
                 STep 2 : Validate Author Details
               </p>
               <div className="flex w-full flex-row items-center gap-1">
-                <div className="h-[4px] min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
-                <div className="h-[4px] min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
-                <div className="h-[4px] min-w-[200px] rounded-full bg-[#C4C4C4]" />
+                <div className="h-[4px] w-[100px] md:min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-[100px] md:min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-[100px] md:min-w-[200px] rounded-full bg-[#C4C4C4]" />
               </div>
             </div>
-            <div className="flex w-6/12 flex-col items-center justify-center gap-[40px]">
+            <div className="flex w-full md:w-6/12 flex-col items-center justify-center gap-[40px]">
               <div className="size-[100px] rounded-full border bg-white">
                 <FilePreview
                   dataUri={
@@ -546,33 +546,33 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         {step == 3 && (
           <div className="flex w-full flex-col items-center gap-[30px]">
             <div className="flex flex-col items-center gap-[15px]">
-              <p className="text-lg font-extrabold uppercase text-black dark:text-white">
+              <p className="text-lg font-momentum uppercase text-black dark:text-white">
                 STep 3 : Success
               </p>
               <div className="flex w-full flex-row items-center gap-1">
-                <div className="h-[4px] min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
-                <div className="h-[4px] min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
-                <div className="h-[4px] min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-[100px] md:min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-[100px] md:min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-[100px] md:min-w-[200px] rounded-full bg-gradient-to-t from-primary to-secondary" />
               </div>
               <div className="flex w-full flex-col items-center justify-center gap-[40px] pt-[20px]">
                 <div className="rounded-[40px] border-y-[2.5px] border-white/40 bg-white/10 px-3 py-4">
-                  <div className="size-[280px] overflow-hidden rounded-[40px] bg-background">
+                  <div className="size-[240px] md:size-[280px] overflow-hidden rounded-[40px] bg-background">
                     <img
                       src={""}
                       alt="IP Img"
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  <p className="w-full py-[20px] text-center text-2xl text-black dark:text-white">
+                  <p className="w-full py-[20px] text-center text-lg md:text-2xl text-black dark:text-white">
                     Connect Hat
                   </p>
                 </div>
-                <div className="flex flex-col items-center justify-center gap-[10px] text-center text-3xl text-black dark:text-white">
+                <div className="flex flex-col items-center justify-center gap-[10px] text-center text-xl md:text-3xl text-black dark:text-white">
                   <p>Congratulations!</p>
                   <p>Your IP has been successfully created.</p>
                 </div>
               </div>
-              <div className="flex flex-row gap-5 pt-[10px]">
+              <div className="flex flex-col md:flex-row w-full gap-5 pt-[10px]">
                 <button className="rounded-xl border-2 border-primary bg-transparent px-6 py-3 text-xl text-primary">
                   Manage IPs
                 </button>

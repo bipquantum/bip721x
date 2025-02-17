@@ -30,7 +30,7 @@ const BipsHeader: React.FC<BipsHeaderProps> = ({ sort, changeQueryDirection }) =
         <img
           src={sort === EQueryDirection.Forward ? SortUp : SortDown}
           alt="Logo"
-          className="h-8 invert"
+          className="h-8 dark:invert"
         />
       </button>
     </div>

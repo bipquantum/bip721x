@@ -44,7 +44,7 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
     //   </div>
     // </div>
 
-    <div className="grid grid-cols-6 gap-[10px] rounded-2xl bg-white/10 px-2 py-2">
+    <div className="grid grid-cols-6 gap-[10px] rounded-2xl bg-white dark:bg-white/10 px-2 py-2">
       <div className="col-span-1 h-fit w-[110px]">
         <FilePreview
           dataUri={intProp.ok.V1.dataUri}
@@ -56,7 +56,7 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
           <img src={(intProp.ok.V1.dataUri)} alt="" className="h-[40px] w-[40px] rounded-full" />
         </div>
         <div className="w-fit">
-          <div className="flex flex-col gap-3 text-white">
+          <div className="flex flex-col gap-3 text-black dark:text-white">
             <p className="text-xl leading-none">{intProp.ok.V1.title}</p>
             <p className="text-xs">by @ User Name</p>
           </div>
@@ -88,12 +88,12 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
       <div className="flex flex-row items-center justify-center gap-2">
         {/* Handle logic for listed and unlisted IPs */}
         {(intProp.ok.V1.author) ? (
-          <button className="flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] bg-gradient-to-t from-primary to-secondary py-2 font-semibold uppercase">
+          <button className="flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] bg-gradient-to-t from-primary to-secondary py-2 font-semibold uppercase text-white">
             {" "}
             <TbCheck size={22} /> List{" "}
           </button>
         ) : (
-          <button className="flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] bg-gradient-to-t from-red-500 to-red-400 py-2 font-semibold uppercase">
+          <button className="flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] bg-gradient-to-t from-red-500 to-red-400 py-2 font-semibold uppercase text-white">
             {" "}
             <TbX size={22} /> Unlist{" "}
           </button>
@@ -150,7 +150,7 @@ const Wallet = ({ principal }: WalletProps) => {
             onClick={() => {
               setSelection("owned");
             }}
-            className={`rounded-xl px-4 py-2 text-xl font-extrabold text-black dark:text-white ${selection === "owned" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
+            className={`rounded-xl px-4 py-2 text-xl font-momentum font-extrabold text-black dark:text-white ${selection === "owned" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
           >
             Recently Bought
           </button>
@@ -158,7 +158,7 @@ const Wallet = ({ principal }: WalletProps) => {
             onClick={() => {
               setSelection("created");
             }}
-            className={`rounded-xl px-4 py-2 text-xl font-extrabold text-black dark:text-white ${selection === "created" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
+            className={`rounded-xl px-4 py-2 text-xl font-momentum font-extrabold text-black dark:text-white ${selection === "created" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
           >
             Recently Created
           </button>
