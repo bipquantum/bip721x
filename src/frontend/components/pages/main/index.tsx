@@ -32,7 +32,7 @@ const Main = () => {
         
       </div> */}
         <div className="bg-white/20 backdrop-blur-[10px] flex flex-col items-center justify-center gap-6 rounded-[40px] border border-primary px-[72px] py-[55px] text-primary-text shadow-lg shadow-secondary/20">
-          <p className="text-center text-xl font-extrabold uppercase">Create New IP</p>
+          <p className="text-center text-xl font-momentum font-extrabold uppercase">Create New IP</p>
           <div className="flex flex-col gap-[10px]">
           <button className="w-full text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-base text-center uppercase text-white hover:cursor-pointer hover:bg-blue-800" onClick={() => newChat("New chat")}>
             AI-Assisted IP Creation

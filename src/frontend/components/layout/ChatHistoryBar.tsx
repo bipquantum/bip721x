@@ -67,7 +67,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
     setSettingOpen(chatId);
   };
   return (
-    <div className="bg-white/20 backdrop-blur-[10px] flex w-full flex-col justify-between text-white">
+    <div className="bg-white/20 backdrop-blur-[10px] flex w-full flex-col justify-between text-black dark:text-white">
       <div className="h-[70vh] w-full overflow-auto px-4 py-6">
         {/* <div className="flex flex-row space-x-2 cursor-pointer items-center justify-center text-lg font-bold w-full">
           <img src={AIBotImg} className={`h-10 rounded-full`} />
@@ -102,7 +102,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
                 <TbDots className="h-fit w-fit p-1" />
               </button>
               <div
-                className={`absolute right-[0%] top-[80%] h-[100px] w-[120px] flex-col justify-center gap-2 rounded-[20px] border bg-[#2f2f2f] z-[50]  ${settingOpen === chat.id ? "flex" : "hidden"}`}
+                className={`absolute right-[0%] top-[80%] h-[100px] w-[120px] flex-col justify-center gap-2 rounded-[20px] border bg-[#eee] dark:bg-[#2f2f2f] z-[50]  ${settingOpen === chat.id ? "flex" : "hidden"}`}
               >
                 <div
                   onClick={(e) => {
@@ -112,9 +112,9 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
                       action: ChatAction.RENAME,
                     });
                   }}
-                  className="flex cursor-pointer flex-row items-center gap-2 px-5"
+                  className="text-black dark:text-white flex cursor-pointer flex-row items-center gap-2 px-5"
                 >
-                  <TbPencil color="#ffffff" className={`size-[18px]`} />
+                  <TbPencil className={`size-[18px]`} />
                   <p className="text-sm">Rename</p>
                 </div>
                 <div
@@ -161,7 +161,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
           )}
           <div className="flex w-full justify-center gap-4">
             <button
-              className="w-1/3 rounded-xl bg-gray-600 text-white"
+              className="w-1/3 rounded-xl bg-background dark:bg-gray-600 text-black dark:text-white"
               onClick={() => {
                 setActionCandidate(undefined);
               }}
@@ -169,7 +169,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
               No
             </button>
             <button
-              className="w-1/3 rounded-xl bg-secondary text-white"
+              className="w-1/3 rounded-xl bg-secondary text-black dark:text-white"
               onClick={runAction}
             >
               Yes

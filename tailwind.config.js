@@ -6,6 +6,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Roboto', 'sans-serif'],
+        momentum: ['MomentumExtended', 'sans-serif'],
+      },
       colors: {
         background: "#f4f4f4", 
         "background-dark": "#171717",

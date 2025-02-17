@@ -15,6 +15,7 @@ import WhoAreYou from "../pages/poll";
 import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
+import DetailsView from "../pages/profile/DetailsView";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -68,6 +69,7 @@ const Router = () => {
           <BipDetails principal={identity?.getPrincipal()} />
         }
       />
+      <Route path={"/view"} element={<DetailsView />} />
       <Route path={"/about"} element={<About />} />
       <Route path={"/login"} element={<Login />} />
       <Route path="/bip/:intPropId/certificate" element={<CertificatePage />} />

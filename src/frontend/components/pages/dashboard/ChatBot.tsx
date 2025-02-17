@@ -65,9 +65,9 @@ const ChatBot = ({
   }, [chats]);
 
   return (
-    <div className="flex overflow-y-auto h-[85vh] w-full flex-1 flex-col justify-between overflow-auto pb-[15px] relative">
+    <div className="flex overflow-y-auto h-[80vh] md:h-[85vh] w-full flex-1 flex-col justify-between overflow-auto pb-[15px] relative">
       <div>
-        <p className="w-full pt-2 text-center text-3xl font-extrabold uppercase dark:text-white text-black">
+        <p className="w-full pt-2 text-center text-xl md:text-3xl font-momentum uppercase dark:text-white text-black">
           What can I help with?
         </p>
         <ChatBox

@@ -16,6 +16,7 @@ const ChatHistory = () => {
       pathname.includes("/profile") ||
       pathname.includes("/new") ||
       pathname.includes("/poll") ||
+      pathname.includes("/view") ||
       pathname.includes("/login") ||
       pathname.includes("/about")
     );
@@ -23,7 +24,7 @@ const ChatHistory = () => {
   return (
     <div>
       <div
-        className={`hidden h-[80vh] mx-[20px] rounded-[40px] w-64 overflow-auto bg-background dark:bg-background-dark text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
+        className={`hidden h-[80vh] mx-[20px] rounded-[40px] w-64 overflow-auto bg-white dark:bg-background-dark text-black dark:text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
       >
         <ChatHistoryBar onChatSelected={() => {}} />
       </div>

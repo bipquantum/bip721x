@@ -56,7 +56,7 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
         </div>
       ) : (
         <Link
-          className="min-h-[450px] w-[400px] rounded-2xl border-2 border-white/50 bg-white/10 backdrop-blur-[10px]"
+          className="min-h-[450px] w-[400px] rounded-2xl border-2 border-black/50 dark:border-white/50 bg-white dark:bg-white/10 backdrop-blur-[10px]"
           to={`/bip/${intPropId}`}
         >
           <div className="flex h-full flex-col gap-y-1 p-2 text-base text-white">
@@ -97,10 +97,10 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
                   </div>
                   <div className="w-fit">
                     <div className="pb-1">
-                      <p className="text-2xl leading-none">
+                      <p className="text-2xl leading-none text-black dark:text-white">
                         {intProp.ok.V1.title}
                       </p>
-                      <p className="text-xs">By @ User Name</p>
+                      <p className="text-xs text-black dark:text-white">By @ User Name</p>
                     </div>
                     <div className="w-fit pt-2">
                       <p className="text-sm font-light text-neutral-400">
@@ -120,9 +120,9 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
                     </div>
                   </div>
                 </div>
-                <div className="flex w-4/12 flex-row items-center gap-1 text-white">
+                <div className="flex w-4/12 flex-row items-center gap-1 text-black dark:text-white">
                   <IoIosPricetags size={22} />
-                  <p className="text-nowrap text-[22px]">10.00 bQC</p>
+                  <p className="text-nowrap text-[22px] ">10.00 bQC</p>
                 </div>
               </div>
               <div className="mx-auto flex w-fit flex-row items-center gap-8 pb-2 pt-4">
@@ -137,7 +137,7 @@ const BipItem: React.FC<BipItemProps> = ({ intPropId, principal }) => {
                     <TbX size={22} /> Unlist{" "}
                   </button>
                 )}
-                <button className="uppercase flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] border py-2 font-semibold">
+                <button className="uppercase flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] border py-2 font-semibold text-black dark:text-white border-black dark:border-white">
                   {" "}
                   <TbPencil size={22} /> Edit{" "}
                 </button>

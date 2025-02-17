@@ -49,7 +49,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   };
 
   return (
-    <div className="flex h-full w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto bg-background pt-2 text-black dark:bg-background-dark dark:text-white sm:items-start sm:gap-y-4">
+    <div className="flex h-[80vh] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto pt-2 text-black dark:text-white sm:items-start sm:gap-y-4">
       <BipsHeader
         sort={queryDirection}
         changeQueryDirection={changeQueryDirection}
