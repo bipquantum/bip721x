@@ -101,7 +101,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ principal, chats, aiPrompts, sendEven
                 </div>
                 <div className="flex flex-row gap-2">
                   <img src={AIBotImg} className={`h-10 rounded-full`} />
-                  <div className="flex rounded-xl items-center-xl px-3 py-2 sm:px-4 sm:py-2 bg-slate-300 text-black markdown-link">
+                  <div className="block rounded-xl items-center-xl px-3 py-2 sm:px-4 sm:py-2 bg-slate-300 text-black markdown-link">
                     {prompt.answer === undefined ? (
                       <img src={SpinnerSvg} alt="Loading..." />
                     ) : (
