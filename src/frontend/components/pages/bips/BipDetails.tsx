@@ -354,7 +354,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   Recommendations
                 </p>
                 {Object.entries(dummyData).map(([category, items]) => (
-                  <div className="grid grid-col-1 md:grid-cols-3 gap-[20px] mx-auto">
+                  <div className="grid grid-col-1 md:grid-cols-3 gap-[20px] md:mx-0 mx-auto">
                     {items.map((item) => (
                       <Link
                         key={item.id}

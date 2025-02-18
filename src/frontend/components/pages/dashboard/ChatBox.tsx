@@ -12,6 +12,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CopyIcon from "../../common/CopyIcon";
 import { AUTOMATIC_CHATBOT_TRANSITION } from "../../constants";
+import { useNavigate } from "react-router-dom";
 
 const MARKDOWN_COMPONENTS = {
   h1: ({ node, ...props }: any) => (
@@ -75,6 +76,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       setPendingPick(chats.length - 1);
     }
   }, [chats]);
+  
+  const navigate = useNavigate()
+
+  useEffect( () => {
+    console.log(creatingIp)
+    console.log(principal)
+    // navigate('/new')
+  }, [creatingIp])
 
   return (
     <div
@@ -118,7 +127,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                 {/* { chat.answers.length > 0 && <img src={ProfileSvg} className="h-10 rounded-full" alt="Profile" />} */}
                 {chat.answers.map((answer, answer_index) => (
                   <button
-                    className={`h-10 rounded-full border border-gray-400 px-3 text-gray-400 sm:px-4 ${answer.state === ChatAnswerState.Unselectable || (answer.text === "US Copyright Certificate" && "bg-gray-400")} ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-white hover:text-black"} ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-white hover:text-white"} `}
+                    className={`h-10 rounded-full border border-gray-400 px-3 text-gray-400 sm:px-4 ${answer.state === ChatAnswerState.Unselectable || (answer.text === "US Copyright Certificate" && "bg-gray-300")} ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-white hover:text-black"} ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-white hover:text-white"} `}
                     // TODO: temporary solution to prevent the user from selecting the "US Copyright Certificate"
                     disabled={
                       answer.state !== ChatAnswerState.Selectable ||

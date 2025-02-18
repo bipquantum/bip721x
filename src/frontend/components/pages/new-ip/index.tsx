@@ -174,7 +174,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </button>
         </div>
       )}
-      <div className="flex h-[70vh] sm:h-[85vh] w-full sm:min-w-[60vw] flex-col gap-[30px] overflow-y-auto mx-[10px] rounded-[10px] md:rounded-[40px] bg-white px-[10px] sm:px-[60px] py-[20px] backdrop-blur-[10px] dark:bg-white/10">
+      <div className="flex h-[70vh] sm:h-[85vh] w-full sm:w-6/12 flex-col gap-[30px] overflow-y-auto mx-[10px] rounded-[10px] md:rounded-[40px] bg-white px-[10px] sm:px-[60px] py-[20px] backdrop-blur-[10px] dark:bg-white/10">
         {step === 1 && (
           <div className="flex w-full flex-col items-center gap-[30px]">
             <div className="flex flex-col items-center gap-[15px]">
@@ -572,7 +572,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <p>Your IP has been successfully created.</p>
                 </div>
               </div>
-              <div className="flex flex-col md:flex-row w-full gap-5 pt-[10px]">
+              <div className="flex flex-col md:flex-row md:w-fit w-full gap-5 pt-[10px]">
                 <button className="rounded-xl border-2 border-primary bg-transparent px-6 py-3 text-xl text-primary">
                   Manage IPs
                 </button>
