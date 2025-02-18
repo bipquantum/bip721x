@@ -71,7 +71,7 @@ const BipMarketplace = () => {
           <p className="text-lg font-momentum font-extrabold uppercase text-black dark:text-white">
             {category}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-[10px] md:gap-[20px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-[10px] md:gap-[20px] md:mx-0 mx-auto">
             {items.map((item) => (
               <Link
                 key={item.id}
