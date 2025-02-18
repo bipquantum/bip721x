@@ -53,7 +53,12 @@ dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal 
 dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})' --ic
 
 dfx deploy backend --ic --argument 'variant {
-  init = record { e8sTransferFee = 10; }
+  init = record { 
+    e8sTransferFee = 10;
+    airdrop_per_user = 100_000_000_000;
+    admin = principal "'${DEPLOYER_PRINCIPAL}'";
+    chatbot_api_key = "";
+  }
 }'
 
 dfx canister call backend init_controller --ic

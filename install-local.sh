@@ -47,7 +47,12 @@ dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal 
 dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})'
 
 dfx deploy backend --argument 'variant {
-  init = record { e8sTransferFee = 10; airdrop_per_user = 100_000_000_000; admin = principal "'${DEPLOYER_PRINCIPAL}'" }
+  init = record { 
+    e8sTransferFee = 10;
+    airdrop_per_user = 100_000_000_000;
+    admin = principal "'${DEPLOYER_PRINCIPAL}'";
+    chatbot_api_key = "";
+  }
 }'
 
 ## Internet identity

@@ -50,7 +50,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_3_0(stableData)){
+      case(#v0_4_0(stableData)){
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
@@ -60,9 +60,12 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
             stage_account = { owner = Principal.fromActor(this); subaccount = null; };
             fee = stableData.e8sTransferFee;
           });
+          chatBot = ChatBot.ChatBot({
+            chatbot_api_key = stableData.chatbot_api_key; 
+          });
         });
       };
-      case(_) { Debug.trap("Unexpected state version: v0_3_0 expected"); };
+      case(_) { Debug.trap("Unexpected state version: v0_4_0 expected"); };
     };
     
     #ok;
@@ -170,7 +173,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public shared func chatbot_completion({body: Blob}) : async ChatBot.HttpResponse {
-    await ChatBot.get_completion(body);
+    await* getController().chatbot_completion({body});
   };
 
   public query({caller}) func is_airdrop_available() : async Bool {
