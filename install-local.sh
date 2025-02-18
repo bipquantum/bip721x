@@ -51,7 +51,7 @@ dfx deploy backend --argument 'variant {
     e8sTransferFee = 10;
     airdrop_per_user = 100_000_000_000;
     admin = principal "'${DEPLOYER_PRINCIPAL}'";
-    chatbot_api_key = "";
+    chatbot_api_key = "'${CHATBOT_API_KEY}'";
   }
 }'
 
