@@ -134,10 +134,18 @@ const loadRoyaltiesVisible = () => {
   return storedValue ? JSON.parse(storedValue) : false;
 }
 
-const save = (intPropInput: IntPropInput, dataUri: string, royaltiesVisible: boolean) => {
+const saveSession = (intPropInput: IntPropInput, dataUri: string, royaltiesVisible: boolean) => {
+  console.log("Save session!")
   sessionStorage.setItem("intPropInput", SuperJSON.stringify(intPropInput));
   sessionStorage.setItem("dataUri", dataUri);
   sessionStorage.setItem("royaltiesVisible", JSON.stringify(royaltiesVisible));
+}
+
+const clearSession = () => {
+  console.log("Clear session!")
+  sessionStorage.removeItem("intPropInput");
+  sessionStorage.removeItem("dataUri");
+  sessionStorage.removeItem("royaltiesVisible");
 }
 
 interface NewIPModalProps {
@@ -154,6 +162,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   const [intPropInput,     setIntPropInput    ] = useState<IntPropInput>(loadIntPropInput());
   const [dataUri,          setDataUri         ] = useState<string>(loadDataUri());
   const [royaltiesVisible, setRoyaltiesVisible] = useState<boolean>(loadRoyaltiesVisible()); 
+  const [ipCreated,        setIpCreated       ] = useState<boolean>(false);
   
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
@@ -176,9 +185,10 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   const createIp = async () => {
     setIsLoading(true);
     await createIntProp([intPropInput]);
+    setIpCreated(true);
     setIsLoading(false);
     setStep(3);
-  };;
+  };
 
   useEffect(() => {
     setIntPropInput({ ...intPropInput, dataUri });
@@ -218,8 +228,17 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
     return localDate;
   }
 
+  const closeModal = () => {
+    if (ipCreated) {
+      clearSession();
+    } else {
+      saveSession(intPropInput, dataUri, royaltiesVisible);
+    }
+    onClose(ipId);
+  }
+
   return (
-    <ModalPopup onClose={() => { save(intPropInput, dataUri, royaltiesVisible); onClose(ipId); }} isOpen={isOpen}>
+    <ModalPopup onClose={() => closeModal()} isOpen={isOpen}>
       <div className="flex w-full flex-col items-center justify-start gap-8 overflow-auto border-white bg-primary py-6 text-base text-white sm:border-l">
         <div className="flex w-full items-center flex-col gap-1 w-full">
           <div className="flex flex-col items-center justify-around gap-3">

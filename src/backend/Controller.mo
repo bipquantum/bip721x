@@ -2,6 +2,7 @@ import Types             "Types";
 import Conversions       "intprop/Conversions";
 import TradeManager      "TradeManager";
 import ChatBotHistory    "ChatBotHistory";
+import ChatBot           "ChatBot";
 
 import BIP721Ledger      "canister:bip721_ledger";
 import BQCLedger         "canister:bqc_ledger";
@@ -46,6 +47,7 @@ module {
     chatBotHistory: ChatBotHistory.ChatBotHistory;
     tradeManager: TradeManager.TradeManager;
     airdrop: Airdrop;
+    chatBot: ChatBot.ChatBot;
   }) {
 
     public func setUser(
@@ -543,6 +545,10 @@ module {
 
     public func getModerators() : [Principal] {
       Set.toArray(accessControl.moderators);
+    };
+
+    public func chatbot_completion({body: Blob}) : async* ChatBot.HttpResponse {
+      await* chatBot.get_completion(body);
     };
 
   };
