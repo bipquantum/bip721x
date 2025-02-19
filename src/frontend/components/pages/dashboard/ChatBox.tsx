@@ -137,7 +137,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                     // TODO: have guards in the state machine to prevent code like this
                     onClick={() => {
                       answer.text === "bIP certificate"
-                        ? setCreatingIp(answer_index)
+                        // ? setCreatingIp(answer_index)
+                        // : transition(answer_index);
+                        ? navigate('/new', { state: { principal } })
                         : transition(answer_index);
                     }}
                   >
@@ -180,11 +182,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({
         </div>
       ))}
       <div ref={messagesEndRef}></div>
-      <NewIP
+      {/* <NewIP
         principal={principal}
         isOpen={creatingIp !== undefined}
         onClose={(ipId) => onIpCreated(ipId)}
-      />
+      /> */}
     </div>
   );
 };

@@ -195,9 +195,9 @@ const Profile = () => {
           <img src={profileBg} alt="" className="h-full w-full object-center" />
         </div>
         <div className="flex w-full flex-col gap-[30px] md:pl-[15px]">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
             <div className="flex flex-col md:flex-row items-center gap-2 md:gap-5">
-              <div className="flex h-[100px] w-[100px] items-center justify-center rounded-full bg-white text-primary dark:bg-white/10">
+              <div className="flex h-[60px] w-[60px] lg:h-[100px] lg:w-[100px] items-center justify-center rounded-full bg-white text-primary dark:bg-white/10">
                 <FiUserPlus size={32} />
               </div>
               <div className="text-black dark:text-white flex flex-col gap-[5px]">
@@ -224,7 +224,7 @@ const Profile = () => {
               </button>
             </div>
           </div>
-          <div className="w-full md:w-8/12 grid grid-cols-1 md:grid-cols-2 gap-[30px] text-base">
+          <div className="w-full lg:w-8/12 grid grid-cols-1 md:grid-cols-2 gap-[30px] text-base">
             {ProfileFields.map((field, index) => (
               <div
                 className="relative flex w-full flex-col rounded-lg border border-gray-300 p-1"

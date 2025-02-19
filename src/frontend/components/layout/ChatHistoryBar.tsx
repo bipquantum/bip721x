@@ -145,7 +145,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
         >
           {actionCandidate?.action === ChatAction.RENAME && (
             <div>
-              <p className="pb-5">Rename chatbot history?</p>
+              <p className="pb-5 dark:text-white">Rename chatbot history?</p>
               <textarea
                 className="w-full rounded-xl bg-gray-200 p-2"
                 onMouseDown={(e) => e.stopPropagation()}

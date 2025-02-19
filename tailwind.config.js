@@ -8,7 +8,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Roboto', 'sans-serif'],
-        momentum: ['MomentumExtended', 'sans-serif'],
+        monument: ['MonumentExtended', 'sans-serif'],
       },
       colors: {
         background: "#f4f4f4", 

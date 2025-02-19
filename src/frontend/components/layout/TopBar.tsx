@@ -25,10 +25,10 @@ const TopBar = () => {
         <p className="text-sm md:text-base">Bruce Warren</p>
       </div>
       {pathname === "/" && (
-        <div className="hidden items-center justify-center gap-x-16 text-black dark:text-white md:flex">
-          <Link to={"/about"}>About</Link>
-          <Link to={"/new"}>Add your Intellectual Property</Link>
-          <Link to={"/marketplace"}>Market place</Link>
+        <div className="hidden items-center justify-between gap-4 text-black dark:text-white lg:flex">
+          <Link className="text-base" to={"/about"}>About</Link>
+          <Link className="text-base" to={"/new"}>Add your Intellectual Property</Link>
+          <Link className="text-base" to={"/marketplace"}>Market place</Link>
         </div>
       )}
       <div className="flex items-center gap-4">

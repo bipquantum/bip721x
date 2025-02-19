@@ -101,11 +101,11 @@ const NavBar = () => {
   return (
     <>
       {!(pathname.includes("login") || pathname.includes("certificate")) && (
-        <div className="static z-[999] flex flex-row border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30">
-          <div className="hidden h-screen w-fit flex-col items-center overflow-auto bg-background pt-8 font-bold text-black dark:bg-background-dark dark:text-white sm:flex">
+        <div className="static w-[90px] z-[999] flex flex-row border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30">
+          <div className="hidden h-screen w-fit flex-col items-center overflow-y-auto bg-background pt-8 font-bold text-black dark:bg-background-dark dark:text-white sm:flex">
             <div className="flex flex-grow flex-col items-center justify-between">
               <div className="flex flex-col items-center justify-start">
-                <Link to={"/"} className="mb-[40px] size-[48px]">
+                <Link to={"/"} className="mb-[20px] xl:mb-[40px] size-[48px]">
                   <img
                     src={theme === "dark" ? Logo : LogoDark}
                     alt=""
@@ -121,7 +121,7 @@ const NavBar = () => {
                     key={index}
                   >
                     {pathname === "/" + item.link && (
-                      <div className="absolute left-0 -top-[41%] h-full w-full overflow-visible -z-10">
+                      <div className="absolute left-[-5px] -top-[42.5%] h-full overflow-x-visible -z-10 w-[85px]">
                         <img src={darkBG} alt="" />
                       </div>
                     )}
