@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 @font-face {
-  font-family: 'MomentumExtended';
+  font-family: 'MonumentExtended';
   src: url('/fonts/extend-regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'MomentumExtended';
+  font-family: 'MonumentExtended';
   src: url('/fonts/extend-extrabold.ttf') format('truetype');
   font-weight: 800;
   font-style: normal;
@@ -86,6 +86,29 @@ input {
   display: block;
 }
 
+/* Concave Effect for Active Link */
+.nav-active-bg {
+  position: absolute;
+  width: 90%;
+  height: 100%;
+  background: linear-gradient(to top, #4372DB, #549BF6);
+  left: 0;
+  top: 0;
+  border-top-right-radius: 40px;
+  border-bottom-right-radius: 40px;
+  -webkit-mask-image: url('data:image/svg+xml,<svg width="75" height="120" viewBox="0 0 75 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M75 60C75 77.1208 61.1208 91 44 91C42.8491 91 41.7129 90.9373 40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C42.1176 29.0424 43.0538 29 44 29C61.1208 29 75 42.8792 75 60Z" fill="white"/><path d="M40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C27.9764 29.2761 4.18101 23.7993 -4 0V119.5C0.468487 109.446 15.4504 90.3148 40.5946 90.8151Z" fill="white"/></svg>');
+  mask-image: url('data:image/svg+xml,<svg width="75" height="120" viewBox="0 0 75 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M75 60C75 77.1208 61.1208 91 44 91C42.8491 91 41.7129 90.9373 40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C42.1176 29.0424 43.0538 29 44 29C61.1208 29 75 42.8792 75 60Z" fill="white"/><path d="M40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C27.9764 29.2761 4.18101 23.7993 -4 0V119.5C0.468487 109.446 15.4504 90.3148 40.5946 90.8151Z" fill="white"/></svg>');
+  mask-size: cover;
+  mask-repeat: no-repeat;
+  z-index: -1;
+}
+
+
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(40%) sepia(100%) saturate(500%) hue-rotate(200deg);
+  cursor: pointer;
+}
 
 /* Base Styles */
 .custom-calendar {
@@ -196,23 +219,3 @@ input {
   color: #ffffff; /* White for dark mode */
   opacity: 1;
 }
-
-/* Concave Effect for Active Link */
-.nav-active-bg {
-  position: absolute;
-  width: 90%;
-  height: 100%;
-  background: linear-gradient(to top, #4372DB, #549BF6);
-  left: 0;
-  top: 0;
-  border-top-right-radius: 40px;
-  border-bottom-right-radius: 40px;
-  -webkit-mask-image: url('data:image/svg+xml,<svg width="75" height="120" viewBox="0 0 75 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M75 60C75 77.1208 61.1208 91 44 91C42.8491 91 41.7129 90.9373 40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C42.1176 29.0424 43.0538 29 44 29C61.1208 29 75 42.8792 75 60Z" fill="white"/><path d="M40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C27.9764 29.2761 4.18101 23.7993 -4 0V119.5C0.468487 109.446 15.4504 90.3148 40.5946 90.8151Z" fill="white"/></svg>');
-  mask-image: url('data:image/svg+xml,<svg width="75" height="120" viewBox="0 0 75 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M75 60C75 77.1208 61.1208 91 44 91C42.8491 91 41.7129 90.9373 40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C42.1176 29.0424 43.0538 29 44 29C61.1208 29 75 42.8792 75 60Z" fill="white"/><path d="M40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C27.9764 29.2761 4.18101 23.7993 -4 0V119.5C0.468487 109.446 15.4504 90.3148 40.5946 90.8151Z" fill="white"/></svg>');
-  mask-size: cover;
-  mask-repeat: no-repeat;
-  z-index: -1;
-}
-
-
-

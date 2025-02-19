@@ -9,7 +9,6 @@ const ChatHistory = () => {
   const [showChatHistory, setShowChatHistory] = useState(false);
   const hideHistoryBar = () => {
     return (
-      pathname == "/" ||
       pathname.includes("/marketplace") ||
       pathname.includes("/bips") ||
       pathname.includes("/bip/") ||

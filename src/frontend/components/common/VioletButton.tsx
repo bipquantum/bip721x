@@ -1,25 +1,26 @@
 import SpinnerSvg from "../../assets/spinner.svg";
 
 interface VioletButtonProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   isLoading: boolean;
+  type?: string;
   onClick: () => void;
 }
 
-const VioletButton: React.FC<VioletButtonProps> = ({ children, isLoading, onClick }) => {
+const VioletButton: React.FC<VioletButtonProps> = ({ children, isLoading, onClick, type }) => {
   return (
     <button
       onClick={(e) => {
         e.preventDefault();
         onClick();
       }}
-      className="flex h-10 items-center justify-center rounded-lg bg-violet-700 px-4 py-2.5 min-w-[80px] text-sm font-medium text-white hover:bg-violet-800 focus:outline-none focus:ring-4 focus:ring-violet-300 dark:bg-violet-600 dark:text-white dark:hover:bg-violet-700 dark:focus:ring-violet-800"
+      className={`flex text-base px-3 py-2 items-center justify-center rounded-lg bg-gradient-to-t  ${type === 'list' ? 'from-primary to-secondary' : type==='unlist' ? 'from-red-500 to-red-600' : type === 'buy' ? 'border-2 border-primary text-black dark:text-white' : type==='bid' ? 'border-2 border-red-500' : 'border-2 border-black dark:border-white text-black dark:text-white'}  w-full`}
       type="button"
       disabled={isLoading}
       style={{ position: 'relative' }}
     >
-      <span className={isLoading ? "invisible" : ""}>{children}</span>
       {isLoading && <img src={SpinnerSvg} alt="Loading..." style={{ position: 'absolute' }} />}
+      <span className={isLoading ? "invisible" : ""}>{children}</span>
     </button>
   );
 };

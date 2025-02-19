@@ -84,11 +84,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, 
   }, []);
 
   return (
-    <div>
+    <div className="">
       <input
         type="file"
         accept={acceptedFiles}
-        className="sr-only"
+        className="sr-only w-full"
         onChange={handleFileChange}
         ref={fileInputRef}
       />

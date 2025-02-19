@@ -113,7 +113,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     <div className="flex h-full w-full flex-col overflow-y-auto font-semibold text-black dark:text-white">
       {/* <BipsHeader/> */}
       <div className="h-full w-full sm:p-8 md:p-4">
-        <div className="bg-tertiary flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto sm:rounded-xl">
+        <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto sm:rounded-xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -233,10 +233,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
             //   </div>
             // </div>
             <div className="flex h-full max-h-[80vh] w-full flex-col gap-[40px]">
-              <div className="flex h-fit w-full flex-col md:flex-row items-start justify-between gap-[30px]">
-                <div className="flex w-full md:w-3/12 flex-col gap-[18px]">
+              <div className="flex h-fit w-full flex-col lg:flex-row items-start justify-between gap-[30px]">
+                <div className="flex w-full lg:w-3/12 flex-col gap-[18px]">
                   <div className="h-auto w-full p-2">
-                    <div className="rounded-[32px] shadow-[0px_0px_40px_-20px] shadow-primary">
+                    <div className="rounded-[32px] shadow-[0px_0px_40px_-20px] shadow-primary w-full md:w-fit mx-auto">
                       {intProp.ok.V1.dataUri && (
                         <FilePreview
                           className="rounded-[32px]"
@@ -257,7 +257,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </button>
                   </div>
                 </div>
-                <div className="h-full w-full md:w-9/12 p-2">
+                <div className="h-full w-full lg:w-9/12 p-2">
                   <div className="flex h-full flex-col gap-[15px] rounded-[40px] bg-secondary/10 p-[20px] md:p-[30px] dark:bg-white/10">
                     <div className="flex h-fit flex-col gap-[20px]">
                       <div className="flex flex-row items-center gap-[15px]">
@@ -265,7 +265,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                           <img src={AiBot} alt="" />
                         </div>
                         <div className="flex flex-row items-center gap-1">
-                          UserName
+                          <p>UserName</p>
                           <span>
                             <HiCheckBadge
                               size={24}
@@ -354,7 +354,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   Recommendations
                 </p>
                 {Object.entries(dummyData).map(([category, items]) => (
-                  <div className="grid grid-col-1 md:grid-cols-3 gap-[20px] md:mx-0 mx-auto">
+                  <div className="grid w-full lg:grid-cols-2 xl:grid-cols-3 gap-[20px]">
                     {items.map((item) => (
                       <Link
                         key={item.id}

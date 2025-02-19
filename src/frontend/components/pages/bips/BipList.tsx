@@ -9,8 +9,11 @@ import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
 
 interface BipsProps {
-  principal: Principal | undefined;
+  principal: Principal;
   scrollableClassName: string;
+  onListClick: (bipId: bigint) => void;
+  onUnlistingClick: (bipId: bigint) => void;
+  onEditingClick: (bipId: bigint) => void;
   fetchBips: (
     prev: bigint | undefined,
     direction: QueryDirection,
@@ -18,7 +21,7 @@ interface BipsProps {
   queryDirection: EQueryDirection;
   BipItemComponent?: React.ComponentType<{
     intPropId: bigint;
-    principal: Principal | undefined;
+    principal: Principal;
   }>;
   isGrid?: boolean;
 }
@@ -30,6 +33,9 @@ const BipList: React.FC<BipsProps> = ({
   isGrid,
   queryDirection,
   BipItemComponent = BipItem,
+  onListClick,
+  onUnlistingClick,
+  onEditingClick,
 }) => {
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
   const [prev, setPrev] = useState<bigint | undefined>(undefined); // Keep track of previous entries
@@ -89,16 +95,23 @@ const BipList: React.FC<BipsProps> = ({
               principal={principal}
               intPropId={intPropId}
               key={intPropId}
+              onListClick={onListClick}
+              onUnlistingClick={onUnlistingClick}
+              onEditingClick={onEditingClick}
             />
           ))}
         </div>
+        
       ) : (
-        <div className={'w-full grid grid-cols-3 gap-[20px]'}>
+        <div className={"grid w-full md:grid-cols-2 xl:grid-cols-3 items-center  gap-[20px]"}>
           {Array.from(entries).map((intPropId) => (
             <BipItem
               principal={principal}
               intPropId={intPropId}
               key={intPropId}
+              onListClick={onListClick}
+              onUnlistingClick={onUnlistingClick}
+              onEditingClick={onEditingClick}
             />
           ))}
         </div>

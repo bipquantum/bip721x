@@ -13,9 +13,10 @@ import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection } from "../../../utils/conversions";
 import { BIP_ITEMS_PER_QUERY } from "../../constants";
 import BipMarketplace from "./BipMarketplace";
+import { ModalPopup } from "../../common/ModalPopup";
 
 interface BipsProps {
-  principal: Principal | undefined; // TODO: it does not need to be optional, apparently principal is always defined but anonymous if not logged in
+  principal: Principal ; // TODO: it does not need to be optional, apparently principal is always defined but anonymous if not logged in
 }
 
 const Bips: React.FC<BipsProps> = ({ principal }) => {
@@ -48,8 +49,28 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
     );
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUnlistingModalOpen, setIsUnlistingModalOpen] = useState(false);
+  const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);
+  const [selectedBipId, setSelectedBipId] = useState<bigint | null>(null);
+
+  const handleListClick = (bipId: bigint) => {
+    setSelectedBipId(bipId);
+    setIsModalOpen(true);
+  };
+
+  const handleUnlistingClick = (bipId: bigint) => {
+    setSelectedBipId(bipId);
+    setIsUnlistingModalOpen(true);
+  };
+
+  const handleEditingClick = (bipId: bigint) => {
+    setSelectedBipId(bipId);
+    setIsEditingModalOpen(true);
+  };
+
   return (
-    <div className="flex h-[80vh] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto pt-2 text-black dark:text-white sm:items-start sm:gap-y-4">
+    <div className="flex h-[89vh] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto pt-2 text-black dark:text-white sm:items-start sm:gap-y-4">
       <BipsHeader
         sort={queryDirection}
         changeQueryDirection={changeQueryDirection}
@@ -66,13 +87,38 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           <Balance principal={principal} />
         )}
       </div>
-      {/* <BipList 
-        scrollableClassName="grid grid-cols-1 gap-2 sm:m-0 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pb-2"
-        principal={principal}
-        fetchBips={fetchBips}
-        queryDirection={queryDirection}
-      /> */}
-      <BipMarketplace/>
+      <div className="w-full">
+        <BipList
+          scrollableClassName="grid w-full lg:grid-cols-2 xl:grid-cols-4 gap-[20px]"
+          principal={principal}
+          fetchBips={fetchBips}
+          queryDirection={queryDirection}
+          onListClick={handleListClick}
+          onUnlistingClick={handleUnlistingClick}
+          onEditingClick={handleEditingClick}
+          isGrid={true}
+
+        />
+      </div>
+      <ModalPopup onConfirm={() => {console.log('confirmed')}} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black">BipItem ID</h2>
+          <p className="text-lg text-black">{selectedBipId?.toString()}</p>{" "}
+          List
+        </div>
+      </ModalPopup>
+      <ModalPopup onConfirm={() => {console.log('confirmed')}} isOpen={isUnlistingModalOpen} onClose={() => setIsUnlistingModalOpen(false)}>
+        <div className="w-full text-center">
+          <p>Do you want to Delete your IP?</p>
+        </div>
+      </ModalPopup>
+      <ModalPopup onConfirm={() => {console.log('confirmed')}} isOpen={isEditingModalOpen} onClose={() => setIsEditingModalOpen(false)}>
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black">BipItem ID</h2>
+          <p className="text-lg text-black">{selectedBipId?.toString()}</p>{" "}
+          Edit
+        </div>
+      </ModalPopup>
     </div>
   );
 };
