@@ -386,7 +386,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         <span>
           <IoIosPricetags size={22} />
         </span>{" "}
-        {getListedPrice()} bQC
+        {getListedPrice()} BQC
       </div>
       <div className="w-6/12">
         <VioletButton

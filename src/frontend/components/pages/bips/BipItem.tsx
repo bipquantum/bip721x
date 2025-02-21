@@ -47,6 +47,8 @@ const BipItem: React.FC<BipItemProps> = ({
     args: [{ token_id: intPropId }],
   });
 
+  console.log('intProp :', intProp)
+
   const {} = backendActor.useQueryCall({
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
@@ -154,7 +156,7 @@ const BipItem: React.FC<BipItemProps> = ({
                 {location.pathname !== "/marketplace" && itemPrice && (
                   <div className="flex w-4/12 flex-row items-center gap-1 p-1 text-black dark:text-white">
                     <IoIosPricetags size={22} />
-                    <p className="text-nowrap text-[22px]">{itemPrice} bQC</p>
+                    <p className="text-nowrap text-[22px]">{itemPrice} BQC</p>
                   </div>
                 )}
               </div>

@@ -628,7 +628,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { backendActor } from "../../actors/BackendActor";
 
-import Select from "react-select";
+import Select, { GroupBase, OptionProps } from "react-select";
 import { components } from "react-select";
 
 import { CiImageOn } from "react-icons/ci";
@@ -672,6 +672,7 @@ import {
 import SuperJSON from "superjson";
 import FileUploader from "../../common/FileUploader";
 import { fromNullable, toNullable } from "@dfinity/utils";
+import { JSX } from "react/jsx-runtime";
 
 interface NewIPButtonProps {
   principal: Principal | undefined;
@@ -679,7 +680,7 @@ interface NewIPButtonProps {
 
 // Custom Syles For React Select Dropdown
 const customStyles = {
-  control: (provided) => ({
+  control: (provided: any) => ({
     ...provided,
     backgroundColor: "transparent",
     border: "none",
@@ -688,14 +689,14 @@ const customStyles = {
     padding: "10px",
     color: "#fff",
   }),
-  menu: (provided) => ({
+  menu: (provided: any) => ({
     ...provided,
     backgroundColor: "#171717",
     borderRadius: "12px",
     padding: "5px 0",
     fontSize: "16px",
   }),
-  option: (provided, state) => ({
+  option: (provided: any, state: { isSelected: any; isFocused: any; }) => ({
     ...provided,
     backgroundImage: state.isSelected
       ? "linear-gradient(90deg, #4a90e2, #005bea)"
@@ -708,18 +709,18 @@ const customStyles = {
     padding: "10px",
     cursor: "pointer",
   }),
-  singleValue: (provided) => ({
+  singleValue: (provided: any) => ({
     ...provided,
     color: "#fff",
   }),
-  placeholder: (provided) => ({
+  placeholder: (provided: any) => ({
     ...provided,
     color: "#aaa",
   }),
 };
 
 // Custom Multi-Select Checkbox Component
-const CustomMultiValue = (props) => {
+const CustomMultiValue = (props: JSX.IntrinsicAttributes & OptionProps<unknown, boolean, GroupBase<unknown>>) => {
   return (
     <components.Option {...props}>
       <input
@@ -1058,7 +1059,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   }
                 </div>
               </div>
-              <div className="flex w-full flex-col gap-[30px]">
+              <div className="flex w-full flex-col gap-[30px] pr-2">
                 {/* Upload and calendar */}
                 <div className="flex w-full flex-col gap-[20px] lg:flex-row sm:gap-[40px]">
                   <div className="w-full lg:w-6/12">
@@ -1175,10 +1176,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        Description of Tthe IP
+                        Description of the IP
                       </p>
-                      <input
-                        type="text"
+                      <textarea
                         value={intPropInput.description}
                         onChange={(e) => {
                           setIntPropInput({
@@ -1187,7 +1187,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           });
                         }}
                         required
-                        className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
+                        className="bg-transparent pt-[16px] px-[15px] h-[54px] text-[16px] text-black dark:text-white focus:outline-none"
                       />
                     </div>
                   </div>
