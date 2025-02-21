@@ -219,3 +219,40 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: #ffffff; /* White for dark mode */
   opacity: 1;
 }
+
+.country-dropdown-container select {
+  background: transparent !important;
+  -webkit-appearance: none; /* Reset Chrome/Safari default */
+  -moz-appearance: none;    /* Reset Firefox default */
+  appearance: none;         /* Standard reset */
+  border: none;             /* Remove default border if unwanted */
+  outline: none;            /* Remove focus outline if unwanted */
+  width: 100%;              /* Ensure full width */
+  padding: 0.5rem;          /* Match your input padding */
+  color: inherit;           /* Match text color to theme */
+}
+
+/* Optional: Add a custom dropdown arrow if appearance:none removes it */
+.country-dropdown-container {
+  position: relative;
+}
+
+.country-dropdown-container::after {
+  content: "▼"; /* Custom arrow */
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* Prevents arrow from blocking clicks */
+  color: #d1d5db; /* Matches your grey-400 text */
+}
+
+._container_1c03y_8 {
+  background-color: rgba(0, 0, 0, 0.0) !important;
+}
+
+._dropdown_1c03y_15 {
+  background-color: rgba(0, 0, 0, 0.0) !important;
+  height: 100% !important;
+  
+}

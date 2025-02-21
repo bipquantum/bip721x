@@ -189,21 +189,39 @@ const Profile = () => {
     //     </div>
     //   </div>
     // </div>
-    <main className="flex h-full w-full flex-col items-center justify-center overflow-auto overflow-y-auto font-semibold text-black dark:text-white">
+    <div className="flex h-full w-full flex-col items-center justify-center overflow-hidden overflow-y-auto font-semibold text-black dark:text-white">
       <div className="flex h-[80vh] w-full flex-col gap-[30px] overflow-auto px-[20px]">
-        <div className="md:block hidden h-[100px] w-full overflow-hidden rounded-t-[20px]">
+        <div className="hidden h-[100px] w-full overflow-hidden rounded-t-[20px] md:block">
           <img src={profileBg} alt="" className="h-full w-full object-center" />
         </div>
         <div className="flex w-full flex-col gap-[30px] md:pl-[15px]">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-5">
-              <div className="flex h-[60px] w-[60px] lg:h-[100px] lg:w-[100px] items-center justify-center rounded-full bg-white text-primary dark:bg-white/10">
-                <FiUserPlus size={32} />
-              </div>
-              <div className="text-black dark:text-white flex flex-col gap-[5px]">
-                <p className="text-lg md:text-2xl text-center">Add User</p>
-                <div className="flex flex-row text-left items-center gap-0 md:text-center text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
-                  <p className="pb-1 md:w-full w-10/12">{identity?.getPrincipal().toString()}</p>
+          <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
+            <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
+              <FileUploader
+                setDataUri={(dataUri) => {
+                  if (dataUri !== null) {
+                    setUserArgs({ ...userArgs, imageUri: dataUri });
+                  }
+                }}
+                acceptedFiles="image/*,audio/*,application/pdf,text/*"
+              >
+                {userArgs.imageUri !== "" ? (
+                  FilePreview({
+                    dataUri: userArgs.imageUri,
+                    className: "h-[80px] w-[80px] rounded-full object-cover",
+                  })
+                ) : (
+                  <div className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-white text-primary dark:bg-white/10 lg:h-[100px] lg:w-[100px]">
+                    <FiUserPlus size={32} />
+                  </div>
+                )}
+              </FileUploader>
+              <div className="flex flex-col gap-[5px] text-black dark:text-white">
+                <p className="text-center text-lg md:text-2xl">Add User</p>
+                <div className="flex flex-row items-center gap-0 text-left text-xs text-gray-600 dark:text-gray-400 sm:text-sm md:text-center">
+                  <p className="w-10/12 pb-1 md:w-full">
+                    {identity?.getPrincipal().toString()}
+                  </p>
                   <CopyToClipboard
                     copiedText={identity?.getPrincipal().toString()}
                   />
@@ -224,14 +242,14 @@ const Profile = () => {
               </button>
             </div>
           </div>
-          <div className="w-full lg:w-8/12 grid grid-cols-1 md:grid-cols-2 gap-[30px] text-base">
+          <div className="grid w-full grid-cols-1 gap-[30px] text-base md:grid-cols-2 lg:w-8/12">
             {ProfileFields.map((field, index) => (
               <div
                 className="relative flex w-full flex-col rounded-lg border border-gray-300 p-1"
                 key={index}
               >
                 <p
-                  className={`absolute left-4 bg-background dark:bg-background-dark px-1 text-xs transition-all duration-200 ease-in ${
+                  className={`absolute left-4 bg-background px-1 text-xs transition-all duration-200 ease-in dark:bg-background-dark ${
                     focusedFields[field.name] || userArgs[field.name]
                       ? "-top-[15%] text-sm text-gray-200"
                       : "top-1/2 -translate-y-1/2 text-sm text-gray-400"
@@ -242,15 +260,15 @@ const Profile = () => {
 
                 {/* Input or Dropdown */}
                 {field.name === "countryCode" ? (
-                  <div className="">
-                    <ReactCountryDropdown
-                      defaultCountry={userArgs.countryCode}
-                      onSelect={(val) => {
-                        setUserArgs({ ...userArgs, countryCode: val.code });
-                        handleBlur("countryCode", val.code);
-                      }}
-                    />
-                  </div>
+                  <div className="country-dropdown-container">
+                  <ReactCountryDropdown
+                    defaultCountry={userArgs.countryCode}
+                    onSelect={(val) => {
+                      setUserArgs({ ...userArgs, countryCode: val.code });
+                      handleBlur("countryCode", val.code);
+                    }}
+                  />
+                </div>
                 ) : field.name !== "imageUri" ? (
                   <input
                     className="sm:text-md w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-sm text-gray-400 placeholder-transparent outline-none"
@@ -273,7 +291,7 @@ const Profile = () => {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 

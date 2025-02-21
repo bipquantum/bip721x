@@ -102,30 +102,22 @@ const DetailsView = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center overflow-auto overflow-y-auto font-semibold text-black dark:text-white">
-      <div className="h-[80vh] bg-white dark:bg-white/10 w-fit overflow-hidden rounded-[40px] px-[20px] py-[40px]">
+    <div className="flex h-full w-full flex-col items-center justify-center overflow-hidden font-semibold text-black dark:text-white">
+      <div className="h-[80vh] w-fit overflow-hidden rounded-[40px] bg-white px-[20px] py-[40px] dark:bg-white/10">
         <div className="flex h-full flex-col items-center gap-[40px] overflow-y-auto">
-          <FileUploader
-            setDataUri={(dataUri) => {
-              if (dataUri !== null) {
-                setUserArgs({ ...userArgs, imageUri: dataUri });
-              }
-            }}
-            acceptedFiles="image/*,audio/*,application/pdf,text/*"
-          >
-            {userArgs.imageUri !== "" ? (
-              FilePreview({
-                dataUri: userArgs.imageUri,
-                className: "h-[80px] w-[80px] rounded-full object-cover",
-              })
-            ) : (
-              <img
-                src={ProfileSvg}
-                className="h-[80px] w-[80px] rounded-full object-cover"
-              />
-            )}
-          </FileUploader>
-          <div className="flex flex-row items-center gap-0 text-center text-xs sm:text-sm px-4">
+          {userArgs.imageUri !== "" ? (
+            FilePreview({
+              dataUri: userArgs.imageUri,
+              className: "h-[80px] w-[80px] rounded-full object-cover",
+            })
+          ) : (
+            <img
+              src={ProfileSvg}
+              className="h-[80px] w-[80px] rounded-full object-cover"
+            />
+          )}
+
+          <div className="flex flex-row items-center gap-0 px-4 text-center text-xs sm:text-sm">
             {identity?.getPrincipal().toString()}
             <CopyToClipboard copiedText={identity?.getPrincipal().toString()} />
           </div>
@@ -136,7 +128,7 @@ const DetailsView = () => {
                 key={index}
               >
                 <p
-                  className={`absolute left-4 bg-white dark:bg-[#2f2f2f] px-1 text-xs transition-all duration-200 ease-in ${
+                  className={`absolute left-4 bg-white px-1 text-xs transition-all duration-200 ease-in dark:bg-[#2f2f2f] ${
                     focusedFields[field.name] || userArgs[field.name]
                       ? "-top-[15%] text-sm text-black dark:text-gray-200"
                       : "top-1/2 -translate-y-1/2 text-sm text-black dark:text-gray-400"
@@ -147,15 +139,14 @@ const DetailsView = () => {
 
                 {/* Input or Dropdown */}
                 {field.name === "countryCode" ? (
-                  <div className="">
                     <ReactCountryDropdown
                       defaultCountry={userArgs.countryCode}
                       onSelect={(val) => {
                         setUserArgs({ ...userArgs, countryCode: val.code });
                         handleBlur("countryCode", val.code);
                       }}
+                      
                     />
-                  </div>
                 ) : field.name !== "imageUri" ? (
                   <input
                     className="sm:text-md w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-sm text-gray-400 placeholder-transparent outline-none"

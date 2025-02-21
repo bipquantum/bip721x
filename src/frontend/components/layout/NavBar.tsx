@@ -8,7 +8,7 @@ import ProfileSvg from "../../assets/profile.png";
 import LogoutSvg from "../../assets/logout.svg";
 import LoginSvg from "../../assets/login.svg";
 import Logo from "../../assets/logoWhite.svg";
-import LogoDark from "../../assets/LogoDark.png"
+import LogoDark from "../../assets/LogoDark.png";
 
 import { useAuth } from "@ic-reactor/react";
 import { backendActor } from "../actors/BackendActor";
@@ -67,7 +67,7 @@ const NavBar = () => {
     {
       darkSvg: bipsDark,
       lightSvg: bipsLight,
-      label: "bIPs",
+      label: "BIPs",
       link: "bips",
     },
     {
@@ -88,10 +88,7 @@ const NavBar = () => {
     {
       darkSvg: supportDark,
       lightSvg: supportLight,
-      label:
-        user === undefined || user.nickName.length === 0
-          ? NEW_USER_NICKNAME
-          : user.nickName,
+      label: "Support",
       link: "support",
     },
   ];
@@ -101,13 +98,13 @@ const NavBar = () => {
   return (
     <>
       {!(pathname.includes("login") || pathname.includes("certificate")) && (
-        <div className="static w-[90px] z-[999] flex flex-row border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30">
+        <div className="static z-[999] flex w-[90px] flex-row border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30">
           <div className="hidden h-screen w-fit flex-col items-center overflow-y-auto bg-background pt-8 font-bold text-black dark:bg-background-dark dark:text-white sm:flex">
             <div className="flex flex-grow flex-col items-center justify-between">
               <div className="flex flex-col items-center justify-start">
-                <Link to={"/"} className="mb-[20px] xl:mb-[40px] size-[48px]">
+                <Link to={"/"} className="mb-[20px] size-[48px] xl:mb-[40px]">
                   <img
-                    src={theme === "dark" ? Logo : LogoDark}
+                    src={theme === "dark" ? LogoDark : LogoDark}
                     alt=""
                     className={`h-full w-full`}
                   />
@@ -121,7 +118,7 @@ const NavBar = () => {
                     key={index}
                   >
                     {pathname === "/" + item.link && (
-                      <div className="absolute left-[-5px] -top-[42.5%] h-full overflow-x-visible -z-10 w-[85px]">
+                      <div className="absolute -top-[42.5%] left-[-5px] -z-10 h-full w-[85px] overflow-x-visible">
                         <img src={darkBG} alt="" />
                       </div>
                     )}

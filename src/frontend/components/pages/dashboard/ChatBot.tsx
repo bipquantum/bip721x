@@ -77,10 +77,11 @@ const ChatBot = ({
           principal={principal}
         />
       </div>
-      <div className="flex w-full flex-row items-center gap-4 px-4">
+      <div className="flex flex-col w-full gap-2 px-4">
+      <div className="flex w-full flex-row items-center gap-4 ">
         <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border px-3 bg-white">
           <textarea
-            className="w-full resize-none border-none outline-none"
+            className="w-full resize-none border-none outline-none h-[48px] pt-[8px]"
             placeholder="What do you want to protect?"
             value={userInput}
             onChange={(e) => {
@@ -112,6 +113,8 @@ const ChatBot = ({
           bIPQuantum AI is here to assist, but always consult an IP lawyer to
           ensure accuracy.
         </div> */}
+      </div>
+      <p className="text-sm text-gray-500">bIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.</p>
       </div>
     </div>
   );

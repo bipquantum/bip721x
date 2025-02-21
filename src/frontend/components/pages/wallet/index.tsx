@@ -204,7 +204,7 @@ const Wallet = ({ principal }: WalletProps) => {
               }}
               className={`font-momentum rounded-xl px-4 py-2 text-xl font-extrabold text-black dark:text-white ${selection === "owned" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
             >
-              Recently Bought
+              Recently Bought / Created
             </button>
             <button
               onClick={() => {
