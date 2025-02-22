@@ -696,7 +696,7 @@ const customStyles = {
     padding: "5px 0",
     fontSize: "16px",
   }),
-  option: (provided: any, state: { isSelected: any; isFocused: any; }) => ({
+  option: (provided: any, state: { isSelected: any; isFocused: any }) => ({
     ...provided,
     backgroundImage: state.isSelected
       ? "linear-gradient(90deg, #4a90e2, #005bea)"
@@ -720,7 +720,10 @@ const customStyles = {
 };
 
 // Custom Multi-Select Checkbox Component
-const CustomMultiValue = (props: JSX.IntrinsicAttributes & OptionProps<unknown, boolean, GroupBase<unknown>>) => {
+const CustomMultiValue = (
+  props: JSX.IntrinsicAttributes &
+    OptionProps<unknown, boolean, GroupBase<unknown>>,
+) => {
   return (
     <components.Option {...props}>
       <input
@@ -959,10 +962,12 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   if (!queriedUser || queriedUser.length === 0) return null;
 
+  const onList = () => {
+    navigate("/bips",);
+  }
+
   return (
-    <div
-      className={`relative flex h-full w-full items-center justify-center`}
-    >
+    <div className={`relative flex h-full w-full items-center justify-center`}>
       {/* {!createIp ? (
         <div className="flex flex-col items-center justify-center gap-6 rounded-[40px] border-2 px-[55px] py-[72px] text-primary-text shadow-lg shadow-violet-500/30">
           <p className="text-center text-xl font-extrabold uppercase">
@@ -996,7 +1001,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               }
               setStep(2);
             }}
-            className="flex size-[32px] md:size-[54px] lg:size-[72px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black"
+            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
             <TbArrowRight size={60} />
           </button>
@@ -1006,7 +1011,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
             onClick={() => void createIps()}
-            className="flex size-[32px] md:size-[54px] lg:size-[72px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black"
+            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
             <TbArrowRight size={60} />
           </button>
@@ -1016,14 +1021,14 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         <div className="absolute left-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
             onClick={() => setStep(step - 1)}
-            className="flex size-[32px] md:size-[54px] lg:size-[72px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black"
+            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
             <TbArrowLeft size={60} />
           </button>
         </div>
       )}
 
-      <div className="mx-[10px] flex h-[70vh] w-full flex-col gap-[30px] overflow-y-auto rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85vh] lg:w-10/12 xl:w-8/12 md:px-[30px] lg:px-[60px] md:rounded-[40px]">
+      <div className="mx-[10px] flex h-[70vh] w-full flex-col gap-[30px] overflow-y-auto rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85vh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
         {step === 1 && (
           <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden">
             <div className="flex flex-col items-center gap-[15px]">
@@ -1061,7 +1066,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
               <div className="flex w-full flex-col gap-[30px] pr-2">
                 {/* Upload and calendar */}
-                <div className="flex w-full flex-col gap-[20px] lg:flex-row sm:gap-[40px]">
+                <div className="flex w-full flex-col gap-[20px] sm:gap-[40px] lg:flex-row">
                   <div className="w-full lg:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
@@ -1145,7 +1150,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   </div>
                 </div>
                 {/* IP Title and Description */}
-                <div className="flex w-full flex-col gap-[20px] lg:flex-row md:gap-[40px]">
+                <div className="flex w-full flex-col gap-[20px] md:gap-[40px] lg:flex-row">
                   <div className="w-full lg:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
@@ -1187,13 +1192,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           });
                         }}
                         required
-                        className="bg-transparent pt-[16px] px-[15px] h-[54px] text-[16px] text-black dark:text-white focus:outline-none"
+                        className="h-[54px] bg-transparent px-[15px] pt-[16px] text-[16px] text-black focus:outline-none dark:text-white"
                       />
                     </div>
                   </div>
                 </div>
                 {/* dropdowns */}
-                <div className="flex w-full flex-col gap-[20px] lg:flex-row md:gap-[40px]">
+                <div className="flex w-full flex-col gap-[20px] md:gap-[40px] lg:flex-row">
                   <div className="w-full lg:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p
@@ -1283,7 +1288,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
             </div>
             <div className="flex w-full flex-col gap-[30px]">
               <div className="flex w-full flex-col lg:flex-row">
-                <div className="flex w-full flex-col items-center justify-between gap-[30px] lg:w-6/12 md:flex-row">
+                <div className="flex w-full flex-col items-center justify-between gap-[30px] md:flex-row lg:w-6/12">
                   <div className="flex w-full flex-row items-center justify-between md:w-6/12">
                     <p className="text-[16px] font-semibold text-black dark:text-white">
                       Royalties
@@ -1338,7 +1343,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 </div>
               </div>
               <div className="flex w-full flex-col gap-[30px] lg:flex-row">
-                <div className="flex w-full flex-col items-center justify-between gap-[30px] lg:w-6/12 md:flex-row">
+                <div className="flex w-full flex-col items-center justify-between gap-[30px] md:flex-row lg:w-6/12">
                   <div className="flex w-full flex-row items-center justify-between md:w-6/12">
                     <p className="text-[16px] font-semibold text-black dark:text-white">
                       Publishing
@@ -1598,7 +1603,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 >
                   Manage IPs
                 </button>
-                <button className="rounded-xl border-2 border-primary bg-gradient-to-t from-primary to-secondary px-6 py-3 text-xl text-white">
+                <button
+                  onClick={() => {
+                    save(intPropInput, dataUri, royaltiesVisible);
+                    onList();
+                  }}
+                  className="rounded-xl border-2 border-primary bg-gradient-to-t from-primary to-secondary px-6 py-3 text-xl text-white"
+                >
                   List On Marketplace
                 </button>
               </div>
