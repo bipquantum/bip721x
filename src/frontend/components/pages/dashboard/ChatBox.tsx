@@ -76,14 +76,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({
       setPendingPick(chats.length - 1);
     }
   }, [chats]);
-  
-  const navigate = useNavigate()
 
-  useEffect( () => {
-    console.log(creatingIp)
-    console.log(principal)
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log(creatingIp);
+    console.log(principal);
     // navigate('/new')
-  }, [creatingIp])
+  }, [creatingIp]);
 
   return (
     <div
@@ -137,9 +137,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                     // TODO: have guards in the state machine to prevent code like this
                     onClick={() => {
                       answer.text === "bIP certificate"
-                        // ? setCreatingIp(answer_index)
-                        // : transition(answer_index);
-                        ? navigate('/new', { state: { principal } })
+                        ? // ? setCreatingIp(answer_index)
+                          // : transition(answer_index);
+                          navigate("/new", { state: { principal } })
                         : transition(answer_index);
                     }}
                   >
@@ -157,18 +157,15 @@ const ChatBox: React.FC<ChatBoxProps> = ({
           }
           {aiPrompts.get(elem_index)?.map((prompt, prompt_index) => (
             <div key={prompt_index} className="flex flex-col gap-2 pt-2">
-              <div className="flex flex-row justify-end gap-2">
-                <span className="flex flex-col px-5"> {/* spacer */} </span>
-                <div className="markdown-link flex items-center rounded-xl bg-white px-3 py-0 text-black sm:px-4 sm:py-2">
-                  {prompt.question}
-                </div>
-                <img src={ProfileSvg} className={`h-10 rounded-full`} />
-              </div>
               <div className="flex flex-row gap-2">
                 {/* <img src={AIBotImg} className={`h-10 rounded-full`} /> */}
-                <div className="items-center-xl markdown-link flex rounded-xl bg-white px-3 py-2 text-black sm:px-4 sm:py-2">
+                <div className="items-center-xl markdown-link flex flex-col gap-3 rounded-xl bg-white px-3 py-2 text-black sm:px-4 sm:py-2">
                   {prompt.answer === undefined ? (
-                    <img src={SpinnerSvg} alt="Loading..." />
+                    <img
+                      src={SpinnerSvg}
+                      className="dark:invert"
+                      alt="Loading..."
+                    />
                   ) : (
                     <Markdown components={MARKDOWN_COMPONENTS}>
                       {prompt.answer}
@@ -176,6 +173,14 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                   )}
                 </div>
                 <span className="flex flex-col px-5"> {/* spacer */} </span>
+              </div>
+
+              <div className="flex flex-row justify-end gap-2">
+                <span className="flex flex-col px-5"> {/* spacer */} </span>
+                <div className="markdown-link flex items-center rounded-xl bg-white px-3 py-0 text-black sm:px-4 sm:py-2">
+                  {prompt.question}
+                </div>
+                <img src={ProfileSvg} className={`h-10 rounded-full`} />
               </div>
             </div>
           ))}
