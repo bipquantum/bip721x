@@ -7,8 +7,7 @@ import { Link, useLocation } from "react-router-dom";
 import ProfileSvg from "../../assets/profile.png";
 import LogoutSvg from "../../assets/logout.svg";
 import LoginSvg from "../../assets/login.svg";
-import Logo from "../../assets/logoWhite.svg";
-import LogoDark from "../../assets/LogoDark.png";
+import LogoDark from "../../assets/logoDark.png";
 
 import { useAuth } from "@ic-reactor/react";
 import { backendActor } from "../actors/BackendActor";
@@ -29,7 +28,7 @@ import marketDark from "../../assets/navIcons/market-dark.svg";
 import marketLight from "../../assets/navIcons/market-light.svg";
 import supportDark from "../../assets/navIcons/support-dark.svg";
 import supportLight from "../../assets/navIcons/support-light.svg";
-import darkBG from "../../assets/navIcons/darkBG.svg";
+import darkBG from "../../assets/navIcons/darkBg.svg";
 
 const NavBar = () => {
   const { pathname } = useLocation();
