@@ -81,7 +81,7 @@ const ChatBot = ({
       <div className="flex w-full flex-row items-center gap-4 ">
         <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border px-3 bg-white">
           <textarea
-            className="w-full resize-none border-none outline-none sm:text-[8px] leading-none text-base h-[48px] pt-[8px]"
+            className="w-full resize-none border-none outline-none sm:text-base text-xs leading-none h-[48px] pt-[8px]"
             placeholder="What do you want to protect?"
             value={userInput}
             onChange={(e) => {

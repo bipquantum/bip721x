@@ -191,12 +191,12 @@ const Profile = () => {
     // </div>
     <div className="flex h-full w-full flex-col items-center justify-center overflow-hidden overflow-y-auto font-semibold text-black dark:text-white">
       <div className="flex h-[80vh] w-full flex-col gap-[30px] overflow-auto px-[20px]">
-        <div className="hidden h-[100px] w-full overflow-hidden rounded-t-[20px] md:block">
+        <div className="hidden h-[100px] w-full overflow-hidden rounded-t-[20px]">
           <img src={profileBg} alt="" className="h-full w-full object-center" />
         </div>
         <div className="flex w-full flex-col gap-[30px] md:pl-[15px]">
           <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
-            <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
+            <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5 ">
               <FileUploader
                 setDataUri={(dataUri) => {
                   if (dataUri !== null) {

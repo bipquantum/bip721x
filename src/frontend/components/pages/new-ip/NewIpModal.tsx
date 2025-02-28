@@ -238,7 +238,7 @@ const NewIPModal: React.FC<NewIPModalProps> = ({ user, isOpen, onClose }) => {
   }
 
   return (
-    <ModalPopup onClose={() => { save(intPropInput, dataUri, royaltiesVisible); onClose(ipId); }} isOpen={isOpen}>
+    <ModalPopup onClose={() => {save(intPropInput, dataUri, royaltiesVisible); onClose(ipId); }} isOpen={isOpen}>
       <div className="flex w-full flex-col items-center justify-start bg-transparent gap-8 h-full overflow-y-auto text-base text-white sm:border-l">
         <div className="flex items-center flex-col gap-1 w-full">
           <div className="flex flex-col items-center justify-around gap-3">
