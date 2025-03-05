@@ -963,8 +963,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   if (!queriedUser || queriedUser.length === 0) return null;
 
   const onList = () => {
-    navigate("/bips",);
-  }
+    navigate("/bips");
+  };
 
   return (
     <div className={`relative flex h-full w-full items-center justify-center`}>
