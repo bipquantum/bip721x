@@ -63,9 +63,9 @@ function App() {
                 <BrowserRouter>
                   <ChatHistoryProvider>
                     <BalanceProvider>
-                      <AirdropBannerProvider>
-                        <AppContent />
-                      </AirdropBannerProvider>
+                        <AirdropBannerProvider>
+                          <AppContent />
+                        </AirdropBannerProvider>
                     </BalanceProvider>
                   </ChatHistoryProvider>
                 </BrowserRouter>
@@ -93,7 +93,7 @@ function AppContent() {
         <div className="flex h-full flex-row items-start justify-start">
           <div className="flex h-full w-fit items-center justify-center">
             <ChatHistory />
-            </div>
+          </div>
           <Router />
         </div>
         {pathname !== "/login" && <MobileNavBar />}

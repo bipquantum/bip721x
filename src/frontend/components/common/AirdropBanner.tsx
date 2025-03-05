@@ -42,7 +42,7 @@ const AirdropBanner = () => {
   const { visible, setVisible } = useAirdropBanner();
 
   return (
-    visible && <div id="sticky-banner" tabIndex={-1} className="fixed top-0 start-0 z-50 flex justify-between w-full p-4 border-b border-secondary bg-tertiary">
+    visible && <div id="sticky-banner" tabIndex={-1} className="fixed top-0 start-0 z-50 flex justify-between w-full p-6 bg-background/60 dark:bg-background-dark/60 backdrop-blur">
         <div className="text-sm font-normal text-white flex items-center mx-auto">
           <Link to={"/marketplace"} className="text-lg hover:text-white text-gray-200 flex flex-col sm:flex-row items-center sm:space-x-2" onClick={() => setVisible(false)}>
             <span className="flex items-center justify-center sm:justify-start">
