@@ -1013,7 +1013,11 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
             onClick={() => void createIps()}
             className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
-            <TbArrowRight size={60} />
+            {isLoading ? (
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent dark:border-t-black border-t-white"></div>
+            ) : (
+              <TbArrowRight size={60} />
+            )}
           </button>
         </div>
       )}
