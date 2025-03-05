@@ -1,0 +1,6 @@
+<svg width="50" height="14" viewBox="0 0 50 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Arrow">
+<line id="Line 1" x1="1" y1="-1" x2="48" y2="-1" transform="matrix(1 0 0 -1 0 11.9814)" stroke="white" stroke-width="2" stroke-linecap="round"/>
+<path id="Vector 4" d="M32.9744 1.08884L49.2382 12.7059C49.4757 12.8755 49.3557 13.25 49.0639 13.25L32.8 13.25C32.6343 13.25 32.5 13.1157 32.5 12.95L32.5 1.33296C32.5 1.08895 32.7758 0.947009 32.9744 1.08884Z" fill="white"/>
+</g>
+</svg>
