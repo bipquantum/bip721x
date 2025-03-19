@@ -46,6 +46,11 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
 
+  const openCertificateInNewTab = () => {
+    const certUrl = `/bip/${intPropId}/certificate`;
+    window.open(certUrl, "_blank");
+  };
+
   const { data: isBanned, call: getIsBanned } = backendActor.useQueryCall({
     functionName: "is_banned_int_prop",
     args: [{ id: BigInt(intPropId) }],
@@ -249,10 +254,13 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     <p className="w-full text-center text-xl">
                       {intProp.ok.V1.title}
                     </p>
-                    <button className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary py-[6px] text-center text-[16px] uppercase text-black dark:text-white">
+                    <button
+                      onClick={() => openCertificateInNewTab()}
+                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary py-[6px] text-center text-[16px] uppercase text-black dark:text-white">
                       Generate Certificate
                     </button>
-                    <button className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white">
+                    <button
+                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white">
                       View Certificate
                     </button>
                   </div>

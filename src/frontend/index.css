@@ -119,6 +119,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 8px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
   font-family: "Roboto", sans-serif;
+  max-width: 100%;
 }
 
 /* Header (Selected Date) */
@@ -137,9 +138,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* Navigation Buttons */
 .custom-calendar .react-datepicker__navigation {
-  top: 12px;
-  width: 32px;
-  height: 32px;
+  top: 18px;
+  width: 26px;
+  height: 26px;
 }
 
 /* Week Days */
@@ -148,15 +149,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-weight: 400;
   color: #bdbdbd;
   padding: 5px 5px;
-  width: 32px;
-  height: 30px;
+  width: 26px;
+  height: 24px;
 }
 
 /* Dates */
 .custom-calendar .react-datepicker__day {
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
   text-align: center;
   font-size: 14px;
   font-weight: 400;
@@ -218,6 +219,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .dark .react-datepicker__input-container input::placeholder {
   color: #ffffff; /* White for dark mode */
   opacity: 1;
+}
+
+@media (max-width: 360px) {
+  .custom-calendar {
+    padding: 4px; /* Reduce padding */
+  }
+
+  .custom-calendar .react-datepicker__day-name,
+  .custom-calendar .react-datepicker__day {
+    width: 20px; /* Shrink day width */
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px; /* Smaller font */
+    margin: 2px; /* Reduce margin */
+  }
+
+  .custom-calendar .react-datepicker__navigation {
+    top: 14px; /* Adjust navigation button position */
+    width: 20px;
+    height: 20px;
+  }
+
+  .custom-calendar .react-datepicker__current-month {
+    font-size: 12px; /* Smaller header */
+  }
 }
 
 .country-dropdown-container select {

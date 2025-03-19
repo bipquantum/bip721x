@@ -433,7 +433,7 @@
 //                   <p className="text-[16px] font-semibold text-black dark:text-white">
 //                     Date
 //                   </p>
-//                   <div className="relative w-[140px] rounded-lg bg-background dark:bg-white/10 px-4 py-1">
+//                   <div className="relative max-w-[140px] rounded-lg bg-background dark:bg-white/10 px-4 py-1">
 //                     <DatePicker
 //                       selected={selectedDate}
 //                       onChange={(date: SetStateAction<null>) =>
@@ -620,7 +620,7 @@
 import { SetStateAction, useEffect, useState } from "react";
 import { Principal } from "@dfinity/principal";
 
-import NewIP from "./NewIp";
+// import NewIP from "./NewIp";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useChatHistory } from "../../layout/ChatHistoryContext";
 import FilePreview from "../../common/FilePreview";
@@ -663,7 +663,7 @@ import {
 } from "../../../utils/conversions";
 
 // @ts-ignore
-import { getName } from "country-list";
+// import { getName } from "country-list";
 import {
   DEFAULT_COUNTRY_CODE,
   MAX_ROYALTY_PERCENTAGE,
@@ -673,6 +673,8 @@ import SuperJSON from "superjson";
 import FileUploader from "../../common/FileUploader";
 import { fromNullable, toNullable } from "@dfinity/utils";
 import { JSX } from "react/jsx-runtime";
+import { MiddlewareReturn } from "@floating-ui/core";
+import { MiddlewareState } from "@floating-ui/dom";
 
 interface NewIPButtonProps {
   principal: Principal | undefined;
@@ -743,13 +745,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   const { addChat } = useChatHistory();
 
   const [createIp, setCreateIp] = useState<boolean>(false);
-  const [selectedLicense, setSelectedLicense] = useState(null);
-  const [selectedTypes, setSelectedTypes] = useState([]);
+  // const [selectedLicense, setSelectedLicense] = useState(null);
+  // const [selectedTypes, setSelectedTypes] = useState([]);
 
-  const newChat = (name: string) => {
-    const newChatId = addChat(name);
-    navigate(`/chat/${newChatId}`);
-  };
+  // const newChat = (name: string) => {
+  //   const newChatId = addChat(name);
+  //   navigate(`/chat/${newChatId}`);
+  // };
 
   const onIpCreated = (ipId: bigint | undefined) => {
     setCreateIp(false);
@@ -758,7 +760,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
     }
   };
 
-  const [selectedDate, setSelectedDate] = useState(null);
+  // const [selectedDate, setSelectedDate] = useState(null);
 
   const INITIAL_INT_PROP_INPUT: IntPropInput = {
     dataUri: "",
@@ -1108,25 +1110,6 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         Creation Date
                       </p>
                       <div className="relative w-full">
-                        {/* <input
-                          className="bg-transparent dark:text-white text-black w-full text-[16px]"
-                          placeholder=""
-                          value={toDateInputFormat(
-                            timeToDate(intPropInput.creationDate),
-                          )}
-                          onChange={(e) => {
-                            const inputDate = fromDateInputFormat(
-                              e.target.value,
-                            );
-                            if (inputDate !== undefined) {
-                              setIntPropInput({
-                                ...intPropInput,
-                                creationDate: dateToTime(inputDate),
-                              });
-                            }
-                          }}
-                          type="date"
-                        /> */}
                         <DatePicker
                           selected={
                             typeof intPropInput.creationDate === "bigint"
@@ -1142,11 +1125,41 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                             }
                           }}
                           dateFormat="yyyy-MM-dd"
-                          className="w-fit bg-transparent text-[16px] text-black dark:text-white"
+                          className="w-full relative bg-transparent text-[16px] text-black dark:text-white"
                           calendarClassName="custom-calendar"
                           popperClassName="z-50"
+                          popperModifiers={[
+                            {
+                              name: "preventOverflow",
+                              options: {
+                                boundariesElement: "viewport",
+                                padding: 8, // Keep some padding from the edge
+                              },
+                              fn: function (state: MiddlewareState): MiddlewareReturn | Promise<MiddlewareReturn> {
+                                throw new Error("Function not implemented.");
+                              }
+                            },
+                            {
+                              name: "flip",
+                              options: {
+                                fallbackPlacements: ["top", "bottom", "left", "right"], // Flip to any side if needed
+                              },
+                              fn: function (state: MiddlewareState): MiddlewareReturn | Promise<MiddlewareReturn> {
+                                throw new Error("Function not implemented.");
+                              }
+                            },
+                            {
+                              name: "offset",
+                              options: {
+                                offset: [0, 8], // Small vertical offset from the input
+                              },
+                              fn: function (state: MiddlewareState): MiddlewareReturn | Promise<MiddlewareReturn> {
+                                throw new Error("Function not implemented.");
+                              }
+                            },
+                          ]}
                         />
-                        <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-gray-400">
+                        <div className="pointer-events-none absolute w-fit right-3 top-1/2 -translate-y-1/2 text-black dark:text-gray-400">
                           <TbCalendarEventFilled size={22} />
                         </div>
                       </div>
@@ -1401,7 +1414,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <p className="text-[16px] font-semibold text-black dark:text-white">
                     Date
                   </p>
-                  <div className="relative w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10">
+                  <div className="relative max-w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10">
                     <DatePicker
                       selected={
                         intPropInput.publishing?.[0]?.date
@@ -1425,9 +1438,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         }
                       }}
                       dateFormat="yyyy-MM-dd" // Matches native <input type="date">
-                      className="bg-transparent text-[16px] text-black dark:text-white"
+                      className="bg-transparent relative text-[16px] text-black dark:text-white"
                       calendarClassName="custom-calendar"
-                      popperClassName="z-50"
+                      popperClassName="z-50 absolute right-[-220%] top-0"
                       placeholderText="YYYY-MM-DD"
                     />
 
