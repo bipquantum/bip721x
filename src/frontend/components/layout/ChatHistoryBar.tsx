@@ -69,9 +69,6 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
   return (
     <div className="bg-white/20 backdrop-blur-[10px] flex w-full flex-col justify-between text-black dark:text-white">
       <div className="h-[70vh] w-full overflow-auto px-4 py-6">
-        {/* <div className="flex flex-row space-x-2 cursor-pointer items-center justify-center text-lg font-bold w-full">
-          <img src={AIBotImg} className={`h-10 rounded-full`} />
-        </div> */}
         <div className="flex flex-row items-center justify-between">
           <p className="text-xl font-bold">Chat History</p>
           <img

@@ -168,13 +168,6 @@ const DetailsView = () => {
               </div>
             ))}
           </div>
-          {/* <button
-            className="w-fit text-white text-nowrap rounded-full bg-secondary px-4 py-3 text-sm uppercase hover:cursor-pointer hover:bg-blue-800"
-            onClick={() => onUpdateBtnClicked()}
-            disabled={isLoading}
-          >
-            {isLoading ? <img src={SpinnerSvg} alt="" /> : "Add/Update User"}
-          </button> */}
         </div>
       </div>
     </div>

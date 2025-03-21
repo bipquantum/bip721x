@@ -142,106 +142,11 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               </div>
             </div>
           ) : (
-            // <div className="flex w-full h-full flex-col gap-y-4 rounded-xl p-4 sm:w-2/3 sm:px-12 sm:py-4 items-center justify-between">
-            //   {
-            //     intProp.ok.V1.dataUri && <FilePreview dataUri={intProp.ok.V1.dataUri} />
-            //   }
-            //   <div className="py-2 flex flex-col text-xl font-bold items-center w-full">
-            //     { intProp.ok.V1.title }
-            //     { isBanned ?
-            //       <div className="text-base text-red-500">
-            //         This IP has been banned ❌
-            //       </div> :
-            //       <AirdropEligible intPropId={BigInt(intPropId)}/>
-            //     }
-            //   </div>
-            //   <div className="py-2 text-md text-base text-justify">
-            //     {intProp.ok.V1.description}
-            //   </div>
-            //   <table className="w-full text-left rtl:text-right">
-            //     <tr className="border-b">
-            //       <th className="whitespace-nowrap font-medium text-white">💎 Type </th>
-            //       <td className="font-semibold text-right"> {intPropTypeToString(intProp.ok.V1.intPropType)}</td>
-            //     </tr>
-            //     <tr className="border-b">
-            //       <th className="whitespace-nowrap font-medium text-white">⚖️ Licenses</th>
-            //       <td className="font-semibold text-right">
-            //       {
-            //         intProp.ok.V1.intPropLicenses.length === 0 ?
-            //           <div className="italic font-light">None</div> :
-            //           <div>{intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")}</div>
-            //       }
-            //       </td>
-            //     </tr>
-            //     <tr className="border-b">
-            //       <th className="whitespace-nowrap font-medium text-white">📅 Creation Date</th>
-            //       <td className="font-semibold text-right">{formatDate(timeToDate(intProp.ok.V1.creationDate))}</td>
-            //     </tr>
-            //     <tr className="border-b">
-            //       <th className="whitespace-nowrap font-medium text-white">👑 Royalties</th>
-            //       <td className="font-semibold text-right">
-            //         { fromNullable(intProp.ok.V1.percentageRoyalties) ?
-            //           <div>{fromNullable(intProp.ok.V1.percentageRoyalties)?.toString()}%</div> : <div className="italic font-light">None</div>
-            //         }</td>
-            //     </tr>
-            //     <tr className="border-b">
-            //       <th className="whitespace-nowrap font-medium text-white">📜 Publishing</th>
-            //       <td className="font-semibold text-right">
-            //         {
-            //           fromNullable(intProp.ok.V1.publishing) ?
-            //           <div className="flex flex-row space-x-1 justify-end">
-            //             {getName(fromNullable(intProp.ok.V1.publishing)?.countryCode)}
-            //             {", "}
-            //             { getPublishingDate(intProp.ok.V1) }</div>
-            //           : <div className="italic font-light">None</div>
-            //         }
-
-            //       </td>
-            //     </tr>
-            //     <tr className={`${showUserDetails ? "" : "border-b"} hover:cursor-pointer hover:bg-blue-800`} onClick={() => setShowUserDetails(!showUserDetails)}>
-            //       <th className="whitespace-nowrap font-medium text-white">👨‍🎨 Author</th>
-            //       <td className="font-semibold flex flex-row space-x-1 justify-end">
-            //         {!showUserDetails && <UserNickName principal={intProp.ok.V1.author} />}
-            //       </td>
-            //     </tr>
-            //     {
-            //       showUserDetails && (
-            //         <tr>
-            //           <td colSpan={2} className="border-b w-full px-5 text-gray-200">
-            //             <UserDetails
-            //               principal={intProp.ok.V1.author}
-            //             />
-            //           </td>
-            //         </tr>
-            //       )
-            //     }
-            //     <tr>
-            //       <th className="whitespace-nowrap font-medium text-white">🗝️ Owner</th>
-            //       <th className="text-sm font-medium text-right">
-            //         { owner?.toString() }
-            //       </th>
-            //     </tr>
-            //   </table>
-            //   <div className="flex flex-col space-y-1 space-x-0 sm:flex-row sm:space-x-1 sm:space-y-0 items-right w-full justify-end pb-4">
-            //     <CertificateButton intPropId={intPropId}/>
-            //     <BanIntProp principal={principal} intPropId={BigInt(intPropId)} />
-            //     <div className="flex items-center justify-center">{owner && (
-            //       <ListingDetails
-            //         principal={principal}
-            //         owner={owner}
-            //         intPropId={BigInt(intPropId)}
-            //         updateBipDetails={updateBipDetails}
-            //         showRecommendation={true}
-            //       />
-            //     )}
-            //     </div>
-            //   </div>
-            // </div>
             <div className="flex h-full max-h-[80vh] w-full flex-col gap-[40px]">
-              <div className="flex h-fit w-full flex-col lg:flex-row items-start justify-between gap-[30px]">
-                <div className="flex w-full lg:w-3/12 flex-col gap-[18px]">
+              <div className="flex h-fit w-full flex-col items-start justify-between gap-[30px] lg:flex-row">
+                <div className="flex w-full flex-col gap-[18px] lg:w-3/12">
                   <div className="h-auto w-full p-2">
-                    <div className="rounded-[32px] shadow-[0px_0px_40px_-20px] shadow-primary w-full md:w-fit mx-auto">
+                    <div className="mx-auto w-full rounded-[32px] shadow-[0px_0px_40px_-20px] shadow-primary md:w-fit">
                       {intProp.ok.V1.dataUri && (
                         <FilePreview
                           className="rounded-[32px]"
@@ -253,20 +158,27 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   <div className="flex flex-col gap-[20px]">
                     <p className="w-full text-center text-xl">
                       {intProp.ok.V1.title}
+                      {isBanned ? (
+                        <div className="text-base text-red-500">
+                          This IP has been banned ❌
+                        </div>
+                      ) : (
+                        <AirdropEligible intPropId={BigInt(intPropId)} />
+                      )}
                     </p>
                     <button
                       onClick={() => openCertificateInNewTab()}
-                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary py-[6px] text-center text-[16px] uppercase text-black dark:text-white">
+                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary py-[6px] text-center text-[16px] uppercase text-black dark:text-white"
+                    >
                       Generate Certificate
                     </button>
-                    <button
-                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white">
+                    <button className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white">
                       View Certificate
                     </button>
                   </div>
                 </div>
-                <div className="h-full w-full lg:w-9/12 p-2">
-                  <div className="flex h-full flex-col gap-[15px] rounded-[40px] bg-secondary/10 p-[20px] md:p-[30px] dark:bg-white/10">
+                <div className="h-full w-full p-2 lg:w-9/12">
+                  <div className="flex h-full flex-col gap-[15px] rounded-[40px] bg-secondary/10 p-[20px] dark:bg-white/10 md:p-[30px]">
                     <div className="flex h-fit flex-col gap-[20px]">
                       <div className="flex flex-row items-center gap-[15px]">
                         <div className="size-[40px] overflow-hidden rounded-full">
@@ -287,7 +199,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                           </button>
                         </div>
                       </div>
-                      <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-[10px]">
+                      <div className="flex flex-col-reverse justify-between gap-[10px] md:flex-row md:items-center">
                         <div>
                           <p className="text-[26px]">Elemental #6173</p>
                           <p className="pb-1 text-xl">
@@ -317,34 +229,37 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </div>
                     <div className="flex h-full flex-col gap-[20px] rounded-[20px] bg-white dark:bg-background-dark">
                       <div className="flex flex-row border-b border-black/50 px-[30px] py-[10px] dark:border-white/10">
-                        <div className="flex md:flex-row flex-col h-full w-full items-center justify-between py-2 gap-2">
+                        <div className="flex h-full w-full flex-col items-center justify-between gap-2 py-2 md:flex-row">
                           <p>Sale ends December 24, 2024 at 6:29 AM</p>
                           <CountdownTimer hours={0} minutes={52} seconds={0} />
                         </div>
                       </div>
-                      <div className="flex flex-col px-[15px] md:px-[30px] py-[10px]">
-                        <div className="flex h-full w-full flex-col md:flex-row items-center justify-between py-2 md:gap-0 gap-3">
-                          <div className="flex md:flex-col flex-row-reverse gap-2">
-                            <p className="flex flex-row items-center gap-2 text-gray-400 md:text-base text-sm">
+                      <div className="flex flex-col px-[15px] py-[10px] md:px-[30px]">
+                        <div className="flex h-full w-full flex-col items-start justify-between gap-3 py-2 md:gap-0">
+                          <div className="flex flex-col gap-2 md:flex-col">
+                            <p className="flex flex-row items-center gap-2 text-sm text-gray-400 md:text-base">
                               <span className="text-gray-400">
                                 <TbTag size={20} />
                               </span>{" "}
                               Current Price
                             </p>
-                            <p className="text-xl md:text-[30px]">10.00 BQC</p>
                           </div>
-                          <div className="mt-auto w-6/12">
-                            {!bid ? (
-                              <button className="flex w-full flex-row items-center justify-center gap-1 rounded-[10px] bg-gradient-to-t from-primary to-secondary py-2 text-xl font-semibold uppercase">
-                                BUY
-                              </button>
-                            ) : (
-                              <button className="flex w-full flex-row items-center justify-center gap-1 rounded-[10px] bg-[#ED2D7D] py-2 text-xl font-semibold uppercase">
-                                BID
-                              </button>
+                          <div className="mt-auto w-full">
+                            {owner && (
+                              <ListingDetails
+                                principal={principal}
+                                owner={owner}
+                                intPropId={BigInt(intPropId)}
+                                updateBipDetails={updateBipDetails}
+                                showRecommendation={true}
+                              />
                             )}
                           </div>
                         </div>
+                        <BanIntProp
+                          principal={principal}
+                          intPropId={BigInt(intPropId)}
+                        />
                         <div className="flex flex-row gap-[10px]">
                           <img src={fund} alt="" />
                           <p className="mt-auto text-sm text-gray-400">
@@ -357,24 +272,20 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-[10px] md:px-0 p-[10px]">
-                <p className="text-xl font-momentum font-extrabold uppercase text-black dark:text-white">
+              <div className="flex flex-col gap-[10px] p-[10px] md:px-0">
+                <p className="font-momentum text-xl font-extrabold uppercase text-black dark:text-white">
                   Recommendations
                 </p>
                 {Object.entries(dummyData).map(([category, items]) => (
-                  <div className="grid w-full lg:grid-cols-2 xl:grid-cols-3 gap-[20px]">
+                  <div className="grid w-full gap-[20px] lg:grid-cols-2 xl:grid-cols-3">
                     {items.map((item) => (
                       <Link
                         key={item.id}
-                        className="min-h-[350px] md:min-h-[450px] w-[300px] md:w-[400px] rounded-2xl border-2 border-white/50 bg-white/10 backdrop-blur-[10px]"
+                        className="min-h-[350px] w-[300px] rounded-2xl border-2 border-white/50 bg-white/10 backdrop-blur-[10px] md:min-h-[450px] md:w-[400px]"
                         to={`/bip/${item.id}`}
                       >
                         <div className="flex h-full flex-col gap-y-1 p-2 text-base text-white">
                           <div className="relative h-[260px] w-full rounded-lg">
-                            {/* <FilePreview
-                      dataUri={item.image}
-                      className="flex h-[260px] w-[390px] border flex-col items-center justify-center rounded-2xl object-cover"
-                    /> */}
                             <img
                               src={item.image}
                               alt=""

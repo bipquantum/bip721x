@@ -26,13 +26,13 @@ import { ModalPopup } from "./ModalPopup";
 interface ListingDetailsProps {
   setItemPrice?: Dispatch<SetStateAction<string>>; // ✅ Use lowercase string
   principal: Principal | undefined;
-  owner: Principal;
+  owner: Principal | undefined;
   intPropId: bigint;
   showRecommendation?: boolean;
   updateBipDetails: () => void;
-  onListClick?: () => void;
-  onUnlistingClick?: () => void;
-  onEditingClick?: () => void;
+  handleListClick?: (bipId: bigint) => void; // Optional with default
+  handleUnlistClick?: (bipId: bigint) => void; // Optional with default
+  triggered?: boolean;
 }
 
 const ListingDetails: React.FC<ListingDetailsProps> = ({
@@ -40,18 +40,16 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
   owner,
   intPropId,
-  showRecommendation,
+  showRecommendation =false,
   updateBipDetails,
-  onListClick,
-  onUnlistingClick,
-  onEditingClick,
+  handleListClick = () => {},
+  handleUnlistClick = () => {},
+  triggered,
 }) => {
   const { login } = useAuth();
-
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [isListModalOpen, setIsListModalOpen] = useState(false);
-  const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
+  const [price, setPrice] = useState<String | null>(null);
 
   const { refreshBalance } = useBalance();
 
@@ -68,22 +66,6 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     functionName: "buy_int_prop",
   });
 
-  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
-    functionName: "icrc37_approve_tokens",
-  });
-
-  const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
-    functionName: "icrc37_revoke_token_approvals",
-  });
-
-  const { call: listIntProp } = backendActor.useUpdateCall({
-    functionName: "list_int_prop",
-  });
-
-  const { call: unlistIntProp } = backendActor.useUpdateCall({
-    functionName: "unlist_int_prop",
-  });
-
   const getListedPrice = () => {
     if (e8sPrice === undefined) {
       return null;
@@ -92,13 +74,14 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       ? fromE8s(e8sPrice.ok).toFixed(TOKEN_DECIMALS_ALLOWED)
       : null;
   };
-
+  
   useEffect(() => {
     if (setItemPrice) {
       const price1 = getListedPrice();
+      setPrice(price1 || null);
       setItemPrice(price1 || "");
     }
-  }, [setItemPrice]);
+  }, [setItemPrice, intPropId, triggered]);
   const triggerBuy = (intPropId: bigint) => {
     if (principal === undefined || principal.isAnonymous()) {
       login();
@@ -135,7 +118,6 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
           toast.warn("Failed to approve BQC transfer");
           console.error(result ? result["Err"] : "No result");
         } else {
-          console.log("Buying IP");
           buyIntProp([{ token_id: intPropId }]).then((result) => {
             setIsLoading(false);
             if (!result) {
@@ -164,106 +146,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       });
   };
 
-  const triggerList = (intPropId: bigint, sellPrice: bigint) => {
-    const info: ApprovalInfo = {
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: {
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      },
-      expires_at: [],
-    };
-
-    setIsLoading(true);
-
-    approveBip721Transfer([[{ token_id: intPropId, approval_info: info }]])
-      .then((result) => {
-        if (!result || "Err" in result) {
-          setIsLoading(false);
-          toast.warn("Failed to approve IP transfer");
-          console.error(result ? result["Err"] : "No result");
-        } else {
-          listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
-            (result) => {
-              setIsLoading(false);
-              if (!result || "err" in result) {
-                toast.warn("Failed to list IP");
-                console.error(result ? result["err"] : "No result");
-              } else {
-                toast.success("Success");
-                getE8sPrice().finally(() => {
-                  const details = updateBipDetails();
-                });
-              }
-            },
-          );
-        }
-      })
-      .catch((e) => {
-        setIsLoading(false);
-        console.error(e);
-        toast.warn("Failed to list");
-      });
-  };
-
-  const triggerUnlist = (intPropId: bigint) => {
-    setIsLoading(true);
-
-    const info: RevokeTokenApprovalArg = {
-      token_id: intPropId,
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: [
-        {
-          owner: Principal.fromText(canisterId),
-          subaccount: [],
-        },
-      ],
-    };
-
-    revokeBip721Transfer([[info]])
-      .then((result) => {
-        if (!result || "Err" in result) {
-          setIsLoading(false);
-          toast.warn("Failed to revoke IP transfer");
-          console.error(result ? result["Err"] : "No result");
-        } else {
-          unlistIntProp([{ token_id: intPropId }]).then((result) => {
-            setIsLoading(false);
-            if (!result || "err" in result) {
-              toast.warn("Failed to unlist");
-              console.error(result ? result["err"] : "No result");
-            } else {
-              toast.success("Success");
-              getE8sPrice().finally(() => {
-                updateBipDetails();
-              });
-            }
-          });
-        }
-      })
-      .catch((e) => {
-        setIsLoading(false);
-        console.error(e);
-        toast.warn("Failed to unlist");
-      });
-  };
-
-  const handleListClick = () => {
-    setIsListModalOpen(true);
-  };
-
-  const handleSave = () => {
-    triggerList(intPropId, sellPrice);
-    setIsListModalOpen(false);
-  };
-
   if (principal !== undefined) {
-    if (owner.compareTo(principal) == "eq") {
-      if (getListedPrice() !== null) {
+    if (owner !== undefined && owner.compareTo(principal) == "eq") {
+      if (price !== null) {
         // To unlist
         return (
           <div className="mx-auto flex w-9/12 flex-row items-center justify-between gap-4">
@@ -272,8 +157,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               <VioletButton
                 type={"unlist"}
                 isLoading={isLoading}
-                onClick={() => triggerUnlist(intPropId)} //to unlist
-                // onClick={() => onUnlistingClick}
+                onClick={() => handleUnlistClick(intPropId)}
               >
                 <p
                   className="flex flex-row gap-1 text-white"
@@ -291,7 +175,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             <VioletButton
               type={"edit"}
               isLoading={false}
-              onClick={() => console.log('clicked')}
+              onClick={() => console.log("handle Edit")}
             >
               <p
                 className="flex flex-row gap-1"
@@ -311,67 +195,38 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         // To list
         return (
           <>
-            {/* <div className="relative flex w-full flex-col items-center space-y-1"> */}
-              <div className="mx-auto flex w-9/12 flex-row items-center justify-between gap-4 ">
-                {/* <NumericFormat
-                className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
-                thousandSeparator=","
-                decimalScale={TOKEN_DECIMALS_ALLOWED}
-                value={Number(fromE8s(sellPrice))}
-                onValueChange={(e) => {
-                  setSellPrice(
-                    toE8s(
-                      parseFloat(
-                        e.value === "" ? "0" : e.value.replace(/,/g, ""),
-                      ),
-                    ),
-                  );
-                }}
-                prefix="bQC "
-                spellCheck="false"
-              /> */}
-                <VioletButton
-                  type={"list"}
-                  isLoading={isLoading}
-                  onClick={() => triggerList(intPropId, sellPrice)} // to list
-                  // onClick={onListClick}
+            <div className="mx-auto flex w-9/12 flex-row items-center justify-between gap-4">
+              <VioletButton
+                type={"list"}
+                isLoading={isLoading}
+                onClick={() => handleListClick(intPropId)}
+              >
+                <p
+                  className="flex flex-row gap-1 text-white"
+                  style={{ filter: "grayscale(100%)" }}
                 >
-                  <p
-                    className="flex flex-row gap-1 text-white"
-                    style={{ filter: "grayscale(100%)" }}
-                  >
+                  {" "}
+                  <span>
                     {" "}
-                    <span>
-                      {" "}
-                      <TbCheck size={22} />{" "}
-                    </span>{" "}
-                    List{" "}
-                  </p>
-                </VioletButton>
-                <VioletButton
-                  type={"edit"}
-                  isLoading={isOpen}
-                  onClick={() => ""}
+                    <TbCheck size={22} />{" "}
+                  </span>{" "}
+                  List{" "}
+                </p>
+              </VioletButton>
+              <VioletButton type={"edit"} isLoading={isOpen} onClick={() => ""}>
+                <p
+                  className="flex flex-row gap-1"
+                  style={{ filter: "grayscale(100%)" }}
                 >
-                  <p
-                    className="flex flex-row gap-1"
-                    style={{ filter: "grayscale(100%)" }}
-                  >
+                  {" "}
+                  <span>
                     {" "}
-                    <span>
-                      {" "}
-                      <TbPencil size={22} />{" "}
-                    </span>{" "}
-                    Edit{" "}
-                  </p>
-                </VioletButton>
-              </div>
-              {/* {showRecommendation === true && (
-                <div className="item-center absolute -bottom-4 whitespace-nowrap text-xs">
-                  Recommended price: 1 to 50 bQC
-                </div>
-              )}
-            </div> */}
+                    <TbPencil size={22} />{" "}
+                  </span>{" "}
+                  Edit{" "}
+                </p>
+              </VioletButton>
+            </div>
           </>
         );
       }
@@ -380,8 +235,8 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 
   // To buy
   return (
-    <div className="flex w-full flex-row items-center justify-between space-x-2  text-black dark:text-white">
-      <div className="flex flex-row items-center gap-1 pl-1 text-2xl font-bold">
+    <div className="flex w-full flex-row items-center justify-between space-x-2 text-black dark:text-white">
+      <div className="flex flex-row items-center gap-1 pl-1 text-base font-bold md:text-2xl">
         {" "}
         <span>
           <IoIosPricetags size={22} />

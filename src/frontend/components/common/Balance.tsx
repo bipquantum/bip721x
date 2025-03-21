@@ -55,7 +55,7 @@ const Balance = ({ principal }: BalanceProps) => {
   }, []);
 
   return (
-    <div className="flex w-fit flex-row items-center gap-4 text-lg sm:text-xl">
+    <div className="flex w-fit flex-row items-center gap-4 text-sm sm:text-xl">
       <span>
         Balance: {fromE8s(balance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} bQC
       </span>
@@ -70,7 +70,7 @@ const Balance = ({ principal }: BalanceProps) => {
           {airdropUserLoading || isAirdropAvailableLoading ? (
             <img src={SpinnerSvg} alt="" />
           ) : (
-            <div className="flex flex-row items-center gap-1 text-lg">
+            <div className="flex flex-row items-center gap-1 md:text-lg">
               <img src={Airdrop} className="size-[24px] animate-wiggle" />
               <span>Claim airdrop</span>
             </div>

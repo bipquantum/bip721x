@@ -28,17 +28,17 @@ import {
 interface BipItemProps {
   principal: Principal | undefined;
   intPropId: bigint;
-  onListClick: (bipId: bigint) => void;
-  onUnlistingClick: (bipId: bigint) => void;
-  onEditingClick: (bipId: bigint) => void;
+  handleListClick: (bipId: bigint) => void
+  handleUnlistClick: (bipId: bigint) => void
+  triggered?:boolean;
 }
 
 const BipItem: React.FC<BipItemProps> = ({
   intPropId,
   principal,
-  onListClick,
-  onUnlistingClick,
-  onEditingClick,
+  handleListClick,
+  handleUnlistClick,
+  triggered
 }) => {
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
   const [itemPrice, setitemPrice] = useState<string>("");
@@ -46,8 +46,6 @@ const BipItem: React.FC<BipItemProps> = ({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
   });
-
-  console.log('intProp :', intProp)
 
   const {} = backendActor.useQueryCall({
     functionName: "owner_of",
@@ -58,7 +56,6 @@ const BipItem: React.FC<BipItemProps> = ({
   });
 
   const location = useLocation();
-  console.log("location :", location);
   return (
     <>
       {intProp === undefined ? (
@@ -78,7 +75,6 @@ const BipItem: React.FC<BipItemProps> = ({
       ) : (
         <div
           className="col-span-1 h-fit w-full rounded-2xl border-2 border-black/50 bg-white backdrop-blur-[10px] dark:border-white/50 dark:bg-white/10"
-          // to={`/bip/${intPropId}`}
         >
           <div className="flex h-full flex-col gap-y-1 p-2 text-sm text-white lg:text-base">
             <Link
@@ -119,7 +115,7 @@ const BipItem: React.FC<BipItemProps> = ({
             <div className="flex h-full flex-col justify-between pt-3">
               <div className="flex flex-col items-start justify-between gap-2 md:flex-row md:gap-0">
                 <div
-                  className={`flex ${location.pathname === "/marketplace" ? "w-full" : "w-full md:w-8/12"} flex-row gap-2`}
+                  className={`flex w-full flex-row gap-2`}
                 >
                   <div className="h-[40px] w-[40px] overflow-hidden rounded-full bg-blue-500">
                     <img src={intProp.ok.V1.dataUri} alt="" />
@@ -155,50 +151,12 @@ const BipItem: React.FC<BipItemProps> = ({
                 </div>
                 {location.pathname !== "/marketplace" && itemPrice && (
                   <div className="flex w-4/12 flex-row items-center gap-1 p-1 text-black dark:text-white">
-                    <IoIosPricetags size={22} />
-                    <p className="text-nowrap text-[22px]">{itemPrice} BQC</p>
+                    <IoIosPricetags className="text-sm md:text-[22px]" />
+                    <p className="text-nowrap text-sm md:text-[22px]">{itemPrice} BQC</p>
                   </div>
                 )}
               </div>
-              {/* <div className="mx-auto flex w-fit flex-row items-center gap-8 pb-2 pt-4">
-                {intProp.ok.V1.title ? (
-                  <button className="uppercase flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] bg-gradient-to-t from-primary to-secondary py-2 font-semibold">
-                    {" "}
-                    <TbCheck size={22} /> List{" "}
-                  </button>
-                ): (
-                  <button className="uppercase flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] bg-gradient-to-t from-red-500 to-red-400 py-2 font-semibold">
-                    {" "}
-                    <TbX size={22} /> Unlist{" "}
-                  </button>
-                )}
-                <button className="uppercase flex w-[120px] flex-row items-center justify-center gap-1 rounded-[10px] border py-2 font-semibold text-black dark:text-white border-black dark:border-white">
-                  {" "}
-                  <TbPencil size={22} /> Edit{" "}
-                </button>
-              </div> */}
             </div>
-            {/* <div className="grid grid-cols-6">
-              <p className="truncate text-2xl font-semibold col-span-5">
-                {intProp.ok.V1.title}
-              </p>
-              <div className="justify-self-end">
-                <AirdropEligible intPropId={intPropId} compact={true} />
-              </div>
-            </div>
-            <p className="truncate font-semibold text-base">
-              Type: {intPropTypeToString(intProp.ok.V1.intPropType)}
-            </p>
-            {intProp.ok.V1.intPropLicenses.length > 0 && (
-              <p className="truncate font-semibold text-base">
-                Licenses: {intProp.ok.V1.intPropLicenses
-                  .map(intPropLicenseToString)
-                  .join(", ")}
-              </p>
-            )} */}
-
-            {/* Use `flex-grow` to push the last child to the bottom */}
-            <div className="flex-grow"></div>
             <div className="py-2">
               {owner && (
                 <ListingDetails
@@ -207,9 +165,9 @@ const BipItem: React.FC<BipItemProps> = ({
                   owner={owner}
                   intPropId={intPropId}
                   updateBipDetails={() => {}}
-                  onListClick={() => onListClick(intPropId)}
-                  onUnlistingClick={() => onUnlistingClick(intPropId)}
-                  onEditingClick={() => onEditingClick(intPropId)}
+                  handleListClick={handleListClick}
+                  handleUnlistClick={handleUnlistClick}
+                  triggered={triggered}
                 />
               )}
             </div>

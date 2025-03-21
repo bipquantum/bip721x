@@ -60,7 +60,7 @@ const Dashboard = () => {
             name=""
             id=""
             placeholder="What do you want to protect?"
-            className="w-full resize-none border-none sm:text-[8px] leading-none text-base outline-none h-[48px] pt-[8px]"
+            className="w-full resize-none border-none outline-none sm:text-base text-xs leading-none h-[48px] pt-[8px]"
           ></textarea>
           <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1">
             <BiMicrophone size={34} />

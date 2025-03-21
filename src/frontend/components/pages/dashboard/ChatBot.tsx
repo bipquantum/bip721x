@@ -109,10 +109,6 @@ const ChatBot = ({
           >
             <IoArrowUp size={40} className="text-black" />
           </button>
-        {/* <div className="flex justify-end self-end text-sm">
-          bIPQuantum AI is here to assist, but always consult an IP lawyer to
-          ensure accuracy.
-        </div> */}
       </div>
       <p className="text-sm text-gray-500">bIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.</p>
       </div>

@@ -102,9 +102,6 @@ const TopBar = () => {
                 alt="Profile"
               />
             )}
-            {/* <p className="text-black dark:text-white">
-          { queriedUser?.length === 0 ? NEW_USER_NICKNAME : queriedUser?.[0]?.nickName }
-          </p> */}
           </Link>
         </div>
       </div>

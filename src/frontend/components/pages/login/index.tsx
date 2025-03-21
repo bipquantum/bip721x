@@ -37,12 +37,6 @@ const Login = () => {
           Computer blockchain.
         </p>
 
-        {/* <img
-          src={LoginSvg}
-          className="block h-16 sm:hidden sm:h-14"
-          alt="Logo"
-          /> */}
-
         <p className="block text-2xl font-semibold leading-8 text-black dark:text-white sm:hidden">
           Login To Your Account
         </p>

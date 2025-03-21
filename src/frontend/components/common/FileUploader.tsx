@@ -89,15 +89,6 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, 
         type="file"
         accept={acceptedFiles}
         className="absolute w-[1px] h-[1px] p-0 m-[-1] overflow-hidden whitespace-nowrap border-0"
-        // position: absolute;
-        // width: 1px;
-        // height: 1px;
-        // padding: 0;
-        // margin: -1px;
-        // overflow: hidden;
-        // clip: rect(0, 0, 0, 0);
-        // white-space: nowrap;
-        // border-width: 0;
         onChange={handleFileChange}
         ref={fileInputRef}
       />

@@ -80,10 +80,6 @@ const BipMarketplace = () => {
               >
                 <div className="flex h-full flex-col gap-y-1 p-2 text-base text-black dark:text-white">
                   <div className="relative h-[260px] w-full rounded-lg">
-                    {/* <FilePreview
-                      dataUri={item.image}
-                      className="flex h-[260px] w-[390px] border flex-col items-center justify-center rounded-2xl object-cover"
-                    /> */}
                     <img
                       src={item.image}
                       alt=""

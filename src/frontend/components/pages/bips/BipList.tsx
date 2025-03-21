@@ -11,9 +11,6 @@ import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
 interface BipsProps {
   principal: Principal;
   scrollableClassName: string;
-  onListClick: (bipId: bigint) => void;
-  onUnlistingClick: (bipId: bigint) => void;
-  onEditingClick: (bipId: bigint) => void;
   fetchBips: (
     prev: bigint | undefined,
     direction: QueryDirection,
@@ -22,8 +19,13 @@ interface BipsProps {
   BipItemComponent?: React.ComponentType<{
     intPropId: bigint;
     principal: Principal;
+    handleListClick: (bipId: bigint) => void;
+    handleUnlistClick: (bipId: bigint) => void;
   }>;
   isGrid?: boolean;
+  handleListClick: (bipId: bigint) => void;
+  handleUnlistClick: (bipId: bigint) => void;
+  triggered?: boolean;
 }
 
 const BipList: React.FC<BipsProps> = ({
@@ -33,9 +35,9 @@ const BipList: React.FC<BipsProps> = ({
   isGrid,
   queryDirection,
   BipItemComponent = BipItem,
-  onListClick,
-  onUnlistingClick,
-  onEditingClick,
+  handleListClick,
+  handleUnlistClick,
+  triggered,
 }) => {
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
   const [prev, setPrev] = useState<bigint | undefined>(undefined); // Keep track of previous entries
@@ -57,11 +59,11 @@ const BipList: React.FC<BipsProps> = ({
     }
     setLoading(false);
   };
-
+  
   // Load initial entries on component mount
   useEffect(() => {
     loadEntries();
-  }, []);
+  }, [triggered]);
 
   // TODO: the infinite scroll component does not get refreshed when the queryDirection changes
   useEffect(() => {
@@ -71,7 +73,7 @@ const BipList: React.FC<BipsProps> = ({
       await loadEntries(); // Wait for entries to load after reset
     };
     resetAndLoadEntries();
-  }, [queryDirection]);
+  }, [queryDirection, triggered]);
 
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -95,23 +97,26 @@ const BipList: React.FC<BipsProps> = ({
               principal={principal}
               intPropId={intPropId}
               key={intPropId}
-              onListClick={onListClick}
-              onUnlistingClick={onUnlistingClick}
-              onEditingClick={onEditingClick}
+              handleListClick={handleListClick}
+              handleUnlistClick={handleUnlistClick}
+              triggered={triggered}
             />
           ))}
         </div>
-        
       ) : (
-        <div className={"grid w-full md:grid-cols-2 xl:grid-cols-3 items-center  gap-[20px]"}>
+        <div
+          className={
+            "grid w-full items-center gap-[20px] md:grid-cols-2 xl:grid-cols-3"
+          }
+        >
           {Array.from(entries).map((intPropId) => (
             <BipItem
               principal={principal}
               intPropId={intPropId}
               key={intPropId}
-              onListClick={onListClick}
-              onUnlistingClick={onUnlistingClick}
-              onEditingClick={onEditingClick}
+              handleListClick={handleListClick}
+              handleUnlistClick={handleUnlistClick}
+              triggered={triggered}
             />
           ))}
         </div>

@@ -25,21 +25,39 @@ import {
   TbTrash,
   TbX,
 } from "react-icons/tb";
-import BipDetails from "../bips/BipDetails";
 import UserNickName from "../../common/UserNickname";
 import AiBot from "../../../assets/ai-bot.png";
+
+import { ModalPopup } from "../../common/ModalPopup";
+import { NumericFormat } from "react-number-format";
+import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
+import { dateToTime, fromE8s, toE8s } from "../../../utils/conversions";
+import { bip721LedgerActor } from "../../actors/Bip721LedgerActor";
+import Login from "../login";
+import {
+  ApprovalInfo,
+  RevokeTokenApprovalArg,
+} from "../../../../declarations/bip721_ledger/bip721_ledger.did";
+import { canisterId } from "../../../../declarations/backend";
+import { toast } from "react-toastify";
 
 interface BIPDetailsProps {
   intPropId: bigint;
   principal: Principal;
+  handleListClick: (bipId: bigint) => void;
+  handleUnlistClick: (bipId: bigint) => void;
 }
 
-const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
+const BIPDetails: React.FC<BIPDetailsProps> = ({
+  intPropId,
+  principal,
+  handleListClick,
+  handleUnlistClick,
+}) => {
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
   });
-
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
 
   const {} = backendActor.useQueryCall({
@@ -55,18 +73,7 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
   }
 
   return (
-    // <div className="grid sm:grid-cols-3 md:grid-cols-9 gap-2 sm:p-8 shadow border-2 border-tertiary hover:border-primary bg-tertiary sm:rounded-lg text-white mx-3 my-1 items-center rounded-lg p-2">
-    //   <Link className="col-span-2 text-xl" to={`/bip/${intPropId.toString()}`}>{intProp.ok.V1.title}</Link>
-    //   <Link className="col-span-1"  to={`/bip/${intPropId.toString()}`}>{formatDate(timeToDate(intProp.ok.V1.creationDate))}</Link>
-    //   <div className="col-span-3">
-    //     <ListingDetails principal={principal} owner={principal} intPropId={intPropId} updateBipDetails={() => {}} />
-    //   </div>
-    //   <div className="col-span-3 justify-self-end">
-    //     <CertificateButton intPropId={intPropId.toString()}/>
-    //   </div>
-    // </div>
-
-    <div className="grid justify-items-center grid-cols-2 gap-[10px] rounded-2xl bg-white px-2 py-2 dark:bg-white/10 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="grid grid-cols-2 justify-items-center gap-[10px] rounded-2xl bg-white px-2 py-2 dark:bg-white/10 lg:grid-cols-3 xl:grid-cols-6">
       <div className="col-span-1 h-[110px] w-[110px] overflow-hidden rounded-lg border-2 border-black/20 dark:border-white/20">
         <img
           src={intProp.ok.V1.dataUri}
@@ -94,7 +101,7 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
           </span>
         </p>
         <p className="text-sm text-neutral-400">
-          License:{" "}
+          Licenses:{" "}
           <span className="text-sm text-neutral-400">
             {intProp.ok.V1.intPropLicenses
               .map(intPropLicenseToString)
@@ -115,6 +122,8 @@ const BIPDetail: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
           owner={principal}
           intPropId={intPropId}
           updateBipDetails={() => {}}
+          handleListClick={handleListClick}
+          handleUnlistClick={handleUnlistClick}
         />
       </div>
       <div className="col-span-1 flex w-fit flex-row items-center justify-center gap-2">
@@ -138,6 +147,14 @@ interface WalletProps {
 const take: [] | [bigint] = [BigInt(5)];
 
 const Wallet = ({ principal }: WalletProps) => {
+  const [isListModalOpen, setIsListModalOpen] = useState(false);
+  const [selectedBipId, setSelectedBipId] = useState<bigint>(BigInt(0));
+  const [isUnlistModalOpen, setIsUnlistModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selection, setSelection] = useState("owned");
+  const [isGrid, setIsGrid] = useState(true);
+  const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
+
   if (principal === undefined) {
     console.error("Principal is undefined");
     return <img src={SpinnerSvg} alt="Loading..." />;
@@ -155,27 +172,6 @@ const Wallet = ({ principal }: WalletProps) => {
   const [queryDirection, setQueryDirection] = useState<EQueryDirection>(
     EQueryDirection.Forward,
   );
-  const [selection, setSelection] = useState("owned");
-  const [isGrid, setIsGrid] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUnlistingModalOpen, setIsUnlistingModalOpen] = useState(false);
-  const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);
-  const [selectedBipId, setSelectedBipId] = useState<bigint | null>(null);
-
-  const handleListClick = (bipId: bigint) => {
-    setSelectedBipId(bipId);
-    setIsModalOpen(true);
-  };
-
-  const handleUnlistingClick = (bipId: bigint) => {
-    setSelectedBipId(bipId);
-    setIsUnlistingModalOpen(true);
-  };
-
-  const handleEditingClick = (bipId: bigint) => {
-    setSelectedBipId(bipId);
-    setIsEditingModalOpen(true);
-  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -188,6 +184,127 @@ const Wallet = ({ principal }: WalletProps) => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const handleListClick = (bipId: bigint) => {
+    setSelectedBipId(bipId);
+    setIsListModalOpen(true);
+  };
+
+  const handleUnlistClick = (bipId: bigint) => {
+    setSelectedBipId(bipId);
+    setIsUnlistModalOpen(true);
+  };
+
+  const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
+    functionName: "icrc37_revoke_token_approvals",
+  });
+
+  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
+    functionName: "icrc37_approve_tokens",
+  });
+
+  const { call: listIntProp } = backendActor.useUpdateCall({
+    functionName: "list_int_prop",
+  });
+
+  const { call: unlistIntProp } = backendActor.useUpdateCall({
+    functionName: "unlist_int_prop",
+  });
+
+  const [triggered,setTriggered] = useState(true);
+  const triggerList = (intPropId: bigint, sellPrice: bigint) => {
+    const info: ApprovalInfo = {
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [dateToTime(new Date())],
+      spender: {
+        owner: Principal.fromText(canisterId),
+        subaccount: [],
+      },
+      expires_at: [],
+    };
+
+    setIsLoading(true);
+
+    approveBip721Transfer([[{ token_id: intPropId, approval_info: info }]])
+      .then((result) => {
+        if (!result || "Err" in result) {
+          setIsLoading(false);
+          toast.warn("Failed to approve IP transfer");
+          console.error(result ? result["Err"] : "No result");
+        } else {
+          listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
+            (result) => {
+              setIsLoading(false);
+              if (!result || "err" in result) {
+                toast.warn("Failed to list IP");
+                console.error(result ? result["err"] : "No result");
+              } else {
+                toast.success("Success");
+                setTriggered(!triggered)
+                // TODO : Find a way to integrate this here and on bips component
+                // getE8sPrice().finally(() => {
+                //   const details = updateBipDetails();
+                // });
+                setIsListModalOpen(false);
+              }
+            },
+          );
+        }
+      })
+      .catch((e: any) => {
+        setIsLoading(false);
+        console.error(e);
+        toast.warn("Failed to list");
+      });
+  };
+
+  const triggerUnlist = (intPropId: bigint) => {
+    setIsLoading(true);
+
+    const info: RevokeTokenApprovalArg = {
+      token_id: intPropId,
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [dateToTime(new Date())],
+      spender: [
+        {
+          owner: Principal.fromText(canisterId),
+          subaccount: [],
+        },
+      ],
+    };
+
+    revokeBip721Transfer([[info]])
+      .then((result) => {
+        if (!result || "Err" in result) {
+          setIsLoading(false);
+          toast.warn("Failed to revoke IP transfer");
+          console.error(result ? result["Err"] : "No result");
+        } else {
+          unlistIntProp([{ token_id: intPropId }]).then((result) => {
+            setIsLoading(false);
+            if (!result || "err" in result) {
+              toast.warn("Failed to unlist");
+              console.error(result ? result["err"] : "No result");
+            } else {
+              toast.success("Success");
+              setTriggered(!triggered)
+              
+              // getE8sPrice().finally(() => {
+              //   updateBipDetails();
+              // });
+              setIsUnlistModalOpen(false);
+            }
+          });
+        }
+      })
+      .catch((e) => {
+        setIsLoading(false);
+        console.error(e);
+        toast.warn("Failed to unlist");
+      });
+  };
 
   return (
     <div className="flex max-h-[85vh] w-full flex-col items-center overflow-y-auto px-4 py-[15px] text-black dark:text-white">
@@ -217,9 +334,9 @@ const Wallet = ({ principal }: WalletProps) => {
           </div>
         )}
 
-        <div 
+        <div
           onClick={() => setIsGrid(!isGrid)}
-          className="hidden lg:flex w-fit flex-row items-center justify-between gap-2 rounded-2xl bg-black/10 px-2 py-[6px] text-white backdrop-blur-[10px] dark:bg-white/20"
+          className="hidden w-fit flex-row items-center justify-between gap-2 rounded-2xl bg-black/10 px-2 py-[6px] text-white backdrop-blur-[10px] dark:bg-white/20 lg:flex"
         >
           <button
             className={`rounded-lg p-2 ${isGrid ? "bg-white text-black" : ""}`}
@@ -239,12 +356,54 @@ const Wallet = ({ principal }: WalletProps) => {
         principal={principal}
         fetchBips={fetchBips}
         queryDirection={queryDirection}
-        onListClick={handleListClick}
-        onUnlistingClick={handleUnlistingClick}
-        onEditingClick={handleEditingClick}
         isGrid={isGrid}
-        BipItemComponent={BIPDetail}
+        BipItemComponent={BIPDetails}
+        handleListClick={handleListClick}
+        handleUnlistClick={handleUnlistClick}
+        triggered={triggered}
       />
+
+      <ModalPopup
+        onConfirm={() => {
+          triggerList(selectedBipId, sellPrice);
+        }}
+        isOpen={isListModalOpen}
+        onClose={() => setIsListModalOpen(false)}
+      >
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Do you want to List your IP?
+          </h2>
+          <NumericFormat
+            className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
+            thousandSeparator=","
+            decimalScale={TOKEN_DECIMALS_ALLOWED}
+            value={Number(fromE8s(sellPrice))}
+            onValueChange={(e) => {
+              setSellPrice(
+                toE8s(
+                  parseFloat(e.value === "" ? "0" : e.value.replace(/,/g, "")),
+                ),
+              );
+            }}
+            suffix="bQC "
+            spellCheck="false"
+          />
+        </div>
+      </ModalPopup>
+      <ModalPopup
+        onConfirm={() => {
+          triggerUnlist(selectedBipId);
+        }}
+        isOpen={isUnlistModalOpen}
+        onClose={() => setIsUnlistModalOpen(false)}
+      >
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Do you want to UnList your IP?
+          </h2>
+        </div>
+      </ModalPopup>
     </div>
   );
 };

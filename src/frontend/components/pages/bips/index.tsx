@@ -10,13 +10,17 @@ import { backendActor } from "../../actors/BackendActor";
 import { toNullable } from "@dfinity/utils";
 import { useState } from "react";
 import { QueryDirection } from "../../../../declarations/backend/backend.did";
-import { EQueryDirection } from "../../../utils/conversions";
+import { dateToTime, EQueryDirection } from "../../../utils/conversions";
 import { BIP_ITEMS_PER_QUERY } from "../../constants";
 import BipMarketplace from "./BipMarketplace";
 import { ModalPopup } from "../../common/ModalPopup";
+import { bip721LedgerActor } from "../../actors/Bip721LedgerActor";
+import { RevokeTokenApprovalArg } from "../../../../declarations/bip721_ledger/bip721_ledger.did";
+import { canisterId } from "../../../../declarations/backend";
+import { toast } from "react-toastify";
 
 interface BipsProps {
-  principal: Principal ; // TODO: it does not need to be optional, apparently principal is always defined but anonymous if not logged in
+  principal: Principal; // TODO: it does not need to be optional, apparently principal is always defined but anonymous if not logged in
 }
 
 const Bips: React.FC<BipsProps> = ({ principal }) => {
@@ -26,6 +30,14 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
 
   const { call: getListedIntProps } = backendActor.useQueryCall({
     functionName: "get_listed_int_props",
+  });
+
+  const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
+    functionName: "icrc37_revoke_token_approvals",
+  });
+
+  const { call: unlistIntProp } = backendActor.useUpdateCall({
+    functionName: "unlist_int_prop",
   });
 
   const fetchBips = async (
@@ -41,6 +53,56 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
     ]);
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [triggered, setTriggered] = useState(true)
+
+  const triggerUnlist = (intPropId: bigint) => {
+    setIsLoading(true);
+
+    const info: RevokeTokenApprovalArg = {
+      token_id: intPropId,
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [dateToTime(new Date())],
+      spender: [
+        {
+          owner: Principal.fromText(canisterId),
+          subaccount: [],
+        },
+      ],
+    };
+
+    revokeBip721Transfer([[info]])
+      .then((result) => {
+        if (!result || "Err" in result) {
+          setIsLoading(false);
+          toast.warn("Failed to revoke IP transfer");
+          console.error(result ? result["Err"] : "No result");
+        } else {
+          unlistIntProp([{ token_id: intPropId }]).then((result) => {
+            setIsLoading(false);
+            if (!result || "err" in result) {
+              toast.warn("Failed to unlist");
+              console.error(result ? result["err"] : "No result");
+            } else {
+              toast.success("Success");
+              // TODO : Find a way to integrate this here and on the wallet component
+              // getE8sPrice().finally(() => {
+              //   updateBipDetails();
+              // });
+              setTriggered(!triggered)
+              setIsUnlistModalOpen(false);
+            }
+          });
+        }
+      })
+      .catch((e) => {
+        setIsLoading(false);
+        console.error(e);
+        toast.warn("Failed to unlist");
+      });
+  };
+
   const changeQueryDirection = () => {
     setQueryDirection(
       queryDirection === EQueryDirection.Forward
@@ -49,19 +111,19 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
     );
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isUnlistingModalOpen, setIsUnlistingModalOpen] = useState(false);
+  const [isListModalOpen, setIsListModalOpen] = useState(false);
+  const [isUnlistModalOpen, setIsUnlistModalOpen] = useState(false);
+  const [selectedBipId, setSelectedBipId] = useState<bigint>(BigInt(0));
   const [isEditingModalOpen, setIsEditingModalOpen] = useState(false);
-  const [selectedBipId, setSelectedBipId] = useState<bigint | null>(null);
 
   const handleListClick = (bipId: bigint) => {
     setSelectedBipId(bipId);
-    setIsModalOpen(true);
+    setIsListModalOpen(true);
   };
 
-  const handleUnlistingClick = (bipId: bigint) => {
+  const handleUnlistClick = (bipId: bigint) => {
     setSelectedBipId(bipId);
-    setIsUnlistingModalOpen(true);
+    setIsUnlistModalOpen(true);
   };
 
   const handleEditingClick = (bipId: bigint) => {
@@ -70,19 +132,12 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   };
 
   return (
-    <div className="flex h-[89vh] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto pt-2 text-black dark:text-white sm:items-start sm:gap-y-4">
+    <div className="flex h-[82vh] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto pt-2 text-black dark:text-white sm:items-start sm:gap-y-4 md:h-[89vh]">
       <BipsHeader
         sort={queryDirection}
         changeQueryDirection={changeQueryDirection}
       />
       <div className="ml-auto flex w-fit flex-col items-center justify-between gap-2 px-2 sm:flex-row sm:px-8">
-        {/* <button className="hidden sm:flex" onClick={() => changeQueryDirection()}>
-          <img 
-            src={queryDirection === EQueryDirection.Forward ? SortUp : SortDown} 
-            alt="Logo"
-            className="h-10 invert" 
-          />
-        </button> */}
         {principal !== undefined && !principal.isAnonymous() && (
           <Balance principal={principal} />
         )}
@@ -93,30 +148,23 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           principal={principal}
           fetchBips={fetchBips}
           queryDirection={queryDirection}
-          onListClick={handleListClick}
-          onUnlistingClick={handleUnlistingClick}
-          onEditingClick={handleEditingClick}
           isGrid={true}
-
+          handleListClick={handleListClick}
+          handleUnlistClick={handleUnlistClick}
+          triggered={triggered}
         />
       </div>
-      <ModalPopup onConfirm={() => {console.log('confirmed')}} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      <ModalPopup
+        onConfirm={() => {
+          triggerUnlist(selectedBipId);
+        }}
+        isOpen={isUnlistModalOpen}
+        onClose={() => setIsUnlistModalOpen(false)}
+      >
         <div className="flex flex-col space-y-4">
-          <h2 className="text-xl font-bold text-black">BipItem ID</h2>
-          <p className="text-lg text-black">{selectedBipId?.toString()}</p>{" "}
-          List
-        </div>
-      </ModalPopup>
-      <ModalPopup onConfirm={() => {console.log('confirmed')}} isOpen={isUnlistingModalOpen} onClose={() => setIsUnlistingModalOpen(false)}>
-        <div className="w-full text-center">
-          <p>Do you want to Delete your IP?</p>
-        </div>
-      </ModalPopup>
-      <ModalPopup onConfirm={() => {console.log('confirmed')}} isOpen={isEditingModalOpen} onClose={() => setIsEditingModalOpen(false)}>
-        <div className="flex flex-col space-y-4">
-          <h2 className="text-xl font-bold text-black">BipItem ID</h2>
-          <p className="text-lg text-black">{selectedBipId?.toString()}</p>{" "}
-          Edit
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Do you want to UnList your IP?
+          </h2>
         </div>
       </ModalPopup>
     </div>

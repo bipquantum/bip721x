@@ -1,9 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-
-// import HomeSvg from "../../assets/home.svg";
-// import EditSvg from "../../assets/edit.svg";
-// import WindowSvg from "../../assets/window.svg";
-// import MarketSvg from "../../assets/market.svg";
 import ProfileSvg from "../../assets/profile.png";
 import LogoutSvg from "../../assets/logout.svg";
 import LoginSvg from "../../assets/login.svg";

@@ -187,11 +187,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
         </div>
       ))}
       <div ref={messagesEndRef}></div>
-      {/* <NewIP
-        principal={principal}
-        isOpen={creatingIp !== undefined}
-        onClose={(ipId) => onIpCreated(ipId)}
-      /> */}
     </div>
   );
 };
