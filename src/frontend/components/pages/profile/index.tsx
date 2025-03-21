@@ -78,7 +78,6 @@ const Profile = () => {
 
   useEffect(() => {
     var args: CreateUserArgs = DEFAULT_ARGS;
-
     const user = fromNullable(queriedUser || []);
 
     if (user) {
@@ -96,7 +95,7 @@ const Profile = () => {
   const onUpdateBtnClicked = async () => {
     setIsLoading(true);
     await updateUser();
-    queryUser();
+    await queryUser();
     toast.success("User information added/updated!");
     setIsLoading(false);
     if (redirect) {
@@ -112,7 +111,7 @@ const Profile = () => {
         </div>
         <div className="flex w-full flex-col gap-[30px] md:pl-[15px]">
           <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
-            <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5 ">
+            <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
               <FileUploader
                 setDataUri={(dataUri) => {
                   if (dataUri !== null) {
@@ -177,14 +176,14 @@ const Profile = () => {
                 {/* Input or Dropdown */}
                 {field.name === "countryCode" ? (
                   <div className="country-dropdown-container">
-                  <ReactCountryDropdown
-                    defaultCountry={userArgs.countryCode}
-                    onSelect={(val) => {
-                      setUserArgs({ ...userArgs, countryCode: val.code });
-                      handleBlur("countryCode", val.code);
-                    }}
-                  />
-                </div>
+                    <ReactCountryDropdown
+                      defaultCountry={userArgs.countryCode}
+                      onSelect={(val) => {
+                        setUserArgs({ ...userArgs, countryCode: val.code });
+                        handleBlur("countryCode", val.code);
+                      }}
+                    />
+                  </div>
                 ) : field.name !== "imageUri" ? (
                   <input
                     className="sm:text-md w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-sm text-gray-400 placeholder-transparent outline-none"

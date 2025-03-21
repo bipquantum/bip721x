@@ -1,4 +1,4 @@
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { Principal } from "@dfinity/principal";
 
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { backendActor } from "../../actors/BackendActor";
 
-import Select, { GroupBase, OptionProps } from "react-select";
+import Select, { ActionMeta, GroupBase, MultiValue, OptionProps } from "react-select";
 import { components } from "react-select";
 
 import { CiImageOn } from "react-icons/ci";
@@ -120,11 +120,11 @@ const CustomMultiValue = (
 };
 
 const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
+
   const navigate = useNavigate();
-
   const { addChat } = useChatHistory();
-
   const [createIp, setCreateIp] = useState<boolean>(false);
+  const toastShownRef = useRef(false);
 
   const onIpCreated = (ipId: bigint | undefined) => {
     setCreateIp(false);
@@ -327,11 +327,15 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   });
 
   useEffect(() => {
-    if (queriedUser === undefined || queriedUser?.length === 0) {
+    if (
+      (queriedUser === undefined || queriedUser?.length === 0) &&
+      !toastShownRef.current
+    ) {
+      toastShownRef.current = true; // Set flag to true after first toast
       navigate("/profile", { state: { redirect: pathname } });
       toast.warn("Please add user");
     }
-  }, [queriedUser, pathname]);
+  }, [queriedUser, pathname, navigate]);
 
   if (!queriedUser || queriedUser.length === 0) return null;
 
@@ -402,13 +406,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   Preview{" "}
                 </p>
                 <div
-                  className={`${dataUri ? "w-fit" : "w-[360px]"} h-full max-h-[180px] rounded-lg bg-gray-800 dark:bg-gray-200`}
+                  className={`${dataUri ? "w-fit" : "w-[360px]"} h-[180px] rounded-lg bg-gray-800 dark:bg-gray-200`}
                 >
                   {
                     dataUri && (
                       <FilePreview
                         dataUri={dataUri}
-                        className="max-h-[180px] w-auto rounded-lg"
+                        className="h-[180px] w-auto rounded-lg"
                       />
                     )
                   }
@@ -629,18 +633,18 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                               );
                             })(),
                         )}
-                        onChange={(selectedOptions: SelectValue) =>
+                        onChange={(newValue: MultiValue<Option | Option[]>, actionMeta: ActionMeta<Option | Option[]>) => {
+                          const selectedOptions = newValue as Option[];  // Assuming multiple options
                           setIntPropInput({
                             ...intPropInput,
-                            intPropLicenses: (selectedOptions as Option[]).map(
-                              (option) =>
-                                intPropLicenseFromIndex(Number(option.value)),
+                            intPropLicenses: selectedOptions.map(
+                              (option) => intPropLicenseFromIndex(Number(option.value))
                             ),
-                          })
-                        }
+                          });
+                        }}
                         options={IP_LICENSE_OPTIONS}
                         placeholder="Select options"
-                        primaryColor="#ffffff"
+                        // primaryColor="#ffffff"
                       />
                     </div>
                   </div>

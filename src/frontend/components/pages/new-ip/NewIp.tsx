@@ -1,37 +1,39 @@
-import { toast } from "react-toastify";
-import { Principal } from "@dfinity/principal";
+// NOT IN USE
 
-import { backendActor } from "../../actors/BackendActor";
-import { useLocation, useNavigate } from "react-router-dom";
-import NewIPModal from "./NewIpModal";
-import { useEffect } from "react";
+// import { toast } from "react-toastify";
+// import { Principal } from "@dfinity/principal";
 
-interface NewIPProps {
-  principal: Principal | undefined;
-  isOpen: boolean;
-  onClose: (ipId: bigint | undefined) => void;
-}
+// import { backendActor } from "../../actors/BackendActor";
+// import { useLocation, useNavigate } from "react-router-dom";
+// import NewIPModal from "./NewIpModal";
+// import { useEffect } from "react";
 
-const NewIP: React.FC<NewIPProps> = ({ principal, isOpen, onClose }) => {
+// interface NewIPProps {
+//   principal: Principal | undefined;
+//   isOpen: boolean;
+//   onClose: (ipId: bigint | undefined) => void;
+// }
 
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
+// const NewIP: React.FC<NewIPProps> = ({ principal, isOpen, onClose }) => {
 
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: (principal ? [principal] : []) as [Principal],
-  });
+//   const navigate = useNavigate();
+//   const { pathname } = useLocation();
 
-  useEffect(() => {
-    if (isOpen && (queriedUser === undefined || queriedUser?.length === 0)) {
-      navigate("/profile", { state: { redirect: pathname }});
-      toast.warn("Please add user");
-    }
-  }, [isOpen, queriedUser, navigate, pathname]);
+//   const { data: queriedUser } = backendActor.useQueryCall({
+//     functionName: "get_user",
+//     args: (principal ? [principal] : []) as [Principal],
+//   });
 
-  if (!queriedUser || queriedUser.length === 0) return null;
+//   useEffect(() => {
+//     if (isOpen && (queriedUser === undefined || queriedUser?.length === 0)) {
+//       navigate("/profile", { state: { redirect: pathname }});
+//       // toast.warn("Please add user");
+//     }
+//   }, [isOpen, queriedUser, navigate, pathname]);
 
-  return <NewIPModal user={queriedUser[0]} isOpen={isOpen} onClose={onClose}/>
-};
+//   if (!queriedUser || queriedUser.length === 0) return null;
 
-export default NewIP;
+//   return <NewIPModal user={queriedUser[0]} isOpen={isOpen} onClose={onClose}/>
+// };
+
+// export default NewIP;
