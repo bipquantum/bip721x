@@ -211,7 +211,7 @@ const Wallet = ({ principal }: WalletProps) => {
     functionName: "unlist_int_prop",
   });
 
-  const [triggered,setTriggered] = useState(true);
+  const [triggered, setTriggered] = useState(true);
   const triggerList = (intPropId: bigint, sellPrice: bigint) => {
     const info: ApprovalInfo = {
       memo: [],
@@ -241,7 +241,7 @@ const Wallet = ({ principal }: WalletProps) => {
                 console.error(result ? result["err"] : "No result");
               } else {
                 toast.success("Success");
-                setTriggered(!triggered)
+                setTriggered(!triggered);
                 // TODO : Find a way to integrate this here and on bips component
                 // getE8sPrice().finally(() => {
                 //   const details = updateBipDetails();
@@ -289,8 +289,8 @@ const Wallet = ({ principal }: WalletProps) => {
               console.error(result ? result["err"] : "No result");
             } else {
               toast.success("Success");
-              setTriggered(!triggered)
-              
+              setTriggered(!triggered);
+
               // getE8sPrice().finally(() => {
               //   updateBipDetails();
               // });
@@ -307,8 +307,8 @@ const Wallet = ({ principal }: WalletProps) => {
   };
 
   return (
-    <div className="flex max-h-[85vh] w-full flex-col items-center overflow-y-auto px-4 py-[15px] text-black dark:text-white">
-      <div className="flex w-full flex-row items-center justify-between px-4 py-6">
+    <div className="flex h-auto w-full flex-col items-center overflow-y-auto px-4 py-[15px] text-black dark:text-white">
+      <div className="flex w-full flex-row items-center justify-between px-4 pb-6">
         {isGrid ? (
           <p className="font-momentum text-xl font-extrabold text-black dark:text-white">
             Recently Bought
@@ -350,18 +350,19 @@ const Wallet = ({ principal }: WalletProps) => {
           </button>
         </div>
       </div>
-
-      <BipList
-        scrollableClassName={"flex flex-col w-full gap-[10px]"}
-        principal={principal}
-        fetchBips={fetchBips}
-        queryDirection={queryDirection}
-        isGrid={isGrid}
-        BipItemComponent={BIPDetails}
-        handleListClick={handleListClick}
-        handleUnlistClick={handleUnlistClick}
-        triggered={triggered}
-      />
+      <div className="pb-[80px]">
+        <BipList
+          scrollableClassName={"flex flex-col w-full gap-[10px]"}
+          principal={principal}
+          fetchBips={fetchBips}
+          queryDirection={queryDirection}
+          isGrid={isGrid}
+          BipItemComponent={BIPDetails}
+          handleListClick={handleListClick}
+          handleUnlistClick={handleUnlistClick}
+          triggered={triggered}
+        />
+      </div>
 
       <ModalPopup
         onConfirm={() => {

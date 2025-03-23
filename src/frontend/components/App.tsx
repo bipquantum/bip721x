@@ -55,7 +55,7 @@ function App() {
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex h-screen w-full flex-col sm:flex-row bg-background dark:bg-background-dark">
+      <div className="flex h-screen w-full flex-col bg-background dark:bg-background-dark sm:flex-row">
         <AgentProvider withProcessEnv>
           <BackendActorProvider>
             <BqcLedgerActorProvider>
@@ -63,9 +63,9 @@ function App() {
                 <BrowserRouter>
                   <ChatHistoryProvider>
                     <BalanceProvider>
-                        <AirdropBannerProvider>
-                          <AppContent />
-                        </AirdropBannerProvider>
+                      <AirdropBannerProvider>
+                        <AppContent />
+                      </AirdropBannerProvider>
                     </BalanceProvider>
                   </ChatHistoryProvider>
                 </BrowserRouter>
@@ -79,7 +79,7 @@ function App() {
 }
 
 function AppContent() {
-  const location = useLocation(); // now that it's inside BrowserRouter, it should work
+  const location = useLocation();
   const { pathname } = location;
 
   return (
@@ -87,16 +87,37 @@ function AppContent() {
       <ToastContainer />
       <AirdropBanner />
       <NavBar />
-      <div className="flex h-full w-full flex-1 flex-col justify-end">
-        {pathname !== "/login" && <TopBar />}
-        {pathname !== "/login" && <MobileHeader />}
-        <div className="flex h-full flex-row items-start justify-start">
-          <div className="flex h-full w-fit items-center justify-center">
-            <ChatHistory />
+
+      {/* Main Layout Container */}
+      <div className="flex h-screen w-full flex-col sm:flex-row">
+        {/* Fixed Top Bar for Mobile */}
+        {pathname !== "/login" && (
+          <div className="fixed left-0 top-0 z-50 w-full block sm:hidden min-h-[50px]">
+            <MobileHeader />
           </div>
-          <Router />
+        )}
+
+        {/* Main Content Wrapper */}
+        <div className="flex flex-1 flex-col overflow-auto pb-[var(--mobile-nav-height)] pt-[var(--mobile-header-height)] sm:pb-0 sm:pt-0">
+          {pathname !== "/login" && (
+            <div className="">
+              <TopBar />
+            </div>
+          )}
+          <div className="flex h-full flex-row items-start justify-start">
+            <div className="flex h-full w-fit items-center justify-center">
+              <ChatHistory />
+            </div>
+            <Router />
+          </div>
         </div>
-        {pathname !== "/login" && <MobileNavBar />}
+
+        {/* Fixed Bottom Nav for Mobile */}
+        {pathname !== "/login" && (
+          <div className="fixed bottom-0 left-0 z-50 w-full sm:hidden">
+            <MobileNavBar />
+          </div>
+        )}
       </div>
     </>
   );

@@ -1,8 +1,4 @@
-import LogoSvg from "../../assets/logo_beta.png";
-import MessagesSvg from "../../assets/messages.svg";
 
-import ChatHistoryBar from "./ChatHistoryBar";
-import { ModalPopup } from "../common/ModalPopup";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 

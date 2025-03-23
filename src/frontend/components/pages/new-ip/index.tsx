@@ -344,7 +344,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   };
 
   return (
-    <div className={`relative flex h-full w-full items-center justify-center`}>
+    <div className={`relative flex h-full w-full md:items-center justify-center `}>
       {step === 1 && (
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
@@ -386,7 +386,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         </div>
       )}
 
-      <div className="mx-[10px] flex h-[70vh] w-full flex-col gap-[30px] overflow-y-auto rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85vh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
+      <div className="mx-[10px] flex h-[80vh] w-full flex-col gap-[30px] overflow-y-auto rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85vh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
         {step === 1 && (
           <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden">
             <div className="flex flex-col items-center gap-[15px]">

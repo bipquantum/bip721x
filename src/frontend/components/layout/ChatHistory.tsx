@@ -23,7 +23,7 @@ const ChatHistory = () => {
   return (
     <div>
       <div
-        className={`hidden h-[80vh] mx-[20px] rounded-[40px] w-64 overflow-auto bg-white dark:bg-background-dark text-black dark:text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
+        className={`mx-[20px] hidden h-[80vh] w-64 overflow-auto rounded-[40px] bg-white text-black transition-all duration-200 dark:bg-background-dark dark:text-white ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
       >
         <ChatHistoryBar onChatSelected={() => {}} />
       </div>
@@ -32,6 +32,9 @@ const ChatHistory = () => {
           setShowChatHistory(false);
         }}
         isOpen={showChatHistory}
+        onConfirm={() => {
+          setShowChatHistory(false);
+        }}
       >
         <ChatHistoryBar onChatSelected={() => setShowChatHistory(false)} />
       </ModalPopup>

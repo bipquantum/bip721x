@@ -12,17 +12,12 @@ import FilePreview from "../../common/FilePreview";
 import AIBotImg from "../../../assets/ai-bot.png";
 import { Principal } from "@dfinity/principal";
 import ListingDetails from "../../common/ListingDetails";
-import AirdropEligible from "../../common/AirdropEligible";
 
 import { IoIosPricetags } from "react-icons/io";
 import {
-  TbCheck,
-  TbCross,
   TbEye,
-  TbPencil,
   TbShare,
   TbTrash,
-  TbX,
 } from "react-icons/tb";
 
 interface BipItemProps {
@@ -118,7 +113,7 @@ const BipItem: React.FC<BipItemProps> = ({
                   className={`flex w-full flex-row gap-2`}
                 >
                   <div className="h-[40px] w-[40px] overflow-hidden rounded-full bg-blue-500">
-                    <img src={intProp.ok.V1.dataUri} alt="" />
+                    <img src={intProp.ok.V1.dataUri} alt="" className="h-[40px] w-[40px] object-cover object-center" />
                   </div>
                   <div
                     className={`${location.pathname === "/marketplace" ? "flex w-full flex-row items-center justify-between" : "flex w-fit flex-col"}`}

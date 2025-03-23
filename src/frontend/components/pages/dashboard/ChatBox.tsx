@@ -1,9 +1,6 @@
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { ChatElem, ChatAnswerState, AiPrompt } from "./types";
-import NewIP from "../new-ip/NewIp";
 import ProfileSvg from "../../../assets/profile.png";
-import AIBotImg from "../../../assets/ai-bot.png";
-import CopySvg from "../../../assets/copy.svg";
 
 import { useEffect, useRef, useState } from "react";
 import { Principal } from "@dfinity/principal";
