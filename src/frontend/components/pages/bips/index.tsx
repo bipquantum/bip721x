@@ -12,7 +12,6 @@ import { useState } from "react";
 import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { dateToTime, EQueryDirection } from "../../../utils/conversions";
 import { BIP_ITEMS_PER_QUERY } from "../../constants";
-import BipMarketplace from "./BipMarketplace";
 import { ModalPopup } from "../../common/ModalPopup";
 import { bip721LedgerActor } from "../../actors/Bip721LedgerActor";
 import { RevokeTokenApprovalArg } from "../../../../declarations/bip721_ledger/bip721_ledger.did";
@@ -132,12 +131,12 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   };
 
   return (
-    <div className="flex h-[82vh] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto pt-2 text-black dark:text-white sm:items-start sm:gap-y-4 md:h-[89vh]">
+    <div className="flex md:h-[89dvh] h-[calc(100dvh-140px)] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto pt-2 pb-[20px] text-black dark:text-white sm:items-start sm:gap-y-4">
       <BipsHeader
         sort={queryDirection}
         changeQueryDirection={changeQueryDirection}
       />
-      <div className="ml-auto flex w-fit flex-col items-center justify-between gap-2 px-2 sm:flex-row sm:px-8">
+      <div className="ml-auto flex w-full md:w-fit flex-col items-center justify-between gap-2 px-2 sm:flex-row sm:px-8">
         {principal !== undefined && !principal.isAnonymous() && (
           <Balance principal={principal} />
         )}

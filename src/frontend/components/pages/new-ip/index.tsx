@@ -386,7 +386,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         </div>
       )}
 
-      <div className="mx-[10px] flex h-[80vh] w-full flex-col gap-[30px] overflow-y-auto rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85vh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
+      <div className="mx-[10px] flex md:h-[80dvh] h-[calc(100dvh-160px)] w-full flex-col gap-[30px] overflow-y-auto rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85dvh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
         {step === 1 && (
           <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden">
             <div className="flex flex-col items-center gap-[15px]">

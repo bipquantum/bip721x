@@ -68,7 +68,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
   };
   return (
     <div className="bg-white/20 backdrop-blur-[10px] flex w-full flex-col justify-between text-black dark:text-white">
-      <div className="h-[70vh] w-full overflow-auto px-4 py-6">
+      <div className="h-[70dvh] w-full overflow-auto px-4 py-6">
         <div className="flex flex-row items-center justify-between">
           <p className="text-xl font-bold">Chat History</p>
           <img
@@ -175,7 +175,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
         </Modal>
       </div>
       <button
-        className="flex h-[10vh] w-full cursor-pointer items-center justify-center gap-4"
+        className="flex h-[10dvh] w-full cursor-pointer items-center justify-center gap-4"
         onClick={newChat}
       >
         <img

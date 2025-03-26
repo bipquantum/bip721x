@@ -103,7 +103,7 @@ const DetailsView = () => {
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center overflow-hidden font-semibold text-black dark:text-white">
-      <div className="h-[80vh] w-fit overflow-hidden rounded-[40px] bg-white px-[20px] py-[40px] dark:bg-white/10">
+      <div className="h-[80dvh] w-fit overflow-hidden rounded-[40px] bg-white px-[20px] py-[40px] dark:bg-white/10">
         <div className="flex h-full flex-col items-center gap-[40px] overflow-y-auto">
           {userArgs.imageUri !== "" ? (
             FilePreview({

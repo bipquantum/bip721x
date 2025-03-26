@@ -23,7 +23,7 @@ const ChatHistory = () => {
   return (
     <div>
       <div
-        className={`mx-[20px] hidden h-[80vh] w-64 overflow-auto rounded-[40px] bg-white text-black transition-all duration-200 dark:bg-background-dark dark:text-white ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
+        className={`mx-[20px] hidden h-[80dvh] w-64 overflow-auto rounded-[40px] bg-white text-black transition-all duration-200 dark:bg-background-dark dark:text-white ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
       >
         <ChatHistoryBar onChatSelected={() => {}} />
       </div>

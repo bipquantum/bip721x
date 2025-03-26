@@ -32,7 +32,6 @@ import { IoIosPricetags, IoMdEye } from "react-icons/io";
 import { IoEyeOutline } from "react-icons/io5";
 import CountdownTimer from "../../common/CountdownTimer";
 import BipList from "./BipList";
-import BipMarketplace from "./BipMarketplace";
 import fund from "../../../assets/fund.svg";
 
 interface IPItemProps {
@@ -142,7 +141,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               </div>
             </div>
           ) : (
-            <div className="flex h-full max-h-[80vh] w-full flex-col gap-[40px]">
+            <div className="flex h-full max-h-[80dvh] w-full flex-col gap-[40px]">
               <div className="flex h-fit w-full flex-col items-start justify-between gap-[30px] lg:flex-row">
                 <div className="flex w-full flex-col gap-[18px] lg:w-3/12">
                   <div className="h-auto w-full p-2">

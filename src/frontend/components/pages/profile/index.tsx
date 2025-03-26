@@ -104,8 +104,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center overflow-hidden overflow-y-auto font-semibold text-black dark:text-white">
-      <div className="flex h-[80vh] w-full flex-col gap-[30px] overflow-auto px-[20px]">
+    <div className="flex h-full w-full flex-col items-center md:justify-center overflow-hidden overflow-y-auto font-semibold text-black dark:text-white">
+      <div className="flex md:h-[80dvh] h-[calc(100dvh-140px)] md:pb-0 pb-[10px] w-full flex-col gap-[30px] overflow-auto px-[20px]">
         <div className="hidden h-[100px] w-full overflow-hidden rounded-t-[20px]">
           <img src={profileBg} alt="" className="h-full w-full object-center" />
         </div>
