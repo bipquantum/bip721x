@@ -171,7 +171,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     >
                       Generate Certificate
                     </button>
-                    <button className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white">
+                    <button
+                      onClick={() => openCertificateInNewTab()}
+                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white"
+                    >
                       View Certificate
                     </button>
                   </div>

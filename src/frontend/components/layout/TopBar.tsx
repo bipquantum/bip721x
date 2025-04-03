@@ -93,12 +93,12 @@ const TopBar = () => {
             {user && user.imageUri ? (
               <FilePreview
                 dataUri={user.imageUri}
-                className="h-[48px] rounded-full"
+                className="h-[48px] w-[48px] object-cover object-center rounded-full"
               />
             ) : (
               <img
                 src={ProfileSvg}
-                className="h-[48px] rounded-full"
+                className="h-[48px] w-[48px] object-cover object-center rounded-full"
                 alt="Profile"
               />
             )}
