@@ -42,6 +42,12 @@ const BipItem: React.FC<BipItemProps> = ({
     args: [{ token_id: intPropId }],
   });
 
+  const authorPrincipal = intProp && !("err" in intProp) ? intProp.ok.V1.author : null;
+  const { data: author } = backendActor.useQueryCall({
+    functionName: "get_user",
+    args: [authorPrincipal ?? Principal.anonymous()],
+  });
+
   const {} = backendActor.useQueryCall({
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
@@ -123,7 +129,9 @@ const BipItem: React.FC<BipItemProps> = ({
                         {intProp.ok.V1.title}
                       </p>
                       <p className="text-xs text-black dark:text-white">
-                        By @ User Name
+                        By @ {author === undefined || fromNullableExt(author) === undefined ? 
+                          "Anonymous" : 
+                          fromNullableExt(author)?.nickName}
                       </p>
                     </div>
                     <div className="w-fit pt-1">
