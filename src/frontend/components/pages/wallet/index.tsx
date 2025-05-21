@@ -370,6 +370,7 @@ const Wallet = ({ principal }: WalletProps) => {
         }}
         isOpen={isListModalOpen}
         onClose={() => setIsListModalOpen(false)}
+        isLoading={isLoading}
       >
         <div className="flex flex-col space-y-4">
           <h2 className="text-xl font-bold text-black dark:text-white">
@@ -398,6 +399,7 @@ const Wallet = ({ principal }: WalletProps) => {
         }}
         isOpen={isUnlistModalOpen}
         onClose={() => setIsUnlistModalOpen(false)}
+        isLoading={isLoading}
       >
         <div className="flex flex-col space-y-4">
           <h2 className="text-xl font-bold text-black dark:text-white">
