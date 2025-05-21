@@ -81,7 +81,14 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       setPrice(price1 || null);
       setItemPrice(price1 || "");
     }
-  }, [setItemPrice, intPropId, triggered]);
+  }, [setItemPrice, intPropId, triggered, e8sPrice]);
+
+  useEffect(() => {
+    if (triggered) {
+      getE8sPrice();
+    }
+  }, [triggered]);
+
   const triggerBuy = (intPropId: bigint) => {
     if (principal === undefined || principal.isAnonymous()) {
       login();
@@ -152,12 +159,15 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         // To unlist
         return (
           <div className="mx-auto flex w-9/12 flex-row items-center justify-between gap-4">
-            {/* <div className="text-lg font-bold">{getListedPrice()} bQC</div> */}
             <div className="w-full">
               <VioletButton
                 type={"unlist"}
                 isLoading={isLoading}
-                onClick={() => handleUnlistClick(intPropId)}
+                onClick={() => {
+                  setIsLoading(true);
+                  handleUnlistClick(intPropId);
+                  getE8sPrice();
+                }}
               >
                 <p
                   className="flex flex-row gap-1 text-white"
@@ -199,7 +209,11 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
               <VioletButton
                 type={"list"}
                 isLoading={isLoading}
-                onClick={() => handleListClick(intPropId)}
+                onClick={() => {
+                  setIsLoading(true);
+                  handleListClick(intPropId);
+                  getE8sPrice();
+                }}
               >
                 <p
                   className="flex flex-row gap-1 text-white"
