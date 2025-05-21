@@ -159,6 +159,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
         }}
         isOpen={isUnlistModalOpen}
         onClose={() => setIsUnlistModalOpen(false)}
+        isLoading={isLoading}
       >
         <div className="flex flex-col space-y-4">
           <h2 className="text-xl font-bold text-black dark:text-white">
