@@ -19,12 +19,8 @@ interface BipsProps {
   BipItemComponent?: React.ComponentType<{
     intPropId: bigint;
     principal: Principal;
-    handleListClick: (bipId: bigint) => void;
-    handleUnlistClick: (bipId: bigint) => void;
   }>;
   isGrid?: boolean;
-  handleListClick: (bipId: bigint) => void;
-  handleUnlistClick: (bipId: bigint) => void;
   triggered?: boolean;
 }
 
@@ -35,8 +31,6 @@ const BipList: React.FC<BipsProps> = ({
   isGrid,
   queryDirection,
   BipItemComponent = BipItem,
-  handleListClick,
-  handleUnlistClick,
   triggered,
 }) => {
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
@@ -97,9 +91,6 @@ const BipList: React.FC<BipsProps> = ({
               principal={principal}
               intPropId={intPropId}
               key={intPropId}
-              handleListClick={handleListClick}
-              handleUnlistClick={handleUnlistClick}
-              triggered={triggered}
             />
           ))}
         </div>
@@ -114,9 +105,6 @@ const BipList: React.FC<BipsProps> = ({
               principal={principal}
               intPropId={intPropId}
               key={intPropId}
-              handleListClick={handleListClick}
-              handleUnlistClick={handleUnlistClick}
-              triggered={triggered}
             />
           ))}
         </div>

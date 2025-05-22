@@ -8,6 +8,7 @@ import BipCertificateTemplate from "../../../assets/bIP_certificate_editable.pdf
 import { toDataURL } from 'qrcode';
 import { backendActor } from "../../actors/BackendActor";
 import { IntProp, User } from "../../../../declarations/backend/backend.did";
+import SpinnerSvg from "../../../assets/spinner.svg";
 import { formatDate, intPropLicenseToString, intPropTypeToString, timeToDate } from "../../../utils/conversions";
 import { fromNullable } from "@dfinity/utils";
 
@@ -175,9 +176,7 @@ const CertificatePage = () => {
       error !== undefined ? <div className="text-center" style={{ padding: "100px" }}>
         {error}
       </div> :
-      !pdfUrl ? <div className="text-center" style={{ padding: "100px" }}>
-        Loading...
-      </div> : <iframe src={pdfUrl} width="100%" height="100%" />
+      !pdfUrl ? <img src={SpinnerSvg} alt="Loading certificate..." /> : <iframe src={pdfUrl} width="100%" height="100%" />
     }
   </div>
 };

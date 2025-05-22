@@ -13,30 +13,24 @@ import AIBotImg from "../../../assets/ai-bot.png";
 import { Principal } from "@dfinity/principal";
 import ListingDetails from "../../common/ListingDetails";
 
-import { IoIosPricetags } from "react-icons/io";
 import {
   TbEye,
   TbShare,
   TbTrash,
 } from "react-icons/tb";
+import UserImage from "../../common/UserImage";
 
 interface BipItemProps {
   principal: Principal | undefined;
   intPropId: bigint;
-  handleListClick: (bipId: bigint) => void
-  handleUnlistClick: (bipId: bigint) => void
-  triggered?:boolean;
 }
 
 const BipItem: React.FC<BipItemProps> = ({
   intPropId,
   principal,
-  handleListClick,
-  handleUnlistClick,
-  triggered
 }) => {
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
-  const [itemPrice, setitemPrice] = useState<string>("");
+
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
@@ -57,6 +51,7 @@ const BipItem: React.FC<BipItemProps> = ({
   });
 
   const location = useLocation();
+
   return (
     <>
       {intProp === undefined ? (
@@ -118,9 +113,7 @@ const BipItem: React.FC<BipItemProps> = ({
                 <div
                   className={`flex w-full flex-row gap-2`}
                 >
-                  <div className="h-[40px] w-[40px] overflow-hidden rounded-full bg-blue-500">
-                    <img src={intProp.ok.V1.dataUri} alt="" className="h-[40px] w-[40px] object-cover object-center" />
-                  </div>
+                  <UserImage principal={intProp.ok.V1.author}/>
                   <div
                     className={`${location.pathname === "/marketplace" ? "flex w-full flex-row items-center justify-between" : "flex w-fit flex-col"}`}
                   >
@@ -152,25 +145,14 @@ const BipItem: React.FC<BipItemProps> = ({
                     </div>
                   </div>
                 </div>
-                {location.pathname !== "/marketplace" && itemPrice && (
-                  <div className="flex w-4/12 flex-row items-center gap-1 p-1 text-black dark:text-white">
-                    <IoIosPricetags className="text-sm md:text-[22px]" />
-                    <p className="text-nowrap text-sm md:text-[22px]">{itemPrice} BQC</p>
-                  </div>
-                )}
               </div>
             </div>
             <div className="py-2">
               {owner && (
                 <ListingDetails
-                  setItemPrice={setitemPrice}
                   principal={principal}
                   owner={owner}
                   intPropId={intPropId}
-                  updateBipDetails={() => {}}
-                  handleListClick={handleListClick}
-                  handleUnlistClick={handleUnlistClick}
-                  triggered={triggered}
                 />
               )}
             </div>

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import ReactDOM from "react-dom";
+import React from "react";
 
 interface ModalPopupProps {
   isOpen: boolean;
@@ -17,61 +18,48 @@ export const ModalPopup: React.FC<ModalPopupProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-50 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
     >
-      <div className="flex min-h-screen items-center justify-center p-2 text-center sm:block sm:p-0">
-        {/* Removed click handler from this overlay */}
-        <div className="fixed inset-0 transition-opacity">
-          <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-        </div>
-
-        <span
-          className="hidden sm:inline-block sm:h-screen sm:align-middle"
-          aria-hidden="true"
-        >
-          &#8203;
-        </span>
-
-        <div className="inline-block transform overflow-hidden rounded-lg bg-background text-left align-middle shadow-xl transition-all dark:bg-[#2F2F2F] dark:text-white w-fit">
-          <div className="bg-background p-2 dark:bg-[#2F2F2F] dark:text-white sm:ml-4 sm:p-6 sm:text-left md:ml-0">
-            {children}
-          </div>
-          <div className="items-center justify-center gap-6 bg-background px-4 py-3 dark:bg-[#2F2F2F] sm:flex sm:flex-row sm:px-6 pb-6">
-            <button
-              type="button"
-              className={`inline-flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm sm:ml-3 sm:w-auto sm:text-sm ${
-                isLoading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-gradient-to-t from-primary to-secondary'
-              }`}
-              onClick={onConfirm}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  <span>Processing...</span>
-                </div>
-              ) : (
-                'Yes, Confirm'
-              )}
-            </button>
-            <button
-              type="button"
-              className="inline-flex w-full justify-center rounded-md border border-black px-4 py-2 text-base font-medium text-black shadow-sm dark:border-white dark:text-white sm:ml-3 sm:w-auto sm:text-sm"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              No, Cancel
-            </button>
-          </div>
+      <div className="relative mx-auto my-8 w-full max-w-lg rounded-lg bg-background p-6 text-left shadow-xl dark:bg-[#2F2F2F] dark:text-white">
+        {/* Modal content */}
+        <div className="mb-4">{children}</div>
+        <div className="flex justify-end gap-4">
+          <button
+            type="button"
+            className={`inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm ${
+              isLoading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-t from-primary to-secondary"
+            }`}
+            onClick={onConfirm}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>Processing...</span>
+              </div>
+            ) : (
+              "Yes, Confirm"
+            )}
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md border border-black px-4 py-2 text-base font-medium text-black dark:border-white dark:text-white"
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            No, Cancel
+          </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
+
