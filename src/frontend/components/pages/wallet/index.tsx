@@ -2,57 +2,32 @@ import { Principal } from "@dfinity/principal";
 import { backendActor } from "../../actors/BackendActor";
 import {
   EQueryDirection,
-  formatDate,
   fromNullableExt,
   intPropLicenseToString,
   intPropTypeToString,
-  timeToDate,
 } from "../../../utils/conversions";
-import CertificateButton from "../bips/CertificateButton";
 import ListingDetails from "../../common/ListingDetails";
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { Link } from "react-router-dom";
 import { toNullable } from "@dfinity/utils";
 import BipList from "../bips/BipList";
 import { useEffect, useState } from "react";
 import { IoGridOutline, IoListOutline } from "react-icons/io5";
-import FilePreview from "../../common/FilePreview";
 import {
-  TbCheck,
   TbEye,
-  TbPencil,
   TbShare,
   TbTrash,
-  TbX,
 } from "react-icons/tb";
 import UserNickName from "../../common/UserNickname";
 import AiBot from "../../../assets/ai-bot.png";
 
-import { ModalPopup } from "../../common/ModalPopup";
-import { NumericFormat } from "react-number-format";
-import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
-import { dateToTime, fromE8s, toE8s } from "../../../utils/conversions";
-import { bip721LedgerActor } from "../../actors/Bip721LedgerActor";
-import Login from "../login";
-import {
-  ApprovalInfo,
-  RevokeTokenApprovalArg,
-} from "../../../../declarations/bip721_ledger/bip721_ledger.did";
-import { canisterId } from "../../../../declarations/backend";
-import { toast } from "react-toastify";
-
 interface BIPDetailsProps {
   intPropId: bigint;
   principal: Principal;
-  handleListClick: (bipId: bigint) => void;
-  handleUnlistClick: (bipId: bigint) => void;
 }
 
 const BIPDetails: React.FC<BIPDetailsProps> = ({
   intPropId,
   principal,
-  handleListClick,
-  handleUnlistClick,
 }) => {
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
@@ -121,9 +96,6 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({
           principal={principal}
           owner={principal}
           intPropId={intPropId}
-          updateBipDetails={() => {}}
-          handleListClick={handleListClick}
-          handleUnlistClick={handleUnlistClick}
         />
       </div>
       <div className="col-span-1 flex w-fit flex-row items-center justify-center gap-2">
@@ -147,13 +119,9 @@ interface WalletProps {
 const take: [] | [bigint] = [BigInt(5)];
 
 const Wallet = ({ principal }: WalletProps) => {
-  const [isListModalOpen, setIsListModalOpen] = useState(false);
-  const [selectedBipId, setSelectedBipId] = useState<bigint>(BigInt(0));
-  const [isUnlistModalOpen, setIsUnlistModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
   const [selection, setSelection] = useState("owned");
   const [isGrid, setIsGrid] = useState(true);
-  const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
 
   if (principal === undefined) {
     console.error("Principal is undefined");
@@ -185,126 +153,7 @@ const Wallet = ({ principal }: WalletProps) => {
     };
   }, []);
 
-  const handleListClick = (bipId: bigint) => {
-    setSelectedBipId(bipId);
-    setIsListModalOpen(true);
-  };
-
-  const handleUnlistClick = (bipId: bigint) => {
-    setSelectedBipId(bipId);
-    setIsUnlistModalOpen(true);
-  };
-
-  const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
-    functionName: "icrc37_revoke_token_approvals",
-  });
-
-  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
-    functionName: "icrc37_approve_tokens",
-  });
-
-  const { call: listIntProp } = backendActor.useUpdateCall({
-    functionName: "list_int_prop",
-  });
-
-  const { call: unlistIntProp } = backendActor.useUpdateCall({
-    functionName: "unlist_int_prop",
-  });
-
   const [triggered, setTriggered] = useState(true);
-  const triggerList = (intPropId: bigint, sellPrice: bigint) => {
-    const info: ApprovalInfo = {
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: {
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      },
-      expires_at: [],
-    };
-
-    setIsLoading(true);
-
-    approveBip721Transfer([[{ token_id: intPropId, approval_info: info }]])
-      .then((result) => {
-        if (!result || "Err" in result) {
-          setIsLoading(false);
-          toast.warn("Failed to approve IP transfer");
-          console.error(result ? result["Err"] : "No result");
-        } else {
-          listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
-            (result) => {
-              setIsLoading(false);
-              if (!result || "err" in result) {
-                toast.warn("Failed to list IP");
-                console.error(result ? result["err"] : "No result");
-              } else {
-                toast.success("Success");
-                setTriggered(!triggered);
-                // TODO : Find a way to integrate this here and on bips component
-                // getE8sPrice().finally(() => {
-                //   const details = updateBipDetails();
-                // });
-                setIsListModalOpen(false);
-              }
-            },
-          );
-        }
-      })
-      .catch((e: any) => {
-        setIsLoading(false);
-        console.error(e);
-        toast.warn("Failed to list");
-      });
-  };
-
-  const triggerUnlist = (intPropId: bigint) => {
-    setIsLoading(true);
-
-    const info: RevokeTokenApprovalArg = {
-      token_id: intPropId,
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: [
-        {
-          owner: Principal.fromText(canisterId),
-          subaccount: [],
-        },
-      ],
-    };
-
-    revokeBip721Transfer([[info]])
-      .then((result) => {
-        if (!result || "Err" in result) {
-          setIsLoading(false);
-          toast.warn("Failed to revoke IP transfer");
-          console.error(result ? result["Err"] : "No result");
-        } else {
-          unlistIntProp([{ token_id: intPropId }]).then((result) => {
-            setIsLoading(false);
-            if (!result || "err" in result) {
-              toast.warn("Failed to unlist");
-              console.error(result ? result["err"] : "No result");
-            } else {
-              toast.success("Success");
-              setTriggered(!triggered);
-
-              // getE8sPrice().finally(() => {
-              //   updateBipDetails();
-              // });
-              setIsUnlistModalOpen(false);
-            }
-          });
-        }
-      })
-      .catch((e) => {
-        setIsLoading(false);
-        console.error(e);
-        toast.warn("Failed to unlist");
-      });
-  };
 
   return (
     <div className="flex h-auto w-full flex-col items-center overflow-y-auto px-4 py-[15px] text-black dark:text-white">
@@ -358,55 +207,9 @@ const Wallet = ({ principal }: WalletProps) => {
           queryDirection={queryDirection}
           isGrid={isGrid}
           BipItemComponent={BIPDetails}
-          handleListClick={handleListClick}
-          handleUnlistClick={handleUnlistClick}
           triggered={triggered}
         />
       </div>
-
-      <ModalPopup
-        onConfirm={() => {
-          triggerList(selectedBipId, sellPrice);
-        }}
-        isOpen={isListModalOpen}
-        onClose={() => setIsListModalOpen(false)}
-        isLoading={isLoading}
-      >
-        <div className="flex flex-col space-y-4">
-          <h2 className="text-xl font-bold text-black dark:text-white">
-            Do you want to List your IP?
-          </h2>
-          <NumericFormat
-            className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
-            thousandSeparator=","
-            decimalScale={TOKEN_DECIMALS_ALLOWED}
-            value={Number(fromE8s(sellPrice))}
-            onValueChange={(e) => {
-              setSellPrice(
-                toE8s(
-                  parseFloat(e.value === "" ? "0" : e.value.replace(/,/g, "")),
-                ),
-              );
-            }}
-            suffix="bQC "
-            spellCheck="false"
-          />
-        </div>
-      </ModalPopup>
-      <ModalPopup
-        onConfirm={() => {
-          triggerUnlist(selectedBipId);
-        }}
-        isOpen={isUnlistModalOpen}
-        onClose={() => setIsUnlistModalOpen(false)}
-        isLoading={isLoading}
-      >
-        <div className="flex flex-col space-y-4">
-          <h2 className="text-xl font-bold text-black dark:text-white">
-            Do you want to UnList your IP?
-          </h2>
-        </div>
-      </ModalPopup>
     </div>
   );
 };

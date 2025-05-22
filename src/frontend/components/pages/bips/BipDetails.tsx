@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Principal } from "@dfinity/principal";
 import { Link, useParams } from "react-router-dom";
 import { fromNullable } from "@dfinity/utils";
@@ -12,11 +12,8 @@ import {
   timeToDate,
 } from "../../../utils/conversions";
 import FilePreview from "../../common/FilePreview";
-import UserDetails from "../../common/UserDetails";
 import ListingDetails from "../../common/ListingDetails";
 
-import BipsHeader from "./BipsHeader";
-import CertificateButton from "./CertificateButton";
 import { IntProp } from "../../../../declarations/backend/backend.did";
 
 // @ts-ignore
@@ -30,9 +27,8 @@ import { HiCheckBadge } from "react-icons/hi2";
 import { TbEye, TbHeart, TbTag } from "react-icons/tb";
 import { IoIosPricetags, IoMdEye } from "react-icons/io";
 import { IoEyeOutline } from "react-icons/io5";
-import CountdownTimer from "../../common/CountdownTimer";
-import BipList from "./BipList";
 import fund from "../../../assets/fund.svg";
+import UserImage from "../../common/UserImage";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -59,6 +55,17 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     functionName: "get_int_prop",
     args: [{ token_id: BigInt(intPropId) }],
   });
+
+  const { data: author, call: getAuthor } = backendActor.useQueryCall({
+    functionName: "get_user",
+  });
+
+  useEffect(() => {
+    if (intProp !== undefined && "ok" in intProp) {
+      getAuthor([intProp.ok.V1.author]);
+    }
+  }
+  , [intProp]);
 
   const { call: getOptOwner } = backendActor.useQueryCall({
     functionName: "owner_of",
@@ -143,7 +150,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
           ) : (
             <div className="flex h-full max-h-[80dvh] w-full flex-col gap-[40px]">
               <div className="flex h-fit w-full flex-col items-start justify-between gap-[30px] lg:flex-row">
-                <div className="flex w-full flex-col gap-[18px] lg:w-3/12">
+                <div className="flex w-full flex-col gap-[18px] lg:w-3/12 items-center">
                   <div className="h-auto w-full p-2">
                     <div className="mx-auto w-full rounded-[32px] shadow-[0px_0px_40px_-20px] shadow-primary md:w-fit">
                       {intProp.ok.V1.dataUri && (
@@ -154,8 +161,8 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-[20px]">
-                    <p className="w-full text-center text-xl">
+                  <div className="w-3/4 flex flex-col gap-[20px] items-center">
+                    <p className="w-full flex flex-col text-center text-xl items-center">
                       {intProp.ok.V1.title}
                       {isBanned ? (
                         <div className="text-base text-red-500">
@@ -167,108 +174,116 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </p>
                     <button
                       onClick={() => openCertificateInNewTab()}
-                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary py-[6px] text-center text-[16px] uppercase text-black dark:text-white"
-                    >
-                      Generate Certificate
-                    </button>
-                    <button
-                      onClick={() => openCertificateInNewTab()}
                       className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white"
                     >
                       View Certificate
                     </button>
                   </div>
                 </div>
-                <div className="h-full w-full p-2 lg:w-9/12">
-                  <div className="flex h-full flex-col gap-[15px] rounded-[40px] bg-secondary/10 p-[20px] dark:bg-white/10 md:p-[30px]">
-                    <div className="flex h-fit flex-col gap-[20px]">
-                      <div className="flex flex-row items-center gap-[15px]">
-                        <div className="size-[40px] overflow-hidden rounded-full">
-                          <img src={AiBot} alt="" />
-                        </div>
-                        <div className="flex flex-row items-center gap-1">
-                          <p>UserName</p>
-                          <span>
-                            <HiCheckBadge
-                              size={24}
-                              className="text-green-400"
-                            />{" "}
-                          </span>
-                        </div>
-                        <div className="ml-[10px]">
-                          <button className="rounded-full border border-primary px-4 py-1 text-[14px]">
-                            Follow
-                          </button>
-                        </div>
+                <div className="h-full w-full p-2 lg:w-9/12 flex-col space-y-[15px] rounded-[40px] bg-secondary/10 p-[20px] dark:bg-white/10 md:p-[30px]">
+                  <div className="flex flex-col gap-[20px] rounded-[20px] px-[15px] py-[10px]">
+                    <div className="flex flex-row items-center gap-[15px]">
+                      <UserImage principal={intProp.ok.V1.author} />
+                      <div className="flex flex-row items-center gap-1">
+                        <p>{fromNullableExt(author)?.nickName ?? "Loading..."}</p>
+                        <span>
+                          <HiCheckBadge
+                            size={24}
+                            className="text-green-400"
+                          />{" "}
+                        </span>
                       </div>
-                      <div className="flex flex-col-reverse justify-between gap-[10px] md:flex-row md:items-center">
-                        <div>
-                          <p className="text-[26px]">Elemental #6173</p>
-                          <p className="pb-1 text-xl">
-                            Owned by @
-                            <span className="text-primary">
-                              <UserNickName principal={intProp.ok.V1.author} />
-                            </span>{" "}
-                          </p>
+                      <div className="ml-[10px]">
+                        <button className="rounded-full border border-primary px-4 py-1 text-[14px]">
+                          Follow
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-row justify-between gap-[10px] md:flex-row md:items-center">
+                      <div className="flex flex-col">
+                        <p className="text-[26px]">bIP #{BigInt(intPropId).toString()}</p>
+                        <p className="pb-1 text-xl">
+                          Owned by @
+                          <span className="text-primary">
+                            <UserNickName principal={intProp.ok.V1.author} />
+                          </span>{" "}
+                        </p>
+                      </div>
+                      <div className="flex flex-row gap-6 ml-auto">
+                        <div className="flex items-center gap-1">
+                          <button className="flex size-[40px] items-center justify-center rounded-full bg-white/10">
+                            {" "}
+                            <TbHeart size={20} />{" "}
+                          </button>
+                          <p className="text-sm">31</p>
                         </div>
-                        <div className="flex flex-row gap-6">
-                          <div className="flex items-center gap-1">
-                            <button className="flex size-[40px] items-center justify-center rounded-full bg-white/10">
-                              {" "}
-                              <TbHeart size={20} />{" "}
-                            </button>
-                            <p className="text-sm">31</p>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <button className="flex size-[40px] items-center justify-center rounded-full bg-white/10">
-                              {" "}
-                              <IoEyeOutline size={20} />{" "}
-                            </button>
-                            <p className="text-sm">124</p>
-                          </div>
+                        <div className="flex items-center gap-1">
+                          <button className="flex size-[40px] items-center justify-center rounded-full bg-white/10">
+                            {" "}
+                            <IoEyeOutline size={20} />{" "}
+                          </button>
+                          <p className="text-sm">124</p>
                         </div>
                       </div>
                     </div>
-                    <div className="flex h-full flex-col gap-[20px] rounded-[20px] bg-white dark:bg-background-dark">
-                      <div className="flex flex-row border-b border-black/50 px-[30px] py-[10px] dark:border-white/10">
-                        <div className="flex h-full w-full flex-col items-center justify-between gap-2 py-2 md:flex-row">
-                          <p>Sale ends December 24, 2024 at 6:29 AM</p>
-                          <CountdownTimer hours={0} minutes={52} seconds={0} />
+                  </div>
+                  <div className="flex flex-col gap-[20px] rounded-[20px] bg-white dark:bg-background-dark">
+                    <div className="flex flex-col px-[15px] py-[10px] md:px-[15px]">
+                      <div className="flex h-full w-full flex-row items-start justify-between gap-3 py-2 md:gap-0">
+                        <ul className="w-full space-y-1 text-xs text-gray-500 dark:text-gray-300">
+                          <li>
+                            <span className="font-semibold text-gray-700 dark:text-gray-100">IP Type:</span>{" "}
+                            {intPropTypeToString(intProp.ok.V1.intPropType)}
+                          </li>
+                          <li>
+                            <span className="font-semibold text-gray-700 dark:text-gray-100">Licenses:</span>{" "}
+                            {intProp.ok.V1.intPropLicenses && intProp.ok.V1.intPropLicenses.length > 0
+                              ? intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")
+                              : "N/A"}
+                          </li>
+                          <li>
+                            <span className="font-semibold text-gray-700 dark:text-gray-100">Royalties:</span>{" "}
+                            {intProp.ok.V1.percentageRoyalties ? `${intProp.ok.V1.percentageRoyalties}%` : "N/A"}
+                          </li>
+                          <li>
+                            <span className="font-semibold text-gray-700 dark:text-gray-100">Creation Date:</span>{" "}
+                            {intProp.ok.V1.creationDate
+                              ? formatDate(timeToDate(intProp.ok.V1.creationDate))
+                              : "N/A"}
+                          </li>
+                          <li>
+                            <span className="font-semibold text-gray-700 dark:text-gray-100">Publication:</span>{" "}
+                            {intProp.ok.V1.publishing
+                              ? (() => {
+                                  const pub = fromNullable(intProp.ok.V1.publishing);
+                                  if (!pub) return "N/A";
+                                  const country = getName(pub.countryCode);
+                                  const date = formatDate(timeToDate(pub.date));
+                                  return `${date}, ${country}`;
+                                })()
+                              : "N/A"}
+                          </li>
+                        </ul>
+                        <div className="flex flex-col space-y-2 mb-auto w-full">
+                          {owner && (
+                            <ListingDetails
+                              principal={principal}
+                              owner={owner}
+                              intPropId={BigInt(intPropId)}
+                            />
+                          )}
+                          <BanIntProp
+                            principal={principal}
+                            intPropId={BigInt(intPropId)}
+                          />
                         </div>
                       </div>
-                      <div className="flex flex-col px-[15px] py-[10px] md:px-[30px]">
-                        <div className="flex h-full w-full flex-col items-start justify-between gap-3 py-2 md:gap-0">
-                          <div className="flex flex-col gap-2 md:flex-col">
-                            <p className="flex flex-row items-center gap-2 text-sm text-gray-400 md:text-base">
-                              <span className="text-gray-400">
-                                <TbTag size={20} />
-                              </span>{" "}
-                              Current Price
-                            </p>
-                          </div>
-                          <div className="mt-auto w-full">
-                            {owner && (
-                              <ListingDetails
-                                principal={principal}
-                                owner={owner}
-                                intPropId={BigInt(intPropId)}
-                                updateBipDetails={updateBipDetails}
-                                showRecommendation={true}
-                              />
-                            )}
-                          </div>
-                        </div>
-                        <BanIntProp
-                          principal={principal}
-                          intPropId={BigInt(intPropId)}
-                        />
-                        <div className="flex flex-row gap-[10px]">
-                          <img src={fund} alt="" />
-                          <p className="mt-auto text-sm text-gray-400">
-                            Supports creator This listing ensures the collection
-                            creator receives their suggested earnings.
-                          </p>
-                        </div>
+                      <div className="flex flex-row gap-[10px]">
+                        <img src={fund} alt="" />
+                        <p className="mt-auto text-sm text-gray-400">
+                          Supports creator This listing ensures the collection
+                          creator receives their suggested earnings.
+                        </p>
                       </div>
                     </div>
                   </div>

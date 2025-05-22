@@ -24,9 +24,22 @@ const BanIntProp : React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
     args: [{ id: intPropId }],
   });
 
-  const { call: banIntProp, loading } = backendActor.useUpdateCall({
+  const { call: banIntProp, loading: banLoading } = backendActor.useUpdateCall({
     functionName: "ban_int_prop",
   });
+
+  const { call: unbanIntProp, loading: unbanLoading } = backendActor.useUpdateCall({
+    functionName: "unban_int_prop",
+  });
+
+  const triggerBan = () => {
+    if (isBanned) {
+      unbanIntProp([{ id: intPropId }]).then(() => getIsBanned());
+    }
+    else {
+      banIntProp([{ id: intPropId, ban_author: false }]).then(() => getIsBanned());
+    }
+  }
 
   return (
     principal === undefined || admin === undefined || moderators === undefined || isBanned === undefined ? (
@@ -40,8 +53,8 @@ const BanIntProp : React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
       </div>
     ) : principal === admin || moderators.find((moderator) => moderator.compareTo(principal) === "eq") ? (
       <VioletButton
-        onClick={() => { banIntProp([{ id: intPropId, ban_author: true }]).then(() => getIsBanned()); }}
-        isLoading={loading}
+        onClick={() => { triggerBan(); }}
+        isLoading={banLoading || unbanLoading}
       >
         <span style={{ filter: isBanned ? 'grayscale(100%)' : '' }} >{`${isBanned ? "Unban" : "Ban"} 🚫`}</span>
       </VioletButton>
