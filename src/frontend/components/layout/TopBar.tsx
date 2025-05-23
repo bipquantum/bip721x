@@ -2,13 +2,11 @@ import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../App";
 import { useAuth } from "@ic-reactor/react";
 import { Link, useLocation } from "react-router-dom";
-import ProfileSvg from "../../assets/profile.png";
 import { backendActor } from "../../components/actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../components/constants";
 import { TbBell, TbSearch } from "react-icons/tb";
 import { fromNullable } from "@dfinity/utils";
 import { User } from "../../../declarations/backend/backend.did";
-import FilePreview from "../common/FilePreview";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { MdOutlineLightMode } from "react-icons/md";
 
@@ -51,7 +49,12 @@ const TopBar = () => {
         </div>
         {pathname === "/" && (
           <div className="hidden items-center justify-between gap-4 text-black dark:text-white lg:flex">
-            <Link className="text-base" to={"/about"}>
+            <Link
+              className="text-base"
+              to={"https://3fn5g-wyaaa-aaaap-anzia-cai.icp0.io/about.html"}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               About
             </Link>
             <Link className="text-base" to={"/new"}>
@@ -88,21 +91,6 @@ const TopBar = () => {
               <MdOutlineLightMode size={22} />
             )}
           </button>
-
-          <Link to={"view"} className="hidden items-center gap-2 sm:flex">
-            {user && user.imageUri ? (
-              <FilePreview
-                dataUri={user.imageUri}
-                className="h-[48px] w-[48px] object-cover object-center rounded-full"
-              />
-            ) : (
-              <img
-                src={ProfileSvg}
-                className="h-[48px] w-[48px] object-cover object-center rounded-full"
-                alt="Profile"
-              />
-            )}
-          </Link>
         </div>
       </div>
     </main>

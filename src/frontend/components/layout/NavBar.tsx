@@ -83,7 +83,9 @@ const NavBar = () => {
       darkSvg: supportDark,
       lightSvg: supportLight,
       label: "Support",
-      link: "support",
+      link: "https://3fn5g-wyaaa-aaaap-anzia-cai.icp0.io/help-support.html",
+      target: "_blank",
+      rel: "noopener noreferrer",
     },
   ];
 
@@ -110,6 +112,8 @@ const NavBar = () => {
                     } ${pathname === "/" + item.link ? "active-link" : ""}`}
                     to={item.link}
                     key={index}
+                    target={item.target}
+                    rel={item.rel}
                   >
                     {pathname === "/" + item.link && (
                       <div className="absolute -top-[42.5%] left-[-5px] -z-10 h-full w-[85px] overflow-x-visible">

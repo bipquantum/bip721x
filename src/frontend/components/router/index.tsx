@@ -8,7 +8,6 @@ import Profile from "../pages/profile";
 import Bips from "../pages/bips";
 import Login from "../pages/login";
 import Main from "../pages/main";
-import About from "../pages/about";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
 import WhoAreYou from "../pages/poll";
@@ -70,7 +69,6 @@ const Router = () => {
         }
       />
       <Route path={"/view"} element={<DetailsView />} />
-      <Route path={"/about"} element={<About />} />
       <Route path={"/login"} element={<Login />} />
       <Route path="/bip/:intPropId/certificate" element={<CertificatePage />} />
     </Routes>
