@@ -136,9 +136,22 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
   const [isLoading, setIsLoading] = useState(false);
 
+  const clear = () => {
+    sessionStorage.removeItem("intPropInput");
+    sessionStorage.removeItem("dataUri");
+    sessionStorage.removeItem("royaltiesVisible");
+    setIntPropInput(INITIAL_INT_PROP_INPUT);
+    setDataUri("");
+    setRoyaltiesVisible(false);
+    setRoyaltySwitch(false);
+    setPublishSwitch(false);
+    setStep(1);
+  };
+
   const onIpCreated = (ipId: bigint | undefined) => {
     setCreateIp(false);
     if (ipId) {
+      clear(); // Clear the form data after successful creation
       navigate(`/bip/${ipId}`);
     }
   };
@@ -389,6 +402,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               } else {
                 toast.success("Success");
                 setIsListModalOpen(false);
+                clear();
                 onIpCreated(ipId);
               }
             },
