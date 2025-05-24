@@ -665,7 +665,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       <div
                         className={`absolute bottom-1/2 left-[4px] flex h-[24px] w-[24px] translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-white ${royaltySwitch ? "translate-x-[85%]" : ""}`}
                       >
-                        <TbCheck size={16} />
+                        {royaltySwitch && <TbCheck size={16} />}
                       </div>
                     </div>
                   </div>
@@ -702,7 +702,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       max={MAX_ROYALTY_PERCENTAGE}
                       min={0}
                       type="number"
-                      className="w-[60px] rounded-xl bg-background px-[10px] py-[5px] text-[16px] text-black dark:bg-white/10 dark:text-white"
+                      className={`w-[60px] rounded-xl bg-background px-[10px] py-[5px] text-[16px] text-black dark:bg-white/10 dark:text-white ${!royaltySwitch ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={!royaltySwitch}
                     />
                   </div>
                 </div>
@@ -730,7 +731,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       <div
                         className={`absolute bottom-1/2 left-[4px] flex h-[24px] w-[24px] translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-white ${publishSwitch ? "translate-x-[85%]" : ""}`}
                       >
-                        <TbCheck size={16} />
+                        {publishSwitch && <TbCheck size={16} />}
                       </div>
                     </div>
                   </div>
@@ -738,31 +739,33 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     <p className="text-[16px] font-semibold text-black dark:text-white">
                       Country
                     </p>
-                    <ReactCountryDropdown
-                      defaultCountry={DEFAULT_PUBLISHING.countryCode}
-                      onSelect={(val) =>
-                        setIntPropInput((intProp) => {
-                          return {
-                            ...intProp,
-                            publishing: [
-                              {
-                                date:
-                                  fromNullable(intProp.publishing)?.date ??
-                                  DEFAULT_PUBLISHING.date,
-                                countryCode: val.code,
-                              },
-                            ],
-                          };
-                        })
-                      }
-                    />
+                    <div className={`w-fit ${!publishSwitch ? 'opacity-50 pointer-events-none' : ''}`}>
+                      <ReactCountryDropdown
+                        defaultCountry={DEFAULT_PUBLISHING.countryCode}
+                        onSelect={(val) =>
+                          setIntPropInput((intProp) => {
+                            return {
+                              ...intProp,
+                              publishing: [
+                                {
+                                  date:
+                                    fromNullable(intProp.publishing)?.date ??
+                                    DEFAULT_PUBLISHING.date,
+                                  countryCode: val.code,
+                                },
+                              ],
+                            };
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="flex w-full flex-row items-center justify-between gap-[30px] lg:w-6/12 lg:justify-center">
                   <p className="text-[16px] font-semibold text-black dark:text-white">
                     Date
                   </p>
-                  <div className="relative max-w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10">
+                  <div className={`relative max-w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10 ${!publishSwitch ? 'opacity-50 pointer-events-none' : ''}`}>
                     <DatePicker
                       selected={
                         intPropInput.publishing?.[0]?.date
@@ -790,6 +793,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       calendarClassName="custom-calendar"
                       popperClassName="z-50 absolute right-[-220%] top-0"
                       placeholderText="YYYY-MM-DD"
+                      disabled={!publishSwitch}
                     />
                     <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-gray-400">
                       <TbCalendarEventFilled size={22} />
