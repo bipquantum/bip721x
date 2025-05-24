@@ -315,7 +315,18 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
       if (data === undefined) {
         toast.error("Failed to create new IP: no data returned");
       } else if ("err" in data) {
-        toast.error("Failed to create new IP: " + data["err"]);
+        let errorMsg = "Unknown error";
+        if (typeof data.err === "object" && data.err !== null) {
+          const errVariant = Object.values(data.err)[0];
+          if (errVariant && typeof errVariant === "object" && "message" in errVariant) {
+            errorMsg = (errVariant as any).message;
+          } else {
+            errorMsg = JSON.stringify(data.err);
+          }
+        } else if (typeof data.err === "string") {
+          errorMsg = data.err;
+        }
+        toast.error("Failed to create new IP: " + errorMsg);
         console.error("error", data);
       } else {
         setIpId(data["ok"]);
@@ -329,9 +340,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const createIps = async () => {
     setIsLoading(true);
-    await createIntProp([intPropInput]);
+    const result = await createIntProp([intPropInput]);
     setIsLoading(false);
-    setStep(3);
+    
+    // Only move to step 3 if the creation was successful
+    if (result && !("err" in result)) {
+      setStep(3);
+    }
   };
 
   const DEFAULT_PUBLISHING = {
