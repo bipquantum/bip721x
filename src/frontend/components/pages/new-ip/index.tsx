@@ -343,6 +343,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
     navigate("/bips");
   };
 
+  // Persist form state on every change
+  useEffect(() => {
+    sessionStorage.setItem("intPropInput", SuperJSON.stringify(intPropInput));
+    sessionStorage.setItem("dataUri", dataUri);
+    sessionStorage.setItem("royaltiesVisible", JSON.stringify(royaltiesVisible));
+  }, [intPropInput, dataUri, royaltiesVisible]);
+
   return (
     <div className={`relative flex h-full w-full md:items-center justify-center `}>
       {step === 1 && (
