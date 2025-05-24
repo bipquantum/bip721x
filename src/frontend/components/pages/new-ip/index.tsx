@@ -55,6 +55,13 @@ import { fromNullable, toNullable } from "@dfinity/utils";
 import { JSX } from "react/jsx-runtime";
 import { MiddlewareReturn } from "@floating-ui/core";
 import { MiddlewareState } from "@floating-ui/dom";
+import { ModalPopup } from "../../common/ModalPopup";
+import { NumericFormat } from "react-number-format";
+import { toE8s, fromE8s } from "../../../utils/conversions";
+import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
+import { ApprovalInfo } from "../../../../declarations/bip721_ledger/bip721_ledger.did";
+import { bip721LedgerActor } from "../../actors/Bip721LedgerActor";
+import { canisterId } from "../../../../declarations/backend";
 
 interface NewIPButtonProps {
   principal: Principal | undefined;
@@ -125,6 +132,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   const { addChat } = useChatHistory();
   const [createIp, setCreateIp] = useState<boolean>(false);
   const toastShownRef = useRef(false);
+  const [isListModalOpen, setIsListModalOpen] = useState(false);
+  const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
+  const [isLoading, setIsLoading] = useState(false);
 
   const onIpCreated = (ipId: bigint | undefined) => {
     setCreateIp(false);
@@ -238,7 +248,6 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   ];
 
   const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
   const [ipId, setIpId] = useState<bigint | undefined>(undefined);
   const [intPropInput, setIntPropInput] =
     useState<IntPropInput>(loadIntPropInput());
@@ -340,7 +349,57 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   if (!queriedUser || queriedUser.length === 0) return null;
 
   const onList = () => {
-    navigate("/bips");
+    setIsListModalOpen(true);
+  };
+
+  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
+    functionName: "icrc37_approve_tokens",
+  });
+  const { call: listIntProp } = backendActor.useUpdateCall({
+    functionName: "list_int_prop",
+  });
+
+  const triggerList = (intPropId: bigint, sellPrice: bigint) => {
+    const info: ApprovalInfo = {
+      memo: [],
+      from_subaccount: [],
+      created_at_time: [dateToTime(new Date())],
+      spender: {
+        owner: Principal.fromText(canisterId),
+        subaccount: [],
+      },
+      expires_at: [],
+    };
+
+    setIsLoading(true);
+
+    approveBip721Transfer([[{ token_id: intPropId, approval_info: info }]])
+      .then((result: any) => {
+        if (!result || "Err" in result) {
+          setIsLoading(false);
+          toast.warn("Failed to approve IP transfer");
+          console.error(result ? result["Err"] : "No result");
+        } else {
+          listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
+            (result: any) => {
+              setIsLoading(false);
+              if (!result || "err" in result) {
+                toast.warn("Failed to list IP");
+                console.error(result ? result["err"] : "No result");
+              } else {
+                toast.success("Success");
+                setIsListModalOpen(false);
+                onIpCreated(ipId);
+              }
+            },
+          );
+        }
+      })
+      .catch((e: any) => {
+        setIsLoading(false);
+        console.error(e);
+        toast.warn("Failed to list");
+      });
   };
 
   // Persist form state on every change
@@ -967,6 +1026,37 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </div>
         )}
       </div>
+      <ModalPopup
+        onConfirm={() => {
+          if (ipId) {
+            triggerList(ipId, sellPrice);
+          }
+        }}
+        isOpen={isListModalOpen}
+        onClose={() => setIsListModalOpen(false)}
+        isLoading={isLoading}
+      >
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Do you want to List your IP?
+          </h2>
+          <NumericFormat
+            className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
+            thousandSeparator=","
+            decimalScale={TOKEN_DECIMALS_ALLOWED}
+            value={Number(fromE8s(sellPrice))}
+            onValueChange={(e) => {
+              setSellPrice(
+                toE8s(
+                  parseFloat(e.value === "" ? "0" : e.value.replace(/,/g, "")),
+                ),
+              );
+            }}
+            suffix="bQC "
+            spellCheck="false"
+          />
+        </div>
+      </ModalPopup>
     </div>
   );
 };
