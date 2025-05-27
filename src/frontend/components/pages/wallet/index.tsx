@@ -14,11 +14,11 @@ import { useEffect, useState } from "react";
 import { IoGridOutline, IoListOutline } from "react-icons/io5";
 import {
   TbEye,
-  TbShare,
   TbTrash,
 } from "react-icons/tb";
 import UserNickName from "../../common/UserNickname";
 import AiBot from "../../../assets/ai-bot.png";
+import ShareButton from "../../common/ShareButton";
 
 interface BIPDetailsProps {
   intPropId: bigint;
@@ -100,13 +100,9 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({
       </div>
       <div className="col-span-1 flex w-fit flex-row items-center justify-center gap-2">
         <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-500/40 text-white backdrop-blur-md">
-          {" "}
-          <TbTrash size={24} />{" "}
+          <TbTrash size={24} />
         </div>
-        <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-500/40 text-white backdrop-blur-md">
-          {" "}
-          <TbShare size={24} />{" "}
-        </div>
+        <ShareButton intPropId={intPropId} />
       </div>
     </div>
   );

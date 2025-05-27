@@ -15,10 +15,10 @@ import ListingDetails from "../../common/ListingDetails";
 
 import {
   TbEye,
-  TbShare,
   TbTrash,
 } from "react-icons/tb";
 import UserImage from "../../common/UserImage";
+import ShareButton from "../../common/ShareButton";
 
 interface BipItemProps {
   principal: Principal | undefined;
@@ -101,10 +101,7 @@ const BipItem: React.FC<BipItemProps> = ({
                   {" "}
                   <TbTrash size={24} />{" "}
                 </div>
-                <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-500/20 backdrop-blur-sm">
-                  {" "}
-                  <TbShare size={24} />{" "}
-                </div>
+                <ShareButton intPropId={intPropId} />
               </div>
             </Link>
 
