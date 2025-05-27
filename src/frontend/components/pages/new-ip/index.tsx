@@ -1,15 +1,13 @@
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Principal } from "@dfinity/principal";
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { useChatHistory } from "../../layout/ChatHistoryContext";
 import FilePreview from "../../common/FilePreview";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { backendActor } from "../../actors/BackendActor";
 
-import Select, { ActionMeta, GroupBase, MultiValue, OptionProps } from "react-select";
-import { components } from "react-select";
+import Select, { ActionMeta, MultiValue } from "react-select";
 
 import { CiImageOn } from "react-icons/ci";
 import {
@@ -28,7 +26,6 @@ import {
 
 import {
   IntPropInput,
-  User,
 } from "../../../../declarations/backend/backend.did";
 
 import {
@@ -52,20 +49,77 @@ import {
 import SuperJSON from "superjson";
 import FileUploader from "../../common/FileUploader";
 import { fromNullable, toNullable } from "@dfinity/utils";
-import { JSX } from "react/jsx-runtime";
 import { MiddlewareReturn } from "@floating-ui/core";
 import { MiddlewareState } from "@floating-ui/dom";
 import { ModalPopup } from "../../common/ModalPopup";
 import { NumericFormat } from "react-number-format";
 import { toE8s, fromE8s } from "../../../utils/conversions";
 import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
-import { ApprovalInfo } from "../../../../declarations/bip721_ledger/bip721_ledger.did";
-import { bip721LedgerActor } from "../../actors/Bip721LedgerActor";
-import { canisterId } from "../../../../declarations/backend";
+import { useListIntProp } from "../../hooks/useListIntProp";
+import UserImage from "../../common/UserImage";
 
-interface NewIPButtonProps {
-  principal: Principal | undefined;
-}
+const IP_TYPE_OPTIONS: Option[] = [
+  {
+    label: intPropTypeToString({ COPYRIGHT: null }),
+    value: intPropTypeToIndex({ COPYRIGHT: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ PRE_PATENT: null }),
+    value: intPropTypeToIndex({ PRE_PATENT: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ TRADEMARK: null }),
+    value: intPropTypeToIndex({ TRADEMARK: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ TRADE_SECRET: null }),
+    value: intPropTypeToIndex({ TRADE_SECRET: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ INDUSTRIAL_DESIGN_RIGHTS: null }),
+    value: intPropTypeToIndex({ INDUSTRIAL_DESIGN_RIGHTS: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ GEOGRAPHICAL_INDICATIONS: null }),
+    value: intPropTypeToIndex({ GEOGRAPHICAL_INDICATIONS: null }).toString(),
+  },
+  {
+    label: intPropTypeToString({ PLANT_VARIETY: null }),
+    value: intPropTypeToIndex({ PLANT_VARIETY: null }).toString(),
+  },
+];
+
+// TODO sardariuss 2024-AUG-28: Use for loop to generate options
+const IP_LICENSE_OPTIONS: Option[] = [
+  {
+    label: intPropLicenseToString({ GAME_FI: null }),
+    value: intPropLicenseToIndex({ GAME_FI: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ SAAS: null }),
+    value: intPropLicenseToIndex({ SAAS: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ ADVERTISEMENT: null }),
+    value: intPropLicenseToIndex({ ADVERTISEMENT: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ META_USE: null }),
+    value: intPropLicenseToIndex({ META_USE: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ REPRODUCTION: null }),
+    value: intPropLicenseToIndex({ REPRODUCTION: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ PHYSICAL_REPRODUCTION: null }),
+    value: intPropLicenseToIndex({ PHYSICAL_REPRODUCTION: null }).toString(),
+  },
+  {
+    label: intPropLicenseToString({ NOT_APPLICABLE: null }),
+    value: intPropLicenseToIndex({ NOT_APPLICABLE: null }).toString(),
+  },
+];
 
 // Custom Syles For React Select Dropdown
 const customStyles = {
@@ -108,29 +162,21 @@ const customStyles = {
   }),
 };
 
-// Custom Multi-Select Checkbox Component
-const CustomMultiValue = (
-  props: JSX.IntrinsicAttributes &
-    OptionProps<unknown, boolean, GroupBase<unknown>>,
-) => {
-  return (
-    <components.Option {...props}>
-      <input
-        type="checkbox"
-        checked={props.isSelected}
-        onChange={() => null}
-        className="mr-3 h-4 w-4"
-      />
-      {props.label}
-    </components.Option>
-  );
-};
+interface NewIPButtonProps {
+  principal: Principal | undefined;
+}
 
 const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const navigate = useNavigate();
-  const { addChat } = useChatHistory();
-  const [createIp, setCreateIp] = useState<boolean>(false);
+  const { call: triggerList } = useListIntProp({
+      onSuccess: () => {
+        setSellPrice(0n);
+        clear();
+        onIpCreated(ipId);
+        setIsListModalOpen(false);
+      },
+    });
   const toastShownRef = useRef(false);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
@@ -149,7 +195,6 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   };
 
   const onIpCreated = (ipId: bigint | undefined) => {
-    setCreateIp(false);
     if (ipId) {
       clear(); // Clear the form data after successful creation
       navigate(`/bip/${ipId}`);
@@ -197,69 +242,6 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
     );
   };
 
-  const IP_TYPE_OPTIONS: Option[] = [
-    {
-      label: intPropTypeToString({ COPYRIGHT: null }),
-      value: intPropTypeToIndex({ COPYRIGHT: null }).toString(),
-    },
-    {
-      label: intPropTypeToString({ PRE_PATENT: null }),
-      value: intPropTypeToIndex({ PRE_PATENT: null }).toString(),
-    },
-    {
-      label: intPropTypeToString({ TRADEMARK: null }),
-      value: intPropTypeToIndex({ TRADEMARK: null }).toString(),
-    },
-    {
-      label: intPropTypeToString({ TRADE_SECRET: null }),
-      value: intPropTypeToIndex({ TRADE_SECRET: null }).toString(),
-    },
-    {
-      label: intPropTypeToString({ INDUSTRIAL_DESIGN_RIGHTS: null }),
-      value: intPropTypeToIndex({ INDUSTRIAL_DESIGN_RIGHTS: null }).toString(),
-    },
-    {
-      label: intPropTypeToString({ GEOGRAPHICAL_INDICATIONS: null }),
-      value: intPropTypeToIndex({ GEOGRAPHICAL_INDICATIONS: null }).toString(),
-    },
-    {
-      label: intPropTypeToString({ PLANT_VARIETY: null }),
-      value: intPropTypeToIndex({ PLANT_VARIETY: null }).toString(),
-    },
-  ];
-
-  // TODO sardariuss 2024-AUG-28: Use for loop to generate options
-  const IP_LICENSE_OPTIONS: Option[] = [
-    {
-      label: intPropLicenseToString({ GAME_FI: null }),
-      value: intPropLicenseToIndex({ GAME_FI: null }).toString(),
-    },
-    {
-      label: intPropLicenseToString({ SAAS: null }),
-      value: intPropLicenseToIndex({ SAAS: null }).toString(),
-    },
-    {
-      label: intPropLicenseToString({ ADVERTISEMENT: null }),
-      value: intPropLicenseToIndex({ ADVERTISEMENT: null }).toString(),
-    },
-    {
-      label: intPropLicenseToString({ META_USE: null }),
-      value: intPropLicenseToIndex({ META_USE: null }).toString(),
-    },
-    {
-      label: intPropLicenseToString({ REPRODUCTION: null }),
-      value: intPropLicenseToIndex({ REPRODUCTION: null }).toString(),
-    },
-    {
-      label: intPropLicenseToString({ PHYSICAL_REPRODUCTION: null }),
-      value: intPropLicenseToIndex({ PHYSICAL_REPRODUCTION: null }).toString(),
-    },
-    {
-      label: intPropLicenseToString({ NOT_APPLICABLE: null }),
-      value: intPropLicenseToIndex({ NOT_APPLICABLE: null }).toString(),
-    },
-  ];
-
   const [step, setStep] = useState(1);
   const [ipId, setIpId] = useState<bigint | undefined>(undefined);
   const [intPropInput, setIntPropInput] =
@@ -271,43 +253,6 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const [royaltySwitch, setRoyaltySwitch] = useState(false);
   const [publishSwitch, setPublishSwitch] = useState(false);
-
-  const getPublishingDate = (ip: IntPropInput) => {
-    const publish = fromNullable(ip.publishing);
-
-    if (publish !== undefined) {
-      return toDateInputFormat(timeToDate(publish.date));
-    }
-
-    return "";
-  };
-
-  // Date input format is "yyyy-MM-dd"
-  const toDateInputFormat = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  // Date output format is "yyyy-MM-dd"
-  const fromDateInputFormat = (date: string): Date | undefined => {
-    // Create a new Date using the picked date parts to be in current timezone
-    const [year, month, day] = date.split("-").map(Number);
-    const localDate = new Date(year, month - 1, day); // month is 0-indexed
-    // Check if the date is valid
-    if (
-      localDate.getFullYear() !== year ||
-      localDate.getMonth() + 1 !== month ||
-      localDate.getDate() !== day
-    ) {
-      return undefined;
-    }
-    if (!Number.isFinite(localDate.getTime())) {
-      return undefined;
-    }
-    return localDate;
-  };
 
   const { call: createIntProp } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
@@ -378,57 +323,6 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const onList = () => {
     setIsListModalOpen(true);
-  };
-
-  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
-    functionName: "icrc37_approve_tokens",
-  });
-  const { call: listIntProp } = backendActor.useUpdateCall({
-    functionName: "list_int_prop",
-  });
-
-  const triggerList = (intPropId: bigint, sellPrice: bigint) => {
-    const info: ApprovalInfo = {
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: {
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      },
-      expires_at: [],
-    };
-
-    setIsLoading(true);
-
-    approveBip721Transfer([[{ token_id: intPropId, approval_info: info }]])
-      .then((result: any) => {
-        if (!result || "Err" in result) {
-          setIsLoading(false);
-          toast.warn("Failed to approve IP transfer");
-          console.error(result ? result["Err"] : "No result");
-        } else {
-          listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
-            (result: any) => {
-              setIsLoading(false);
-              if (!result || "err" in result) {
-                toast.warn("Failed to list IP");
-                console.error(result ? result["err"] : "No result");
-              } else {
-                toast.success("Success");
-                setIsListModalOpen(false);
-                clear();
-                onIpCreated(ipId);
-              }
-            },
-          );
-        }
-      })
-      .catch((e: any) => {
-        setIsLoading(false);
-        console.error(e);
-        toast.warn("Failed to list");
-      });
   };
 
   // Persist form state on every change
@@ -903,7 +797,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           <div className="flex w-full flex-col items-center gap-[30px]">
             <div className="flex flex-col items-center gap-[15px]">
               <p className="font-extabold font-monument text-sm md:text-lg uppercase text-black dark:text-white">
-                STep 2 : Validate Author Details
+                Step 2 : Validate Author Details
               </p>
               <div className="flex w-full flex-row items-center gap-1">
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
@@ -912,15 +806,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
             </div>
             <div className="flex w-full flex-col items-center justify-center gap-[40px] md:w-6/12">
-              <div className="size-[100px] rounded-full border bg-white">
-                <FilePreview
-                  dataUri={
-                    queriedUser[0]?.imageUri ||
-                    "https://images.unsplash.com/photo-1499714608240-22fc6ad53fb2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=880&q=80"
-                  }
-                  className={"h-[80px] md:h-[100px] w-[80px] md:w-[100px] rounded-full bg-white"}
-                />
-              </div>
+              <UserImage principal={principal} className="size-[100px] rounded-full border bg-white"/>
               <div className="flex w-full flex-col gap-[20px]">
                 <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                   <p
@@ -1056,11 +942,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         )}
       </div>
       <ModalPopup
-        onConfirm={() => {
-          if (ipId) {
-            triggerList(ipId, sellPrice);
-          }
-        }}
+        onConfirm={() => { if (ipId) { triggerList({intPropId: ipId, sellPrice}); } }}
         isOpen={isListModalOpen}
         onClose={() => setIsListModalOpen(false)}
         isLoading={isLoading}
