@@ -8,10 +8,11 @@ import { fromNullable } from "@dfinity/utils";
 import { Principal } from "@dfinity/principal";
 
 interface UserImageProps {
-    principal: Principal | undefined;
+  principal: Principal | undefined;
+  className?: string;
 };
 
-const UserImage = ({ principal }: UserImageProps) => {
+const UserImage = ({ principal, className }: UserImageProps) => {
   
   const [user, setUser] = useState<User | undefined>(undefined);
 
@@ -29,11 +30,11 @@ const UserImage = ({ principal }: UserImageProps) => {
   }, [queriedUser]);
 
   return (
-        <img
-            src={user !== undefined && user.imageUri !== "" ? user.imageUri : DefaultProfileImage}
-            className="h-10 rounded-full object-cover"
-        />
-    );
+    <img
+      src={user !== undefined && user.imageUri !== "" ? user.imageUri : DefaultProfileImage}
+      className={ className ?? "h-10 w-10 rounded-full object-cover" }
+    />
+  );
 };
 
 export default UserImage;
