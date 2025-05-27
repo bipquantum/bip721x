@@ -523,7 +523,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        Title of Tthe IP
+                        Title of the IP
                       </p>
                       <input
                         type="text"
