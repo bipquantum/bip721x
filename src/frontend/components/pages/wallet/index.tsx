@@ -12,13 +12,11 @@ import { toNullable } from "@dfinity/utils";
 import BipList from "../bips/BipList";
 import { useEffect, useState } from "react";
 import { IoGridOutline, IoListOutline } from "react-icons/io5";
-import {
-  TbEye,
-  TbTrash,
-} from "react-icons/tb";
+import { TbEye } from "react-icons/tb";
 import UserNickName from "../../common/UserNickname";
 import AiBot from "../../../assets/ai-bot.png";
 import ShareButton from "../../common/ShareButton";
+import DeleteButton from "../../common/DeleteButton";
 
 interface BIPDetailsProps {
   intPropId: bigint;
@@ -99,9 +97,7 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({
         />
       </div>
       <div className="col-span-1 flex w-fit flex-row items-center justify-center gap-2">
-        <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-500/40 text-white backdrop-blur-md">
-          <TbTrash size={24} />
-        </div>
+        <DeleteButton intPropId={intPropId} />
         <ShareButton intPropId={intPropId} />
       </div>
     </div>
@@ -115,7 +111,6 @@ interface WalletProps {
 const take: [] | [bigint] = [BigInt(5)];
 
 const Wallet = ({ principal }: WalletProps) => {
-
   const [selection, setSelection] = useState("owned");
   const [isGrid, setIsGrid] = useState(true);
 

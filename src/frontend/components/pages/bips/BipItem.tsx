@@ -13,12 +13,10 @@ import AIBotImg from "../../../assets/ai-bot.png";
 import { Principal } from "@dfinity/principal";
 import ListingDetails from "../../common/ListingDetails";
 
-import {
-  TbEye,
-  TbTrash,
-} from "react-icons/tb";
+import { TbEye } from "react-icons/tb";
 import UserImage from "../../common/UserImage";
 import ShareButton from "../../common/ShareButton";
+import DeleteButton from "../../common/DeleteButton";
 
 interface BipItemProps {
   principal: Principal | undefined;
@@ -97,11 +95,8 @@ const BipItem: React.FC<BipItemProps> = ({
                 </div>
               </div>
               <div className="absolute bottom-5 right-0 flex h-[75px] w-[40px] flex-col justify-between">
-                <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-500/20 backdrop-blur-sm">
-                  {" "}
-                  <TbTrash size={24} />{" "}
-                </div>
                 <ShareButton intPropId={intPropId} />
+                { principal !== undefined && authorPrincipal !== undefined && authorPrincipal?.compareTo(principal) === "eq" && <DeleteButton intPropId={intPropId} /> }
               </div>
             </Link>
 

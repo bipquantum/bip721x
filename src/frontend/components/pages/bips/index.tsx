@@ -38,7 +38,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   };
 
   const [isLoading, setIsLoading] = useState(false);
-  const [triggered, setTriggered] = useState(true)
+  const [triggered, setTriggered] = useState(true);
 
   const changeQueryDirection = () => {
     setQueryDirection(
