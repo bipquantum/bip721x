@@ -173,23 +173,36 @@ module {
       #ok(id);
     };
 
-    public func listIntProp({
+  public func listIntProp({
       caller: Principal;
       id: Nat;
       e8sIcpPrice: Nat;
     }) : async* Result<(), Text> {
       
-      let owner = switch(await* findIntPropOwner(id)){
-        case(#err(err)){ return #err(err); };
-        case(#ok(principal)){ principal; };
-      };
+      let #ok(owner) = await* findIntPropOwner(id) 
+        else return #err("Failed to find owner");
 
-      if (owner != caller){
+      if (owner != caller) {
         return #err("You cannot list an IP that you do not own");
       };
 
-      if (Set.has(accessControl.bannedIps, Set.nhash, id)){
+      if (Set.has(accessControl.bannedIps, Set.nhash, id)) {
         return #err("You cannot list a banned IP");
+      };
+
+      // If listing for free, check that there are no royalties
+      if (e8sIcpPrice == 0) {
+        let #ok(intProp) = await* queryIntProp(id) 
+          else return #err("Failed to query IP");
+        
+        switch(intProp.percentageRoyalties) {
+          case(?royalty) {
+            if (royalty > 0) {
+              return #err("Cannot list for free - it has royalties!");
+            };
+          };
+          case(null) {};
+        };
       };
 
       Map.set(intProps.e8sIcpPrices, Map.nhash, id, e8sIcpPrice);
