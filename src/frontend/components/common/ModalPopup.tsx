@@ -36,7 +36,11 @@ export const ModalPopup: React.FC<ModalPopupProps> = ({
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-t from-primary to-secondary"
             }`}
-            onClick={onConfirm}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onConfirm();
+            }}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -51,7 +55,11 @@ export const ModalPopup: React.FC<ModalPopupProps> = ({
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-md border border-black px-4 py-2 text-base font-medium text-black dark:border-white dark:text-white"
-            onClick={onClose}
+             onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onClose();
+            }}
             disabled={isLoading}
           >
             No, Cancel

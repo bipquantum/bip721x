@@ -52,7 +52,7 @@ module {
 
     public func setUser(
       args: CreateUserArgs and {
-        caller: Principal;
+      caller: Principal;
     }) : Result<(), Text> {
 
       if (Principal.isAnonymous(args.caller)){
@@ -72,7 +72,7 @@ module {
     }) : [ChatHistory] {
       chatBotHistory.getChatHistories({caller});
     };
-    
+      
     public func getChatHistory({
       caller: Principal;
       id: Text;
@@ -98,7 +98,7 @@ module {
     };
 
     public func updateChatHistory({
-      caller: Principal;
+     caller: Principal;
       id: Text;
       events: Text;
       aiPrompts: Text;
