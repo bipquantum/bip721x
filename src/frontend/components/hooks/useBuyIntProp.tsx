@@ -34,7 +34,7 @@ export const useBuyIntProp = ({
   const call = async (intPropId: bigint) => {
     setLoading(true);
 
-    const e8sPrice = await getE8sPrice();
+    const e8sPrice = await getE8sPrice([{ token_id: intPropId }]);
     
     if (!e8sPrice || "err" in e8sPrice) {
       toast.warn("Failed to get e8s price");

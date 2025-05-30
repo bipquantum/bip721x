@@ -110,9 +110,17 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                         alt="Loading..."
                       />
                     ) : (
-                      <Markdown components={MARKDOWN_COMPONENTS}>
-                        {prompt.answer}
-                      </Markdown>
+                      <>
+                        <Markdown components={MARKDOWN_COMPONENTS}>
+                          {prompt.answer}
+                        </Markdown>
+                        <div
+                          className="mb-2 mt-1 h-5 w-5 cursor-pointer self-end sm:mb-1 sm:mt-0 sm:h-6 sm:w-6"
+                          onClick={() => navigator.clipboard.writeText(chat.question)}
+                        >
+                          <CopyIcon className="text-gray-700 hover:text-black" />
+                        </div>
+                      </>
                     )}
                   </div>
                   <span className="flex flex-col px-5"> {/* spacer */} </span>
