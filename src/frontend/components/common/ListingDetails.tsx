@@ -72,9 +72,11 @@ const BuyButton: React.FC<BuyButtonProps> = ({ principal, intPropId, onSuccess }
 interface ListButtonProps {
   intPropId: bigint;
   onSuccess?: () => void;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess }) => {
+export const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess, className, children }) => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(0n);
@@ -88,28 +90,25 @@ const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess }) => {
   });
 
   return (
-    <div className="w-full">
-      <div className="mx-auto flex w-full flex-row items-center justify-between gap-4">
-        <div className="w-full">
-          <VioletButton
-            type="list"
-            isLoading={loading}
-            onClick={() => setIsModalOpen(true)}
-          >
-            <p
-              className="flex flex-row gap-1 text-white"
-              style={{ filter: "grayscale(100%)" }}
-            >
-              {" "}
-              <span>
-                {" "}
-                <TbCheck size={22} />
-              </span>{" "}
-              List{" "}
-            </p>
-          </VioletButton>
-        </div>
-      </div>
+    <button
+      className={ className ?? "flex text-base px-3 py-2 items-center justify-center rounded-lg bg-gradient-to-t from-primary to-secondary w-full" }
+      disabled={loading}
+      onClick={(e) => {
+        e.preventDefault();
+        setIsModalOpen(true);
+      }}
+    >
+      { children ?? <p
+        className="flex flex-row gap-1 text-white"
+        style={{ filter: "grayscale(100%)" }}
+      >
+        {" "}
+        <span>
+          {" "}
+          <TbCheck size={22} />
+        </span>{" "}
+        List{" "}
+      </p> }
       <ModalPopup
         onConfirm={() => { listIntProp({intPropId, sellPrice}) }}
         isOpen={isModalOpen}
@@ -133,7 +132,7 @@ const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess }) => {
           />
         </div>
       </ModalPopup>
-    </div>
+    </button>
   );
 };
 

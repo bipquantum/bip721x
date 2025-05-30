@@ -51,12 +51,8 @@ import FileUploader from "../../common/FileUploader";
 import { fromNullable, toNullable } from "@dfinity/utils";
 import { MiddlewareReturn } from "@floating-ui/core";
 import { MiddlewareState } from "@floating-ui/dom";
-import { ModalPopup } from "../../common/ModalPopup";
-import { NumericFormat } from "react-number-format";
-import { toE8s, fromE8s } from "../../../utils/conversions";
-import { TOKEN_DECIMALS_ALLOWED } from "../../constants";
-import { useListIntProp } from "../../hooks/useListIntProp";
 import UserImage from "../../common/UserImage";
+import { ListButton } from "../../common/ListingDetails";
 
 const IP_TYPE_OPTIONS: Option[] = [
   {
@@ -122,7 +118,7 @@ const IP_LICENSE_OPTIONS: Option[] = [
 ];
 
 // Custom Syles For React Select Dropdown
-const customStyles = {
+const getCustomStyles = (isDark: boolean) => ({
   control: (provided: any) => ({
     ...provided,
     backgroundColor: "transparent",
@@ -130,7 +126,7 @@ const customStyles = {
     boxShadow: "none",
     fontSize: "16px",
     padding: "10px",
-    color: "#fff",
+    color: "#000",
   }),
   menu: (provided: any) => ({
     ...provided,
@@ -154,13 +150,13 @@ const customStyles = {
   }),
   singleValue: (provided: any) => ({
     ...provided,
-    color: "#fff",
+    color: isDark ? "#fff" : "#000",
   }),
   placeholder: (provided: any) => ({
     ...provided,
     color: "#aaa",
   }),
-};
+});
 
 interface NewIPButtonProps {
   principal: Principal | undefined;
@@ -169,37 +165,7 @@ interface NewIPButtonProps {
 const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const navigate = useNavigate();
-  const { call: triggerList } = useListIntProp({
-      onSuccess: () => {
-        setSellPrice(0n);
-        clear();
-        onIpCreated(ipId);
-        setIsListModalOpen(false);
-      },
-    });
   const toastShownRef = useRef(false);
-  const [isListModalOpen, setIsListModalOpen] = useState(false);
-  const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
-  const [isLoading, setIsLoading] = useState(false);
-
-  const clear = () => {
-    sessionStorage.removeItem("intPropInput");
-    sessionStorage.removeItem("dataUri");
-    sessionStorage.removeItem("royaltiesVisible");
-    setIntPropInput(INITIAL_INT_PROP_INPUT);
-    setDataUri("");
-    setRoyaltiesVisible(false);
-    setRoyaltySwitch(false);
-    setPublishSwitch(false);
-    setStep(1);
-  };
-
-  const onIpCreated = (ipId: bigint | undefined) => {
-    if (ipId) {
-      clear(); // Clear the form data after successful creation
-      navigate(`/bip/${ipId}`);
-    }
-  };
 
   const INITIAL_INT_PROP_INPUT: IntPropInput = {
     dataUri: "",
@@ -236,10 +202,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   ) => {
     sessionStorage.setItem("intPropInput", SuperJSON.stringify(intPropInput));
     sessionStorage.setItem("dataUri", dataUri);
-    sessionStorage.setItem(
-      "royaltiesVisible",
-      JSON.stringify(royaltiesVisible),
-    );
+    sessionStorage.setItem("royaltiesVisible", JSON.stringify(royaltiesVisible));
+  };
+
+  const clear = () => {
+    sessionStorage.removeItem("intPropInput");
+    sessionStorage.removeItem("dataUri");
+    sessionStorage.removeItem("royaltiesVisible");
   };
 
   const [step, setStep] = useState(1);
@@ -250,11 +219,10 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   const [royaltiesVisible, setRoyaltiesVisible] = useState<boolean>(
     loadRoyaltiesVisible(),
   );
-
   const [royaltySwitch, setRoyaltySwitch] = useState(false);
   const [publishSwitch, setPublishSwitch] = useState(false);
 
-  const { call: createIntProp } = backendActor.useUpdateCall({
+  const { call: createIntProp, loading } = backendActor.useUpdateCall({
     functionName: "create_int_prop",
     onSuccess: (data) => {
       if (data === undefined) {
@@ -275,6 +243,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         console.error("error", data);
       } else {
         setIpId(data["ok"]);
+        clear(); // Clear the form data after successful creation
+        setStep(3);
       }
     },
     onError: (error) => {
@@ -282,17 +252,6 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
       toast.error("Failed to create new IP: " + error);
     },
   });
-
-  const createIps = async () => {
-    setIsLoading(true);
-    const result = await createIntProp([intPropInput]);
-    setIsLoading(false);
-    
-    // Only move to step 3 if the creation was successful
-    if (result && !("err" in result)) {
-      setStep(3);
-    }
-  };
 
   const DEFAULT_PUBLISHING = {
     date: dateToTime(new Date()),
@@ -309,10 +268,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   });
 
   useEffect(() => {
-    if (
-      (queriedUser === undefined || queriedUser?.length === 0) &&
-      !toastShownRef.current
-    ) {
+    if ((queriedUser === undefined || queriedUser?.length === 0) && !toastShownRef.current) {
       toastShownRef.current = true; // Set flag to true after first toast
       navigate("/profile", { state: { redirect: pathname } });
       toast.warn("Please add user");
@@ -321,16 +277,12 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   if (!queriedUser || queriedUser.length === 0) return null;
 
-  const onList = () => {
-    setIsListModalOpen(true);
-  };
-
   // Persist form state on every change
   useEffect(() => {
-    sessionStorage.setItem("intPropInput", SuperJSON.stringify(intPropInput));
-    sessionStorage.setItem("dataUri", dataUri);
-    sessionStorage.setItem("royaltiesVisible", JSON.stringify(royaltiesVisible));
+    save(intPropInput, dataUri, royaltiesVisible);
   }, [intPropInput, dataUri, royaltiesVisible]);
+
+  const isDark = document.documentElement.classList.contains("dark");
 
   return (
     <div className={`relative flex h-full w-full md:items-center justify-center `}>
@@ -353,10 +305,10 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
       {step === 2 && (
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
-            onClick={() => void createIps()}
+            onClick={() => createIntProp([intPropInput])}
             className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
-            {isLoading ? (
+            {loading ? (
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent dark:border-t-black border-t-white"></div>
             ) : (
               <TbArrowRight size={60} />
@@ -555,11 +507,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 <div className="flex w-full flex-col gap-[20px] md:gap-[40px] lg:flex-row">
                   <div className="w-full lg:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
-                      <p
-                        className={
-                          "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
-                        }
-                      >
+                      <p className={"absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"}>
                         IP Type
                       </p>
                       <Select
@@ -592,7 +540,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                               intPropInput.intPropType,
                             ).toString(),
                         )}
-                        styles={customStyles}
+                        styles={getCustomStyles(isDark)}
                         placeholder="Select Type"
                       />
                     </div>
@@ -607,7 +555,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         IP License
                       </p>
                       <Select
-                        styles={customStyles}
+                        styles={getCustomStyles(isDark)}
                         isMulti
                         value={intPropInput.intPropLicenses.map(
                           (license) =>
@@ -892,7 +840,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
             </div>
           </div>
         )}
-        {step == 3 && (
+        {step == 3 && ipId !== undefined && (
           <div className="flex w-full flex-col items-center gap-[30px]">
             <div className="flex flex-col items-center gap-[15px]">
               <p className="font-extabold font-monument text-sm md:text-lg uppercase text-black dark:text-white">
@@ -919,55 +867,23 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
               <div className="flex w-full flex-col gap-5 pt-[10px] md:w-fit md:flex-row">
                 <button
-                  onClick={() => {
-                    save(intPropInput, dataUri, royaltiesVisible);
-                    onIpCreated(ipId);
-                  }}
+                  onClick={() => { navigate(`/bip/${ipId}`); }}
                   className="rounded-xl border-2 border-primary bg-transparent px-6 py-3 text-xl text-primary"
                 >
-                  Manage IPs
+                  Manage IP
                 </button>
-                <button
-                  onClick={() => {
-                    save(intPropInput, dataUri, royaltiesVisible);
-                    onList();
-                  }}
+                <ListButton 
+                  intPropId={ipId} 
+                  onSuccess={() => { navigate(`/marketplace`); }}
                   className="rounded-xl border-2 border-primary bg-gradient-to-t from-primary to-secondary px-6 py-3 text-xl text-white"
                 >
                   List On Marketplace
-                </button>
+                </ListButton>
               </div>
             </div>
           </div>
         )}
       </div>
-      <ModalPopup
-        onConfirm={() => { if (ipId) { triggerList({intPropId: ipId, sellPrice}); } }}
-        isOpen={isListModalOpen}
-        onClose={() => setIsListModalOpen(false)}
-        isLoading={isLoading}
-      >
-        <div className="flex flex-col space-y-4">
-          <h2 className="text-xl font-bold text-black dark:text-white">
-            Do you want to List your IP?
-          </h2>
-          <NumericFormat
-            className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
-            thousandSeparator=","
-            decimalScale={TOKEN_DECIMALS_ALLOWED}
-            value={Number(fromE8s(sellPrice))}
-            onValueChange={(e) => {
-              setSellPrice(
-                toE8s(
-                  parseFloat(e.value === "" ? "0" : e.value.replace(/,/g, "")),
-                ),
-              );
-            }}
-            suffix="bQC "
-            spellCheck="false"
-          />
-        </div>
-      </ModalPopup>
     </div>
   );
 };
