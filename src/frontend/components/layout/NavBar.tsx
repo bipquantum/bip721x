@@ -83,7 +83,7 @@ const NavBar = () => {
       darkSvg: supportDark,
       lightSvg: supportLight,
       label: "Support",
-      link: "https://3fn5g-wyaaa-aaaap-anzia-cai.icp0.io/help-support.html",
+      link: "https://www.bipquantum.com/help-support.html",
       target: "_blank",
       rel: "noopener noreferrer",
     },

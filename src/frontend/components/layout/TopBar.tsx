@@ -51,7 +51,7 @@ const TopBar = () => {
           <div className="hidden items-center justify-between gap-4 text-black dark:text-white lg:flex">
             <Link
               className="text-base"
-              to={"https://3fn5g-wyaaa-aaaap-anzia-cai.icp0.io/about.html"}
+              to={"https://www.bipquantum.com/about.html"}
               target="_blank"
               rel="noopener noreferrer"
             >
