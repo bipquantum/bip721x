@@ -21,8 +21,8 @@ const ShareButton: React.FC<ShareButtonProps> = ({
         if (navigator.share) {
           try {
             await navigator.share({
-              title: "Share bIP #" + intPropId.toString(),
-              text: "Check out this bIP from the BIPQUANTUM marketplace!",
+              title: "Share BIP #" + intPropId.toString(),
+              text: "Check out this BIP from the BIPQuantum marketplace!",
               url: bipUrl,
             });
           } catch (err) {

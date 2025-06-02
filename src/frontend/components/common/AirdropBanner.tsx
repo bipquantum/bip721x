@@ -47,9 +47,9 @@ const AirdropBanner = () => {
           <Link to={"/marketplace"} className="text-lg hover:text-white text-gray-200 flex flex-col sm:flex-row items-center sm:space-x-2" onClick={() => setVisible(false)}>
             <span className="flex items-center justify-center sm:justify-start">
               <span>Be Among the First!</span>
-              <span className="animate-wiggle ml-2">🚀</span> {/* Added margin for spacing */}
+              <span className="animate-wiggle ml-2">🥇</span> {/* Added margin for spacing */}
             </span>
-            <span className="text-center sm:text-left">{`The First ${NUMBER_AIRDROP_IPS.toLocaleString()} IPs Minted Qualify for the bIPQuantum Token Airdrop!`}</span>
+            <span className="text-center sm:text-left">{`The First ${NUMBER_AIRDROP_IPS.toLocaleString()} IPs Minted Qualify for the BIPQuantum Token Airdrop!`}</span>
           </Link>
         </div>
       <div className="flex items-center">

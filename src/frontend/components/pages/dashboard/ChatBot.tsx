@@ -110,7 +110,7 @@ const ChatBot = ({
             <IoArrowUp size={40} className="text-black" />
           </button>
       </div>
-      <p className="text-sm text-gray-500">bIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.</p>
+      <p className="text-sm text-gray-500">BIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.</p>
       </div>
     </div>
   );

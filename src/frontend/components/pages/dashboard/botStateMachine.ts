@@ -13,7 +13,7 @@ interface BIPCertificateEvent {
 
 type MachineEvent = BIPCertificateEvent | { type: string };
 
-const bIPQuantumUrl = process.env.DFX_NETWORK == 'local' ? "http://localhost:3000" : `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io`;
+const BIPQuantumUrl = process.env.DFX_NETWORK == 'local' ? "http://localhost:3000" : `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io`;
 
 const VERSION_MAJOR = 0;
 const VERSION_MINOR = 1;
@@ -96,7 +96,7 @@ export const machine = createMachine<
           target: "ipType",
         },
       },
-      description: "# 🎯 What's your main goal with bIPQuantum today?",
+      description: "# 🎯 What's your main goal with BIPQuantum today?",
     },
     ipType: {
       on: {
@@ -149,12 +149,12 @@ export const machine = createMachine<
         },
       },
       description:
-        `# 📜 What kind of certificate are you looking for?\n\n1. **bIP Certificate:** a Blockchain Intellectual Property Certificate, as offered by [bIP Quantum](${bIPQuantumUrl}), is a digital certificate that leverages blockchain technology to provide secure and immutable proof of evidence ownership and authenticity for your intellectual property. It ensures transparency, traceability, and protection against infringement in the digital realm and completes a US copyright certificate.\n2. **US Copyright Certificate** (available soon): a conventional form of legal recognition provided by the United States Copyright Office. It serves as official documentation that establishes your rights as the creator of a work, offering legal protection primarily in the physical realm and traditional channels.`,
+        `# 📜 What kind of certificate are you looking for?\n\n1. **bIP Certificate:** a Blockchain Intellectual Property Certificate, as offered by [bIP Quantum](${BIPQuantumUrl}), is a digital certificate that leverages blockchain technology to provide secure and immutable proof of evidence ownership and authenticity for your intellectual property. It ensures transparency, traceability, and protection against infringement in the digital realm and completes a US copyright certificate.\n2. **US Copyright Certificate** (available soon): a conventional form of legal recognition provided by the United States Copyright Office. It serves as official documentation that establishes your rights as the creator of a work, offering legal protection primarily in the physical realm and traditional channels.`,
     },
     bipCertificate: {
       meta: {
         // TODO: the context does not correctly updates, so for now we redirect to all user bIPs
-        description: (context: MachineContext) : string => { return `[View your bIPs](${bIPQuantumUrl}/bips)` },
+        description: (context: MachineContext) : string => { return `[View your bIPs](${BIPQuantumUrl}/bips)` },
       },
       description:
         "# 🎉 Congratulations on successfully listing your Intellectual Property on bIPQ store! \n\nYour entry is a significant step towards harnessing the full potential of your creative work. Please be aware that the bIP Quantum team may request additional validation to ensure the highest standards of quality and authenticity for our marketplace. This process is part of our commitment to maintaining a trusted and secure platform for all the members. We appreciate your cooperation and are here to assist you every step of the way. Welcome to the bIP Quantum community!",

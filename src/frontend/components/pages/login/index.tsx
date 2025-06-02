@@ -33,7 +33,7 @@ const Login = () => {
           100% on-chain governance
         </p>
         <p className="hidden px-8 text-black dark:text-white sm:block">
-          Manage your IPs, within the BipQuantum, hosted 100% on the Internet
+          Manage your IPs, within the BIPQuantum, hosted 100% on the Internet
           Computer blockchain.
         </p>
 

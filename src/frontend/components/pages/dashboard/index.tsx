@@ -20,7 +20,7 @@ const Dashboard = () => {
       <div className="mx-auto w-full">
         <div className="flex flex-col items-center gap-2 py-4 sm:py-8">
           <p className="font-momentum text-center text-lg font-extrabold uppercase text-black dark:text-white sm:text-2xl">
-            Meet bIPQuantum Your Intellectual Property Guardian.
+            Meet BIPQuantum Your Intellectual Property Guardian.
           </p>
         </div>
         <div className="mx-auto grid w-fit grid-cols-1 items-center gap-4 text-center text-white sm:grid-cols-3">
@@ -71,7 +71,7 @@ const Dashboard = () => {
           </div>
         </div>
         <p className="text-sm text-gray-500">
-          bIPQuantum AI is here to assist, but always consult an IP lawyer to
+          BIPQuantum AI is here to assist, but always consult an IP lawyer to
           ensure accuracy.
         </p>
       </div>

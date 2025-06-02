@@ -5,9 +5,9 @@ export const NEW_USER_NICKNAME = "New User";
 export const DEFAULT_COUNTRY_CODE = "US";
 export const CALL_TO_ACTIONS = [
   "IP Education / Consultation",
-  "Generate a bIP Certificate",
+  "Generate a BIP Certificate",
   "Organize IP Assets",
-  "Sell IP Assets on the bIPQuantum Store",
+  "Sell IP Assets on the BIPQuantum Store",
 ];
 export const MIN_ROYALTY_PERCENTAGE = 1;
 export const MAX_ROYALTY_PERCENTAGE = 20;
