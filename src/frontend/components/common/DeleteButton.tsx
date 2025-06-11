@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDeleteIntProp } from "../hooks/useDeleteIntProp";
 import { ModalPopup } from "./ModalPopup";
 import { TbTrash } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
 
 interface DeleteButtonProps {
   intPropId: bigint;
@@ -9,13 +10,15 @@ interface DeleteButtonProps {
 }
 
 const DeleteButton: React.FC<DeleteButtonProps> = ({ intPropId, onSuccess }) => {
-  
+
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { loading, call: deleteIntProp } = useDeleteIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
       onSuccess?.();
+      navigate("/bips"); // Redirect to BIPs page after deletion
     },
   });
 
@@ -29,19 +32,19 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({ intPropId, onSuccess }) => 
             setIsModalOpen(true);
         }}
         >
-            <TbTrash size={24} />
+          <TbTrash size={24} />
         </div>
       <ModalPopup
-        onConfirm={() => deleteIntProp(intPropId)}
+        onConfirm={() => { deleteIntProp(intPropId) }}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         isLoading={loading}
       >
         <div className="flex flex-col space-y-4">
-            <h2 className="text-xl font-bold text-black dark:text-white">
-                Are you sure you want to delete this IP? 
-                <span className="text-red-500"> This action is irreversible.</span>
-            </h2>
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Are you sure you want to delete this IP? 
+            <span className="text-red-500"> This action is irreversible.</span>
+          </h2>
         </div>
       </ModalPopup>
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Principal } from "@dfinity/principal";
 import { Link, useParams } from "react-router-dom";
 import { fromNullable } from "@dfinity/utils";
@@ -13,8 +13,6 @@ import {
 } from "../../../utils/conversions";
 import FilePreview from "../../common/FilePreview";
 import ListingDetails from "../../common/ListingDetails";
-
-import { IntProp } from "../../../../declarations/backend/backend.did";
 
 // @ts-ignore
 import { getName } from "country-list";
@@ -35,8 +33,8 @@ interface IPItemProps {
 }
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
+  
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
-  const [showUserDetails, setShowUserDetails] = useState(false);
 
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
@@ -46,52 +44,24 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     window.open(certUrl, "_blank");
   };
 
-  const { data: isBanned, call: getIsBanned } = backendActor.useQueryCall({
+  const { data: isBanned } = backendActor.useQueryCall({
     functionName: "is_banned_int_prop",
     args: [{ id: BigInt(intPropId) }],
   });
 
-  const { data: intProp, call: getIntProp } = backendActor.useQueryCall({
+  const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: BigInt(intPropId) }],
   });
 
-  const { data: author, call: getAuthor } = backendActor.useQueryCall({
-    functionName: "get_user",
-  });
-
-  useEffect(() => {
-    if (intProp !== undefined && "ok" in intProp) {
-      getAuthor([intProp.ok.V1.author]);
-    }
-  }
-  , [intProp]);
-
-  const { call: getOptOwner } = backendActor.useQueryCall({
+  backendActor.useQueryCall({
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
     onSuccess(data) {
+      console.log("Owner data:", data);
       setOwner(fromNullableExt(data));
     },
   });
-
-  const updateBipDetails = () => {
-    getIntProp();
-    getOptOwner();
-    getIsBanned();
-  };
-
-  const getPublishingDate = (ip: IntProp) => {
-    const publish = fromNullable(ip.publishing);
-
-    if (publish !== undefined) {
-      return formatDate(timeToDate(publish.date));
-    }
-
-    return "N/A";
-  };
-
-  const bid = true;
 
   const dummyData = {
     "Live Auction": [
@@ -185,7 +155,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     <div className="flex flex-row items-center gap-[15px]">
                       <UserImage principal={intProp.ok.V1.author} />
                       <div className="flex flex-row items-center gap-1">
-                        <p>{fromNullableExt(author)?.nickName ?? "Loading..."}</p>
+                        <UserNickName principal={intProp.ok.V1.author} />
                         <span>
                           <HiCheckBadge
                             size={24}
@@ -202,12 +172,13 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     <div className="flex flex-row justify-between gap-[10px] md:flex-row md:items-center">
                       <div className="flex flex-col">
                         <p className="text-[26px]">bIP #{BigInt(intPropId).toString()}</p>
-                        <p className="pb-1 text-xl">
+                        { owner && <p className="pb-1 text-xl">
                           Owned by @
                           <span className="text-primary">
-                            <UserNickName principal={intProp.ok.V1.author} />
+                            <UserNickName principal={owner}/>
                           </span>{" "}
                         </p>
+                        }
                       </div>
                       <div className="flex flex-row gap-6 ml-auto">
                         <div className="flex items-center gap-1">

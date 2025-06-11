@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import { backendActor } from "../../actors/BackendActor";
@@ -28,6 +28,7 @@ const BipItem: React.FC<BipItemProps> = ({
   principal,
 }) => {
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
+  const [canDelete, setCanDelete] = useState<boolean>(false);
 
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
@@ -47,6 +48,15 @@ const BipItem: React.FC<BipItemProps> = ({
       setOwner(fromNullableExt(data));
     },
   });
+
+  useEffect(() => {
+    setCanDelete(principal !== undefined &&
+      authorPrincipal !== undefined &&
+      authorPrincipal?.compareTo(principal) === "eq" &&
+      owner !== undefined &&
+      owner?.compareTo(principal) === "eq");
+  }
+  , [principal, authorPrincipal, owner]);
 
   const location = useLocation();
 
@@ -95,8 +105,8 @@ const BipItem: React.FC<BipItemProps> = ({
                 </div>
               </div>
               <div className="absolute bottom-5 right-0 flex h-[75px] w-[40px] flex-col justify-between">
+                { canDelete && <DeleteButton intPropId={intPropId} /> }
                 <ShareButton intPropId={intPropId} />
-                { principal !== undefined && authorPrincipal !== undefined && authorPrincipal?.compareTo(principal) === "eq" && <DeleteButton intPropId={intPropId} /> }
               </div>
             </Link>
 
