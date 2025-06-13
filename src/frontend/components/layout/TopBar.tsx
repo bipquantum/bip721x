@@ -65,7 +65,7 @@ const TopBar = () => {
             </Link>
           </div>
         )}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="hidden flex-row items-center gap-1 rounded-xl bg-white p-2 md:flex">
             <TbSearch className="text-gray-500" />
             <input
@@ -75,10 +75,7 @@ const TopBar = () => {
             />
           </div>
           <button className="relative flex h-[40px] w-[40px] items-center justify-center rounded-full border-2 border-black bg-transparent text-gray-800 dark:border-gray-400 dark:text-gray-400">
-            <TbBell size={32} />
-            <span className="absolute right-0 top-0 size-3 rounded-full bg-red-500">
-              {" "}
-            </span>
+            <TbBell size={22} />
           </button>
           {/* Theme Toggle */}
           <button
