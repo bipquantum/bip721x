@@ -53,6 +53,8 @@ import { MiddlewareReturn } from "@floating-ui/core";
 import { MiddlewareState } from "@floating-ui/dom";
 import UserImage from "../../common/UserImage";
 import { ListButton } from "../../common/ListingDetails";
+import { LegalDeclaration } from "./LegalDeclaration";
+import { set } from "react-datepicker/dist/date_utils";
 
 const IP_TYPE_OPTIONS: Option[] = [
   {
@@ -85,7 +87,6 @@ const IP_TYPE_OPTIONS: Option[] = [
   },
 ];
 
-// TODO sardariuss 2024-AUG-28: Use for loop to generate options
 const IP_LICENSE_OPTIONS: Option[] = [
   {
     label: intPropLicenseToString({ GAME_FI: null }),
@@ -212,6 +213,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   };
 
   const [step, setStep] = useState(1);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [ipId, setIpId] = useState<bigint | undefined>(undefined);
   const [intPropInput, setIntPropInput] =
     useState<IntPropInput>(loadIntPropInput());
@@ -244,7 +246,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
       } else {
         setIpId(data["ok"]);
         clear(); // Clear the form data after successful creation
-        setStep(3);
+        setStep(4);
       }
     },
     onError: (error) => {
@@ -305,7 +307,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
       {step === 2 && (
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
-            onClick={() => createIntProp([intPropInput])}
+            onClick={() => setStep(3)}
             className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
             {loading ? (
@@ -316,7 +318,27 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </button>
         </div>
       )}
-      {step !== 1 && (
+      {step === 3 && (
+        <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
+          <button
+            onClick={() => {
+              if (!disclaimerAccepted) {
+                toast.warn("Please accept the legal declaration");
+                return;
+              }
+              createIntProp([intPropInput])
+            }}
+            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
+          >
+            {loading ? (
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent dark:border-t-black border-t-white"></div>
+            ) : (
+              <TbArrowRight size={60} />
+            )}
+          </button>
+        </div>
+      )}
+      {step !== 1 && step !== 4 && (
         <div className="absolute left-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
             onClick={() => setStep(step - 1)}
@@ -332,10 +354,11 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden">
             <div className="flex flex-col items-center gap-[15px]">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
-                STep 1 : Create new IP
+                Step 1 : Create new IP
               </p>
               <div className="flex w-full flex-row items-center gap-1">
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
+                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
               </div>
@@ -744,12 +767,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         {step === 2 && (
           <div className="flex w-full flex-col items-center gap-[30px]">
             <div className="flex flex-col items-center gap-[15px]">
-              <p className="font-extabold font-monument text-sm md:text-lg uppercase text-black dark:text-white">
+              <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 2 : Validate Author Details
               </p>
               <div className="flex w-full flex-row items-center gap-1">
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
+                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
               </div>
             </div>
@@ -840,13 +864,42 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
             </div>
           </div>
         )}
-        {step == 3 && ipId !== undefined && (
-          <div className="flex w-full flex-col items-center gap-[30px]">
-            <div className="flex flex-col items-center gap-[15px]">
-              <p className="font-extabold font-monument text-sm md:text-lg uppercase text-black dark:text-white">
-                STep 3 : Success
+        {step == 3 && (
+          <div className="flex w-full flex-col items-center gap-[30px] h-full">
+            <div className="flex flex-col items-center gap-[15px] h-full">
+              <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
+                Step 3 : Legal declaration
               </p>
               <div className="flex w-fit flex-row items-center gap-1">
+                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
+                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
+                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
+                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
+              </div>
+              <div className="text-sm sm:text-lg flex w-full flex-col items-center justify-around rounded-lg text-black dark:text-white h-full space-y-2">
+                
+                <LegalDeclaration/>
+
+                <label className="flex flex-row items-center space-x-2 px-2">
+                  <input
+                    type="checkbox"
+                    checked={disclaimerAccepted}
+                    onChange={(e) => setDisclaimerAccepted(e.target.checked)}
+                  />
+                  <span>I have read and agree to the legal declaration above.</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+        {step == 4 && ipId !== undefined && (
+          <div className="flex w-full flex-col items-center gap-[30px]">
+            <div className="flex flex-col items-center gap-[15px]">
+              <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
+                Step 4 : Success
+              </p>
+              <div className="flex w-fit flex-row items-center gap-1">
+                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
                 <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
