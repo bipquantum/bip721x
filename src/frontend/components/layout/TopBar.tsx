@@ -9,8 +9,9 @@ import { fromNullable } from "@dfinity/utils";
 import { User } from "../../../declarations/backend/backend.did";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { MdOutlineLightMode } from "react-icons/md";
-
-
+import LogoDark from "../../assets/logoDark.png";
+import LogoLight from "../../assets/logoLight.png";
+import UserImage from "../common/UserImage";
 
 const TopBar = () => {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -41,11 +42,20 @@ const TopBar = () => {
   return (
     <main>
       <div className="flex w-full items-center justify-between bg-background p-4 text-white dark:bg-background-dark">
-        <div className="text-black dark:text-white">
-          <p className="text-base font-bold md:text-xl">Hello,</p>
-          <p className="text-sm md:text-base">
-            {user === undefined ? NEW_USER_NICKNAME : user.nickName}
-          </p>
+        <div className="flex flex-row space-x-3 text-black dark:text-white">
+          <Link to={"/"} className="size-[48px]">
+            <img
+              src={theme === "dark" ? LogoLight : LogoDark}
+              alt=""
+              className={`h-full w-full`}
+            />
+          </Link>
+          <div className="flex flex-col items-start justify-center">
+            <p className="text-base font-bold md:text-xl">Hello,</p>
+            <p className="text-sm md:text-base">
+              {user === undefined ? NEW_USER_NICKNAME : user.nickName}
+            </p>
+          </div>
         </div>
         {pathname === "/" && (
           <div className="hidden items-center justify-between gap-4 text-black dark:text-white lg:flex">
@@ -66,20 +76,27 @@ const TopBar = () => {
           </div>
         )}
         <div className="flex items-center gap-3">
-          <div className="hidden flex-row items-center gap-1 rounded-xl bg-white p-2 md:flex">
+          <div className="relative group hidden flex-row items-center gap-1 rounded-xl bg-white p-2 md:flex">
             <TbSearch className="text-gray-500" />
             <input
               type="text"
               className="ring-none border-none bg-transparent text-[16px] text-gray-500"
               placeholder="Search"
+              disabled={true}
             />
+            <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
+              Coming Soon!
+            </span>
           </div>
-          <button className="relative flex h-[40px] w-[40px] items-center justify-center rounded-full border-2 border-black bg-transparent text-gray-800 dark:border-gray-400 dark:text-gray-400">
+          <div className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-transparent text-gray-800 dark:border-gray-400 dark:text-gray-400">
             <TbBell size={22} />
-          </button>
+            <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
+              Coming Soon!
+            </span>
+          </div>
           {/* Theme Toggle */}
           <button
-            className="rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white"
+            className="rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white h-10 w-10"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
             {theme === "dark" ? (
@@ -88,6 +105,9 @@ const TopBar = () => {
               <MdOutlineLightMode size={22} />
             )}
           </button>
+          <Link to="/profile">
+            <UserImage principal={identity.getPrincipal()} className="h-10 w-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-700"/>
+          </Link>
         </div>
       </div>
     </main>

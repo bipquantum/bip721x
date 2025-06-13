@@ -1,87 +1,44 @@
 import { Link, useLocation } from "react-router-dom";
-import ProfileSvg from "../../assets/profile.png";
 import LogoutSvg from "../../assets/logout.svg";
 import LoginSvg from "../../assets/login.svg";
-import LogoDark from "../../assets/logoDark.png";
 
 import { useAuth } from "@ic-reactor/react";
-import { backendActor } from "../actors/BackendActor";
-import { NEW_USER_NICKNAME } from "../constants";
-import { useContext, useEffect, useState } from "react";
-import { fromNullable } from "@dfinity/utils";
-import { User } from "../../../declarations/backend/backend.did";
-import FilePreview from "../common/FilePreview";
-import { ThemeContext } from "../App";
 
-import dashDark from "../../assets/navIcons/dash-dark.svg";
-import dashLight from "../../assets/navIcons/dash-light.svg";
-import newDark from "../../assets/navIcons/new-dark.svg";
-import newLight from "../../assets/navIcons/new-light.svg";
-import bipsDark from "../../assets/navIcons/bips-dark.svg";
-import bipsLight from "../../assets/navIcons/bips-light.svg";
-import marketDark from "../../assets/navIcons/market-dark.svg";
-import marketLight from "../../assets/navIcons/market-light.svg";
-import supportDark from "../../assets/navIcons/support-dark.svg";
-import supportLight from "../../assets/navIcons/support-light.svg";
-import darkBG from "../../assets/navIcons/darkBg.svg";
+import BipsIcon from "../icons/BipsIcon";
+import DashIcon from "../icons/DashIcon";
+import MarketIcon from "../icons/MarketIcon";
+import NewIPIcon from "../icons/NewIPIcon";
+import SupportIcon from "../icons/SupportIcon";
 
 const NavBar = () => {
+  
   const { pathname } = useLocation();
 
-  const { identity, authenticated, logout, login } = useAuth({});
-
-  const [user, setUser] = useState<User | undefined>(undefined);
-
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: identity ? [identity?.getPrincipal()] : undefined,
-  });
-
-  useEffect(() => {
-    if (queriedUser !== undefined) {
-      setUser(fromNullable(queriedUser));
-    } else {
-      setUser(undefined);
-    }
-  }, [queriedUser]);
+  const { authenticated, logout, login } = useAuth({});
 
   const NavBarItems = [
     {
-      darkSvg: dashDark,
-      lightSvg: dashLight,
+      icon: DashIcon,
       label: "Dashboard",
       link: "dashboard",
     },
     {
-      darkSvg: newDark,
-      lightSvg: newLight,
+      icon: NewIPIcon,
       label: "Create New IP",
       link: "new",
     },
     {
-      darkSvg: bipsDark,
-      lightSvg: bipsLight,
+      icon: BipsIcon,
       label: "BIPs",
       link: "bips",
     },
     {
-      darkSvg: marketDark,
-      lightSvg: marketLight,
+      icon: MarketIcon,
       label: "Market place",
       link: "marketplace",
     },
     {
-      darkSvg: user?.imageUri,
-      lightSvg: user?.imageUri,
-      label:
-        user === undefined || user.nickName.length === 0
-          ? NEW_USER_NICKNAME
-          : user.nickName,
-      link: "profile",
-    },
-    {
-      darkSvg: supportDark,
-      lightSvg: supportLight,
+      icon: SupportIcon,
       label: "Support",
       link: "https://www.bipquantum.com/help-support.html",
       target: "_blank",
@@ -89,87 +46,55 @@ const NavBar = () => {
     },
   ];
 
-  const { theme, setTheme } = useContext(ThemeContext);
-
   return (
     <>
       {!(pathname.includes("login") || pathname.includes("certificate")) && (
-        <div className="static z-[999] flex w-[90px] flex-row border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30">
-          <div className="hidden h-screen w-fit flex-col items-center overflow-y-auto bg-background pt-8 font-bold text-black dark:bg-background-dark dark:text-white sm:flex">
-            <div className="flex flex-grow flex-col items-center justify-between">
-              <div className="flex flex-col items-center justify-start">
-                <Link to={"/"} className="mb-[20px] size-[48px] xl:mb-[40px]">
-                  <img
-                    src={theme === "dark" ? LogoDark : LogoDark}
-                    alt=""
-                    className={`h-full w-full`}
-                  />
-                </Link>
-                {NavBarItems.map((item, index) => (
-                  <Link
-                    className={`relative z-50 flex h-full w-full flex-col items-center justify-center gap-2 p-2 text-black dark:text-white ${
-                      item.link !== "marketplace" && !authenticated && "hidden"
-                    } ${pathname === "/" + item.link ? "active-link" : ""}`}
-                    to={item.link}
-                    key={index}
-                    target={item.target}
-                    rel={item.rel}
-                  >
-                    {pathname === "/" + item.link && (
-                      <div className="absolute -top-[42.5%] left-[-5px] -z-10 h-full w-[85px] overflow-x-visible">
-                        <img src={darkBG} alt="" />
-                      </div>
-                    )}
+          <div className="border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 static z-[999] flex w-[300px]
+           hidden h-screen w-fit flex-col items-center justify-between bg-background font-bold text-black dark:bg-background-dark
+            dark:text-white sm:flex">
+            <div>{/*spacer*/}</div>
+            <div className="flex flex-col items-center space-y-2 pr-2">
+              {NavBarItems.map((item, index) => (
+                <Link
+                  className={`relative z-50 flex h-full w-full flex-col items-center justify-center text-black dark:text-white ${
+                    item.link !== "marketplace" && !authenticated && "hidden"
+                  } ${pathname === "/" + item.link ? "active-link" : ""}`}
+                  to={item.link}
+                  key={index}
+                  target={item.target}
+                  rel={item.rel}
+                >
+                  <div className={`flex flex-col items-center pl-4 p-2 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-background-dark dark:bg-secondary rounded-r-full text-white dark:text-secondary"}`}>
+                    <div className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-primary dark:bg-white"}`}>
+                      { item.icon() }
+                    </div>
+                  </div>
 
-                    {item.link === "profile" ? (
-                      user !== undefined && user.imageUri !== "" ? (
-                        <FilePreview
-                          dataUri={user.imageUri}
-                          className={"size-[48px] rounded-full object-cover"}
-                        />
-                      ) : (
-                        <img
-                          src={ProfileSvg}
-                          className="size-[48px] rounded-full object-cover"
-                        />
-                      )
-                    ) : (
-                      <div
-                        className={`relative flex size-[48px] items-center justify-center rounded-full ${
-                          pathname !== "/" + item.link ? "" : "bg-white"
-                        }`}
-                      >
-                        <img
-                          src={theme === "dark" ? item.darkSvg : item.lightSvg}
-                        />
-                      </div>
-                    )}
-
-                    {/* Label */}
+                  {/* Label */}
+                  <div className="h-[10px] pl-2 -mt-2">
                     {pathname !== "/" + item.link && (
                       <p className={`text-[10px] font-bold`}>{item.label}</p>
                     )}
-                  </Link>
-                ))}
-              </div>
-              <button
-                onClick={() => {
-                  authenticated ? logout() : login();
-                }}
-                className="flex flex-col items-center justify-center gap-2"
-              >
-                <img
-                  src={authenticated ? LogoutSvg : LoginSvg}
-                  alt=""
-                  className="mt-2 h-8 cursor-pointer dark:invert"
-                />
-                <p className={`text-sm`}>
-                  {authenticated ? "Logout" : "Login"}
-                </p>
-              </button>
+                  </div>
+                </Link>
+              ))}
             </div>
+            <button
+              onClick={() => {
+                authenticated ? logout() : login();
+              }}
+              className="flex flex-col items-center justify-center gap-2"
+            >
+              <img
+                src={authenticated ? LogoutSvg : LoginSvg}
+                alt=""
+                className="mt-2 h-8 cursor-pointer dark:invert"
+              />
+              <p className={`text-[10px] font-bold`}>
+                {authenticated ? "Logout" : "Login"}
+              </p>
+            </button>
           </div>
-        </div>
       )}
     </>
   );

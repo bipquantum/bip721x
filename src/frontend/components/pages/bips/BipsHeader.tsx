@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-import Logo from "../../../assets/logo_beta.png";
 import { EQueryDirection } from "../../../utils/conversions";
 import SearchSvg from "../../../assets/search-button.svg";
 import SortUp from "../../../assets/sort-up.svg";
