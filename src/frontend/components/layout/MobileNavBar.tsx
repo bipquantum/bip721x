@@ -1,129 +1,90 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-
-import HomeSvg from "../../assets/home.svg";
-import EditSvg from "../../assets/edit.svg";
-import WindowSvg from "../../assets/window.svg";
-import MarketSvg from "../../assets/market.svg";
-import ProfileSvg from "../../assets/profile.png";
+import { Link, useLocation } from "react-router-dom";
 import LogoutSvg from "../../assets/logout.svg";
+import LoginSvg from "../../assets/login.svg";
 
 import { useAuth } from "@ic-reactor/react";
-import { useContext, useEffect, useState } from "react";
-import { User } from "../../../declarations/backend/backend.did";
-import { backendActor } from "../actors/BackendActor";
-import { fromNullable } from "@dfinity/utils";
-import FilePreview from "../common/FilePreview";
-import { NEW_USER_NICKNAME } from "../constants";
 
-import { ThemeContext } from "../App";
-import dashDark from "../../assets/navIcons/dash-dark.svg";
-import dashLight from "../../assets/navIcons/dash-light.svg";
-import newDark from "../../assets/navIcons/new-dark.svg";
-import newLight from "../../assets/navIcons/new-light.svg";
-import bipsDark from "../../assets/navIcons/bips-dark.svg";
-import bipsLight from "../../assets/navIcons/bips-light.svg";
-import marketDark from "../../assets/navIcons/market-dark.svg";
-import marketLight from "../../assets/navIcons/market-light.svg";
+import BipsIcon from "../icons/BipsIcon";
+import DashIcon from "../icons/DashIcon";
+import MarketIcon from "../icons/MarketIcon";
+import NewIPIcon from "../icons/NewIPIcon";
+import SupportIcon from "../icons/SupportIcon";
 
 const MobileNavBar = () => {
-  const location = useLocation();
-  const { pathname } = location;
+  
+  const { pathname } = useLocation();
 
-  const { identity, authenticated, logout } = useAuth({});
+  const { authenticated, logout, login } = useAuth({});
 
-  if (!identity || !authenticated) {
-    return <></>;
-  }
-
-  const [user, setUser] = useState<User | undefined>(undefined);
-
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: [identity?.getPrincipal()],
-  });
-
-  useEffect(() => {
-    if (queriedUser !== undefined) {
-      setUser(fromNullable(queriedUser));
-    } else {
-      setUser(undefined);
-    }
-  }, [queriedUser]);
-
-  const MobileNavBarItems = [
+  const NavBarItems = [
     {
-      darkSvg: dashDark,
-      lightSvg: dashLight,
+      icon: DashIcon,
       label: "Dashboard",
       link: "dashboard",
     },
     {
-      darkSvg: newDark,
-      lightSvg: newLight,
+      icon: NewIPIcon,
       label: "Create New IP",
       link: "new",
     },
     {
-      darkSvg: bipsDark,
-      lightSvg: bipsLight,
-      label: "bIPs",
+      icon: BipsIcon,
+      label: "BIPs",
       link: "bips",
     },
     {
-      darkSvg: marketDark,
-      lightSvg: marketLight,
+      icon: MarketIcon,
       label: "Market place",
       link: "marketplace",
     },
     {
-      darkSvg: user?.imageUri,
-      lightSvg: user?.imageUri,
-      label:
-        user === undefined || user.nickName.length === 0
-          ? NEW_USER_NICKNAME
-          : user.nickName,
-      link: "profile",
+      icon: SupportIcon,
+      label: "Support",
+      link: "https://www.bipquantum.com/help-support.html",
+      target: "_blank",
+      rel: "noopener noreferrer",
     },
   ];
 
-  const { theme, setTheme } = useContext(ThemeContext);
-
   return (
-    !pathname.includes("certificate") && (
-      <div className="sticky flex min-h-16 w-full items-center justify-between space-x-2 border-t bg-background px-4 dark:bg-background-dark sm:hidden">
-        {MobileNavBarItems.map((item, index) => (
-          <Link
-            className={`rounded-full size-[40px] flex items-center justify-center ${pathname === "/" + item.link ? "  bg-background-dark dark:bg-white ": ""}`}
-            to={item.link}
-            key={index}
-          >
-            {item.link === "profile" ? (
-              user !== undefined && user.imageUri !== "" ? (
-                <FilePreview
-                  dataUri={user.imageUri}
-                  className={"h-[28px] rounded-full object-cover"}
-                />
-              ) : (
-                <img
-                  src={ProfileSvg}
-                  className="h-[28px] rounded-full object-cover"
-                />
-              )
-            ) : (
-              <img src={item.lightSvg} 
-                className="h-[28px]"
+    <>
+      {!(pathname.includes("login") || pathname.includes("certificate")) && (
+          <div className="border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 static z-[999] flex
+           w-screen flex-row items-center bg-background font-bold text-black dark:bg-background-dark dark:text-white pt-2">
+              {NavBarItems.map((item, index) => (
+                <Link
+                  className={`z-50 flex grow flex-row items-center justify-center text-black dark:text-white ${
+                    item.link !== "marketplace" && !authenticated && "hidden"
+                  } ${pathname === "/" + item.link ? "active-link" : ""}`}
+                  to={item.link}
+                  key={index}
+                  target={item.target}
+                  rel={item.rel}
+                >
+                  <div className={`flex flex-col items-center pb-2 pt-1 px-1 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-background-dark dark:bg-secondary rounded-t-full text-white dark:text-secondary"}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-primary dark:bg-white"}`}>
+                      { item.icon() }
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              <div className="flex flex-col items-center pb-2 pt-1 px-1 grow ">
+              <img
+                src={authenticated ? LogoutSvg : LoginSvg}
+                alt=""
+                className="flex grow h-6 w-6 cursor-pointer dark:invert"
+                onClick={() => {
+                  if (authenticated) {
+                    logout();
+                  } else {
+                    login();
+                  }
+                }}
               />
-            )}
-          </Link>
-        ))}
-        <button
-          onClick={() => logout()}
-          className="flex flex-col items-center justify-center size=[32px]"
-        >
-          <img src={LogoutSvg} alt="" className="h-[28px] w-[28px] cursor-pointer dark:invert" />
-        </button>
-      </div>
-    )
+              </div>
+          </div>
+      )}
+    </>
   );
 };
 

@@ -98,7 +98,7 @@ const ChatBot = ({
             disabled={isCalling}
           />
           <div className="group flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1 text-black">
-            <BiMicrophone size={34} color="gray" />
+            <BiMicrophone size={34} color="gray"/>
             <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
               Coming Soon!
             </span>

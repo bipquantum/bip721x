@@ -1,7 +1,6 @@
 import { useAuth } from "@ic-reactor/react";
 import { Link, useNavigate } from "react-router-dom";
 
-import LogoSvg from "../../../assets/logo_beta.png";
 import { useChatHistory } from "../../layout/ChatHistoryContext";
 
 const Main = () => {
