@@ -63,7 +63,7 @@ const Dashboard = () => {
               className="h-[48px] w-full resize-none border-none pt-[8px] text-xs leading-none outline-none sm:text-base"
             ></textarea>
             <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1">
-              <BiMicrophone size={34} />
+              <BiMicrophone size={34} color="gray"/>
             </div>
           </div>
           <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gray-200">

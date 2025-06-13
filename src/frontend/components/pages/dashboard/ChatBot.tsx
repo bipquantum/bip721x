@@ -78,7 +78,7 @@ const ChatBot = ({
         />
       </div>
       <div className="flex flex-col w-full gap-2 px-4 md:pb-[30px] pb-[60px]">
-      <div className="flex w-full flex-row items-center gap-4 ">
+      <div className="relative flex w-full flex-row items-center gap-4 ">
         <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border px-3 bg-white">
           <textarea
             className="w-full resize-none border-none outline-none sm:text-base text-xs leading-none h-[48px] pt-[8px]"
@@ -97,8 +97,11 @@ const ChatBot = ({
             ref={textAreaRef}
             disabled={isCalling}
           />
-          <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1 text-black">
-            <BiMicrophone size={34} />
+          <div className="group flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1 text-black">
+            <BiMicrophone size={34} color="gray" />
+            <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
+              Coming Soon!
+            </span>
           </div>
         </div>
           <button
