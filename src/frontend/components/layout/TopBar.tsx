@@ -75,18 +75,6 @@ const TopBar = () => {
         </div>
       )}
       <div className="flex items-center gap-3">
-        <div className="relative group hidden flex-row items-center gap-1 rounded-xl bg-white p-2 md:flex">
-          <TbSearch className="text-gray-500" />
-          <input
-            type="text"
-            className="ring-none border-none bg-transparent text-[16px] text-gray-500"
-            placeholder="Search"
-            disabled={true}
-          />
-          <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
-            Coming Soon!
-          </span>
-        </div>
         <div className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-transparent text-gray-800 dark:border-gray-400 dark:text-gray-400">
           <TbBell size={22} />
           <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">

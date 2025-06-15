@@ -58,10 +58,8 @@ const Balance = ({ principal }: BalanceProps) => {
   }, []);
 
   return (
-    <div className="flex w-full flex-row items-center justify-between gap-4 text-sm sm:text-xl">
-      <span>
-        Your balance: {fromE8s(balance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC
-      </span>
+    <div className="flex w-full flex-row items-center justify-center gap-4 text-xl text-center">
+      Your balance: {fromE8s(balance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC
       {
         isAirdropAvailable ?
         <button
