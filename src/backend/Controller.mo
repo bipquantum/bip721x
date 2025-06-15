@@ -364,6 +364,10 @@ module {
       });
     };
 
+    public func getNumberOfUsers() : Nat {
+      Map.size(users);
+    };
+
     public func airdropUser(principal: Principal) : async Result<Nat, Text> {
 
       if (Principal.isAnonymous(principal)){
