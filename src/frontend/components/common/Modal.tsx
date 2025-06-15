@@ -1,5 +1,6 @@
 import { ReactNode, MouseEvent } from "react";
 import ReactDOM from "react-dom";
+import { MdCancel } from "react-icons/md";
 
 interface Props {
   isVisible: boolean;
@@ -29,7 +30,9 @@ const Modal = ({ isVisible, children, onClose }: Props) => {
     >
       <div className="rounded-xl dark:bg-background-dark bg-background p-4" onClick={handleModalClick}>
         <div className="flex w-full justify-end">
-          <button onClick={onClose} className="text-black dark:text-white">X</button>
+          <button onClick={onClose} className="text-black dark:text-white">
+            <MdCancel size={24} />
+          </button>
         </div>
         {children}
       </div>

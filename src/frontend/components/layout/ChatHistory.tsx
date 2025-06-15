@@ -1,12 +1,9 @@
-import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ChatHistoryBar from "./ChatHistoryBar";
-import { ModalPopup } from "../common/ModalPopup";
 
 const ChatHistory = () => {
   const location = useLocation();
   const { pathname } = location;
-  const [showChatHistory, setShowChatHistory] = useState(false);
   const hideHistoryBar = () => {
     return (
       pathname.includes("/marketplace") ||
@@ -26,17 +23,6 @@ const ChatHistory = () => {
       >
         <ChatHistoryBar onChatSelected={() => {}} />
       </div>
-      <ModalPopup
-        onClose={() => {
-          setShowChatHistory(false);
-        }}
-        isOpen={showChatHistory}
-        onConfirm={() => {
-          setShowChatHistory(false);
-        }}
-      >
-        <ChatHistoryBar onChatSelected={() => setShowChatHistory(false)} />
-      </ModalPopup>
     </div>
   );
 };

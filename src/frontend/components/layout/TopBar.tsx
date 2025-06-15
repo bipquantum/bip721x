@@ -4,21 +4,24 @@ import { useAuth } from "@ic-reactor/react";
 import { Link, useLocation } from "react-router-dom";
 import { backendActor } from "../../components/actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../components/constants";
-import { TbBell, TbSearch } from "react-icons/tb";
 import { fromNullable } from "@dfinity/utils";
 import { User } from "../../../declarations/backend/backend.did";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { MdOutlineLightMode } from "react-icons/md";
+import { MdChat } from "react-icons/md";
 import LogoDark from "../../assets/logoDark.png";
 import LogoLight from "../../assets/logoLight.png";
 import UserImage from "../common/UserImage";
+import ChatHistoryBar from "./ChatHistoryBar";
+import Modal from "../common/Modal";
 
 const TopBar = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   const location = useLocation();
   const { pathname } = location;
 
-  const { identity, authenticated, logout } = useAuth({});
+  const { identity, authenticated } = useAuth({});
+  const [showChatHistory, setShowChatHistory] = useState(false);
 
   if (!identity || !authenticated) {
     return <></>;
@@ -40,18 +43,18 @@ const TopBar = () => {
   }, [queriedUser]);
 
   return (
-    <main className="flex w-full items-center justify-between bg-background text-white dark:bg-background-dark min-h-16 sm:min-h-20 px-3 sm:px-4">
-      <div className="flex flex-row space-x-3 text-black dark:text-white">
-        <Link to={"/"} className="size-[48px]">
+    <main className="flex w-full items-center justify-between bg-background text-white dark:bg-background-dark min-h-16 sm:min-h-20 px-3 sm:px-4 overflow-hidden">
+      <div className="flex flex-row space-x-3 text-black dark:text-white flex-shrink min-w-0">
+        <Link to={"/"} className="size-[48px] shrink-0">
           <img
             src={theme === "dark" ? LogoLight : LogoDark}
             alt=""
             className={`h-full w-full`}
           />
         </Link>
-        <div className="flex flex-col items-start justify-center">
+        <div className="flex flex-col items-start justify-center min-w-0">
           <p className="text-base font-bold md:text-xl">Hello,</p>
-          <p className="text-sm md:text-base">
+          <p className="text-sm md:text-base truncate w-full">
             {user === undefined ? NEW_USER_NICKNAME : user.nickName}
           </p>
         </div>
@@ -74,28 +77,30 @@ const TopBar = () => {
           </Link>
         </div>
       )}
-      <div className="flex items-center gap-3">
-        <div className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-transparent text-gray-800 dark:border-gray-400 dark:text-gray-400">
-          <TbBell size={22} />
-          <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
-            Coming Soon!
-          </span>
-        </div>
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Theme Toggle */}
         <button
           className="rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white h-10 w-10"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
-          {theme === "dark" ? (
-            <MdOutlineDarkMode size={22} />
-          ) : (
-            <MdOutlineLightMode size={22} />
-          )}
+          { theme === "dark" ?  <MdOutlineDarkMode size={22} /> :  <MdOutlineLightMode size={22} /> }
         </button>
-        <Link to="/profile">
+        <button
+          className="sm:hidden rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white h-10 w-10"
+          onClick={() => { setShowChatHistory(true); }}
+        >
+          <MdChat size={22} />
+        </button>
+        <Link to="/profile" className="h-10 w-10">
           <UserImage principal={identity.getPrincipal()} className="h-10 w-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-700"/>
         </Link>
       </div>
+      <Modal
+        isVisible={showChatHistory}
+        onClose={() => setShowChatHistory(false)}
+      >
+        <ChatHistoryBar onChatSelected={() => setShowChatHistory(false)} className="flex w-full flex-col justify-between text-black dark:text-white"/>
+      </Modal>
     </main>
   );
 };
