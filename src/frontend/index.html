@@ -6,12 +6,32 @@
   <meta name="viewport" content="width=device-width" />
   <title>BIP QUANTUM</title>
   <base href="/" />
-  <link rel="icon" href="/favicon.ico" />
+
+  <!-- Default favicon -->
+  <link id="favicon" rel="icon" href="/favicon-light.ico" />
 </head>
 
 <body>
   <div id="root"></div>
   <script type="module" src="./main.tsx"></script>
+
+  <script>
+    const setFavicon = (theme) => {
+      const favicon = document.getElementById('favicon');
+      if (favicon) {
+        favicon.href = theme === 'dark' ? '/favicon-dark.ico' : '/favicon-light.ico';
+      }
+    };
+
+    // Initial check
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setFavicon(isDark ? 'dark' : 'light');
+
+    // Listen for changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      setFavicon(e.matches ? 'dark' : 'light');
+    });
+  </script>
 </body>
 
 </html>
