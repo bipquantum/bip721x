@@ -54,8 +54,8 @@ function App() {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex h-screen w-full flex-col bg-background dark:bg-background-dark sm:flex-row">
+    <div className="flex min-h-screen h-screen w-full flex-col sm:flex-row bg-background dark:bg-background-dark">
+      <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
         <AgentProvider withProcessEnv>
           <BackendActorProvider>
             <BqcLedgerActorProvider>
@@ -73,8 +73,8 @@ function App() {
             </BqcLedgerActorProvider>
           </BackendActorProvider>
         </AgentProvider>
-      </div>
-    </ThemeContext.Provider>
+      </ThemeContext.Provider>
+    </div>
   );
 }
 
@@ -86,38 +86,21 @@ function AppContent() {
     <>
       <ToastContainer />
       <AirdropBanner />
-      <NavBar />
-
       {/* Main Layout Container */}
-      <div className="flex h-screen w-full flex-col sm:flex-row">
-        {/* Fixed Top Bar for Mobile */}
-        {pathname !== "/login" && (
-          <div className="fixed left-0 top-0 z-50 w-full block sm:hidden min-h-[50px]">
-            <MobileHeader />
-          </div>
-        )}
+      <div className="flex flex-col min-h-screen w-full sm:flex-row bg-background dark:bg-background-dark">
+
+        { !(pathname.includes("login") || pathname.includes("certificate")) && <NavBar /> }
 
         {/* Main Content Wrapper */}
-        <div className="flex flex-1 flex-col overflow-auto pb-[var(--mobile-nav-height)] pt-[var(--mobile-header-height)] sm:pb-0 sm:pt-0">
-          {pathname !== "/login" && (
-            <div className="">
-              <TopBar />
-            </div>
-          )}
-          <div className="flex h-full flex-row items-start justify-start">
-            <div className="flex h-full w-fit items-center justify-center">
-              <ChatHistory />
-            </div>
+        <div className="flex flex-col w-full h-full items-center">
+          { !(pathname.includes("login") || pathname.includes("certificate")) && <TopBar/>}
+          <div className="flex flex-row w-full h-full overflow-y-auto items-center justify-between">
+            <ChatHistory />
             <Router />
           </div>
+          {/* Fixed Bottom Nav for Mobile */}
+          { !(pathname.includes("login") || pathname.includes("certificate")) && <MobileNavBar /> }
         </div>
-
-        {/* Fixed Bottom Nav for Mobile */}
-        {pathname !== "/login" && (
-          <div className="fixed bottom-0 left-0 z-50 w-full sm:hidden">
-            <MobileNavBar />
-          </div>
-        )}
       </div>
     </>
   );

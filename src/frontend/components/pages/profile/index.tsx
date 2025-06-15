@@ -104,108 +104,98 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center md:justify-center overflow-hidden overflow-y-auto font-semibold text-black dark:text-white">
-      <div className="flex md:h-[80dvh] h-[calc(100dvh-140px)] md:pb-0 pb-[10px] w-full flex-col gap-[30px] overflow-auto px-[20px]">
-        <div className="hidden h-[100px] w-full overflow-hidden rounded-t-[20px]">
-          <img src={profileBg} alt="" className="h-full w-full object-center" />
-        </div>
-        <div className="flex w-full flex-col gap-[30px] md:pl-[15px]">
-          <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
-            <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
-              <FileUploader
-                setDataUri={(dataUri) => {
-                  if (dataUri !== null) {
-                    setUserArgs({ ...userArgs, imageUri: dataUri });
-                  }
-                }}
-                acceptedFiles="image/*,audio/*,application/pdf,text/*"
-              >
-                {userArgs.imageUri !== "" ? (
-                  FilePreview({
-                    dataUri: userArgs.imageUri,
-                    className: "h-[80px] w-[80px] rounded-full object-cover",
-                  })
-                ) : (
-                  <div className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-white text-primary dark:bg-white/10 lg:h-[100px] lg:w-[100px]">
-                    <FiUserPlus size={32} />
-                  </div>
-                )}
-              </FileUploader>
-              <div className="flex flex-col gap-[5px] text-black dark:text-white">
-                <p className="text-center text-lg md:text-2xl">Add User</p>
-                <div className="flex flex-row items-center gap-0 text-left text-xs text-gray-600 dark:text-gray-400 sm:text-sm md:text-center">
-                  <p className="w-10/12 pb-1 md:w-full">
-                    {identity?.getPrincipal().toString()}
-                  </p>
-                  <CopyToClipboard
-                    copiedText={identity?.getPrincipal().toString()}
-                  />
-                </div>
+    <div className="flex h-full w-full flex-col items-center space-y-4 font-semibold text-black dark:text-white p-4 overflow-y-auto">
+      <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
+        <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
+          <FileUploader
+            setDataUri={(dataUri) => {
+              if (dataUri !== null) {
+                setUserArgs({ ...userArgs, imageUri: dataUri });
+              }
+            }}
+            acceptedFiles="image/*,audio/*,application/pdf,text/*"
+          >
+            {userArgs.imageUri !== "" ? (
+              FilePreview({
+                dataUri: userArgs.imageUri,
+                className: "h-[80px] w-[80px] rounded-full object-cover",
+              })
+            ) : (
+              <div className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-white text-primary dark:bg-white/10 lg:h-[100px] lg:w-[100px]">
+                <FiUserPlus size={32} />
               </div>
+            )}
+          </FileUploader>
+          <div className="flex flex-col gap-[5px] text-black dark:text-white">
+            <div className="flex flex-row items-center gap-0 text-left text-xs text-gray-600 dark:text-gray-400 sm:text-sm md:text-center">
+              <p className="w-10/12 pb-1 md:w-full">
+                {identity?.getPrincipal().toString()}
+              </p>
+              <CopyToClipboard
+                copiedText={identity?.getPrincipal().toString()}
+              />
             </div>
-            <div className="h-fit w-fit">
-              <button
-                className="text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-sm uppercase text-white"
-                onClick={() => onUpdateBtnClicked()}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <img src={SpinnerSvg} alt="" />
-                ) : (
-                  "Add/Update User"
-                )}
-              </button>
-            </div>
-          </div>
-          <div className="grid w-full grid-cols-1 gap-[30px] text-base md:grid-cols-2 lg:w-8/12">
-            {ProfileFields.map((field, index) => (
-              <div
-                className="relative flex w-full flex-col rounded-lg border border-gray-300 p-1"
-                key={index}
-              >
-                <p
-                  className={`absolute left-4 bg-background px-1 text-xs transition-all duration-200 ease-in dark:bg-background-dark ${
-                    focusedFields[field.name] || userArgs[field.name]
-                      ? "-top-[15%] text-sm text-gray-200"
-                      : "top-1/2 -translate-y-1/2 text-sm text-gray-400"
-                  }`}
-                >
-                  {field.label}
-                </p>
-
-                {/* Input or Dropdown */}
-                {field.name === "countryCode" ? (
-                  <div className="country-dropdown-container">
-                    <ReactCountryDropdown
-                      defaultCountry={userArgs.countryCode}
-                      onSelect={(val) => {
-                        setUserArgs({ ...userArgs, countryCode: val.code });
-                        handleBlur("countryCode", val.code);
-                      }}
-                    />
-                  </div>
-                ) : field.name !== "imageUri" ? (
-                  <input
-                    className="sm:text-md w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-sm text-gray-400 placeholder-transparent outline-none"
-                    placeholder={field.label}
-                    defaultValue={userArgs[field.name]}
-                    onChange={(e) => {
-                      const copiedUser = { ...userArgs };
-                      const fieldName = field.name;
-                      copiedUser[fieldName] = e.target.value;
-                      setUserArgs(copiedUser);
-                    }}
-                    onFocus={() => handleFocus(field.name)}
-                    onBlur={(e) => handleBlur(field.name, e.target.value)}
-                  />
-                ) : (
-                  <></>
-                )}
-              </div>
-            ))}
           </div>
         </div>
       </div>
+      <div className="grid w-full grid-cols-1 gap-[30px] text-base md:grid-cols-2 lg:w-8/12">
+        {ProfileFields.map((field, index) => (
+          <div
+            className="relative flex w-full flex-col rounded-lg border border-gray-300 p-1"
+            key={index}
+          >
+            <p
+              className={`absolute left-4 bg-background px-1 text-xs transition-all duration-200 ease-in dark:bg-background-dark ${
+                focusedFields[field.name] || userArgs[field.name]
+                  ? "-top-[15%] text-sm text-gray-200"
+                  : "top-1/2 -translate-y-1/2 text-sm text-gray-400"
+              }`}
+            >
+              {field.label}
+            </p>
+
+            {/* Input or Dropdown */}
+            {field.name === "countryCode" ? (
+              <div className="country-dropdown-container">
+                <ReactCountryDropdown
+                  defaultCountry={userArgs.countryCode}
+                  onSelect={(val) => {
+                    setUserArgs({ ...userArgs, countryCode: val.code });
+                    handleBlur("countryCode", val.code);
+                  }}
+                />
+              </div>
+            ) : field.name !== "imageUri" ? (
+              <input
+                className="sm:text-md w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-sm text-gray-400 placeholder-transparent outline-none"
+                placeholder={field.label}
+                defaultValue={userArgs[field.name]}
+                onChange={(e) => {
+                  const copiedUser = { ...userArgs };
+                  const fieldName = field.name;
+                  copiedUser[fieldName] = e.target.value;
+                  setUserArgs(copiedUser);
+                }}
+                onFocus={() => handleFocus(field.name)}
+                onBlur={(e) => handleBlur(field.name, e.target.value)}
+              />
+            ) : (
+              <></>
+            )}
+          </div>
+        ))}
+      </div>
+      <button
+          className="text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary py-3 text-sm uppercase text-white w-48 self-center"
+          onClick={() => onUpdateBtnClicked()}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <img src={SpinnerSvg} alt="" />
+          ) : (
+            "Add/Update User"
+          )}
+        </button>
     </div>
   );
 };

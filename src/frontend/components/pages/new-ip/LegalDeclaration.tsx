@@ -1,7 +1,7 @@
 export function LegalDeclaration() {
 
     return (
-        <div className="p-2 sm:p-4 bg-background border border-gray-400 dark:bg-white/10 rounded">
+        <div className="px-2 sm:px-4 bg-background border border-gray-400 dark:bg-white/10 rounded">
             <p className="font-semibold mb-2">Legal Declaration of Authorship and Ownership</p>
             <p>I hereby declare, under penalty of perjury, that I am the original author and rightful owner of the intellectual property submitted through this platform.</p>
             <p className="mt-2">I affirm that:</p>

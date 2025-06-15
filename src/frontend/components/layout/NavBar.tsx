@@ -47,56 +47,51 @@ const NavBar = () => {
   ];
 
   return (
-    <>
-      {!(pathname.includes("login") || pathname.includes("certificate")) && (
-          <div className="border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 static z-[999] flex w-[300px]
-           hidden h-screen w-fit flex-col items-center justify-between bg-background font-bold text-black dark:bg-background-dark
-            dark:text-white sm:flex">
-            <div>{/*spacer*/}</div>
-            <div className="flex flex-col items-center space-y-2 pr-2">
-              {NavBarItems.map((item, index) => (
-                <Link
-                  className={`relative z-50 flex h-full w-full flex-col items-center justify-center text-black dark:text-white ${
-                    item.link !== "marketplace" && !authenticated && "hidden"
-                  } ${pathname === "/" + item.link ? "active-link" : ""}`}
-                  to={item.link}
-                  key={index}
-                  target={item.target}
-                  rel={item.rel}
-                >
-                  <div className={`flex flex-col items-center pl-4 p-2 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-background-dark dark:bg-secondary rounded-r-full text-white dark:text-secondary"}`}>
-                    <div className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-primary dark:bg-white"}`}>
-                      { item.icon() }
-                    </div>
-                  </div>
-
-                  {/* Label */}
-                  <div className="h-[10px] pl-2 -mt-2">
-                    {pathname !== "/" + item.link && (
-                      <p className={`text-[10px] font-bold`}>{item.label}</p>
-                    )}
-                  </div>
-                </Link>
-              ))}
+    <div className="border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 flex w-[300px]
+      hidden h-full w-fit flex-col items-center justify-between font-bold text-black dark:text-white sm:flex">
+      <div>{/*spacer*/}</div>
+      <div className="flex flex-col items-center space-y-2 pr-2">
+        {NavBarItems.map((item, index) => (
+          <Link
+            className={`relative z-50 flex h-full w-full flex-col items-center justify-center text-black dark:text-white ${
+              item.link !== "marketplace" && !authenticated && "hidden"
+            } ${pathname === "/" + item.link ? "active-link" : ""}`}
+            to={item.link}
+            key={index}
+            target={item.target}
+            rel={item.rel}
+          >
+            <div className={`flex flex-col items-center pl-4 p-2 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-primary dark:bg-secondary rounded-r-full text-white dark:text-secondary"}`}>
+              <div className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-background-dark dark:bg-white"}`}>
+                { item.icon() }
+              </div>
             </div>
-            <button
-              onClick={() => {
-                authenticated ? logout() : login();
-              }}
-              className="flex flex-col items-center justify-center gap-2"
-            >
-              <img
-                src={authenticated ? LogoutSvg : LoginSvg}
-                alt=""
-                className="mt-2 h-8 cursor-pointer dark:invert"
-              />
-              <p className={`text-[10px] font-bold`}>
-                {authenticated ? "Logout" : "Login"}
-              </p>
-            </button>
-          </div>
-      )}
-    </>
+
+            {/* Label */}
+            <div className="h-[10px] pl-2 -mt-2">
+              {pathname !== "/" + item.link && (
+                <p className={`text-[10px] font-bold`}>{item.label}</p>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+      <button
+        onClick={() => {
+          authenticated ? logout() : login();
+        }}
+        className="flex flex-col items-center justify-center gap-2"
+      >
+        <img
+          src={authenticated ? LogoutSvg : LoginSvg}
+          alt=""
+          className="mt-2 h-8 cursor-pointer dark:invert"
+        />
+        <p className={`text-[10px] font-bold`}>
+          {authenticated ? "Logout" : "Login"}
+        </p>
+      </button>
+    </div>
   );
 };
 

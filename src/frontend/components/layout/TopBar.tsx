@@ -40,75 +40,73 @@ const TopBar = () => {
   }, [queriedUser]);
 
   return (
-    <main>
-      <div className="flex w-full items-center justify-between bg-background p-4 text-white dark:bg-background-dark">
-        <div className="flex flex-row space-x-3 text-black dark:text-white">
-          <Link to={"/"} className="size-[48px]">
-            <img
-              src={theme === "dark" ? LogoLight : LogoDark}
-              alt=""
-              className={`h-full w-full`}
-            />
-          </Link>
-          <div className="flex flex-col items-start justify-center">
-            <p className="text-base font-bold md:text-xl">Hello,</p>
-            <p className="text-sm md:text-base">
-              {user === undefined ? NEW_USER_NICKNAME : user.nickName}
-            </p>
-          </div>
+    <main className="flex w-full items-center justify-between bg-background text-white dark:bg-background-dark min-h-16 sm:min-h-20 px-3 sm:px-4">
+      <div className="flex flex-row space-x-3 text-black dark:text-white">
+        <Link to={"/"} className="size-[48px]">
+          <img
+            src={theme === "dark" ? LogoLight : LogoDark}
+            alt=""
+            className={`h-full w-full`}
+          />
+        </Link>
+        <div className="flex flex-col items-start justify-center">
+          <p className="text-base font-bold md:text-xl">Hello,</p>
+          <p className="text-sm md:text-base">
+            {user === undefined ? NEW_USER_NICKNAME : user.nickName}
+          </p>
         </div>
-        {pathname === "/" && (
-          <div className="hidden items-center justify-between gap-4 text-black dark:text-white lg:flex">
-            <Link
-              className="text-base"
-              to={"https://www.bipquantum.com/about.html"}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              About
-            </Link>
-            <Link className="text-base" to={"/new"}>
-              Add your Intellectual Property
-            </Link>
-            <Link className="text-base" to={"/marketplace"}>
-              Market place
-            </Link>
-          </div>
-        )}
-        <div className="flex items-center gap-3">
-          <div className="relative group hidden flex-row items-center gap-1 rounded-xl bg-white p-2 md:flex">
-            <TbSearch className="text-gray-500" />
-            <input
-              type="text"
-              className="ring-none border-none bg-transparent text-[16px] text-gray-500"
-              placeholder="Search"
-              disabled={true}
-            />
-            <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
-              Coming Soon!
-            </span>
-          </div>
-          <div className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-transparent text-gray-800 dark:border-gray-400 dark:text-gray-400">
-            <TbBell size={22} />
-            <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
-              Coming Soon!
-            </span>
-          </div>
-          {/* Theme Toggle */}
-          <button
-            className="rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white h-10 w-10"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      </div>
+      {pathname === "/" && (
+        <div className="hidden items-center justify-between gap-4 text-black dark:text-white lg:flex">
+          <Link
+            className="text-base"
+            to={"https://www.bipquantum.com/about.html"}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            {theme === "dark" ? (
-              <MdOutlineDarkMode size={22} />
-            ) : (
-              <MdOutlineLightMode size={22} />
-            )}
-          </button>
-          <Link to="/profile">
-            <UserImage principal={identity.getPrincipal()} className="h-10 w-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-700"/>
+            About
+          </Link>
+          <Link className="text-base" to={"/new"}>
+            Add your Intellectual Property
+          </Link>
+          <Link className="text-base" to={"/marketplace"}>
+            Market place
           </Link>
         </div>
+      )}
+      <div className="flex items-center gap-3">
+        <div className="relative group hidden flex-row items-center gap-1 rounded-xl bg-white p-2 md:flex">
+          <TbSearch className="text-gray-500" />
+          <input
+            type="text"
+            className="ring-none border-none bg-transparent text-[16px] text-gray-500"
+            placeholder="Search"
+            disabled={true}
+          />
+          <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
+            Coming Soon!
+          </span>
+        </div>
+        <div className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-transparent text-gray-800 dark:border-gray-400 dark:text-gray-400">
+          <TbBell size={22} />
+          <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
+            Coming Soon!
+          </span>
+        </div>
+        {/* Theme Toggle */}
+        <button
+          className="rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white h-10 w-10"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          {theme === "dark" ? (
+            <MdOutlineDarkMode size={22} />
+          ) : (
+            <MdOutlineLightMode size={22} />
+          )}
+        </button>
+        <Link to="/profile">
+          <UserImage principal={identity.getPrincipal()} className="h-10 w-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-700"/>
+        </Link>
       </div>
     </main>
   );

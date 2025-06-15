@@ -65,7 +65,7 @@ const ChatBot = ({
   }, [chats]);
 
   return (
-    <div className="flex overflow-y-auto max-h-[89dvh] h-full w-full flex-1 flex-col justify-between pb-[15px] relative">
+    <div className="flex h-full w-full flex-1 flex-col justify-between relative">
       <div>
         <p className="w-full pt-2 text-center text-xl md:text-3xl font-momentum font-extrabold uppercase dark:text-white text-black">
           What can I help with?
@@ -77,7 +77,7 @@ const ChatBot = ({
           principal={principal}
         />
       </div>
-      <div className="flex flex-col w-full gap-2 px-4 md:pb-[30px] pb-[60px]">
+      <div className="flex flex-col w-full gap-2 px-2">
       <div className="relative flex w-full flex-row items-center gap-4 ">
         <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border px-3 bg-white">
           <textarea
