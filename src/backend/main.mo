@@ -217,7 +217,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public shared({caller}) func ban_author({ author: Principal; }) : async Result<(), Text> {
-    getController().banAuthor({ caller; author; });
+    await* getController().banAuthor({ caller; author; });
   };
 
   public shared({caller}) func unban_author({ author: Principal; }) : async Result<(), Text> {

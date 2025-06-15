@@ -27,6 +27,7 @@ import { IoIosPricetags, IoMdEye } from "react-icons/io";
 import { IoEyeOutline } from "react-icons/io5";
 import fund from "../../../assets/fund.svg";
 import UserImage from "../../common/UserImage";
+import BanAuthor from "../../common/BanAuthor";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -243,6 +244,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                             intPropId={BigInt(intPropId)}
                           />
                         )}
+                        <BanAuthor
+                          principal={principal}
+                          author={intProp.ok.V1.author}
+                        />
                         <BanIntProp
                           principal={principal}
                           intPropId={BigInt(intPropId)}
