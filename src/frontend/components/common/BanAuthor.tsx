@@ -3,13 +3,14 @@ import { backendActor } from "../actors/BackendActor";
 import VioletButton from "./VioletButton";
 import { TbBan } from "react-icons/tb";
 
-interface BanIntPropProps {
+interface BanAuthorProps {
   principal: Principal | undefined;
-  intPropId: bigint;
+  author: Principal;
 }
 
-const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
-  const { data: admin } = backendActor.useQueryCall({
+const BanAuthor: React.FC<BanAuthorProps> = ({ principal, author }) => {
+  
+    const { data: admin } = backendActor.useQueryCall({
     functionName: "get_admin",
     args: [],
   });
@@ -20,16 +21,16 @@ const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
   });
 
   const { data: isBanned, call: getIsBanned } = backendActor.useQueryCall({
-    functionName: "is_banned_int_prop",
-    args: [{ id: intPropId }],
+    functionName: "is_banned_author",
+    args: [{ author }],
   });
 
-  const { call: banIntProp, loading: banLoading } = backendActor.useUpdateCall({
-    functionName: "ban_int_prop",
+  const { call: banAuthor, loading: banLoading } = backendActor.useUpdateCall({
+    functionName: "ban_author",
   });
 
-  const { call: unbanIntProp, loading: unbanLoading } = backendActor.useUpdateCall({
-    functionName: "unban_int_prop",
+  const { call: unbanAuthor, loading: unbanLoading } = backendActor.useUpdateCall({
+    functionName: "unban_author",
   });
 
   // Early return if data is not ready
@@ -41,8 +42,8 @@ const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
 
   const handleClick = () => {
     const action = isBanned
-      ? unbanIntProp([{ id: intPropId }])
-      : banIntProp([{ id: intPropId, ban_author: false }]);
+      ? unbanAuthor([{  author }])
+      :  banAuthor([{ author }]);
 
     action.then(() => getIsBanned());
   };
@@ -52,10 +53,10 @@ const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
   return (
     <VioletButton onClick={handleClick} isLoading={banLoading || unbanLoading}>
       <span className="flex flex-row gap-x-1 items-center">
-        <TbBan size={20} /> {isBanned ? "Unban" : "Ban"} BIP #{intPropId.toString()}
+        <TbBan size={20} /> {isBanned ? "Unban" : "Ban"} author
       </span>
     </VioletButton>
   );
 };
 
-export default BanIntProp;
+export default BanAuthor;

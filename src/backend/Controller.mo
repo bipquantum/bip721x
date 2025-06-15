@@ -484,16 +484,31 @@ module {
     public func banAuthor({
       caller: Principal;
       author: Principal;
-    }) : Result<(), Text> {
+    }) : async* Result<(), Text> {
+      
       if (caller != accessControl.admin and not Set.has(accessControl.moderators, Set.phash, caller)){
         return #err("Only the admin or moderators can ban or unban an author");
       };
+
+      // Ban the author
       ignore Map.update(users, Map.phash, author, func(_: Principal, user: ?User) : ?User {
         switch(user){
           case(null) { return null; };
           case(?user) { ?{ user with banned = true; }; };
         };
       });
+
+      // Get all the IPs of the author
+      let intPropIds = await BIP721Ledger.icrc7_tokens_of({
+        owner = author;
+        subaccount = null;
+      }, null, null);
+
+      // Remove them from the marketplace
+      for (id in intPropIds.vals()){
+        Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+      };
+
       #ok;
     };
 
