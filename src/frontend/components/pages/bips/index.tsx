@@ -54,7 +54,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
         sort={queryDirection}
         changeQueryDirection={changeQueryDirection}
       />
-      <div className="ml-auto flex w-full md:w-fit flex-col items-center justify-between gap-2 px-2 sm:flex-row sm:px-8">
+      <div className="flex flex-col items-center w-full md:w-fit gap-2 px-2 sm:flex-row sm:px-8">
         {principal !== undefined && !principal.isAnonymous() && (
           <Balance principal={principal} />
         )}

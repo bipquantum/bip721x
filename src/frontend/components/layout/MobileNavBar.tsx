@@ -61,8 +61,8 @@ const MobileNavBar = () => {
                   target={item.target}
                   rel={item.rel}
                 >
-                  <div className={`flex flex-col pb-4 pt-1 px-1 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-background-dark dark:bg-secondary rounded-t-full text-white dark:text-secondary"}`}>
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-primary dark:bg-white"}`}>
+                  <div className={`flex flex-col pb-4 pt-1 px-1 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-primary dark:bg-secondary rounded-t-full text-primary dark:text-secondary"}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}>
                       { item.icon() }
                     </div>
                   </div>

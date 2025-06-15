@@ -61,8 +61,8 @@ const NavBar = () => {
             target={item.target}
             rel={item.rel}
           >
-            <div className={`flex flex-col items-center pl-4 p-2 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-primary dark:bg-secondary rounded-r-full text-white dark:text-secondary"}`}>
-              <div className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-background-dark dark:bg-white"}`}>
+            <div className={`flex flex-col items-center pl-4 p-2 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-primary dark:bg-secondary rounded-r-full text-primary dark:text-secondary"}`}>
+              <div className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}>
                 { item.icon() }
               </div>
             </div>
