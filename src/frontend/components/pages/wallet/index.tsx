@@ -147,11 +147,11 @@ const Wallet = ({ principal }: WalletProps) => {
   const [triggered, setTriggered] = useState(true);
 
   return (
-    <div className="flex h-auto w-full flex-col items-center overflow-y-auto px-4 py-[15px] text-black dark:text-white">
+    <div className="flex h-full w-full flex-col items-center p-4 text-black dark:text-white">
       <div className="flex w-full flex-row items-center justify-between px-4 pb-6">
         {isGrid ? (
           <p className="font-momentum text-xl font-extrabold text-black dark:text-white">
-            Recently Bought
+            Your BIPs
           </p>
         ) : (
           <div className="flex w-fit flex-row items-center">
@@ -161,7 +161,7 @@ const Wallet = ({ principal }: WalletProps) => {
               }}
               className={`font-momentum rounded-xl px-4 py-2 text-xl font-extrabold text-black dark:text-white ${selection === "owned" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
             >
-              Recently Bought / Created
+              Your BIPs
             </button>
             <button
               onClick={() => {
@@ -190,7 +190,7 @@ const Wallet = ({ principal }: WalletProps) => {
           </button>
         </div>
       </div>
-      <div className="pb-[80px]">
+      <div className="w-full pb-4">
         <BipList
           scrollableClassName={"flex flex-col w-full gap-[10px]"}
           principal={principal}

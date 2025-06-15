@@ -287,7 +287,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   const isDark = document.documentElement.classList.contains("dark");
 
   return (
-    <div className={`relative flex h-full w-full md:items-center justify-center `}>
+    <div className={`relative flex h-full w-full md:items-center justify-center`}>
       {step === 1 && (
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
@@ -349,26 +349,22 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         </div>
       )}
 
-      <div className="mx-[10px] flex md:h-[80dvh] h-[calc(100dvh-160px)] w-full flex-col gap-[30px] overflow-y-auto rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85dvh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
+      <div className="flex sm:h-[80dvh] w-full flex-col gap-[30px] overflow-y-auto sm:rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85dvh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
         {step === 1 && (
           <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden">
-            <div className="flex flex-col items-center gap-[15px]">
+            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 1 : Create new IP
               </p>
               <div className="flex w-full flex-row items-center gap-1">
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
+                <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
+                <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
               </div>
             </div>
             <div className="flex w-full flex-col gap-[30px]">
-              <div className="flex w-full flex-col gap-2">
-                <p className="w-fit rounded-lg bg-background px-6 py-2 text-sm uppercase text-black dark:bg-white/10 dark:text-white">
-                  {" "}
-                  Preview{" "}
-                </p>
+              <div className="flex w-full flex-col gap-2 items-center">
                 <div
                   className={`${dataUri ? "w-fit" : "w-[360px]"} h-[180px] rounded-lg bg-gray-800 dark:bg-gray-200`}
                 >
@@ -766,15 +762,15 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         )}
         {step === 2 && (
           <div className="flex w-full flex-col items-center gap-[30px]">
-            <div className="flex flex-col items-center gap-[15px]">
+            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 2 : Validate Author Details
               </p>
               <div className="flex w-full flex-row items-center gap-1">
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
+                <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
               </div>
             </div>
             <div className="flex w-full flex-col items-center justify-center gap-[40px] md:w-6/12">
@@ -866,43 +862,41 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         )}
         {step == 3 && (
           <div className="flex w-full flex-col items-center gap-[30px] h-full">
-            <div className="flex flex-col items-center gap-[15px] h-full">
+            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 3 : Legal declaration
               </p>
-              <div className="flex w-fit flex-row items-center gap-1">
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-[#C4C4C4] lg:min-w-[200px]" />
+              <div className="flex w-full w-fit flex-row items-center gap-1">
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
               </div>
-              <div className="text-sm sm:text-lg flex w-full flex-col items-center justify-around rounded-lg text-black dark:text-white h-full space-y-2">
-                
-                <LegalDeclaration/>
-
-                <label className="flex flex-row items-center space-x-2 px-2">
-                  <input
-                    type="checkbox"
-                    checked={disclaimerAccepted}
-                    onChange={(e) => setDisclaimerAccepted(e.target.checked)}
-                  />
-                  <span>I have read and agree to the legal declaration above.</span>
-                </label>
-              </div>
+            </div>
+            <div className="text-sm sm:text-lg flex w-full flex-col items-center justify-around rounded-lg text-black dark:text-white h-full">
+              <LegalDeclaration/>
+              <label className="flex flex-row items-center space-x-2 px-2">
+                <input
+                  type="checkbox"
+                  checked={disclaimerAccepted}
+                  onChange={(e) => setDisclaimerAccepted(e.target.checked)}
+                />
+                <span>I have read and agree to the legal declaration above.</span>
+              </label>
             </div>
           </div>
         )}
         {step == 4 && ipId !== undefined && (
           <div className="flex w-full flex-col items-center gap-[30px]">
-            <div className="flex flex-col items-center gap-[15px]">
+            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 4 : Success
               </p>
-              <div className="flex w-fit flex-row items-center gap-1">
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
-                <div className="h-[4px] w-[80px] md:w-[100px] rounded-full bg-gradient-to-t from-primary to-secondary lg:min-w-[200px]" />
+              <div className="flex w-full w-fit flex-row items-center gap-1">
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
+                <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
               </div>
               <div className="flex w-full flex-col items-center justify-center gap-[40px] pt-[20px]">
                 <div className="rounded-[40px] border-y-[2.5px] border-white/40 bg-white/10 px-3 py-4">

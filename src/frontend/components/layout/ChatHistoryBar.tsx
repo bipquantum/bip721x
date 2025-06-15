@@ -67,7 +67,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ onChatSelected }) => {
     setSettingOpen(chatId);
   };
   return (
-    <div className="bg-white/20 backdrop-blur-[10px] flex w-full flex-col justify-between text-black dark:text-white">
+    <div className="bg-white/20 flex w-full flex-col justify-between text-black dark:text-white">
       <div className="h-[70dvh] w-full overflow-auto px-4 py-6">
         <div className="flex flex-row items-center justify-between">
           <p className="text-xl font-bold">Chat History</p>

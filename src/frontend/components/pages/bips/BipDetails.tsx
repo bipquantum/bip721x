@@ -149,7 +149,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </div>
                     <div className="flex flex-row justify-between gap-[10px] md:flex-row md:items-center">
                       <div className="flex flex-col">
-                        <p className="text-[26px]">bIP #{BigInt(intPropId).toString()}</p>
+                        <p className="text-[26px]">BIP #{BigInt(intPropId).toString()}</p>
                         { owner && <p className="pb-1 text-xl">
                           Owned by @
                           <span className="text-primary">

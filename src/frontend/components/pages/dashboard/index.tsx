@@ -16,7 +16,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="text-primary-text flex h-full w-full flex-col items-center justify-between bg-background px-4 pb-[15px] dark:bg-background-dark">
+    <div className="text-primary-text flex h-full w-full flex-col items-center justify-between">
       <div className="mx-auto w-full">
         <div className="flex flex-col items-center gap-2 py-4 sm:py-8">
           <p className="font-momentum text-center text-lg font-extrabold uppercase text-black dark:text-white sm:text-2xl">
@@ -53,7 +53,7 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
-      <div className="flex w-full flex-col gap-2 md:pb-[30px] pb-[60px]">
+      <div className="flex w-full flex-col gap-2 px-2">
         <div className="flex w-full flex-row items-center gap-4">
           <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border bg-white px-3">
             <textarea

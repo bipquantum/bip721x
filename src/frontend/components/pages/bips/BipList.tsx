@@ -83,7 +83,7 @@ const BipList: React.FC<BipsProps> = ({
   });
 
   return (
-    <div className="h-full w-full overflow-y-auto px-4" id="scrollableDiv">
+    <div className="h-full w-full" id="scrollableDiv">
       {!isGrid ? (
         <div className={scrollableClassName}>
           {Array.from(entries).map((intPropId) => (

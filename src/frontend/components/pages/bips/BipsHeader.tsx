@@ -17,7 +17,7 @@ const BipsHeader: React.FC<BipsHeaderProps> = ({ sort, changeQueryDirection }) =
         </div>
         <input
           className="w-full flex-1 bg-transparent text-base font-medium leading-10 placeholder-slate-300"
-          placeholder="Search  by IPs, influencers, License, etc. "
+          placeholder="Search by BIP#, author, license... "
         />
       </div>
       <button className="hidden sm:flex gap-[10px] bg-white/10 rounded-lg px-6 py-2 items-center " onClick={() => changeQueryDirection()}>
