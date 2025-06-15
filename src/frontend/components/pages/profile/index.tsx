@@ -7,7 +7,6 @@ import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
 import CopyToClipboard from "../../common/CopyToClipboard";
 
-import ProfileSvg from "../../../assets/profile.png";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import ReactCountryDropdown from "react-country-dropdown";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,7 +14,6 @@ import { DEFAULT_COUNTRY_CODE } from "../../constants";
 import FileUploader from "../../common/FileUploader";
 import FilePreview from "../../common/FilePreview";
 
-import profileBg from "../../../assets/profile-bg.jpg";
 import { FiUserPlus } from "react-icons/fi";
 
 const DEFAULT_ARGS = {
