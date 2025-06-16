@@ -180,10 +180,10 @@ interface ListingDetailsProps {
   principal: Principal | undefined;
   owner: Principal | undefined;
   intPropId: bigint;
-  onUnlistSuccess?: () => void;
+  onListingChange?: (type: EListingType) => void;
 }
 
-enum EListingType {
+export enum EListingType {
   LIST,
   UNLIST,
   BUY,
@@ -193,7 +193,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
   owner,
   intPropId,
-  onUnlistSuccess,
+  onListingChange,
 }) => {
   
   const [listingType, setListingType] = useState<EListingType | null>(null);
@@ -253,15 +253,25 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
        : <div>{/*spacer */}</div>}
 
         {listingType === EListingType.BUY && (
-          <BuyButton principal={principal} intPropId={intPropId} onSuccess={refreshListingType}/>
+          <BuyButton 
+            principal={principal} 
+            intPropId={intPropId} 
+            onSuccess={() => { onListingChange?.(EListingType.BUY); refreshListingType(); } }
+          />
         )}
 
         {listingType === EListingType.UNLIST && (
-          <UnlistButton intPropId={intPropId} onSuccess={ () => { onUnlistSuccess?.(); refreshListingType(); } } />
+          <UnlistButton 
+            intPropId={intPropId} 
+            onSuccess={ () => { onListingChange?.(EListingType.UNLIST); refreshListingType(); } }
+          />
         )}
 
         {listingType === EListingType.LIST && (
-          <ListButton intPropId={intPropId} onSuccess={refreshListingType} />
+          <ListButton 
+            intPropId={intPropId} 
+            onSuccess={ ()  => { onListingChange?.(EListingType.LIST); refreshListingType(); } }
+          />
         )}
     </div>
   );
