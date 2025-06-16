@@ -26,10 +26,12 @@ import {
 
 import {
   IntPropInput,
+  User,
 } from "../../../../declarations/backend/backend.did";
 
 import {
   dateToTime,
+  fromNullableExt,
   intPropLicenseFromIndex,
   intPropLicenseToIndex,
   intPropLicenseToString,
@@ -54,7 +56,6 @@ import { MiddlewareState } from "@floating-ui/dom";
 import UserImage from "../../common/UserImage";
 import { ListButton } from "../../common/ListingDetails";
 import { LegalDeclaration } from "./LegalDeclaration";
-import { set } from "react-datepicker/dist/date_utils";
 
 const IP_TYPE_OPTIONS: Option[] = [
   {
@@ -264,20 +265,26 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const { pathname } = useLocation();
 
-  const { data: queriedUser } = backendActor.useQueryCall({
+  const [user, setUser] = useState<User | undefined>(undefined);
+
+  const { call: queryUser } = backendActor.useQueryCall({
     functionName: "get_user",
-    args: (principal ? [principal] : []) as [Principal],
   });
 
   useEffect(() => {
-    if ((queriedUser === undefined || queriedUser?.length === 0) && !toastShownRef.current) {
-      toastShownRef.current = true; // Set flag to true after first toast
-      navigate("/profile", { state: { redirect: pathname } });
-      toast.warn("Please add user");
+    if (principal !== undefined) {
+      queryUser([principal]).then((queriedUser) => {
+        let user = fromNullableExt(queriedUser);
+        if (user === undefined && !toastShownRef.current) {
+          toastShownRef.current = true; // Set flag to true after first toast
+          navigate("/profile", { state: { redirect: pathname } });
+          toast.warn("Please add user");
+        } else {
+          setUser(user);
+        }
+      })
     }
-  }, [queriedUser, pathname, navigate]);
-
-  if (!queriedUser || queriedUser.length === 0) return null;
+  }, [principal]);
 
   // Persist form state on every change
   useEffect(() => {
@@ -788,7 +795,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     type="text"
                     placeholder=""
                     className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
-                    value={queriedUser[0]?.firstName}
+                    value={user?.firstName}
                     readOnly
                   />
                 </div>
@@ -804,7 +811,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     type="text"
                     placeholder=""
                     className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
-                    value={queriedUser[0]?.lastName}
+                    value={user?.lastName}
                     readOnly
                   />
                 </div>
@@ -820,7 +827,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     type="text"
                     placeholder=""
                     className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
-                    value={queriedUser[0]?.nickName}
+                    value={user?.nickName}
                     readOnly
                   />
                 </div>
@@ -836,7 +843,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     type="text"
                     placeholder=""
                     className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
-                    value={queriedUser[0]?.specialty}
+                    value={user?.specialty}
                     readOnly
                   />
                 </div>
@@ -852,7 +859,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     type="text"
                     placeholder=""
                     className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
-                    value={queriedUser[0]?.countryCode}
+                    value={user?.countryCode}
                     readOnly
                   />
                 </div>

@@ -154,15 +154,13 @@ const Profile = () => {
 
             {/* Input or Dropdown */}
             {field.name === "countryCode" ? (
-              <div className="country-dropdown-container">
-                <ReactCountryDropdown
-                  defaultCountry={userArgs.countryCode}
-                  onSelect={(val) => {
-                    setUserArgs({ ...userArgs, countryCode: val.code });
-                    handleBlur("countryCode", val.code);
-                  }}
-                />
-              </div>
+              <ReactCountryDropdown
+                defaultCountry={userArgs.countryCode}
+                onSelect={(val) => {
+                  setUserArgs({ ...userArgs, countryCode: val.code });
+                  handleBlur("countryCode", val.code);
+                }}
+              />
             ) : field.name !== "imageUri" ? (
               <input
                 className="sm:text-md w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-sm text-gray-400 placeholder-transparent outline-none"
@@ -184,7 +182,7 @@ const Profile = () => {
         ))}
       </div>
       <button
-          className="flex flex-col items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-sm uppercase text-white h-12 w-48"
+          className="flex flex-col items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-sm uppercase text-white min-h-12 w-48"
           onClick={() => onUpdateBtnClicked()}
           disabled={isLoading}
         >
