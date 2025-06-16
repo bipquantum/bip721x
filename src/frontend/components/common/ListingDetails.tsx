@@ -41,18 +41,12 @@ const BuyButton: React.FC<BuyButtonProps> = ({ principal, intPropId, onSuccess }
   });
 
   return (
-    <div className="w-full">
-      <div className="mx-auto flex w-full flex-row items-center justify-between gap-4">
-        <div className="w-full">
-          <VioletButton
-            type="buy"
-            isLoading={loading}
-            onClick={() =>  {(principal === undefined || principal.isAnonymous()) ? login() : setIsModalOpen(true)}}
-          >
-            <p className="text-lg font-semibold">Buy</p>
-          </VioletButton>
-        </div>
-      </div>
+    <VioletButton
+      type="buy"
+      isLoading={loading}
+      onClick={() =>  {(principal === undefined || principal.isAnonymous()) ? login() : setIsModalOpen(true)}}
+    >
+      <p className="text-lg font-semibold">Buy</p>
       <ModalPopup
         onConfirm={() => { buyIntProp(intPropId) }}
         isOpen={isModalOpen}
@@ -65,7 +59,7 @@ const BuyButton: React.FC<BuyButtonProps> = ({ principal, intPropId, onSuccess }
           </h2>
         </div>
       </ModalPopup>
-    </div>
+    </VioletButton>
   );
 };
 
@@ -102,13 +96,10 @@ export const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess, cl
         className="flex flex-row gap-1 text-white"
         style={{ filter: "grayscale(100%)" }}
       >
-        {" "}
-        <span>
-          {" "}
           <TbCheck size={22} />
-        </span>{" "}
-        List{" "}
-      </p> }
+          <span>List</span>
+        </p> 
+      }
       <ModalPopup
         onConfirm={() => { listIntProp({intPropId, sellPrice}) }}
         isOpen={isModalOpen}
@@ -153,28 +144,22 @@ const UnlistButton: React.FC<UnlistButtonProps> = ({ intPropId, onSuccess }) => 
   });
 
   return (
-    <div className="w-full">
-      <div className="mx-auto flex w-full flex-row items-center justify-between gap-4">
-        <div className="w-full">
-          <VioletButton
-            type="unlist"
-            isLoading={loading}
-            onClick={() => setIsModalOpen(true)}
-          >
-            <p
-              className="flex flex-row gap-1 text-white"
-              style={{ filter: "grayscale(100%)" }}
-            >
-              {" "}
-              <span>
-                {" "}
-                <TbX size={22} />
-              </span>{" "}
-              Unlist{" "}
-            </p>
-          </VioletButton>
-        </div>
-      </div>
+    <VioletButton
+      type="unlist"
+      isLoading={loading}
+      onClick={() => setIsModalOpen(true)}
+    >
+      <p
+        className="flex flex-row gap-1 text-white"
+        style={{ filter: "grayscale(100%)" }}
+      >
+        {" "}
+        <span>
+          {" "}
+          <TbX size={22} />
+        </span>{" "}
+        Unlist{" "}
+      </p>
       <ModalPopup
         onConfirm={() => unlistIntProp(intPropId)}
         isOpen={isModalOpen}
@@ -187,7 +172,7 @@ const UnlistButton: React.FC<UnlistButtonProps> = ({ intPropId, onSuccess }) => 
           </h2>
         </div>
       </ModalPopup>
-    </div>
+    </VioletButton>
   );
 };
 
@@ -254,10 +239,10 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       className="mx-auto h-8 w-8 animate-spin"
     />
   ) : (
-    <div className="w-full flex flex-row items-center justify-between space-x-2 text-black dark:text-white">
+    <div className="w-full flex grid grid-cols-2 items-center justify-center space-x-2 text-black dark:text-white px-2">
       
-      {e8sPrice !== undefined && "ok" in e8sPrice && (
-        <div className="flex flex-row items-center gap-1 pl-1 text-base font-bold md:text-2xl">
+      {e8sPrice !== undefined && "ok" in e8sPrice ? 
+        <div className="flex flex-row items-center gap-1 text-base font-bold md:text-2xl">
           <span>
             <IoIosPricetags size={22} />
           </span>
@@ -265,19 +250,19 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             {formatPrice(e8sPrice)} BQC
           </span>
         </div>
-      )}
+       : <div>{/*spacer */}</div>}
 
-      {listingType === EListingType.BUY && (
-        <BuyButton principal={principal} intPropId={intPropId} onSuccess={refreshListingType}/>
-      )}
+        {listingType === EListingType.BUY && (
+          <BuyButton principal={principal} intPropId={intPropId} onSuccess={refreshListingType}/>
+        )}
 
-      {listingType === EListingType.UNLIST && (
-        <UnlistButton intPropId={intPropId} onSuccess={ () => { onUnlistSuccess?.(); refreshListingType(); } } />
-      )}
+        {listingType === EListingType.UNLIST && (
+          <UnlistButton intPropId={intPropId} onSuccess={ () => { onUnlistSuccess?.(); refreshListingType(); } } />
+        )}
 
-      {listingType === EListingType.LIST && (
-        <ListButton intPropId={intPropId} onSuccess={refreshListingType} />
-      )}
+        {listingType === EListingType.LIST && (
+          <ListButton intPropId={intPropId} onSuccess={refreshListingType} />
+        )}
     </div>
   );
 

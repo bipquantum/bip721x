@@ -125,11 +125,9 @@ const BipItem: React.FC<BipItemProps> = ({
                   className={`flex w-full flex-row gap-2`}
                 >
                   <UserImage principal={intProp.ok.V1.author}/>
-                  <div
-                    className={`${location.pathname === "/marketplace" ? "flex w-full flex-row items-center justify-between" : "flex w-fit flex-col"}`}
-                  >
+                  <div className="flex w-fit flex-col">
                     <div className="pb-1">
-                      <p className="text-2xl leading-none text-black dark:text-white">
+                      <p className="text-2xl leading-none text-black dark:text-white break-all">
                         {intProp.ok.V1.title}
                       </p>
                       <p className="text-xs text-black dark:text-white">

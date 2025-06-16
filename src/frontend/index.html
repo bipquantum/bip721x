@@ -9,22 +9,6 @@
 
   <!-- Default favicon -->
   <link id="favicon" rel="icon" href="/favicon-light.ico" />
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V840NCQT54"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-V840NCQT54');
-  </script>
-
-</head>
-
-<body>
-  <div id="root"></div>
-  <script type="module" src="./main.tsx"></script>
-
   <script>
     const setFavicon = (theme) => {
       const favicon = document.getElementById('favicon');
@@ -42,6 +26,21 @@
       setFavicon(e.matches ? 'dark' : 'light');
     });
   </script>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V840NCQT54"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-V840NCQT54');
+  </script>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="./main.tsx"></script>
 </body>
 
 </html>
