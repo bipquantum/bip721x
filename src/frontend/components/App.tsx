@@ -79,8 +79,18 @@ function App() {
 }
 
 function AppContent() {
+  
   const location = useLocation();
   const { pathname } = location;
+
+  // Custom hook to track page views
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag("event", "page_view", {
+        page_path: location.pathname + location.search,
+      });
+    }
+  }, [location]);
 
   return (
     <>
