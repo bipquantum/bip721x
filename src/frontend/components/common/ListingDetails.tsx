@@ -195,6 +195,7 @@ interface ListingDetailsProps {
   principal: Principal | undefined;
   owner: Principal | undefined;
   intPropId: bigint;
+  onUnlistSuccess?: () => void;
 }
 
 enum EListingType {
@@ -207,6 +208,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
   owner,
   intPropId,
+  onUnlistSuccess,
 }) => {
   
   const [listingType, setListingType] = useState<EListingType | null>(null);
@@ -270,7 +272,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       )}
 
       {listingType === EListingType.UNLIST && (
-        <UnlistButton intPropId={intPropId} onSuccess={refreshListingType} />
+        <UnlistButton intPropId={intPropId} onSuccess={ () => { onUnlistSuccess?.(); refreshListingType(); } } />
       )}
 
       {listingType === EListingType.LIST && (

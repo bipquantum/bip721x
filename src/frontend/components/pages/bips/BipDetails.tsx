@@ -19,11 +19,8 @@ import { getName } from "country-list";
 import BanIntProp from "../../common/BanIntProp";
 import AirdropEligible from "../../common/AirdropEligible";
 import UserNickName from "../../common/UserNickname";
-
-import AiBot from "../../../assets/ai-bot.png";
 import { HiCheckBadge } from "react-icons/hi2";
-import { TbEye, TbHeart, TbTag } from "react-icons/tb";
-import { IoIosPricetags, IoMdEye } from "react-icons/io";
+import { TbHeart } from "react-icons/tb";
 import { IoEyeOutline } from "react-icons/io5";
 import fund from "../../../assets/fund.svg";
 import UserImage from "../../common/UserImage";

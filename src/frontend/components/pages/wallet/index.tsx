@@ -2,7 +2,6 @@ import { Principal } from "@dfinity/principal";
 import { backendActor } from "../../actors/BackendActor";
 import {
   EQueryDirection,
-  fromNullableExt,
   intPropLicenseToString,
   intPropTypeToString,
 } from "../../../utils/conversions";
@@ -27,22 +26,20 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({
   intPropId,
   principal,
 }) => {
+
+  const [deleted, setDeleted] = useState(false);
+  
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
   });
-  const [owner, setOwner] = useState<Principal | undefined>(undefined);
-
-  const {} = backendActor.useQueryCall({
-    functionName: "owner_of",
-    args: [{ token_id: BigInt(intPropId) }],
-    onSuccess(data) {
-      setOwner(fromNullableExt(data));
-    },
-  });
 
   if (intProp === undefined || "ok" in intProp === false) {
     return <img src={SpinnerSvg} alt="Loading..." />;
+  }
+
+  if (deleted) {
+    return <></>
   }
 
   return (
@@ -97,7 +94,7 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({
         />
       </div>
       <div className="col-span-1 flex w-fit flex-row items-center justify-center gap-2">
-        <DeleteButton intPropId={intPropId} />
+        <DeleteButton intPropId={intPropId} onSuccess={() => { setDeleted(true); }} />
         <ShareButton intPropId={intPropId} />
       </div>
     </div>
@@ -111,8 +108,9 @@ interface WalletProps {
 const take: [] | [bigint] = [BigInt(5)];
 
 const Wallet = ({ principal }: WalletProps) => {
-  const [selection, setSelection] = useState("owned");
+  
   const [isGrid, setIsGrid] = useState(true);
+  const [triggered, setTriggered] = useState(true);
 
   if (principal === undefined) {
     console.error("Principal is undefined");
@@ -128,9 +126,6 @@ const Wallet = ({ principal }: WalletProps) => {
       { owner: principal, prev: toNullable(prev), take },
     ]);
   };
-  const [queryDirection, setQueryDirection] = useState<EQueryDirection>(
-    EQueryDirection.Forward,
-  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -144,48 +139,20 @@ const Wallet = ({ principal }: WalletProps) => {
     };
   }, []);
 
-  const [triggered, setTriggered] = useState(true);
-
   return (
     <div className="flex h-full w-full flex-col items-center p-4 text-black dark:text-white">
       <div className="flex w-full flex-row items-center justify-between px-4 pb-6">
-        {isGrid ? (
-          <p className="font-momentum text-xl font-extrabold text-black dark:text-white">
-            Your BIPs
-          </p>
-        ) : (
-          <div className="flex w-fit flex-row items-center">
-            <button
-              onClick={() => {
-                setSelection("owned");
-              }}
-              className={`font-momentum rounded-xl px-4 py-2 text-xl font-extrabold text-black dark:text-white ${selection === "owned" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
-            >
-              Your BIPs
-            </button>
-            <button
-              onClick={() => {
-                setSelection("created");
-              }}
-              className={`font-momentum rounded-xl px-4 py-2 text-xl font-extrabold text-black dark:text-white ${selection === "created" ? "bg-black/10 dark:bg-white/20" : "bg-transparent"}`}
-            >
-              Recently Created
-            </button>
-          </div>
-        )}
-
+        <p className="font-momentum text-xl font-extrabold text-black dark:text-white">
+          Your BIPs
+        </p>
         <div
-          onClick={() => setIsGrid(!isGrid)}
+          onClick={() => { setTriggered(!triggered); setIsGrid(!isGrid); }}
           className="hidden w-fit flex-row items-center justify-between gap-2 rounded-2xl bg-black/10 px-2 py-[6px] text-white backdrop-blur-[10px] dark:bg-white/20 lg:flex"
         >
-          <button
-            className={`rounded-lg p-2 ${isGrid ? "bg-white text-black" : ""}`}
-          >
+          <button className={`rounded-lg p-2 ${isGrid ? "bg-white text-black" : ""}`}>
             <IoGridOutline size={28} />
           </button>
-          <button
-            className={`rounded-lg p-2 ${!isGrid ? "bg-white text-black" : ""}`}
-          >
+          <button className={`rounded-lg p-2 ${!isGrid ? "bg-white text-black" : ""}`}>
             <IoListOutline size={28} />
           </button>
         </div>
@@ -195,7 +162,7 @@ const Wallet = ({ principal }: WalletProps) => {
           scrollableClassName={"flex flex-col w-full gap-[10px]"}
           principal={principal}
           fetchBips={fetchBips}
-          queryDirection={queryDirection}
+          queryDirection={EQueryDirection.Forward}
           isGrid={isGrid}
           BipItemComponent={BIPDetails}
           triggered={triggered}

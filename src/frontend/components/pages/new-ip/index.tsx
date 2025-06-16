@@ -873,7 +873,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
               </div>
             </div>
-            <div className="text-sm sm:text-lg flex w-full flex-col items-center justify-around rounded-lg text-black dark:text-white h-full">
+            <div className="text-sm sm:text-lg flex w-full flex-col items-center py-4 space-y-4 rounded-lg text-black dark:text-white h-full">
               <LegalDeclaration/>
               <label className="flex flex-row items-center space-x-2 px-2">
                 <input
