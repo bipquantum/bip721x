@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { backendActor } from "../../actors/BackendActor";
 import {
@@ -11,7 +11,7 @@ import FilePreview from "../../common/FilePreview";
 
 import AIBotImg from "../../../assets/ai-bot.png";
 import { Principal } from "@dfinity/principal";
-import ListingDetails from "../../common/ListingDetails";
+import ListingDetails, { EListingType } from "../../common/ListingDetails";
 
 import { TbEye } from "react-icons/tb";
 import UserImage from "../../common/UserImage";
@@ -62,8 +62,6 @@ const BipItem: React.FC<BipItemProps> = ({
       owner?.compareTo(principal) === "eq");
   }
   , [principal, authorPrincipal, owner]);
-
-  const location = useLocation();
 
   if (deleted || (hideUnlisted && unlisted)) {
     return <></>;
@@ -162,7 +160,7 @@ const BipItem: React.FC<BipItemProps> = ({
                   principal={principal}
                   owner={owner}
                   intPropId={intPropId}
-                  onUnlistSuccess={() => setUnlisted(true)}
+                  onListingChange={(listingType) => setUnlisted(listingType === EListingType.UNLIST || listingType === EListingType.BUY)}
                 />
               )}
             </div>
