@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@ic-reactor/react";
 import { toast } from "react-toastify";
-import { fromNullable, toNullable } from "@dfinity/utils";
+import { fromNullable } from "@dfinity/utils";
 
 import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
@@ -184,7 +184,7 @@ const Profile = () => {
         ))}
       </div>
       <button
-          className="text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary py-3 text-sm uppercase text-white w-48 self-center"
+          className="flex flex-col items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-sm uppercase text-white h-12 w-48"
           onClick={() => onUpdateBtnClicked()}
           disabled={isLoading}
         >

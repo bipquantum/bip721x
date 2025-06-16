@@ -21,14 +21,19 @@ import DeleteButton from "../../common/DeleteButton";
 interface BipItemProps {
   principal: Principal | undefined;
   intPropId: bigint;
+  hideUnlisted?: boolean;
 }
 
 const BipItem: React.FC<BipItemProps> = ({
   intPropId,
   principal,
+  hideUnlisted = false,
 }) => {
+  
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
   const [canDelete, setCanDelete] = useState<boolean>(false);
+  const [deleted, setDeleted] = useState(false);
+  const [unlisted, setUnlisted] = useState(false);
 
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
@@ -59,6 +64,10 @@ const BipItem: React.FC<BipItemProps> = ({
   , [principal, authorPrincipal, owner]);
 
   const location = useLocation();
+
+  if (deleted || (hideUnlisted && unlisted)) {
+    return <></>;
+  }
 
   return (
     <>
@@ -105,7 +114,7 @@ const BipItem: React.FC<BipItemProps> = ({
                 </div>
               </div>
               <div className="absolute bottom-5 right-0 flex h-[75px] w-[40px] flex-col justify-between">
-                { canDelete && <DeleteButton intPropId={intPropId} /> }
+                { canDelete && <DeleteButton intPropId={intPropId} onSuccess={() => { setDeleted(true); }}/> }
                 <ShareButton intPropId={intPropId} />
               </div>
             </Link>
@@ -150,11 +159,12 @@ const BipItem: React.FC<BipItemProps> = ({
               </div>
             </div>
             <div className="py-2">
-              {owner && (
+              { owner && (
                 <ListingDetails
                   principal={principal}
                   owner={owner}
                   intPropId={intPropId}
+                  onUnlistSuccess={() => setUnlisted(true)}
                 />
               )}
             </div>

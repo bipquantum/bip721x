@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useDeleteIntProp } from "../hooks/useDeleteIntProp";
 import { ModalPopup } from "./ModalPopup";
 import { TbTrash } from "react-icons/tb";
-import { useNavigate } from "react-router-dom";
 
 interface DeleteButtonProps {
   intPropId: bigint;
@@ -11,14 +10,12 @@ interface DeleteButtonProps {
 
 const DeleteButton: React.FC<DeleteButtonProps> = ({ intPropId, onSuccess }) => {
 
-  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { loading, call: deleteIntProp } = useDeleteIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
       onSuccess?.();
-      navigate("/bips"); // Redirect to BIPs page after deletion
     },
   });
 

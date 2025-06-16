@@ -37,9 +37,6 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
     ]);
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [triggered, setTriggered] = useState(true);
-
   const changeQueryDirection = () => {
     setQueryDirection(
       queryDirection === EQueryDirection.Forward
@@ -66,7 +63,8 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
           fetchBips={fetchBips}
           queryDirection={queryDirection}
           isGrid={true}
-          triggered={triggered}
+          triggered={false}
+          hideUnlisted={true}
         />
       </div>
     </div>

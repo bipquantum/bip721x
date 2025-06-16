@@ -22,6 +22,7 @@ interface BipsProps {
   }>;
   isGrid?: boolean;
   triggered?: boolean;
+  hideUnlisted?: boolean;
 }
 
 const BipList: React.FC<BipsProps> = ({
@@ -32,6 +33,7 @@ const BipList: React.FC<BipsProps> = ({
   queryDirection,
   BipItemComponent = BipItem,
   triggered,
+  hideUnlisted,
 }) => {
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
   const [prev, setPrev] = useState<bigint | undefined>(undefined); // Keep track of previous entries
@@ -105,6 +107,7 @@ const BipList: React.FC<BipsProps> = ({
               principal={principal}
               intPropId={intPropId}
               key={intPropId}
+              hideUnlisted={hideUnlisted}
             />
           ))}
         </div>
