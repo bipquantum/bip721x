@@ -434,7 +434,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                             setDataUri(dataUri ?? "");
                           }}
                           acceptedFiles="image/*,audio/*,application/pdf,text/*"
-                        ></FileUploader>
+                        />
                       </label>
                     </div>
                   </div>
