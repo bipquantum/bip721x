@@ -9,6 +9,8 @@ export const CALL_TO_ACTIONS = [
   "Organize IP Assets",
   "Sell IP Assets on the BIPQuantum Store",
 ];
+export const BIP_TITLE_MIN_LENGTH = 3;
+export const BIP_DESCRIPTION_MIN_LENGTH = 50;
 export const MIN_ROYALTY_PERCENTAGE = 1;
 export const MAX_ROYALTY_PERCENTAGE = 20;
 export const BIP_ITEMS_PER_QUERY = 12n;

@@ -41,9 +41,9 @@ import {
   timeToDate,
 } from "../../../utils/conversions";
 
-// @ts-ignore
-// import { getName } from "country-list";
 import {
+  BIP_DESCRIPTION_MIN_LENGTH,
+  BIP_TITLE_MIN_LENGTH,
   DEFAULT_COUNTRY_CODE,
   MAX_ROYALTY_PERCENTAGE,
   MIN_ROYALTY_PERCENTAGE,
@@ -56,6 +56,7 @@ import { MiddlewareState } from "@floating-ui/dom";
 import UserImage from "../../common/UserImage";
 import { ListButton } from "../../common/ListingDetails";
 import { LegalDeclaration } from "./LegalDeclaration";
+import FieldValidator from "./FieldValidator";
 
 const IP_TYPE_OPTIONS: Option[] = [
   {
@@ -293,14 +294,36 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   const isDark = document.documentElement.classList.contains("dark");
 
+  const validateDateUri = (input: IntPropInput): string | undefined => {
+    if (input.dataUri.trim() === "") {
+      return "File required";
+    }
+    return undefined;
+  }
+
+  const validateTitle = (input: IntPropInput): string | undefined => {
+    if (input.title.trim().length < BIP_TITLE_MIN_LENGTH) {
+      return `${BIP_TITLE_MIN_LENGTH} characters minimum`;
+    }
+    return undefined;
+  };
+
+  const validateDescription = (input: IntPropInput): string | undefined => {
+    if (input.description.trim().length < BIP_DESCRIPTION_MIN_LENGTH) {
+      return `${BIP_DESCRIPTION_MIN_LENGTH} characters minimum`;
+    }
+    return undefined;
+  };
+
   return (
     <div className={`relative flex h-full w-full md:items-center justify-center`}>
       {step === 1 && (
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
             onClick={() => {
-              if (intPropInput.title === "") {
-                toast.warn("Please add title of the IP");
+              let error = validateTitle(intPropInput) || validateDateUri(intPropInput) ||  validateDescription(intPropInput);
+              if (error !== undefined) {
+                toast.warn("Invalid BIP: fix required fields");
                 return;
               }
               setStep(2);
@@ -361,7 +384,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden">
             <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
-                Step 1 : Create new IP
+                Step 1 : Create new BIP
               </p>
               <div className="flex w-full flex-row items-center gap-1">
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
@@ -395,7 +418,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        IP File
+                        <FieldValidator name={"IP File"} error={validateDateUri(intPropInput)} />
                       </p>
                       <label className="flex h-full w-full items-center justify-between p-4 text-[16px] text-black dark:text-white">
                         <p>Upload Image/ Video</p>
@@ -422,7 +445,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        Creation Date
+                        <FieldValidator name={"Creation Date"}/>
                       </p>
                       <div className="relative w-full">
                         <DatePicker
@@ -490,7 +513,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        Title of the IP
+                        <FieldValidator name={"Title of the IP"} error={validateTitle(intPropInput)} />
                       </p>
                       <input
                         type="text"
@@ -513,7 +536,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        Description of the IP
+                        <FieldValidator name={"Description of the IP"} error={validateDescription(intPropInput)} />
                       </p>
                       <textarea
                         value={intPropInput.description}
@@ -534,7 +557,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <div className="w-full lg:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                       <p className={"absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"}>
-                        IP Type
+                        <FieldValidator name={"IP Type"}/>
                       </p>
                       <Select
                         value={
@@ -578,7 +601,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        IP License
+                        <FieldValidator name={"IP License"}/>
                       </p>
                       <Select
                         styles={getCustomStyles(isDark)}
