@@ -1,7 +1,5 @@
-import { useRef, useState, KeyboardEvent, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 
-import SearchSvg from "../../../assets/search.svg";
-import SendMessageSvg from "../../../assets/send-message.svg";
 import { AiPrompt, ChatElem } from "./types";
 import ChatBox from "./ChatBox";
 import { Principal } from "@dfinity/principal";
@@ -28,6 +26,7 @@ const ChatBot = ({
 }: ChatBotProps) => {
 
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const [userInput, setUserInput] = useState("");
   const [isCalling, setIsCalling] = useState(false);
@@ -57,7 +56,7 @@ const ChatBot = ({
   }, [chats]);
 
   return (
-    <div className="flex w-full flex-col justify-between relative flex-grow">
+    <div className="flex w-full flex-col justify-between relative overflow-y-auto flex-grow">
       <div>
         <p className="w-full pt-2 text-center text-xl md:text-3xl font-momentum font-extrabold uppercase dark:text-white text-black">
           What can I help with?
@@ -70,16 +69,21 @@ const ChatBot = ({
         />
       </div>
       <div className="flex flex-col w-full gap-2 px-2">
-        <div className="relative flex w-full flex-row items-center gap-4 ">
-          <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border px-3 bg-white rounded-2xl border py-[6px]">
+        <div className="relative flex w-full flex-row items-center gap-2">
+          <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border px-3 bg-white rounded-2xl border py-[6px]">
             <AutoResizeTextarea 
               ref={inputRef}
               placeholder={"What do you want to protect?"}
-              onChange={(value) => { setUserInput(value); }}
+              onChange={(value) => {
+                if (bottomRef.current) {
+                  bottomRef.current.scrollIntoView({ behavior: "instant" });
+                }
+                setUserInput(value); 
+              }}
               disabled={isCalling}
             />
           </div>
-          <div className="group flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1 text-black">
+          <div className="group flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1 text-black self-end">
             <BiMicrophone size={35} color="gray"/>
             <span className="absolute hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex z-50">
               Coming Soon!
@@ -90,12 +94,12 @@ const ChatBot = ({
               if (userInput) submitUserInput();
             }}
             disabled={isCalling}
-            className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200"
+            className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 self-end"
           >
             <IoArrowUp size={30} className="text-black" />
           </button>
         </div>
-        <p className="text-sm text-gray-500">BIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.</p>
+        <p ref={bottomRef} className="text-sm text-gray-500">BIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.</p>
       </div>
     </div>
   );

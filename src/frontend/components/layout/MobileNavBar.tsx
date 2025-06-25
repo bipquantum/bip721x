@@ -49,13 +49,12 @@ const MobileNavBar = () => {
   return (
     <>
       {!(pathname.includes("login") || pathname.includes("certificate")) && (
-          <div className="shadow shadow-black/30 dark:shadow-white/30 w-full 
-              sm:hidden px-4 h-16 min-h-16 flex flex-row items-center bg-background font-bold text-black dark:bg-background-dark dark:text-white pt-2">
+          <div className="shadow shadow-black/30 dark:shadow-white/30 w-full sm:hidden px-4 h-16 min-h-16 flex flex-row 
+            items-center bg-background font-bold text-black dark:bg-background-dark dark:text-white pt-2">
               {NavBarItems.map((item, index) => (
                 <Link
-                  className={`flex h-full grow flex-row items-end justify-center text-black dark:text-white ${
-                    item.link !== "marketplace" && !authenticated && "hidden"
-                  } ${pathname === "/" + item.link ? "active-link" : ""}`}
+                  className={`flex h-full grow flex-row items-end justify-center text-black dark:text-white 
+                    ${!authenticated && "hidden"} ${pathname === "/" + item.link ? "active-link" : ""}`}
                   to={item.link}
                   key={index}
                   target={item.target}

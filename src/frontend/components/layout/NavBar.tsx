@@ -47,10 +47,10 @@ const NavBar = () => {
   ];
 
   return (
-    <div className="border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 flex
-      hidden h-full w-fit flex-col items-center justify-between font-bold text-black dark:text-white sm:flex">
+    <div className="fixed top-0 left-0 border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 flex
+      hidden h-full w-fit flex-col items-center justify-between font-bold text-black dark:text-white sm:flex min-w-20">
       <div>{/*spacer*/}</div>
-      <div className="flex flex-col items-center space-y-2 pr-2 min-w-20">
+      <div className="flex flex-col items-center space-y-2 pr-2">
         {NavBarItems.map((item, index) => (
           <Link
             className={`relative z-50 flex h-full w-full flex-col items-center justify-center text-black dark:text-white ${!authenticated && "hidden"} ${pathname === "/" + item.link ? "active-link" : ""}`}

@@ -18,6 +18,7 @@ const AutoResizeTextarea = forwardRef<AutoResizeTextareaHandle, AutoResizeTextar
       const el = event.currentTarget;
       el.style.height = 'auto';
       el.style.height = `${el.scrollHeight}px`;
+      onChange(el.value);
     };
 
     // Expose clear() method
@@ -36,9 +37,9 @@ const AutoResizeTextarea = forwardRef<AutoResizeTextareaHandle, AutoResizeTextar
         ref={textareaRef}
         rows={1}
         onInput={handleInput}
+        onChange={handleInput}
         className="w-full resize-none overflow-hidden text-base leading-tight box-border border-none outline-none"
         placeholder={placeholder}
-        onChange={(e) => { onChange(e.target.value); }}
         disabled={disabled}
       />
     );

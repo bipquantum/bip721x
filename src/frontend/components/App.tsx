@@ -109,18 +109,17 @@ function AppContent() {
       <ToastContainer />
       <AirdropBanner />
       {/* Main Layout Container */}
-      <div className="flex flex-col w-full sm:flex-row bg-background dark:bg-background-dark flex-grow sm:flex-grow-0">
+      <div className="flex flex-col w-full sm:flex-row bg-background dark:bg-background-dark flex-grow sm:flex-grow-0 pl-0 sm:ml-20">
 
         { !(pathname.includes("login") || pathname.includes("certificate")) && <NavBar /> }
 
         {/* Main Content Wrapper */}
         <div className="flex flex-col w-full items-center flex-grow">
           { !(pathname.includes("login") || pathname.includes("certificate")) && <TopBar/>}
-          <div className="flex flex-row w-full overflow-y-auto justify-between flex-grow">
+          <div className="flex flex-row w-full justify-between flex-grow">
             <ChatHistory />
             <Router />
           </div>
-          {/* Fixed Bottom Nav for Mobile */}
           { !(pathname.includes("login") || pathname.includes("certificate")) && <MobileNavBar /> }
         </div>
       </div>

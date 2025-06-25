@@ -23,7 +23,7 @@ const Main = () => {
   
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-background dark:bg-background-dark text-lg dark:text-white text-black">
+    <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-background dark:bg-background-dark text-lg dark:text-white text-black self-center">
         <div className="bg-white/20 backdrop-blur-[10px] flex flex-col items-center justify-center gap-6 rounded-[40px] border border-primary  px-[38px] py-[25px] sm:px-[72px] sm:py-[55px] text-primary-text shadow-lg shadow-secondary/20">
           <p className="text-center text-xl font-momentum font-extrabold uppercase">Create New IP</p>
           <div className="flex flex-col gap-[10px]">
