@@ -22,7 +22,7 @@ const Login = () => {
   if (authenticated) return <Navigate to="/" />;
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-background px-4 dark:bg-background-dark">
+    <div className="flex flex-col flex-grow w-full items-center justify-center overflow-auto bg-background px-4 dark:bg-background-dark">
       <div className="absolute top-0 w-full">
         <div className="flex flex-col items-center justify-center space-x-1 space-y-1 px-4 pt-6 text-black dark:text-white sm:flex-row sm:justify-between sm:px-20 sm:pt-16">
           <div className="flex flex-row items-center justify-center gap-2">
@@ -37,7 +37,7 @@ const Login = () => {
           </Link>
         </div>
       </div>
-      <div className="flex h-[329px] w-full flex-col justify-center gap-6 rounded-2xl bg-white text-center text-xl text-black backdrop-blur-[20px] dark:bg-white/10 dark:text-white sm:w-[564px] sm:mt-0 mt-[40px]">
+      <div className="flex w-full flex-col justify-center gap-6 rounded-2xl bg-white text-center text-xl text-black backdrop-blur-[20px] dark:bg-white/10 dark:text-white sm:w-[564px] sm:mt-0 mt-[40px] p-6">
         <p className="hidden text-2xl font-extrabold uppercase text-black dark:text-white sm:block">
           100% on-chain governance
         </p>

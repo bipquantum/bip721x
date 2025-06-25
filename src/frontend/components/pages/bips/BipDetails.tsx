@@ -67,10 +67,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col overflow-y-auto font-semibold text-black dark:text-white">
+    <div className="flex flex-grow w-full flex-col overflow-y-auto font-semibold text-black dark:text-white">
       {/* <BipsHeader/> */}
-      <div className="h-full w-full sm:p-8 md:p-4">
-        <div className="flex h-full w-full flex-1 flex-col items-center justify-center overflow-auto sm:rounded-xl">
+      <div className="flex-grow w-full sm:p-8 md:p-4">
+        <div className="flex flex-grow w-full flex-1 flex-col items-center justify-center overflow-auto sm:rounded-xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -81,7 +81,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               Loading...
             </div>
           ) : "err" in intProp ? (
-            <div className="flex h-full flex-col items-center justify-center">
+            <div className="flex flex-grow flex-col items-center justify-center">
               <h1>❌ Error</h1>
               <div className="flex flex-col items-center justify-center space-y-3 text-center">
                 <div className="flex flex-col items-center justify-center text-xl font-bold">
@@ -94,7 +94,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               </div>
             </div>
           ) : (
-            <div className="flex h-full max-h-[80dvh] w-full flex-col gap-[40px]">
+            <div className="flex flex-grow max-h-[80dvh] w-full flex-col gap-[40px]">
               <div className="flex h-fit w-full flex-col items-start justify-between gap-[30px] lg:flex-row">
                 <div className="flex w-full flex-col gap-[18px] lg:w-3/12 items-center">
                   <div className="h-auto w-full p-2">
@@ -108,7 +108,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </div>
                   </div>
                   <div className="w-3/4 flex flex-col gap-[20px] items-center">
-                    <p className="w-full flex flex-col text-center text-xl items-center">
+                    <div className="w-full flex flex-col text-center text-xl items-center">
                       {intProp.ok.V1.title}
                       {isBanned ? (
                         <div className="text-base text-red-500">
@@ -117,7 +117,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                       ) : (
                         <AirdropEligible intPropId={BigInt(intPropId)} />
                       )}
-                    </p>
+                    </div>
                     <button
                       onClick={() => openCertificateInNewTab()}
                       className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white"
@@ -126,7 +126,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </button>
                   </div>
                 </div>
-                <div className="h-full w-full p-2 flex-col space-y-3 rounded-0 sm:rounded-[20px] bg-secondary/10 px-2 py-4 sm:p-6 dark:bg-white/10 md:p-6">
+                <div className="flex-grow w-full p-2 flex-col space-y-3 rounded-0 sm:rounded-[20px] bg-secondary/10 px-2 py-4 sm:p-6 dark:bg-white/10 md:p-6">
                   <div className="flex flex-col gap-[20px] rounded-[20px] px-[15px] py-[10px]">
                     <div className="flex flex-row items-center gap-[15px]">
                       <UserImage principal={intProp.ok.V1.author} />
@@ -188,7 +188,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </span>
                     {/* Put a horizontal light bar to separate the rest */}
                     <hr className="my-2 border-t border-gray-200 dark:border-gray-700" />
-                    <div className="flex h-full w-full sm:flex-row flex-col items-start justify-between gap-3 sm:gap-x-2">
+                    <div className="flex flex-grow w-full sm:flex-row flex-col items-start justify-between gap-3 sm:gap-x-2">
                       <ul className="w-full space-y-1 text-xs text-gray-500 dark:text-gray-300">
                         <li className="grid grid-cols-2">
                           IP Type:{" "}

@@ -46,7 +46,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
   };
 
   return (
-    <div className="flex md:h-[89dvh] h-[calc(100dvh-140px)] w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto py-2 text-black dark:text-white sm:items-start sm:gap-y-4">
+    <div className="flex w-full flex-1 flex-col items-center justify-start gap-y-2 overflow-y-auto py-2 text-black dark:text-white sm:items-start sm:gap-y-4">
       <BipsHeader
         sort={queryDirection}
         changeQueryDirection={changeQueryDirection}
@@ -58,7 +58,7 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
       </div>
       <div className="w-full px-4">
         <BipList
-          scrollableClassName="grid w-full lg:grid-cols-2 xl:grid-cols-4 gap-[20px]"
+          scrollableClassName="grid w-full flex-grow lg:grid-cols-2 xl:grid-cols-4 gap-[20px]"
           principal={principal}
           fetchBips={fetchBips}
           queryDirection={queryDirection}

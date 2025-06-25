@@ -14,7 +14,6 @@ import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
 import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
-import MobileHeader from "./layout/MobileHeader";
 import TopBar from "./layout/TopBar";
 import ChatHistory from "./layout/ChatHistory";
 
@@ -53,8 +52,21 @@ function App() {
     }, [theme]);
   }
 
+  useEffect(() => {
+    // Set --vh to the actual viewport height on mobile
+    const setVh = () => {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
+    return () => window.removeEventListener('resize', setVh);
+  }, []);
+
   return (
-    <div className="flex min-h-screen h-screen w-full flex-col sm:flex-row bg-background dark:bg-background-dark">
+    <div 
+      className="flex w-full flex-col sm:flex-row bg-background dark:bg-background-dark"
+      style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+    >
       <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
         <AgentProvider withProcessEnv>
           <BackendActorProvider>
@@ -97,14 +109,14 @@ function AppContent() {
       <ToastContainer />
       <AirdropBanner />
       {/* Main Layout Container */}
-      <div className="flex flex-col min-h-screen w-full sm:flex-row bg-background dark:bg-background-dark">
+      <div className="flex flex-col w-full sm:flex-row bg-background dark:bg-background-dark flex-grow sm:flex-grow-0">
 
         { !(pathname.includes("login") || pathname.includes("certificate")) && <NavBar /> }
 
         {/* Main Content Wrapper */}
-        <div className="flex flex-col w-full h-full items-center">
+        <div className="flex flex-col w-full items-center flex-grow">
           { !(pathname.includes("login") || pathname.includes("certificate")) && <TopBar/>}
-          <div className="flex flex-row w-full h-full overflow-y-auto items-center justify-between">
+          <div className="flex flex-row w-full overflow-y-auto justify-between flex-grow">
             <ChatHistory />
             <Router />
           </div>

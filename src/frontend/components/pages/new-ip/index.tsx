@@ -316,7 +316,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   };
 
   return (
-    <div className={`relative flex h-full w-full md:items-center justify-center`}>
+    <div className={`relative flex w-full md:items-center justify-center flex-grow sm:flex-grow-0`}>
       {step === 1 && (
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
@@ -379,9 +379,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         </div>
       )}
 
-      <div className="flex sm:h-[80dvh] w-full flex-col gap-[30px] overflow-y-auto sm:rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[85dvh] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
+      <div className="flex flex-grow sm:flex-grow-0 sm:h-[80dvh] w-full flex-col gap-[30px] overflow-y-auto sm:rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12 ">
         {step === 1 && (
-          <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden">
+          <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden flex-grow sm:flex-grow-0">
             <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 1 : Create new BIP
@@ -420,7 +420,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       >
                         <FieldValidator name={"IP File"} error={validateDateUri(intPropInput)} />
                       </p>
-                      <label className="flex h-full w-full items-center justify-between p-4 text-[16px] text-black dark:text-white">
+                      <label className="flex h-full w-full items-center justify-between p-4 text-base text-black dark:text-white">
                         <p>Upload Image/ Video</p>
                         <span className="ml-auto w-fit text-black dark:text-gray-400">
                           <CiImageOn size={22} />
@@ -463,7 +463,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                             }
                           }}
                           dateFormat="yyyy-MM-dd"
-                          className="w-full relative bg-transparent text-[16px] text-black dark:text-white"
+                          className="w-full relative bg-transparent text-base text-black dark:text-white"
                           calendarClassName="custom-calendar"
                           popperClassName="z-50"
                           popperModifiers={[
@@ -525,7 +525,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           });
                         }}
                         required
-                        className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
+                        className="bg-transparent p-[15px] text-base text-black dark:text-white text-base"
                       />
                     </div>
                   </div>
@@ -547,7 +547,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           });
                         }}
                         required
-                        className="h-[54px] bg-transparent px-[15px] pt-[16px] text-[16px] text-black focus:outline-none dark:text-white"
+                        className="h-[54px] bg-transparent px-[15px] pt-[16px] text-base text-black focus:outline-none dark:text-white"
                       />
                     </div>
                   </div>
@@ -641,7 +641,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               <div className="flex w-full flex-col lg:flex-row">
                 <div className="flex w-full flex-col items-center justify-between gap-[30px] md:flex-row lg:w-6/12">
                   <div className="flex w-full flex-row items-center justify-between md:w-6/12">
-                    <p className="text-[16px] font-semibold text-black dark:text-white">
+                    <p className="text-base font-semibold text-black dark:text-white">
                       Royalties
                     </p>
                     <div
@@ -656,7 +656,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     </div>
                   </div>
                   <div className="flex w-full flex-row items-center justify-between md:ml-auto md:w-6/12">
-                    <p className="text-[16px] font-semibold text-black dark:text-white">
+                    <p className="text-base font-semibold text-black dark:text-white">
                       percent %
                     </p>
                     <input
@@ -688,7 +688,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       max={MAX_ROYALTY_PERCENTAGE}
                       min={0}
                       type="number"
-                      className={`w-[60px] rounded-xl bg-background px-[10px] py-[5px] text-[16px] text-black dark:bg-white/10 dark:text-white ${!royaltySwitch ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-[60px] rounded-xl bg-background px-[10px] py-[5px] text-base text-black dark:bg-white/10 dark:text-white ${!royaltySwitch ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={!royaltySwitch}
                     />
                   </div>
@@ -697,7 +697,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               <div className="flex w-full flex-col gap-[30px] lg:flex-row">
                 <div className="flex w-full flex-col items-center justify-between gap-[30px] md:flex-row lg:w-6/12">
                   <div className="flex w-full flex-row items-center justify-between md:w-6/12">
-                    <p className="text-[16px] font-semibold text-black dark:text-white">
+                    <p className="text-base font-semibold text-black dark:text-white">
                       Publishing
                     </p>
                     <div
@@ -722,7 +722,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     </div>
                   </div>
                   <div className="ml-auto flex w-full flex-row items-center justify-between md:w-6/12">
-                    <p className="text-[16px] font-semibold text-black dark:text-white">
+                    <p className="text-base font-semibold text-black dark:text-white">
                       Country
                     </p>
                     <div className={`w-fit ${!publishSwitch ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -748,7 +748,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   </div>
                 </div>
                 <div className="flex w-full flex-row items-center justify-between gap-[30px] lg:w-6/12 lg:justify-center">
-                  <p className="text-[16px] font-semibold text-black dark:text-white">
+                  <p className="text-base font-semibold text-black dark:text-white">
                     Date
                   </p>
                   <div className={`relative max-w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10 ${!publishSwitch ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -775,7 +775,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         }
                       }}
                       dateFormat="yyyy-MM-dd" // Matches native <input type="date">
-                      className="bg-transparent relative text-[16px] text-black dark:text-white"
+                      className="bg-transparent relative text-base text-black dark:text-white"
                       calendarClassName="custom-calendar"
                       popperClassName="z-50 absolute right-[-220%] top-0"
                       placeholderText="YYYY-MM-DD"
@@ -791,7 +791,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </div>
         )}
         {step === 2 && (
-          <div className="flex w-full flex-col items-center gap-[30px]">
+          <div className="flex w-full flex-col items-center gap-[30px] grow sm:flex-grow-0">
             <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 2 : Validate Author Details
@@ -817,7 +817,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <input
                     type="text"
                     placeholder=""
-                    className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
+                    className="bg-transparent p-[15px] text-base text-black dark:text-white"
                     value={user?.firstName}
                     readOnly
                   />
@@ -833,7 +833,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <input
                     type="text"
                     placeholder=""
-                    className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
+                    className="bg-transparent p-[15px] text-base text-black dark:text-white"
                     value={user?.lastName}
                     readOnly
                   />
@@ -849,7 +849,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <input
                     type="text"
                     placeholder=""
-                    className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
+                    className="bg-transparent p-[15px] text-base text-black dark:text-white"
                     value={user?.nickName}
                     readOnly
                   />
@@ -865,7 +865,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <input
                     type="text"
                     placeholder=""
-                    className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
+                    className="bg-transparent p-[15px] text-base text-black dark:text-white"
                     value={user?.specialty}
                     readOnly
                   />
@@ -881,7 +881,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <input
                     type="text"
                     placeholder=""
-                    className="bg-transparent p-[15px] text-[16px] text-black dark:text-white"
+                    className="bg-transparent p-[15px] text-base text-black dark:text-white"
                     value={user?.countryCode}
                     readOnly
                   />
@@ -891,7 +891,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </div>
         )}
         {step == 3 && (
-          <div className="flex w-full flex-col items-center gap-[30px] h-full">
+          <div className="flex w-full flex-col items-center gap-[30px] grow sm:flex-grow-0">
             <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 3 : Legal declaration
@@ -917,7 +917,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </div>
         )}
         {step == 4 && ipId !== undefined && (
-          <div className="flex w-full flex-col items-center gap-[30px]">
+          <div className="flex w-full flex-col items-center gap-[30px] flex-grow sm:flex-grow-0">
             <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 4 : Success

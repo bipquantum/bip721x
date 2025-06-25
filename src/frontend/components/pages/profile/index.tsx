@@ -163,7 +163,7 @@ const Profile = () => {
               />
             ) : field.name !== "imageUri" ? (
               <input
-                className="sm:text-md w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-sm text-gray-400 placeholder-transparent outline-none"
+                className="text-base w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-gray-400 placeholder-transparent outline-none"
                 placeholder={field.label}
                 defaultValue={userArgs[field.name]}
                 onChange={(e) => {

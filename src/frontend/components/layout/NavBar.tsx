@@ -47,15 +47,13 @@ const NavBar = () => {
   ];
 
   return (
-    <div className="border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 flex w-[300px]
+    <div className="border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 flex
       hidden h-full w-fit flex-col items-center justify-between font-bold text-black dark:text-white sm:flex">
       <div>{/*spacer*/}</div>
-      <div className="flex flex-col items-center space-y-2 pr-2">
+      <div className="flex flex-col items-center space-y-2 pr-2 min-w-20">
         {NavBarItems.map((item, index) => (
           <Link
-            className={`relative z-50 flex h-full w-full flex-col items-center justify-center text-black dark:text-white ${
-              item.link !== "marketplace" && !authenticated && "hidden"
-            } ${pathname === "/" + item.link ? "active-link" : ""}`}
+            className={`relative z-50 flex h-full w-full flex-col items-center justify-center text-black dark:text-white ${!authenticated && "hidden"} ${pathname === "/" + item.link ? "active-link" : ""}`}
             to={item.link}
             key={index}
             target={item.target}

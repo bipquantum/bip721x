@@ -140,8 +140,8 @@ const Wallet = ({ principal }: WalletProps) => {
   }, []);
 
   return (
-    <div className="flex h-full w-full flex-col items-center p-4 text-black dark:text-white">
-      <div className="flex w-full flex-row items-center justify-between px-4 pb-6">
+    <div className="flex w-full flex-col h-full flex-grow items-center text-black dark:text-white">
+      <div className="flex w-full flex-row items-center justify-between p-4">
         <p className="font-momentum text-xl font-extrabold text-black dark:text-white">
           Your BIPs
         </p>
@@ -157,9 +157,9 @@ const Wallet = ({ principal }: WalletProps) => {
           </button>
         </div>
       </div>
-      <div className="w-full pb-4">
+      <div className="w-full h-full flex-grow px-4 pb-2">
         <BipList
-          scrollableClassName={"flex flex-col w-full gap-[10px]"}
+          scrollableClassName={"flex flex-col h-full flex-grow w-full gap-2"}
           principal={principal}
           fetchBips={fetchBips}
           queryDirection={EQueryDirection.Forward}

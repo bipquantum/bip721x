@@ -2,9 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useChatHistory } from "../../layout/ChatHistoryContext";
 import { CALL_TO_ACTIONS } from "../../constants";
 
-import { BiMicrophone } from "react-icons/bi";
-import { IoArrowUp } from "react-icons/io5";
-
 const Dashboard = () => {
   const { addChat } = useChatHistory();
 
@@ -16,7 +13,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="text-primary-text flex h-full w-full flex-col items-center justify-between">
+    <div className="text-primary-text flex flex-grow w-full flex-col items-center justify-between">
       <div className="mx-auto w-full">
         <div className="flex flex-col items-center gap-2 py-4 sm:py-8">
           <p className="font-momentum text-center text-lg font-extrabold uppercase text-black dark:text-white sm:text-2xl">
@@ -52,28 +49,6 @@ const Dashboard = () => {
             {CALL_TO_ACTIONS[3]}
           </button>
         </div>
-      </div>
-      <div className="flex w-full flex-col gap-2 px-2">
-        <div className="flex w-full flex-row items-center gap-4">
-          <div className="flex flex-1 items-center justify-between gap-2 overflow-hidden rounded-2xl border bg-white px-3">
-            <textarea
-              name=""
-              id=""
-              placeholder="What do you want to protect?"
-              className="h-[48px] w-full resize-none border-none pt-[8px] text-xs leading-none outline-none sm:text-base"
-            ></textarea>
-            <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-gray-200 px-1">
-              <BiMicrophone size={34} color="gray"/>
-            </div>
-          </div>
-          <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gray-200">
-            <IoArrowUp size={40} />
-          </div>
-        </div>
-        <p className="text-sm text-gray-500">
-          BIPQuantum AI is here to assist, but always consult an IP lawyer to
-          ensure accuracy.
-        </p>
       </div>
     </div>
   );

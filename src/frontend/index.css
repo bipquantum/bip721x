@@ -18,6 +18,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Required for IOS mobile browsers*/
+:root {
+  --vh: 100vh;
+}
+@media (max-width: 640px) {
+  html, body {
+    height: 100%;
+    min-height: 100%;
+  }
+}
+
 /* Custom styles for Markdown headings */
 h1, h2, h3 {
   font-weight: bold;

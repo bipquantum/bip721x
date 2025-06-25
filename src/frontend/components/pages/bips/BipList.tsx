@@ -85,7 +85,7 @@ const BipList: React.FC<BipsProps> = ({
   });
 
   return (
-    <div className="h-full w-full" id="scrollableDiv">
+    <div className="flex-grow w-full" id="scrollableDiv">
       {!isGrid ? (
         <div className={scrollableClassName}>
           {Array.from(entries).map((intPropId) => (
@@ -99,7 +99,7 @@ const BipList: React.FC<BipsProps> = ({
       ) : (
         <div
           className={
-            "grid w-full items-center gap-[20px] md:grid-cols-2 xl:grid-cols-3"
+            "grid w-full flex-grow items-center gap-[20px] md:grid-cols-2 xl:grid-cols-3"
           }
         >
           {Array.from(entries).map((intPropId) => (
