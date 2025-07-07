@@ -5,16 +5,17 @@ import { ToastContainer } from "react-toastify";
 import Router from "./router";
 import NavBar from "./layout/NavBar";
 import { AgentProvider } from "@ic-reactor/react";
-import { BackendActorProvider } from "./actors/BackendActor"
-import { BqcLedgerActorProvider} from "./actors/BqcLedgerActor"
-import { Bip721LedgerActorProvider } from './actors/Bip721LedgerActor';
+import { BackendActorProvider } from "./actors/BackendActor";
+import { BqcLedgerActorProvider } from "./actors/BqcLedgerActor";
+import { Bip721LedgerActorProvider } from "./actors/Bip721LedgerActor";
 
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
 import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
-import MobileHeader from "./layout/MobileHeader";
+import TopBar from "./layout/TopBar";
+import ChatHistory from "./layout/ChatHistory";
 
 interface ThemeContextProps {
   theme: string;
@@ -43,7 +44,7 @@ function App() {
       const initialTheme = window.localStorage.getItem("color-theme");
       window.matchMedia("(prefers-color-scheme: dark)").matches && !initialTheme
         ? rawSetTheme("dark")
-        : rawSetTheme(initialTheme || "light");
+        : rawSetTheme(initialTheme || "dark");
     }, []);
 
     useEffect(() => {
@@ -51,9 +52,22 @@ function App() {
     }, [theme]);
   }
 
+  useEffect(() => {
+    // Set --vh to the actual viewport height on mobile
+    const setVh = () => {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    };
+    setVh();
+    window.addEventListener('resize', setVh);
+    return () => window.removeEventListener('resize', setVh);
+  }, []);
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-      <div className="flex h-screen w-full flex-col sm:flex-row">
+    <div 
+      className="flex w-full flex-col sm:flex-row bg-background dark:bg-background-dark"
+      style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+    >
+      <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
         <AgentProvider withProcessEnv>
           <BackendActorProvider>
             <BqcLedgerActorProvider>
@@ -71,24 +85,43 @@ function App() {
             </BqcLedgerActorProvider>
           </BackendActorProvider>
         </AgentProvider>
-      </div>
-    </ThemeContext.Provider>
+      </ThemeContext.Provider>
+    </div>
   );
 }
 
 function AppContent() {
-  const location = useLocation(); // now that it's inside BrowserRouter, it should work
+  
+  const location = useLocation();
   const { pathname } = location;
+
+  // Custom hook to track page views
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag("event", "page_view", {
+        page_path: location.pathname + location.search,
+      });
+    }
+  }, [location]);
 
   return (
     <>
       <ToastContainer />
       <AirdropBanner />
-      <NavBar />
-      <div className="flex h-full w-full flex-1 flex-col justify-end">
-        {pathname !== "/login" && <MobileHeader /> }
-        <Router />
-        {pathname !== "/login" && <MobileNavBar />}
+      {/* Main Layout Container */}
+      <div className="flex flex-col w-full sm:flex-row bg-background dark:bg-background-dark flex-grow sm:flex-grow-0 pl-0 sm:ml-20">
+
+        { !(pathname.includes("login") || pathname.includes("certificate")) && <NavBar /> }
+
+        {/* Main Content Wrapper */}
+        <div className="flex flex-col w-full items-center flex-grow">
+          { !(pathname.includes("login") || pathname.includes("certificate")) && <TopBar/>}
+          <div className="flex flex-row w-full justify-between flex-grow">
+            <ChatHistory />
+            <Router />
+          </div>
+          { !(pathname.includes("login") || pathname.includes("certificate")) && <MobileNavBar /> }
+        </div>
       </div>
     </>
   );

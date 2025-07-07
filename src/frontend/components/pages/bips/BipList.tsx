@@ -9,17 +9,34 @@ import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
 
 interface BipsProps {
-  principal: Principal | undefined;
+  principal: Principal;
   scrollableClassName: string;
-  fetchBips: (prev: bigint | undefined, direction: QueryDirection) => Promise<bigint[] | undefined>;
+  fetchBips: (
+    prev: bigint | undefined,
+    direction: QueryDirection,
+  ) => Promise<bigint[] | undefined>;
   queryDirection: EQueryDirection;
-  BipItemComponent?: React.ComponentType<{ intPropId: bigint, principal: Principal | undefined }>;
+  BipItemComponent?: React.ComponentType<{
+    intPropId: bigint;
+    principal: Principal;
+  }>;
+  isGrid?: boolean;
+  triggered?: boolean;
+  hideUnlisted?: boolean;
 }
 
-const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBips, queryDirection, BipItemComponent = BipItem }) => {
-
+const BipList: React.FC<BipsProps> = ({
+  principal,
+  scrollableClassName,
+  fetchBips,
+  isGrid,
+  queryDirection,
+  BipItemComponent = BipItem,
+  triggered,
+  hideUnlisted,
+}) => {
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
-  const [prev,    setPrev   ] = useState<bigint | undefined>(undefined); // Keep track of previous entries
+  const [prev, setPrev] = useState<bigint | undefined>(undefined); // Keep track of previous entries
   const [loading, setLoading] = useState(false); // Loading state to prevent double fetch
 
   const loadEntries = async () => {
@@ -38,11 +55,11 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
     }
     setLoading(false);
   };
-
+  
   // Load initial entries on component mount
   useEffect(() => {
     loadEntries();
-  }, []);
+  }, [triggered]);
 
   // TODO: the infinite scroll component does not get refreshed when the queryDirection changes
   useEffect(() => {
@@ -52,7 +69,7 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
       await loadEntries(); // Wait for entries to load after reset
     };
     resetAndLoadEntries();
-  }, [queryDirection]);
+  }, [queryDirection, triggered]);
 
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -64,19 +81,38 @@ const BipList: React.FC<BipsProps> = ({ principal, scrollableClassName, fetchBip
     // `rootMargin` is passed to `IntersectionObserver`.
     // We can use it to trigger 'onLoadMore' when the sentry comes near to become
     // visible, instead of becoming fully visible on the screen.
-    rootMargin: '0px 0px 100px 0px',
+    rootMargin: "0px 0px 100px 0px",
   });
 
   return (
-    <div className="h-full w-full overflow-y-auto px-4" id="scrollableDiv">
-      <div className={scrollableClassName}>
-        {Array.from(entries).map((intPropId) => (
-          <BipItemComponent principal={principal} intPropId={intPropId} key={intPropId} />
-        ))}
-      </div>
-      {(loading || prev !== undefined) && (
-        <div ref={sentryRef}></div>
+    <div className="flex-grow w-full" id="scrollableDiv">
+      {!isGrid ? (
+        <div className={scrollableClassName}>
+          {Array.from(entries).map((intPropId) => (
+            <BipItemComponent
+              principal={principal}
+              intPropId={intPropId}
+              key={intPropId}
+            />
+          ))}
+        </div>
+      ) : (
+        <div
+          className={
+            "grid w-full flex-grow items-center gap-[20px] md:grid-cols-2 xl:grid-cols-3"
+          }
+        >
+          {Array.from(entries).map((intPropId) => (
+            <BipItem
+              principal={principal}
+              intPropId={intPropId}
+              key={intPropId}
+              hideUnlisted={hideUnlisted}
+            />
+          ))}
+        </div>
       )}
+      {(loading || prev !== undefined) && <div ref={sentryRef}></div>}
     </div>
   );
 };

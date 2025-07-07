@@ -8,13 +8,13 @@ import Profile from "../pages/profile";
 import Bips from "../pages/bips";
 import Login from "../pages/login";
 import Main from "../pages/main";
-import About from "../pages/about";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
 import WhoAreYou from "../pages/poll";
 import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
+import DetailsView from "../pages/profile/DetailsView";
 
 const Router = () => {
   const { identity } = useAuth({});
@@ -68,7 +68,7 @@ const Router = () => {
           <BipDetails principal={identity?.getPrincipal()} />
         }
       />
-      <Route path={"/about"} element={<About />} />
+      <Route path={"/view"} element={<DetailsView />} />
       <Route path={"/login"} element={<Login />} />
       <Route path="/bip/:intPropId/certificate" element={<CertificatePage />} />
     </Routes>

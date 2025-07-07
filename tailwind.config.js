@@ -1,16 +1,20 @@
 module.exports = {
   darkMode: "class",
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-    "/node_modules/react-tailwindcss-select/dist/index.esm.js",
+    "./src/**/*.{js,jsx,ts,tsx,html}",
+    "./node_modules/react-tailwindcss-select/dist/index.esm.js",
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Roboto', 'sans-serif'],
+        monument: ['MonumentExtended', 'sans-serif'],
+      },
       colors: {
-        primary: "#5b8bdf",
-        secondary: "#2c64c6",
-        tertiary: "#02338a",
-        "primary-text": "#052152",
+        background: "#f4f4f4", 
+        "background-dark": "#171717",
+        "primary": "#4372DB",
+        "secondary": "#549BF6"
       },
       keyframes: {
         wiggle: {

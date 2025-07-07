@@ -1,107 +1,89 @@
-import { Link,  useLocation, useNavigate } from "react-router-dom";
-
-import HomeSvg from "../../assets/home.svg";
-import EditSvg from "../../assets/edit.svg";
-import WindowSvg from "../../assets/window.svg";
-import MarketSvg from "../../assets/market.svg";
-import ProfileSvg from "../../assets/profile.png";
+import { Link, useLocation } from "react-router-dom";
 import LogoutSvg from "../../assets/logout.svg";
+import LoginSvg from "../../assets/login.svg";
 
 import { useAuth } from "@ic-reactor/react";
-import { useEffect, useState } from "react";
-import { User } from "../../../declarations/backend/backend.did";
-import { backendActor } from "../actors/BackendActor";
-import { fromNullable } from "@dfinity/utils";
-import FilePreview from "../common/FilePreview";
 
-const MobileNavBarItems = [
-  {
-    svg: HomeSvg,
-    label: "Dashboard",
-    link: "dashboard",
-  },
-  {
-    svg: EditSvg,
-    label: "Create New IP",
-    link: "new",
-  },
-  {
-    svg: WindowSvg,
-    label: "bIPs",
-    link: "bips",
-  },
-  {
-    svg: MarketSvg,
-    label: "Market place",
-    link: "marketplace",
-  },
-  {
-    svg: ProfileSvg,
-    label: "",
-    link: "profile",
-  },
-];
+import BipsIcon from "../icons/BipsIcon";
+import DashIcon from "../icons/DashIcon";
+import MarketIcon from "../icons/MarketIcon";
+import NewIPIcon from "../icons/NewIPIcon";
+import SupportIcon from "../icons/SupportIcon";
 
 const MobileNavBar = () => {
-  const location = useLocation();
-  const { pathname } = location;
+  
+  const { pathname } = useLocation();
 
-  const { identity, authenticated, logout } = useAuth({});
+  const { authenticated, logout, login } = useAuth({});
 
-  if (!identity || !authenticated) {
-    return <></>;
-  }
-
-  const [user, setUser] = useState<User | undefined>(undefined);
-
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: [identity?.getPrincipal()],
-  });
-
-  useEffect(() => {
-    if (queriedUser !== undefined){
-      setUser(fromNullable(queriedUser));
-    } else {
-      setUser(undefined);
-    }
-  }
-  ,[queriedUser]);
+  const NavBarItems = [
+    {
+      icon: DashIcon,
+      label: "Dashboard",
+      link: "dashboard",
+    },
+    {
+      icon: NewIPIcon,
+      label: "Create New IP",
+      link: "new",
+    },
+    {
+      icon: BipsIcon,
+      label: "BIPs",
+      link: "bips",
+    },
+    {
+      icon: MarketIcon,
+      label: "Market place",
+      link: "marketplace",
+    },
+    {
+      icon: SupportIcon,
+      label: "Support",
+      link: "https://www.bipquantum.com/help-support.html",
+      target: "_blank",
+      rel: "noopener noreferrer",
+    },
+  ];
 
   return (
-    !pathname.includes("certificate") && <div className="flex w-full items-center justify-between bg-secondary px-4 h-16 min-h-16 sticky space-x-2 sm:hidden">
-      {MobileNavBarItems.map((item, index) => (
-        <Link
-          className={`rounded-xl ${pathname !== "/" + item.link && "profile" !== item.link && "opacity-40"} ${pathname === "/" + item.link && "profile" !== item.link && "bg-white bg-opacity-25"}`}
-          to={item.link}
-          key={index}
-        >
-          { item.link === "profile" ? 
-            (user !== undefined && user.imageUri !== "") ? 
-              <FilePreview dataUri={user.imageUri} className={"h-8 w-8 rounded-full object-cover"} /> :
-              <img src={ProfileSvg} className="h-8 w-8 rounded-full object-cover" />
-            :
-          <img
-            src={item.svg}
-            className={`${item.link === "profile" ? "h-9 rounded-full" : 
-              item.link === "bips" ? "h-8 invert" :
-              item.link === "marketplace" ? "h-10 invert -my-1" : "h-7 invert"
-            }`}
-          />
-          }
-        </Link>
-      ))}
-      <button
-        onClick={() => logout()}
-        className="flex flex-col items-center justify-center"
-      >
-        <img
-          src={LogoutSvg}
-          alt=""
-          className="h-8 cursor-pointer invert"
-        />
-      </button>
-    </div>
+    <>
+      {!(pathname.includes("login") || pathname.includes("certificate")) && (
+          <div className="shadow shadow-black/30 dark:shadow-white/30 w-full sm:hidden px-4 h-16 min-h-16 flex flex-row 
+            items-center bg-background font-bold text-black dark:bg-background-dark dark:text-white pt-2">
+              {NavBarItems.map((item, index) => (
+                <Link
+                  className={`flex h-full grow flex-row items-end justify-center text-black dark:text-white 
+                    ${!authenticated && "hidden"} ${pathname === "/" + item.link ? "active-link" : ""}`}
+                  to={item.link}
+                  key={index}
+                  target={item.target}
+                  rel={item.rel}
+                >
+                  <div className={`flex flex-col pb-4 pt-1 px-1 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-primary dark:bg-secondary rounded-t-full text-primary dark:text-secondary"}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}>
+                      { item.icon() }
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              <div className="flex flex-col items-center pb-2 pt-1 px-1 grow ">
+                <img
+                  src={authenticated ? LogoutSvg : LoginSvg}
+                  alt=""
+                  className="flex grow h-7 w-7 cursor-pointer dark:invert"
+                  onClick={() => {
+                    if (authenticated) {
+                      logout();
+                    } else {
+                      login();
+                    }
+                  }}
+                />
+              </div>
+          </div>
+      )}
+    </>
   );
 };
 

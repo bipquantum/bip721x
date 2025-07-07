@@ -52,7 +52,7 @@ module {
 
     public func setUser(
       args: CreateUserArgs and {
-        caller: Principal;
+      caller: Principal;
     }) : Result<(), Text> {
 
       if (Principal.isAnonymous(args.caller)){
@@ -72,7 +72,7 @@ module {
     }) : [ChatHistory] {
       chatBotHistory.getChatHistories({caller});
     };
-    
+      
     public func getChatHistory({
       caller: Principal;
       id: Text;
@@ -98,7 +98,7 @@ module {
     };
 
     public func updateChatHistory({
-      caller: Principal;
+     caller: Principal;
       id: Text;
       events: Text;
       aiPrompts: Text;
@@ -173,23 +173,36 @@ module {
       #ok(id);
     };
 
-    public func listIntProp({
+  public func listIntProp({
       caller: Principal;
       id: Nat;
       e8sIcpPrice: Nat;
     }) : async* Result<(), Text> {
       
-      let owner = switch(await* findIntPropOwner(id)){
-        case(#err(err)){ return #err(err); };
-        case(#ok(principal)){ principal; };
-      };
+      let #ok(owner) = await* findIntPropOwner(id) 
+        else return #err("Failed to find owner");
 
-      if (owner != caller){
+      if (owner != caller) {
         return #err("You cannot list an IP that you do not own");
       };
 
-      if (Set.has(accessControl.bannedIps, Set.nhash, id)){
+      if (Set.has(accessControl.bannedIps, Set.nhash, id)) {
         return #err("You cannot list a banned IP");
+      };
+
+      // If listing for free, check that there are no royalties
+      if (e8sIcpPrice == 0) {
+        let #ok(intProp) = await* queryIntProp(id) 
+          else return #err("Failed to query IP");
+        
+        switch(intProp.percentageRoyalties) {
+          case(?royalty) {
+            if (royalty > 0) {
+              return #err("Cannot list for free - it has royalties!");
+            };
+          };
+          case(null) {};
+        };
       };
 
       Map.set(intProps.e8sIcpPrices, Map.nhash, id, e8sIcpPrice);
@@ -351,6 +364,10 @@ module {
       });
     };
 
+    public func getNumberOfUsers() : Nat {
+      Map.size(users);
+    };
+
     public func airdropUser(principal: Principal) : async Result<Nat, Text> {
 
       if (Principal.isAnonymous(principal)){
@@ -467,16 +484,31 @@ module {
     public func banAuthor({
       caller: Principal;
       author: Principal;
-    }) : Result<(), Text> {
+    }) : async* Result<(), Text> {
+      
       if (caller != accessControl.admin and not Set.has(accessControl.moderators, Set.phash, caller)){
         return #err("Only the admin or moderators can ban or unban an author");
       };
+
+      // Ban the author
       ignore Map.update(users, Map.phash, author, func(_: Principal, user: ?User) : ?User {
         switch(user){
           case(null) { return null; };
           case(?user) { ?{ user with banned = true; }; };
         };
       });
+
+      // Get all the IPs of the author
+      let intPropIds = await BIP721Ledger.icrc7_tokens_of({
+        owner = author;
+        subaccount = null;
+      }, null, null);
+
+      // Remove them from the marketplace
+      for (id in intPropIds.vals()){
+        Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+      };
+
       #ok;
     };
 

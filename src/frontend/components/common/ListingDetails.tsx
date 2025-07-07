@@ -1,294 +1,281 @@
-import { toast } from "react-toastify";
 import { Principal } from "@dfinity/principal";
 import { NumericFormat } from "react-number-format";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Spinner from "../../assets/spinner.svg"
 
 import { backendActor } from "../actors/BackendActor";
-import { dateToTime, fromE8s, toE8s } from "../../utils/conversions";
-
-import { bip721LedgerActor } from "../actors/Bip721LedgerActor";
-import { canisterId } from "../../../declarations/backend";
-import { ApprovalInfo, RevokeTokenApprovalArg } from "../../../declarations/bip721_ledger/bip721_ledger.did";
+import { fromE8s, toE8s } from "../../utils/conversions";
 import { TOKEN_DECIMALS_ALLOWED } from "../constants";
-import { bqcLedgerActor } from "../actors/BqcLedgerActor";
-import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did";
 import { useBalance } from "./BalanceContext";
 import VioletButton from "./VioletButton";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@ic-reactor/react";
+import { TbCheck, TbX } from "react-icons/tb";
+import { IoIosPricetags } from "react-icons/io";
+import { ModalPopup } from "./ModalPopup";
+import { Result_2 } from "../../../declarations/backend/backend.did";
+import { useListIntProp } from "../hooks/useListIntProp";
+import { useUnlistIntProp } from "../hooks/useUnlistIntProp";
+import { useBuyIntProp } from "../hooks/useBuyIntProp";
+
+interface BuyButtonProps {
+  principal: Principal | undefined;
+  intPropId: bigint;
+  onSuccess?: () => void;
+}
+
+const BuyButton: React.FC<BuyButtonProps> = ({ principal, intPropId, onSuccess }) => {
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { login } = useAuth();
+  const { refreshBalance } = useBalance();
+
+  const { loading, call: buyIntProp } = useBuyIntProp({
+    onSuccess: () => {
+      setIsModalOpen(false);
+      if (principal !== undefined) {
+        refreshBalance([{ owner: principal, subaccount: [] }]);
+      }
+      onSuccess?.();
+    },
+  });
+
+  return (
+    <VioletButton
+      type="buy"
+      isLoading={loading}
+      onClick={() =>  {(principal === undefined || principal.isAnonymous()) ? login() : setIsModalOpen(true)}}
+    >
+      <p className="text-lg font-semibold">Buy</p>
+      <ModalPopup
+        onConfirm={() => { buyIntProp(intPropId) }}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        isLoading={loading}
+      >
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Do you want to buy this IP?
+          </h2>
+        </div>
+      </ModalPopup>
+    </VioletButton>
+  );
+};
+
+interface ListButtonProps {
+  intPropId: bigint;
+  onSuccess?: () => void;
+  className?: string;
+  children?: React.ReactNode;
+}
+
+export const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess, className, children }) => {
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sellPrice, setSellPrice] = useState<bigint>(0n);
+
+  const { loading, call: listIntProp } = useListIntProp({
+    onSuccess: () => {
+      setIsModalOpen(false);
+      setSellPrice(0n);
+      onSuccess?.();
+    },
+  });
+
+  return (
+    <button
+      className={ className ?? "flex text-base px-3 py-2 items-center justify-center rounded-lg bg-gradient-to-t from-primary to-secondary w-full" }
+      disabled={loading}
+      onClick={(e) => {
+        e.preventDefault();
+        setIsModalOpen(true);
+      }}
+    >
+      { children ?? <p
+        className="flex flex-row gap-1 text-white"
+        style={{ filter: "grayscale(100%)" }}
+      >
+          <TbCheck size={22} />
+          <span>List</span>
+        </p> 
+      }
+      <ModalPopup
+        onConfirm={() => { listIntProp({intPropId, sellPrice}) }}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        isLoading={loading}
+      >
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Do you want to List your IP?
+          </h2>
+          <NumericFormat
+            className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
+            thousandSeparator=","
+            decimalScale={TOKEN_DECIMALS_ALLOWED}
+            value={Number(fromE8s(sellPrice))}
+            onValueChange={(e) => {
+              setSellPrice(toE8s(parseFloat(e.value === "" ? "0" : e.value.replace(/,/g, "")),),);
+            }}
+            suffix="BQC "
+            spellCheck="false"
+          />
+        </div>
+      </ModalPopup>
+    </button>
+  );
+};
+
+interface UnlistButtonProps {
+  intPropId: bigint;
+  onSuccess?: () => void;
+}
+
+const UnlistButton: React.FC<UnlistButtonProps> = ({ intPropId, onSuccess }) => {
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { loading, call: unlistIntProp } = useUnlistIntProp({
+    onSuccess: () => {
+      setIsModalOpen(false);
+      onSuccess?.();
+    },
+  });
+
+  return (
+    <VioletButton
+      type="unlist"
+      isLoading={loading}
+      onClick={() => setIsModalOpen(true)}
+    >
+      <p
+        className="flex flex-row gap-1 text-white"
+        style={{ filter: "grayscale(100%)" }}
+      >
+        {" "}
+        <span>
+          {" "}
+          <TbX size={22} />
+        </span>{" "}
+        Unlist{" "}
+      </p>
+      <ModalPopup
+        onConfirm={() => unlistIntProp(intPropId)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        isLoading={loading}
+      >
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-xl font-bold text-black dark:text-white">
+            Do you want to unlist your IP?
+          </h2>
+        </div>
+      </ModalPopup>
+    </VioletButton>
+  );
+};
 
 interface ListingDetailsProps {
   principal: Principal | undefined;
-  owner: Principal;
+  owner: Principal | undefined;
   intPropId: bigint;
-  showRecommendation?: boolean;
-  updateBipDetails: () => void;
+  onListingChange?: (type: EListingType) => void;
+}
+
+export enum EListingType {
+  LIST,
+  UNLIST,
+  BUY,
 }
 
 const ListingDetails: React.FC<ListingDetailsProps> = ({
   principal,
   owner,
   intPropId,
-  showRecommendation,
-  updateBipDetails,
+  onListingChange,
 }) => {
-
-  const { login } = useAuth();
   
-  const [isLoading, setIsLoading] = useState(false);
-  const [sellPrice, setSellPrice] = useState<bigint>(BigInt(0));
-
-  const { refreshBalance } = useBalance();
+  const [listingType, setListingType] = useState<EListingType | null>(null);
 
   const { data: e8sPrice, call: getE8sPrice } = backendActor.useQueryCall({
     functionName: "get_e8s_price",
     args: [{ token_id: intPropId }],
   });
 
-  const { call: approveBqcTransfer } = bqcLedgerActor.useUpdateCall({
-    functionName: "icrc2_approve",
-  });
+  const refreshListingType = () => {
 
-  const { call: buyIntProp } = backendActor.useUpdateCall({
-    functionName: "buy_int_prop",
-  });
+    const isOwner = owner !== undefined && principal?.compareTo(owner) === "eq";
 
-  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
-    functionName: "icrc37_approve_tokens",
-  });
+    getE8sPrice().then((result) => {
+      if (result && "ok" in result) {
+        setListingType(isOwner ? EListingType.UNLIST : EListingType.BUY);
+      } else {
+        setListingType(isOwner ? EListingType.LIST : null);
+      }
+    });
+  }
 
-  const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
-    functionName: "icrc37_revoke_token_approvals",
-  });
+  // Determine the listing type based on the current logged-in principal, owner of the IP and the price
+  useEffect(() => {
+    refreshListingType();
+  }, [principal, owner, e8sPrice]);
 
-  const { call: listIntProp } = backendActor.useUpdateCall({
-    functionName: "list_int_prop",
-  });
-
-  const { call: unlistIntProp } = backendActor.useUpdateCall({
-    functionName: "unlist_int_prop",
-  });
-
-  const getListedPrice = () => {
-    if (e8sPrice === undefined) {
+  const formatPrice = (queryPriceResult: Result_2 | undefined) : string | null => {
+    if (queryPriceResult === undefined) {
+      throw new Error("Cannot extract price from undefined result");
+    }
+    if ("ok" in queryPriceResult) {
+        return fromE8s(queryPriceResult.ok).toFixed(TOKEN_DECIMALS_ALLOWED);
+    } else {
       return null;
-    };
-    return "ok" in e8sPrice ? fromE8s(e8sPrice.ok).toFixed(TOKEN_DECIMALS_ALLOWED) : null;
-  }
-
-  const triggerBuy = (intPropId: bigint) => {
-
-    if (principal === undefined || principal.isAnonymous()) {
-      login();
-      return;
-    };
-
-    if (e8sPrice === undefined || "ok" in e8sPrice === false) {
-      throw new Error("Price not available");
-    };
-
-    const args : ApproveArgs = {
-      amount: e8sPrice.ok + 10_000n,
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: {
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      },
-      expires_at: [],
-      fee: [],
-      expected_allowance: [],
-    }
-
-    setIsLoading(true);
-
-    // TODO: 
-    // - improve the flow by first checking the allowance and then approving the difference
-    // - revert the allowance if the buy fails
-    console.log("Approving BQC transfer");
-    approveBqcTransfer([args]).then((result) => {
-      if (!result || "Err" in result) {
-        setIsLoading(false);
-        toast.warn("Failed to approve BQC transfer");
-        console.error(result ? result["Err"] : "No result");
-      } else {
-        console.log("Buying IP");
-        buyIntProp([{ token_id: intPropId }]).then((result) => {
-          setIsLoading(false);
-          if (!result) {
-            toast.warn("Failed to buy: undefined error");
-          } else {
-            if ("ok" in result) {
-              toast.success("Success");
-              getE8sPrice().finally(() => {
-                updateBipDetails();
-                if (principal !== undefined){
-                  refreshBalance([{ owner: principal, subaccount: [] }]);
-                };
-              });
-            } else {
-              toast.warn("Failed to buy");
-              console.error(result["err"]);
-            }
-          }
-        });
-      }
-    }).catch((e) => {
-      setIsLoading(false);
-      console.error(e);
-      toast.warn("Failed to buy");
-    });
-  };
-
-  const triggerList = (intPropId: bigint, sellPrice: bigint) => {
-  
-    const info : ApprovalInfo = {
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: {
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      },
-      expires_at: [],
-    }
-
-    setIsLoading(true);
-
-    approveBip721Transfer([[{token_id: intPropId, approval_info: info}]]).then((result) => {
-      if (!result || "Err" in result) {
-        setIsLoading(false);
-        toast.warn("Failed to approve IP transfer");
-        console.error(result ? result["Err"] : "No result");
-      } else {
-        listIntProp([{ token_id: intPropId, e8s_icp_price: sellPrice }]).then(
-          (result) => {
-            setIsLoading(false);
-            if (!result || "err" in result) {
-              toast.warn("Failed to list IP");
-              console.error(result ? result["err"] : "No result");
-            } else {
-              toast.success("Success");
-              getE8sPrice().finally(() => {
-                updateBipDetails();
-              });
-            }
-          },
-        );
-      }
-    }).catch((e) => {
-      setIsLoading(false);
-      console.error(e);
-      toast.warn("Failed to list");
-    });
-    
-  };
-
-  const triggerUnlist = (intPropId: bigint) => {
-    setIsLoading(true);
-
-    const info : RevokeTokenApprovalArg = {
-      token_id: intPropId,
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: [{
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      }],
-    }
-
-    revokeBip721Transfer([[info]]).then((result) => {
-      if (!result || "Err" in result) {
-        setIsLoading(false);
-        toast.warn("Failed to revoke IP transfer");
-        console.error(result ? result["Err"] : "No result");
-      } else {
-        unlistIntProp([{ token_id: intPropId }]).then((result) => {
-          setIsLoading(false);
-          if (!result || "err" in result) {
-            toast.warn("Failed to unlist");
-            console.error(result ? result["err"] : "No result");
-          } else {
-            toast.success("Success");
-            getE8sPrice().finally(() => {
-              updateBipDetails();
-            });
-          }
-        });
-      }
-    }).catch((e) => {
-      setIsLoading(false);
-      console.error(e);
-      toast.warn("Failed to unlist");
-    });
-  };
-
-  if (principal !== undefined) {
-    if (owner.compareTo(principal) == "eq") {
-      if (getListedPrice() !== null) {
-        // To unlist
-        return (
-          <div className="flex flex-row w-full items-center space-x-2 justify-between">
-            <div className="text-lg font-bold">
-              { getListedPrice() } bQC
-            </div>
-            <VioletButton isLoading={isLoading} onClick={() => triggerUnlist(intPropId)}>
-              <span style={{ filter: 'grayscale(100%)' }}>Unlist 🏷️</span>
-            </VioletButton>
-          </div>
-        );
-      } else {
-        // To list
-        return (
-          <div className="flex flex-col relative items-center w-full space-y-1 ">
-            <div className="flex flex-row w-full items-center space-x-1 justify-between bg-violet-800 rounded-lg">
-              <NumericFormat
-                className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400 text-right ml-1"
-                thousandSeparator=","
-                decimalScale={TOKEN_DECIMALS_ALLOWED}
-                value={Number(fromE8s(sellPrice))}
-                onValueChange={(e) => {
-                  setSellPrice(
-                    toE8s(
-                      parseFloat(
-                        e.value === "" ? "0" : e.value.replace(/,/g, ""),
-                      ),
-                    ),
-                  );
-                }}
-                prefix="bQC "
-                spellCheck="false"
-              />
-              <VioletButton isLoading={isLoading} onClick={() => triggerList(intPropId, sellPrice)}>
-                List 🏷️
-              </VioletButton>
-            </div>
-            {
-              (showRecommendation === true) && (
-              <div className="text-xs item-center absolute -bottom-4 whitespace-nowrap">
-                Recommended price: 1 to 50 bQC
-              </div>
-              )
-            }
-          </div>
-        );
-      }
     }
   }
 
-  // To buy
-  return (
-    <div className="flex flex-row space-x-2 w-full items-center justify-between">
-      <div className="text-lg font-bold">
-        { getListedPrice() } bQC
-      </div>
-      <VioletButton isLoading={isLoading} onClick={() => triggerBuy(intPropId)}>
-        Buy 🛒
-      </VioletButton>
+  return listingType === null ? (
+    <img
+      src={Spinner}
+      alt="Loading..."
+      className="mx-auto h-8 w-8 animate-spin"
+    />
+  ) : (
+    <div className="w-full flex grid grid-cols-2 items-center justify-center space-x-2 text-black dark:text-white px-2">
+      
+      {e8sPrice !== undefined && "ok" in e8sPrice ? 
+        <div className="flex flex-row items-center gap-1 text-base font-bold md:text-2xl">
+          <span>
+            <IoIosPricetags size={22} />
+          </span>
+          <span className="whitespace-nowrap">
+            {formatPrice(e8sPrice)} BQC
+          </span>
+        </div>
+       : <div>{/*spacer */}</div>}
+
+        {listingType === EListingType.BUY && (
+          <BuyButton 
+            principal={principal} 
+            intPropId={intPropId} 
+            onSuccess={() => { onListingChange?.(EListingType.BUY); refreshListingType(); } }
+          />
+        )}
+
+        {listingType === EListingType.UNLIST && (
+          <UnlistButton 
+            intPropId={intPropId} 
+            onSuccess={ () => { onListingChange?.(EListingType.UNLIST); refreshListingType(); } }
+          />
+        )}
+
+        {listingType === EListingType.LIST && (
+          <ListButton 
+            intPropId={intPropId} 
+            onSuccess={ ()  => { onListingChange?.(EListingType.LIST); refreshListingType(); } }
+          />
+        )}
     </div>
   );
+
 };
 
 export default ListingDetails;

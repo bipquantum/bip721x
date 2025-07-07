@@ -180,6 +180,10 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().isAirdropAvailable(caller);
   };
 
+  public query func get_number_of_users() : async Nat {
+    getController().getNumberOfUsers();
+  };
+
   public shared({caller}) func airdrop_user() : async Result<Nat, Text> {
     await getController().airdropUser(caller);
   };
@@ -213,7 +217,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public shared({caller}) func ban_author({ author: Principal; }) : async Result<(), Text> {
-    getController().banAuthor({ caller; author; });
+    await* getController().banAuthor({ caller; author; });
   };
 
   public shared({caller}) func unban_author({ author: Principal; }) : async Result<(), Text> {

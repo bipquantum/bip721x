@@ -1,6 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+@font-face {
+  font-family: 'MonumentExtended';
+  src: url('/fonts/extend-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MonumentExtended';
+  src: url('/fonts/extend-extrabold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Required for IOS mobile browsers*/
+:root {
+  --vh: 100vh;
+}
+@media (max-width: 640px) {
+  html, body {
+    height: 100%;
+    min-height: 100%;
+  }
+}
 
 /* Custom styles for Markdown headings */
 h1, h2, h3 {
@@ -18,7 +45,6 @@ h2 {
 }
 
 body {
-  font-family: sans-serif;
   font-size: 1.2rem;
 }
 
@@ -69,4 +95,174 @@ input {
 /* Custom style for "Coming soon!" pop-over */
 .group:hover .group-hover\:block {
   display: block;
+}
+
+/* Concave Effect for Active Link */
+.nav-active-bg {
+  position: absolute;
+  width: 90%;
+  height: 100%;
+  background: linear-gradient(to top, #4372DB, #549BF6);
+  left: 0;
+  top: 0;
+  border-top-right-radius: 40px;
+  border-bottom-right-radius: 40px;
+  -webkit-mask-image: url('data:image/svg+xml,<svg width="75" height="120" viewBox="0 0 75 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M75 60C75 77.1208 61.1208 91 44 91C42.8491 91 41.7129 90.9373 40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C42.1176 29.0424 43.0538 29 44 29C61.1208 29 75 42.8792 75 60Z" fill="white"/><path d="M40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C27.9764 29.2761 4.18101 23.7993 -4 0V119.5C0.468487 109.446 15.4504 90.3148 40.5946 90.8151Z" fill="white"/></svg>');
+  mask-image: url('data:image/svg+xml,<svg width="75" height="120" viewBox="0 0 75 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M75 60C75 77.1208 61.1208 91 44 91C42.8491 91 41.7129 90.9373 40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C42.1176 29.0424 43.0538 29 44 29C61.1208 29 75 42.8792 75 60Z" fill="white"/><path d="M40.5946 90.8151C25.076 89.1194 13 75.97 13 60C13 43.8253 25.3875 30.5439 41.193 29.1254C27.9764 29.2761 4.18101 23.7993 -4 0V119.5C0.468487 109.446 15.4504 90.3148 40.5946 90.8151Z" fill="white"/></svg>');
+  mask-size: cover;
+  mask-repeat: no-repeat;
+  z-index: -1;
+}
+
+
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(40%) sepia(100%) saturate(500%) hue-rotate(200deg);
+  cursor: pointer;
+}
+
+/* Base Styles */
+.custom-calendar {
+  background-color: #212121; /* Dark Gray */
+  color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: "Roboto", sans-serif;
+  max-width: 100%;
+}
+
+/* Header (Selected Date) */
+.custom-calendar .react-datepicker__current-month {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  color: white;
+  padding: 5px 8px;
+}
+
+.custom-calendar .react-datepicker__header {
+  background-color: transparent;
+  border-bottom: none;
+}
+
+/* Navigation Buttons */
+.custom-calendar .react-datepicker__navigation {
+  top: 18px;
+  width: 26px;
+  height: 26px;
+}
+
+/* Week Days */
+.custom-calendar .react-datepicker__day-name {
+  font-size: 14px;
+  font-weight: 400;
+  color: #bdbdbd;
+  padding: 5px 5px;
+  width: 26px;
+  height: 24px;
+}
+
+/* Dates */
+.custom-calendar .react-datepicker__day {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: white;
+  margin: 4px;
+  border-radius: 50%;
+}
+
+.custom-calendar .react-datepicker__day:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Selected Date */
+.custom-calendar .react-datepicker__day--selected,
+.custom-calendar .react-datepicker__day--keyboard-selected {
+  background-color: #448aff !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+/* Today's Date */
+.custom-calendar .react-datepicker__day--today {
+  border: 1px solid #448aff;
+  color: #448aff;
+}
+
+/* Bottom Buttons */
+.custom-calendar .react-datepicker__footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+
+.custom-calendar .react-datepicker__footer button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+.custom-calendar .react-datepicker__footer button:first-child {
+  color: #bdbdbd; /* Cancel */
+}
+
+.custom-calendar .react-datepicker__footer button:last-child {
+  color: #448aff; /* OK */
+}
+
+
+/* Light Mode Placeholder */
+.react-datepicker__input-container input::placeholder {
+  color: #000000; /* Black for light mode */
+  opacity: 1; /* Ensure full opacity */
+}
+
+/* Dark Mode Placeholder */
+.dark .react-datepicker__input-container input::placeholder {
+  color: #ffffff; /* White for dark mode */
+  opacity: 1;
+}
+
+@media (max-width: 360px) {
+  .custom-calendar {
+    padding: 4px; /* Reduce padding */
+  }
+
+  .custom-calendar .react-datepicker__day-name,
+  .custom-calendar .react-datepicker__day {
+    width: 20px; /* Shrink day width */
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px; /* Smaller font */
+    margin: 2px; /* Reduce margin */
+  }
+
+  .custom-calendar .react-datepicker__navigation {
+    top: 14px; /* Adjust navigation button position */
+    width: 20px;
+    height: 20px;
+  }
+
+  .custom-calendar .react-datepicker__current-month {
+    font-size: 12px; /* Smaller header */
+  }
+}
+
+._container_1c03y_8 {
+  background-color: rgba(0, 0, 0, 0.0) !important;
+}
+
+._dropdown_1c03y_15 {
+  background-color: rgba(0, 0, 0, 0.0) !important;
+  height: 100% !important;
+  
 }

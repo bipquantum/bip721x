@@ -1,136 +1,95 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-
-import HomeSvg from "../../assets/home.svg";
-import EditSvg from "../../assets/edit.svg";
-import WindowSvg from "../../assets/window.svg";
-import MarketSvg from "../../assets/market.svg";
-import ProfileSvg from "../../assets/profile.png";
+import { Link, useLocation } from "react-router-dom";
 import LogoutSvg from "../../assets/logout.svg";
 import LoginSvg from "../../assets/login.svg";
 
 import { useAuth } from "@ic-reactor/react";
-import ChatHistoryBar from "./ChatHistoryBar";
-import { backendActor } from "../actors/BackendActor";
-import { NEW_USER_NICKNAME } from "../constants";
-import { ModalPopup } from "../common/ModalPopup";
-import { useEffect, useState } from "react";
-import { fromNullable } from "@dfinity/utils";
-import { User } from "../../../declarations/backend/backend.did";
-import FilePreview from "../common/FilePreview";
+
+import BipsIcon from "../icons/BipsIcon";
+import DashIcon from "../icons/DashIcon";
+import MarketIcon from "../icons/MarketIcon";
+import NewIPIcon from "../icons/NewIPIcon";
+import SupportIcon from "../icons/SupportIcon";
 
 const NavBar = () => {
+  
+  const { pathname } = useLocation();
 
-  const location = useLocation();
-  const { pathname } = location;
-
-  const { identity, authenticated, logout, login } = useAuth({});
-
-  const [showChatHistory, setShowChatHistory] = useState(false);
-  const [user, setUser] = useState<User | undefined>(undefined);
-
-  const { data: queriedUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: identity ? [identity?.getPrincipal()] : undefined,
-  });
-
-  useEffect(() => {
-    if (queriedUser !== undefined){
-      setUser(fromNullable(queriedUser));
-    } else {
-      setUser(undefined);
-    }
-  }
-  ,[queriedUser]);
+  const { authenticated, logout, login } = useAuth({});
 
   const NavBarItems = [
     {
-      svg: HomeSvg,
+      icon: DashIcon,
       label: "Dashboard",
       link: "dashboard",
     },
     {
-      svg: EditSvg,
+      icon: NewIPIcon,
       label: "Create New IP",
       link: "new",
     },
     {
-      svg: WindowSvg,
-      label: "bIPs",
+      icon: BipsIcon,
+      label: "BIPs",
       link: "bips",
     },
     {
-      svg: MarketSvg,
+      icon: MarketIcon,
       label: "Market place",
       link: "marketplace",
     },
     {
-      svg: ProfileSvg,
-      label: (user === undefined || user.nickName.length === 0) ? NEW_USER_NICKNAME : user.nickName,
-      link: "profile",
+      icon: SupportIcon,
+      label: "Support",
+      link: "https://www.bipquantum.com/help-support.html",
+      target: "_blank",
+      rel: "noopener noreferrer",
     },
   ];
 
-  const hideHistoryBar = () => {
-    return pathname == "/" || 
-           pathname.includes("/marketplace")|| 
-           pathname.includes("/bip/") ||
-           pathname.includes("/poll") ||
-           pathname.includes("/login") ||
-           pathname.includes("/about");
-  }
-
   return (
-    <>
-      {!(pathname.includes("login") || pathname.includes("certificate")) && (
-        <div className="flex flex-row static">
-          <div className="hidden h-screen w-[107px] flex-col items-center overflow-auto bg-secondary pt-8 font-bold text-white sm:flex">
-            <div className="flex flex-grow flex-col items-center justify-between py-10">
-              <div className="flex flex-col items-center justify-start gap-12">
-                {NavBarItems.map((item, index) => (
-                  <Link
-                    className={`flex flex-col items-center justify-center gap-2 ${pathname !== "/" + item.link && "opacity-40"} 
-                      ${(item.link !== "marketplace" && !authenticated) && "hidden"}`}
-                    to={item.link}
-                    key={index}
-                  >
-                    { item.link === "profile" ? 
-                      (user !== undefined && user.imageUri !== "") ? 
-                        <FilePreview dataUri={user.imageUri} className={"h-9 w-9 rounded-full object-cover"}/> : 
-                        <img src={ProfileSvg} className="h-9 w-9 rounded-full object-cover" />
-                      :
-                      <img
-                        src={item.svg}
-                        className={`${item.link === "bips" ? "h-8 invert" : item.link === "marketplace" ? "h-11 invert -my-1" : "h-7 invert"}`}
-                      />
-                    }
-                    <p className={`text-[10px] font-bold`}>{item.label}</p>
-                  </Link>
-                ))}
-              </div>
-              <button
-                onClick={() => { authenticated ? logout() : login() } }
-                className="flex flex-col items-center justify-center gap-2"
-              >
-                <img
-                  src={authenticated ? LogoutSvg : LoginSvg}
-                  alt=""
-                  className="mt-2 h-8 cursor-pointer invert"
-                />
-                <p className={`text-sm`}>{authenticated ? "Logout" : "Login"}</p>
-              </button>
-            </div>
-          </div>
-          <div
-            className={`hidden h-full w-64 overflow-auto bg-primary text-white transition-all duration-200 ${hideHistoryBar() ? "sm:hidden" : "sm:block"}`}
+    <div className="fixed top-0 left-0 border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 flex
+      hidden h-full w-fit flex-col items-center justify-between font-bold text-black dark:text-white sm:flex min-w-20">
+      <div>{/*spacer*/}</div>
+      <div className="flex flex-col items-center space-y-2 pr-2">
+        {NavBarItems.map((item, index) => (
+          <Link
+            className={`relative z-50 flex h-full w-full flex-col items-center justify-center text-black dark:text-white ${!authenticated && "hidden"} ${pathname === "/" + item.link ? "active-link" : ""}`}
+            to={item.link}
+            key={index}
+            target={item.target}
+            rel={item.rel}
           >
-            <ChatHistoryBar onChatSelected={() => {}}/>
-          </div>
-        </div>
-      )}
-      <ModalPopup onClose={() => {setShowChatHistory(false)}} isOpen={showChatHistory}>
-        <ChatHistoryBar onChatSelected={() => setShowChatHistory(false)}/>
-      </ModalPopup>
-    </>
+            <div className={`flex flex-col items-center pl-4 p-2 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-primary dark:bg-secondary rounded-r-full text-primary dark:text-secondary"}`}>
+              <div className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}>
+                { item.icon() }
+              </div>
+            </div>
+
+            {/* Label */}
+            <div className="h-[10px] pl-2 -mt-2">
+              {pathname !== "/" + item.link && (
+                <p className={`text-[10px] font-bold`}>{item.label}</p>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+      <button
+        onClick={() => {
+          authenticated ? logout() : login();
+        }}
+        className="flex flex-col items-center justify-center gap-2"
+      >
+        <img
+          src={authenticated ? LogoutSvg : LoginSvg}
+          alt=""
+          className="mt-2 h-8 cursor-pointer dark:invert"
+        />
+        <p className={`text-[10px] font-bold`}>
+          {authenticated ? "Logout" : "Login"}
+        </p>
+      </button>
+    </div>
   );
 };
 

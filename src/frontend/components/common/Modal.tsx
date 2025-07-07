@@ -1,4 +1,6 @@
-import React, { ReactNode, MouseEvent } from "react";
+import { ReactNode, MouseEvent } from "react";
+import ReactDOM from "react-dom";
+import { MdCancel } from "react-icons/md";
 
 interface Props {
   isVisible: boolean;
@@ -21,18 +23,21 @@ const Modal = ({ isVisible, children, onClose }: Props) => {
     e.stopPropagation();
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div
       className="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-black"
       onClick={handleOverlayClick}
     >
-      <div className="rounded-xl bg-white p-4" onClick={handleModalClick}>
+      <div className="rounded-xl dark:bg-background-dark bg-background p-4" onClick={handleModalClick}>
         <div className="flex w-full justify-end">
-          <button onClick={onClose}>X</button>
+          <button onClick={onClose} className="text-black dark:text-white">
+            <MdCancel size={24} />
+          </button>
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

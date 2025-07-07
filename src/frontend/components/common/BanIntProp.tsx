@@ -1,14 +1,14 @@
 import { Principal } from "@dfinity/principal";
 import { backendActor } from "../actors/BackendActor";
 import VioletButton from "./VioletButton";
+import { TbBan } from "react-icons/tb";
 
 interface BanIntPropProps {
   principal: Principal | undefined;
   intPropId: bigint;
-};
+}
 
-const BanIntProp : React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
-
+const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
   const { data: admin } = backendActor.useQueryCall({
     functionName: "get_admin",
     args: [],
@@ -24,31 +24,38 @@ const BanIntProp : React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
     args: [{ id: intPropId }],
   });
 
-  const { call: banIntProp, loading } = backendActor.useUpdateCall({
+  const { call: banIntProp, loading: banLoading } = backendActor.useUpdateCall({
     functionName: "ban_int_prop",
   });
 
+  const { call: unbanIntProp, loading: unbanLoading } = backendActor.useUpdateCall({
+    functionName: "unban_int_prop",
+  });
+
+  // Early return if data is not ready
+  if (!principal || !admin || !moderators || isBanned === undefined) return null;
+
+  const isAuthorized =
+    principal === admin ||
+    moderators.some((moderator) => moderator.compareTo(principal) === "eq");
+
+  const handleClick = () => {
+    const action = isBanned
+      ? unbanIntProp([{ id: intPropId }])
+      : banIntProp([{ id: intPropId, ban_author: false }]);
+
+    action.then(() => getIsBanned());
+  };
+
+  if (!isAuthorized) return null;
+
   return (
-    principal === undefined || admin === undefined || moderators === undefined || isBanned === undefined ? (
-      <div
-        className="text-center text-white"
-        style={{
-          padding: "100px",
-        }}
-      >
-        Loading...
-      </div>
-    ) : principal === admin || moderators.find((moderator) => moderator.compareTo(principal) === "eq") ? (
-      <VioletButton
-        onClick={() => { banIntProp([{ id: intPropId, ban_author: true }]).then(() => getIsBanned()); }}
-        isLoading={loading}
-      >
-        <span style={{ filter: isBanned ? 'grayscale(100%)' : '' }} >{`${isBanned ? "Unban" : "Ban"} 🚫`}</span>
-      </VioletButton>
-    ) : (
-      <></>
-    )
-  )
-}
+    <VioletButton onClick={handleClick} isLoading={banLoading || unbanLoading}>
+      <span className="flex flex-row gap-x-1 items-center">
+        <TbBan size={20} /> {isBanned ? "Unban" : "Ban"} BIP #{intPropId.toString()}
+      </span>
+    </VioletButton>
+  );
+};
 
 export default BanIntProp;
