@@ -42,7 +42,9 @@ import {
 } from "../../../utils/conversions";
 
 import {
+  BIP_DESCRIPTION_MAX_LENGTH,
   BIP_DESCRIPTION_MIN_LENGTH,
+  BIP_TITLE_MAX_LENGTH,
   BIP_TITLE_MIN_LENGTH,
   DEFAULT_COUNTRY_CODE,
   MAX_ROYALTY_PERCENTAGE,
@@ -182,47 +184,38 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   };
 
   const loadIntPropInput = () => {
-    const storedValue = sessionStorage.getItem("intPropInput");
-    return storedValue
-      ? SuperJSON.parse<IntPropInput>(storedValue)
-      : INITIAL_INT_PROP_INPUT;
+    try {
+      const storedValue = sessionStorage.getItem("intPropInput");
+      return storedValue
+        ? SuperJSON.parse<IntPropInput>(storedValue)
+        : INITIAL_INT_PROP_INPUT;
+    } catch (error) {
+      console.error("Failed to load intPropInput from sessionStorage:", error);
+      toast.error("Failed to load preview form data: " + error);
+      return INITIAL_INT_PROP_INPUT; // Return default value on error
+    }
   };
 
-  const loadDataUri = () => {
-    const storedValue = sessionStorage.getItem("dataUri");
-    return storedValue ? storedValue : "";
-  };
-
-  const loadRoyaltiesVisible = () => {
-    const storedValue = sessionStorage.getItem("royaltiesVisible");
-    return storedValue ? JSON.parse(storedValue) : false;
-  };
-
-  const save = (
-    intPropInput: IntPropInput,
-    dataUri: string,
-    royaltiesVisible: boolean,
-  ) => {
-    sessionStorage.setItem("intPropInput", SuperJSON.stringify(intPropInput));
-    sessionStorage.setItem("dataUri", dataUri);
-    sessionStorage.setItem("royaltiesVisible", JSON.stringify(royaltiesVisible));
+  const save = (intPropInput: IntPropInput) => {
+    try {
+      sessionStorage.setItem("intPropInput", SuperJSON.stringify(intPropInput));
+    } catch (error) {
+      console.error("Failed to save intPropInput to sessionStorage:", error);
+      toast.error("Failed to save form data: " + error);
+    }
   };
 
   const clear = () => {
     sessionStorage.removeItem("intPropInput");
-    sessionStorage.removeItem("dataUri");
-    sessionStorage.removeItem("royaltiesVisible");
   };
 
   const [step, setStep] = useState(1);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [ipId, setIpId] = useState<bigint | undefined>(undefined);
-  const [intPropInput, setIntPropInput] =
-    useState<IntPropInput>(loadIntPropInput());
-  const [dataUri, setDataUri] = useState<string>(loadDataUri());
-  const [royaltiesVisible, setRoyaltiesVisible] = useState<boolean>(
-    loadRoyaltiesVisible(),
-  );
+  const [intPropInput, setIntPropInput] = useState<IntPropInput>(loadIntPropInput());
+  // Required for file preview (step 4)
+  // @todo: should use actual dataUri returned by query
+  const [dataUri, setDataUri] = useState<string>(loadIntPropInput().dataUri);
   const [royaltySwitch, setRoyaltySwitch] = useState(false);
   const [publishSwitch, setPublishSwitch] = useState(false);
 
@@ -289,8 +282,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
 
   // Persist form state on every change
   useEffect(() => {
-    save(intPropInput, dataUri, royaltiesVisible);
-  }, [intPropInput, dataUri, royaltiesVisible]);
+    save(intPropInput);
+  }, [intPropInput]);
 
   const isDark = document.documentElement.classList.contains("dark");
 
@@ -302,15 +295,23 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   }
 
   const validateTitle = (input: IntPropInput): string | undefined => {
-    if (input.title.trim().length < BIP_TITLE_MIN_LENGTH) {
+    const length = input.title.trim().length;
+    if (length < BIP_TITLE_MIN_LENGTH) {
       return `${BIP_TITLE_MIN_LENGTH} characters minimum`;
+    }
+    if (length > BIP_TITLE_MAX_LENGTH) {
+      return `${BIP_TITLE_MAX_LENGTH} characters minimum`;
     }
     return undefined;
   };
 
   const validateDescription = (input: IntPropInput): string | undefined => {
-    if (input.description.trim().length < BIP_DESCRIPTION_MIN_LENGTH) {
+    const length = input.description.trim().length;
+    if (length < BIP_DESCRIPTION_MIN_LENGTH) {
       return `${BIP_DESCRIPTION_MIN_LENGTH} characters minimum`;
+    }
+    if (length > BIP_DESCRIPTION_MAX_LENGTH) {
+      return `${BIP_DESCRIPTION_MAX_LENGTH} characters maximum`;
     }
     return undefined;
   };
@@ -517,6 +518,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       </p>
                       <input
                         type="text"
+                        maxLength={BIP_TITLE_MAX_LENGTH}
                         value={intPropInput.title}
                         onChange={(e) => {
                           setIntPropInput({
@@ -539,6 +541,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         <FieldValidator name={"Description of the IP"} error={validateDescription(intPropInput)} />
                       </p>
                       <textarea
+                        maxLength={BIP_DESCRIPTION_MAX_LENGTH}
                         value={intPropInput.description}
                         onChange={(e) => {
                           setIntPropInput({
