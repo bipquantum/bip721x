@@ -12,7 +12,6 @@ import { useAuth } from "@ic-reactor/react";
 import { TbCheck, TbX } from "react-icons/tb";
 import { IoIosPricetags } from "react-icons/io";
 import { ModalPopup } from "./ModalPopup";
-import { Result_2 } from "../../../declarations/backend/backend.did";
 import { useListIntProp } from "../hooks/useListIntProp";
 import { useUnlistIntProp } from "../hooks/useUnlistIntProp";
 import { useBuyIntProp } from "../hooks/useBuyIntProp";
@@ -21,10 +20,11 @@ import { BiPencil } from "react-icons/bi";
 interface BuyButtonProps {
   principal: Principal | undefined;
   intPropId: bigint;
+  e8sPrice: bigint;
   onSuccess?: () => void;
 }
 
-const BuyButton: React.FC<BuyButtonProps> = ({ principal, intPropId, onSuccess }) => {
+const BuyButton: React.FC<BuyButtonProps> = ({ principal, intPropId, e8sPrice, onSuccess }) => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -47,18 +47,20 @@ const BuyButton: React.FC<BuyButtonProps> = ({ principal, intPropId, onSuccess }
       isLoading={loading}
       onClick={() =>  {(principal === undefined || principal.isAnonymous()) ? login() : setIsModalOpen(true)}}
     >
-      <p className="text-lg font-semibold">Buy</p>
+      <p className="text-lg font-semibold">{`${e8sPrice === 0n ? "Free" : "Buy"}`}</p>
       <ModalPopup
         onConfirm={() => { buyIntProp(intPropId) }}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         isLoading={loading}
       >
-        <div className="flex flex-col space-y-4">
-          <h2 className="text-xl font-bold text-black dark:text-white">
-            Do you want to buy this IP?
-          </h2>
-        </div>
+        <h2 className="text-xl font-bold text-black dark:text-white">
+          {
+            e8sPrice === 0n ?
+              <>Do you want to get this IP for free?</> :
+              <>{`Do you want to buy this IP for ${fromE8s(e8sPrice).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC?`}</>
+          }
+        </h2>
       </ModalPopup>
     </VioletButton>
   );
@@ -199,8 +201,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 }) => {
   
   const [listingType, setListingType] = useState<EListingType | null>(null);
+  const [e8sPrice, setE8sPrice] = useState<bigint | undefined>(undefined);
 
-  const { data: e8sPrice, call: getE8sPrice } = backendActor.useQueryCall({
+  const queryE8sPrice = backendActor.useQueryCall({
     functionName: "get_e8s_price",
     args: [{ token_id: intPropId }],
   });
@@ -209,12 +212,18 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 
     const isOwner = owner !== undefined && principal?.compareTo(owner) === "eq";
 
-    getE8sPrice().then((result) => {
+    queryE8sPrice.call().then((result) => {
       if (result && "ok" in result) {
         setListingType(isOwner ? EListingType.UNLIST : EListingType.BUY);
+        setE8sPrice(result.ok);
       } else {
         setListingType(isOwner ? EListingType.LIST : null);
+        setE8sPrice(undefined);
       }
+    }).catch((error) => {
+      console.error("Error fetching e8s price:", error);
+      setListingType(null);
+      setE8sPrice(undefined);
     });
   }
 
@@ -222,17 +231,6 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   useEffect(() => {
     refreshListingType();
   }, [principal, owner, e8sPrice]);
-
-  const formatPrice = (queryPriceResult: Result_2 | undefined) : string | null => {
-    if (queryPriceResult === undefined) {
-      throw new Error("Cannot extract price from undefined result");
-    }
-    if ("ok" in queryPriceResult) {
-        return fromE8s(queryPriceResult.ok).toFixed(TOKEN_DECIMALS_ALLOWED);
-    } else {
-      return null;
-    }
-  }
 
   return listingType === null ? (
     <img
@@ -243,13 +241,13 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   ) : (
     <div className="w-full flex grid grid-cols-2 items-center justify-center space-x-2 text-black dark:text-white px-2">
       
-      {e8sPrice !== undefined && "ok" in e8sPrice ? 
+      {e8sPrice !== undefined ? 
         <div className="flex flex-row items-center gap-1 text-base font-bold md:text-2xl">
           <span>
             <IoIosPricetags size={22} />
           </span>
           <span className="whitespace-nowrap">
-            {formatPrice(e8sPrice)} BQC
+            {fromE8s(e8sPrice).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC
           </span>
           { listingType === EListingType.UNLIST && <ListButton
               intPropId={intPropId}
@@ -263,10 +261,11 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
         </div>
        : <div>{/*spacer */}</div>}
 
-        {listingType === EListingType.BUY && (
+        { e8sPrice !== undefined && listingType === EListingType.BUY && (
           <BuyButton 
             principal={principal} 
             intPropId={intPropId} 
+            e8sPrice={e8sPrice}
             onSuccess={() => { onListingChange?.(EListingType.BUY); refreshListingType(); } }
           />
         )}
