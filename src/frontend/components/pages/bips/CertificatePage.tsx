@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 import BipCertificateTemplate from "../../../assets/bIP_certificate_editable.pdf";
 
 // TODO: apparently @types/qrcode doesn't exist for the qrcode package
@@ -15,6 +16,7 @@ import { fromNullable } from "@dfinity/utils";
 // @ts-ignore
 import { getName } from "country-list";
 import { Principal } from "@dfinity/principal";
+import { toast } from "react-toastify";
 
 const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> => {
   try {
@@ -37,16 +39,20 @@ const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> =>
 }
 
 // TODO: Add the percentage royalties once the field has been added to the PDF template
-const generatePdf = async (intPropId: string, intProp: IntProp, author: User, owner: Principal | undefined) : Promise<Uint8Array> => {
-
+const generatePdf = async (intPropId: string, intProp: IntProp, author: User, owner: Principal | undefined) : Promise<Uint8Array> => {  
   // Load the PDF template
   const template = await getAssetAsArrayBuffer(BipCertificateTemplate);
 
   // Load a PDFDocument from the existing PDF bytes
   const pdfDoc = await PDFDocument.load(template);
+  pdfDoc.registerFontkit(fontkit);
 
   // Get the form within the document
   const form = pdfDoc.getForm();
+
+  // Fetch the font and embed it
+  const fontBytes = await getAssetAsArrayBuffer('/fonts/Symbola.ttf');
+  const customFont = await pdfDoc.embedFont(fontBytes);
 
   var publication_date = undefined;
   var publication_country = undefined;
@@ -81,6 +87,7 @@ const generatePdf = async (intPropId: string, intProp: IntProp, author: User, ow
   Object.keys(fieldValues).forEach((fieldName) => {
     const field = form.getTextField(fieldName);
     field.setText(fieldValues[fieldName]);
+    field.updateAppearances(customFont);
   });
 
   // Flatten the form to prevent further editing
@@ -116,7 +123,6 @@ const CertificatePage = () => {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const [intProp, setIntProp] = useState<IntProp>();
-  const [error, setError] = useState<string | undefined>(undefined);
 
   const { data: author, call: getAuthor } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -137,7 +143,7 @@ const CertificatePage = () => {
               setIntProp(res.ok.V1);
             } else {
               console.error("Error fetching the intProp:", res);
-              setError("IP not found");
+              toast.error("Error fetching the IP details");
             }
         });
         getOwner([{ token_id: BigInt(intPropId) }]);
@@ -167,15 +173,13 @@ const CertificatePage = () => {
       })
       .catch((error) => {
         console.error("Error generating PDF:", error);
-        setError("Error generating PDF");
+        toast.error("Error generating the certificate PDF: " + error.message);
+        setPdfUrl(null);
       });
   }, [intPropId, intProp, author, owner]);
 
   return <div className="flex flex-col w-full h-full items-center justify-center">
-    {
-      error !== undefined ? <div className="text-center" style={{ padding: "100px" }}>
-        {error}
-      </div> :
+    {  
       !pdfUrl ? <img src={SpinnerSvg} alt="Loading certificate..." /> : <iframe src={pdfUrl} width="100%" height="100%" />
     }
   </div>

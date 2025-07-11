@@ -32,11 +32,11 @@ const Router = () => {
       />
       <Route
         path={"/chat/:chatId"}
-        element={<PrivateRoute element={<WithHistoryWrapper principal={identity?.getPrincipal()} />} />}
+        element={<PrivateRoute element={<WithHistoryWrapper principal={identity?.getPrincipal()!} />} />}
       />
       <Route
         path={"/marketplace"}
-        element={<Bips principal={identity?.getPrincipal()}/>}
+        element={<Bips principal={identity?.getPrincipal()!} />}
       />
       <Route
         path={"/new"}

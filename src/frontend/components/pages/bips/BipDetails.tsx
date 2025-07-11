@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Principal } from "@dfinity/principal";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { fromNullable } from "@dfinity/utils";
 
 import { backendActor } from "../../actors/BackendActor";
@@ -22,9 +22,9 @@ import UserNickName from "../../common/UserNickname";
 import { HiCheckBadge } from "react-icons/hi2";
 import { TbHeart } from "react-icons/tb";
 import { IoEyeOutline } from "react-icons/io5";
-import fund from "../../../assets/fund.svg";
 import UserImage from "../../common/UserImage";
 import BanAuthor from "../../common/BanAuthor";
+import FundIcon from "../../icons/FundIcon";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -175,21 +175,8 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </div>
                   </div>
                   <div className="flex flex-col rounded-[20px] bg-white dark:bg-background-dark px-3 py-2">
-                    <span
-                      className="block max-h-[7.5em] overflow-auto whitespace-pre-line text-base leading-[1.5em] break-words text-justify"
-                      style={{
-                        display: "block",
-                        maxHeight: "7.5em", // 5 lines * 1.5em line height
-                        overflowY: "auto",
-                        wordBreak: "break-word",
-                      }}
-                    >
-                      {intProp.ok.V1.description}
-                    </span>
-                    {/* Put a horizontal light bar to separate the rest */}
-                    <hr className="my-2 border-t border-gray-200 dark:border-gray-700" />
                     <div className="flex flex-grow w-full sm:flex-row flex-col items-start justify-between gap-3 sm:gap-x-2">
-                      <ul className="w-full space-y-1 text-xs text-gray-500 dark:text-gray-300">
+                      <ul className="w-full space-y-1 text-sm text-gray-500 dark:text-gray-300">
                         <li className="grid grid-cols-2">
                           IP Type:{" "}
                           <span className="font-semibold text-gray-700 dark:text-gray-100 text-right">
@@ -252,12 +239,17 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                       </div>
                     </div>
                     <div className="flex flex-row gap-[10px] mt-2">
-                      <img src={fund} alt="" />
-                      <p className="mt-auto text-sm text-gray-400">
-                        Supports creator This listing ensures the collection
+                      <FundIcon />
+                      <p className="mt-auto text-sm text-gray-600 dark:text-gray-400">
+                        Supports creator — This listing ensures the collection
                         creator receives their suggested earnings.
                       </p>
                     </div>
+                    {/* Put a horizontal light bar to separate the rest */}
+                    <hr className="my-2 border-t border-gray-200 dark:border-gray-700" />
+                    <span className="block whitespace-pre-line text-base leading-[1.5em] break-words text-justify font-normal text-sm">
+                      {intProp.ok.V1.description}
+                    </span>
                   </div>
                 </div>
               </div>

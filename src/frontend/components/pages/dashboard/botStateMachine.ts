@@ -13,7 +13,7 @@ interface BIPCertificateEvent {
 
 type MachineEvent = BIPCertificateEvent | { type: string };
 
-const BIPQuantumUrl = process.env.DFX_NETWORK == 'local' ? "http://localhost:3000" : `https://${process.env.CANISTER_ID_FRONTEND}.icp0.io`;
+const BIPQuantumUrl = import.meta.env.VITE_DFX_NETWORK == 'local' ? "http://localhost:3000" : `https://${import.meta.env.VITE_CANISTER_ID_FRONTEND}.icp0.io`;
 
 const VERSION_MAJOR = 0;
 const VERSION_MINOR = 1;
