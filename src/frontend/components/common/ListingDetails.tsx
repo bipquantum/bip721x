@@ -16,6 +16,7 @@ import { Result_2 } from "../../../declarations/backend/backend.did";
 import { useListIntProp } from "../hooks/useListIntProp";
 import { useUnlistIntProp } from "../hooks/useUnlistIntProp";
 import { useBuyIntProp } from "../hooks/useBuyIntProp";
+import { BiPencil } from "react-icons/bi";
 
 interface BuyButtonProps {
   principal: Principal | undefined;
@@ -67,10 +68,11 @@ interface ListButtonProps {
   intPropId: bigint;
   onSuccess?: () => void;
   className?: string;
+  modalLabel?: string;
   children?: React.ReactNode;
 }
 
-export const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess, className, children }) => {
+export const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess, className, modalLabel, children }) => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(0n);
@@ -108,7 +110,7 @@ export const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess, cl
       >
         <div className="flex flex-col space-y-4">
           <h2 className="text-xl font-bold text-black dark:text-white">
-            Do you want to List your IP?
+            { modalLabel || "Do you want to List your IP?" }
           </h2>
           <NumericFormat
             className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
@@ -249,6 +251,15 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
           <span className="whitespace-nowrap">
             {formatPrice(e8sPrice)} BQC
           </span>
+          { listingType === EListingType.UNLIST && <ListButton
+              intPropId={intPropId}
+              onSuccess={() => { refreshListingType(); } }
+              className="hover:text-gray-600 dark:hover:text-gray-400"
+              modalLabel="Do you want to edit the IP price?"
+            >
+              <BiPencil size={22} />
+            </ListButton>
+          }
         </div>
        : <div>{/*spacer */}</div>}
 

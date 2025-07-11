@@ -43,28 +43,32 @@ export const useBuyIntProp = ({
       return;
     }
 
-    const args: ApproveArgs = {
-      amount: e8sPrice.ok + 10_000n,
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: {
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      },
-      expires_at: [],
-      fee: [],
-      expected_allowance: [],
-    };
-
     try {
-      const approvalResult = await approveBqcTransfer([args]);
 
-      if (!approvalResult || "Err" in approvalResult) {
-        toast.warn("Failed to approve BQC transfer");
-        console.error(approvalResult?.Err ?? "No result");
-        onError?.();
-        return;
+      // Approve the BQC transfer if the price is greater than 0
+      if (e8sPrice.ok > 0n) {
+        const args: ApproveArgs = {
+          amount: e8sPrice.ok + 10_000n,
+          memo: [],
+          from_subaccount: [],
+          created_at_time: [dateToTime(new Date())],
+          spender: {
+            owner: Principal.fromText(canisterId),
+            subaccount: [],
+          },
+          expires_at: [],
+          fee: [],
+          expected_allowance: [],
+        };
+
+        const approvalResult = await approveBqcTransfer([args]);
+
+        if (!approvalResult || "Err" in approvalResult) {
+          toast.warn("Failed to approve BQC transfer");
+          console.error(approvalResult?.Err ?? "No result");
+          onError?.();
+          return;
+        }
       }
 
       const buyResult = await buyIntProp([{ token_id: intPropId }]);

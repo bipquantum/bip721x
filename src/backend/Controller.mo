@@ -173,7 +173,7 @@ module {
       #ok(id);
     };
 
-  public func listIntProp({
+    public func listIntProp({
       caller: Principal;
       id: Nat;
       e8sIcpPrice: Nat;
@@ -188,21 +188,6 @@ module {
 
       if (Set.has(accessControl.bannedIps, Set.nhash, id)) {
         return #err("You cannot list a banned IP");
-      };
-
-      // If listing for free, check that there are no royalties
-      if (e8sIcpPrice == 0) {
-        let #ok(intProp) = await* queryIntProp(id) 
-          else return #err("Failed to query IP");
-        
-        switch(intProp.percentageRoyalties) {
-          case(?royalty) {
-            if (royalty > 0) {
-              return #err("Cannot list for free - it has royalties!");
-            };
-          };
-          case(null) {};
-        };
       };
 
       Map.set(intProps.e8sIcpPrices, Map.nhash, id, e8sIcpPrice);
