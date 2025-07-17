@@ -1,7 +1,8 @@
 import MiniSearch, { Options } from "minisearch";
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { backendActor } from "../actors/BackendActor";
 import { EQueryDirection, toQueryDirection } from "../../utils/conversions";
+import { VersionnedIntProp } from "../../../declarations/backend/backend.did";
 
 interface SearchContextType {
   documents: any[];
@@ -12,9 +13,9 @@ const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
-  console.log("SearchProvider initialized");
+  const [intProps, setIntProps] = React.useState<Map<bigint, VersionnedIntProp>>(new Map());
 
-  const { data } = backendActor.useQueryCall({
+  const { data: intPropIds } = backendActor.useQueryCall({
     functionName: "get_listed_int_props",
     args: [{
       prev: [],
@@ -23,56 +24,45 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }]
   });
 
-  const documents = useMemo<any[]>(() => {
-    if (data === undefined) {
-      return [];
+  const { call: getIntProp } = backendActor.useQueryCall({
+    functionName: "get_int_prop",
+  });
+
+  useEffect(() => {
+    if (intPropIds !== undefined) {
+      const fetchIntProps = async () => {
+        const propMap = new Map<bigint, VersionnedIntProp>();
+
+        await Promise.all(
+          intPropIds.map(async (id) => {
+            const result = await getIntProp([{ token_id: id }]);
+            if (result && 'ok' in result) {
+              propMap.set(id, result.ok);
+            }
+          })
+        );
+        setIntProps(propMap);
+      };
+      fetchIntProps();
     }
-    // Convert the data to the format expected by MiniSearch
-    let docs= data.map((id: bigint) => ({
+  }, [intPropIds]);
+
+  const documents = useMemo<any[]>(() => {
+    const docs = Array.from(intProps.entries()).map(([id, intProp]) => ({
       id: Number(id), // Convert bigint to number for MiniSearch
-      title: "todo", // Placeholder, replace with actual title if available
-      description: "todo" // Placeholder, replace with actual description if available
+      title: intProp.V1.title,  // Replace with actual data if available
+      description: intProp.V1.description // Replace with actual data if available
     }));
+
     console.log("Documents for MiniSearch:", docs);
     return docs;
-  }, [data]);
-
-  // These hardcoded documents are just for the sake of example.
-//  const documents = useMemo(() => 
-//  [
-//    {
-//      id: 1,
-//      title: 'Moby Dock',
-//      description: 'Call me Ishmael. Some years ago...',
-//    },
-//    {
-//      id: 2,
-//      title: 'Zen and the Art of Motorcycle Maintenance',
-//      description: 'I can see by my watch...',
-//    },
-//    {
-//      id: 3,
-//      title: 'Neuromancer',
-//      description: 'The sky above the port was...',
-//    },
-//    {
-//      id: 4,
-//      title: 'Zen and the Art of Archery',
-//      description: 'At first sight it must seem...',
-//    }
-//  ], []);
+  }, [intProps]);
 
   const options = {
-    fields: ["id"], // Fields to index
-    storeFields: ["id"], // Fields to return in search results
+    fields: ["title", "description"], // Fields to index
+    storeFields: ["title"], // Fields to return in search results
     idField: "id", // Unique identifier for each document
   };
-
-//  const options = {
-//    fields: ["title", "description"], // Fields to index
-//    storeFields: ["title"], // Fields to return in search results
-//    idField: "id", // Unique identifier for each document
-  //};
   
   //let miniSearch = undefined;
   //const saved = localStorage.getItem("searchIndex");
