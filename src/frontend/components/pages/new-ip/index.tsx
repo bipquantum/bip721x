@@ -59,6 +59,7 @@ import UserImage from "../../common/UserImage";
 import { ListButton } from "../../common/ListingDetails";
 import { LegalDeclaration } from "./LegalDeclaration";
 import FieldValidator from "./FieldValidator";
+import { useSearch } from "../../common/SearchContext";
 
 const IP_TYPE_OPTIONS: Option[] = [
   {

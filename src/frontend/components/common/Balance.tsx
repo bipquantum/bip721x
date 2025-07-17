@@ -33,7 +33,6 @@ const Balance = ({ principal }: BalanceProps) => {
   });
 
   const triggerAirdrop = () => {
-    console.log("Triggering airdrop");
 
     airdropUser().then((result) => {
       if (!result || "err" in result) {

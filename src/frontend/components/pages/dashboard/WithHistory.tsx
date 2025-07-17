@@ -133,7 +133,6 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     
     await formatRequestBody(question, Array.from(aiPrompts.values()).flat()).then((body) => {
       getResponse([{ body }]).then((res) => {
-        console.log("Request res:", res);
         if (res=== undefined || res.status < 200n || res.status >= 300n) {
           throw new Error(`Unexpected response: ${JSON.stringify(res)}`);
         }
