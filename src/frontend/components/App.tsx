@@ -16,6 +16,7 @@ import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
 import TopBar from "./layout/TopBar";
 import ChatHistory from "./layout/ChatHistory";
+import { SearchProvider } from "./common/SearchContext";
 
 interface ThemeContextProps {
   theme: string;
@@ -76,7 +77,9 @@ function App() {
                   <ChatHistoryProvider>
                     <BalanceProvider>
                       <AirdropBannerProvider>
-                        <AppContent />
+                        <SearchProvider>
+                          <AppContent />
+                        </SearchProvider>
                       </AirdropBannerProvider>
                     </BalanceProvider>
                   </ChatHistoryProvider>
