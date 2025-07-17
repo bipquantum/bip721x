@@ -73,7 +73,7 @@ function App() {
           <BackendActorProvider>
             <BqcLedgerActorProvider>
               <Bip721LedgerActorProvider>
-                <BrowserRouter>
+                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                   <ChatHistoryProvider>
                     <BalanceProvider>
                       <AirdropBannerProvider>

@@ -56,7 +56,6 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
     onSuccess(data) {
-      console.log("Owner data:", data);
       setOwner(fromNullableExt(data));
     },
   });

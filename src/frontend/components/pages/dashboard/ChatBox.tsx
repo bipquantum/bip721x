@@ -77,12 +77,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log(creatingIp);
-    console.log(principal);
-    // navigate('/new')
-  }, [creatingIp]);
-
   return (
     <div
       className="flex h-full w-full flex-col overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed"

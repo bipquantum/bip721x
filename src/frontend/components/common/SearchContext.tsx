@@ -80,8 +80,6 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     const interval = setInterval(() => {
-      console.log("Documents: ", documents);
-      console.log("Periodic refresh triggered - updating search index...");
       refreshDocuments();
     }, REFRESH_INTERVAL);
     return () => clearInterval(interval);
