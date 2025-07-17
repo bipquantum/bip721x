@@ -2,18 +2,23 @@ import MiniSearch, { Options } from "minisearch";
 import React, { createContext, useContext, useEffect, useMemo } from "react";
 import { backendActor } from "../actors/BackendActor";
 import { EQueryDirection, toQueryDirection } from "../../utils/conversions";
-import { VersionnedIntProp } from "../../../declarations/backend/backend.did";
 
 interface SearchContextType {
   documents: any[];
   options: Options<any>;
 }
 
+type Document = {
+  id: number;
+  title: string;
+  description: string;
+};
+
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
-  const [intProps, setIntProps] = React.useState<Map<bigint, VersionnedIntProp>>(new Map());
+  const [documents, setDocuments] = React.useState<Document[]>([]);
 
   const { data: intPropIds } = backendActor.useQueryCall({
     functionName: "get_listed_int_props",
@@ -31,32 +36,25 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     if (intPropIds !== undefined) {
       const fetchIntProps = async () => {
-        const propMap = new Map<bigint, VersionnedIntProp>();
-
+        
+        let docs: Document[] = [];
         await Promise.all(
           intPropIds.map(async (id) => {
             const result = await getIntProp([{ token_id: id }]);
             if (result && 'ok' in result) {
-              propMap.set(id, result.ok);
+              docs.push({
+                id: Number(id),
+                title: result.ok.V1.title,
+                description: result.ok.V1.description,
+              });
             }
           })
         );
-        setIntProps(propMap);
+        setDocuments(docs);
       };
       fetchIntProps();
     }
   }, [intPropIds]);
-
-  const documents = useMemo<any[]>(() => {
-    const docs = Array.from(intProps.entries()).map(([id, intProp]) => ({
-      id: Number(id), // Convert bigint to number for MiniSearch
-      title: intProp.V1.title,  // Replace with actual data if available
-      description: intProp.V1.description // Replace with actual data if available
-    }));
-
-    console.log("Documents for MiniSearch:", docs);
-    return docs;
-  }, [intProps]);
 
   const options = {
     fields: ["title", "description"], // Fields to index
