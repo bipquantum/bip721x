@@ -16,6 +16,7 @@ import { useListIntProp } from "../hooks/useListIntProp";
 import { useUnlistIntProp } from "../hooks/useUnlistIntProp";
 import { useBuyIntProp } from "../hooks/useBuyIntProp";
 import { BiPencil } from "react-icons/bi";
+import { useSearch } from "./SearchContext";
 
 interface BuyButtonProps {
   principal: Principal | undefined;
@@ -78,11 +79,13 @@ export const ListButton: React.FC<ListButtonProps> = ({ intPropId, onSuccess, cl
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(0n);
+  const { refreshDocuments } = useSearch();
 
   const { loading, call: listIntProp } = useListIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
       setSellPrice(0n);
+      refreshDocuments();
       onSuccess?.();
     },
   });
@@ -139,10 +142,12 @@ interface UnlistButtonProps {
 const UnlistButton: React.FC<UnlistButtonProps> = ({ intPropId, onSuccess }) => {
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { refreshDocuments } = useSearch();
 
   const { loading, call: unlistIntProp } = useUnlistIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
+      refreshDocuments();
       onSuccess?.();
     },
   });

@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import SearchSvg from "../../assets/search-button.svg";
 import { useSearch } from './SearchContext';
 import { useMiniSearch } from 'react-minisearch';
+import { Link } from 'react-router-dom';
 
 const SearchIPInput = () => {
   const { documents, options } = useSearch();
@@ -10,25 +12,24 @@ const SearchIPInput = () => {
     search(event.target.value)
   }
 
-  useEffect(() => {
-    if (searchResults !== null && searchResults.length > 0) {
-      console.log("Search results:", searchResults);
-    } else {
-      console.log("No search results found.");
-    }
-  }, [searchResults]);
-
   return (
-    <div className="bg-red-300 flex flex-col">
-      <input type='text' onChange={handleSearchChange} placeholder='Search…' className="bg-green-300"/>
-      <ol>
-        <h3>Results:</h3>
+    <div className="flex flex-col relative">
+      <div className="group flex w-full sm:w-[320px] items-center justify-start rounded-2xl border-opacity-40 bg-white dark:bg-white/10 px-4">
+        <img src={SearchSvg} className="h-5" alt="" />
+        <input type='text' onChange={handleSearchChange} placeholder='Search IP' className="bg-transparent text-gray-900 dark:text-white rounded-lg px-2 py-2 w-full" />
+      </div>
+      { searchResults !== null && searchResults.length > 0 && <ol className="absolute top-full left-0 border border-gray-300 rounded-lg shadow-lg overflow-y-auto bg-white dark:bg-gray-800 z-10">
         {
-          searchResults && searchResults.map((result, i) => {
-            return <li key={i}>{ result.id }</li>
+          searchResults.map((result, i) => {
+            return <li key={i} className="min-w-64">
+              <Link to={`/bip/${result.id}`}>
+                {result.title}
+              </Link>
+            </li>
           })
         }
       </ol>
+      }
     </div>
   )
 }
