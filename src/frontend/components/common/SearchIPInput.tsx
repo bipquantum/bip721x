@@ -1,22 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useSearch } from './SearchContext';
-import { useMiniSearch } from 'react-minisearch';
 import { Link } from 'react-router-dom';
 import { MdSearch } from 'react-icons/md';
 
 const SearchIPInput = () => {
-  const { documents, options } = useSearch();
-  const { search, searchResults } = useMiniSearch(documents, options);
+  const { miniSearch } = useSearch();
   const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  const [query, setQuery] = useState("");
+  
+  const searchResults = useMemo(() => 
+    miniSearch.search(query)
+  , [miniSearch, query]);
+
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setInputValue(value);
-    search(value);
+    setQuery(value);
     setIsOpen(value.length > 0);
     setSelectedIndex(-1);
   }
@@ -86,7 +90,7 @@ const SearchIPInput = () => {
           value={inputValue}
           onChange={handleSearchChange}
           onKeyDown={handleKeyDown}
-          placeholder='Search IP' 
+          placeholder='Search BIP' 
           className="bg-transparent text-gray-900 dark:text-white rounded-lg px-2 py-2 w-full outline-none"
         />
       </div>

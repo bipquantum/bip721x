@@ -1,12 +1,13 @@
-import { Options } from "minisearch";
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+import MiniSearch, { Options } from "minisearch";
 import { backendActor } from "../actors/BackendActor";
 import { EQueryDirection, toQueryDirection } from "../../utils/conversions";
 
 interface SearchContextType {
-  documents: any[];
-  options: Options<any>;
-  refreshDocuments: () => void;
+  refreshDocuments: () => Promise<void>;
+  lastRefreshTime: number;
+  isRefreshing: boolean;
+  miniSearch: MiniSearch<Document>;
 }
 
 type Document = {
@@ -17,84 +18,122 @@ type Document = {
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
+const REFRESH_INTERVAL = 10000; // 10 seconds
+
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [documents, setDocuments] = useState<Document[]>(() => {
+    try {
+      const raw = localStorage.getItem("miniSearchDocuments");
+      return raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      console.warn("Failed to parse cached documents", err);
+      return [];
+    }
+  });
 
-  const saved = localStorage.getItem("miniSearchDocuments");
+  const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
-  const [documents, setDocuments] = React.useState<Document[]>(saved !== null ? JSON.parse(saved) : []);
-
-  const { data: intPropIds, call: refreshIntPropIds } = backendActor.useQueryCall({
+  const { data: intPropIds, call: refreshIntPropIds, loading } = backendActor.useQueryCall({
     functionName: "get_listed_int_props",
     args: [{
       prev: [],
-      take: [100_000n], // Maximize number of bigint that can be returned in a single query (2MB). 100k should be quite enough to cover all listed BIPs.
-      direction: toQueryDirection(EQueryDirection.Forward)
-    }]
+      take: [100_000n],
+      direction: toQueryDirection(EQueryDirection.Forward),
+    }],
   });
 
   const { call: getIntProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
   });
 
-  const refreshDocuments = () => {
-    refreshIntPropIds();
+  const fetchIntProps = async (ids: number[]): Promise<Document[]> => {
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        try {
+          const result = await getIntProp([{ token_id: BigInt(id) }]);
+          if (result && "ok" in result) {
+            return {
+              id,
+              title: result.ok.V1.title,
+              description: result.ok.V1.description,
+            };
+          }
+        } catch (err) {
+          console.warn(`Failed to fetch intProp ${id}:`, err);
+        }
+        return null;
+      })
+    );
+    return results.filter((r): r is Document => r !== null);
   };
 
+  const refreshDocuments = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshIntPropIds();
+      setLastRefreshTime(Date.now());
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refreshIntPropIds]);
+
   useEffect(() => {
-    if (intPropIds !== undefined) {
+    const interval = setInterval(() => {
+      console.log("Documents: ", documents);
+      console.log("Periodic refresh triggered - updating search index...");
+      refreshDocuments();
+    }, REFRESH_INTERVAL);
+    return () => clearInterval(interval);
+  }, [refreshDocuments]);
 
-      let setUpToDateIds = new Set(intPropIds.map(id => Number(id)));
-      let setCurrentIds = new Set(documents.map(doc => doc.id));
+  useEffect(() => {
+    if (!intPropIds) return;
 
-      // Get missing IPs
-      let missingIds = Array.from(setUpToDateIds).filter(id => !setCurrentIds.has(id));
-      if (missingIds.length > 0) {
-        fetchIntProps(missingIds).then(newDocs => {
-          setDocuments(prevDocs => [...prevDocs, ...newDocs]);
+    const currentIds = new Set(documents.map((doc) => doc.id));
+    const upToDateIds = new Set(intPropIds.map((id) => Number(id)));
+
+    const missingIds = Array.from(upToDateIds).filter((id) => !currentIds.has(id));
+    const removedIds = Array.from(currentIds).filter((id) => !upToDateIds.has(id));
+
+    if (missingIds.length > 0 || removedIds.length > 0) {
+      (async () => {
+        const newDocs = await fetchIntProps(missingIds);
+        setDocuments((prevDocs) => {
+          const keptDocs = prevDocs.filter((doc) => !removedIds.includes(doc.id));
+          return [...keptDocs, ...newDocs];
         });
-      }
-
-      // Remove outdated IPs
-      let removedIds = Array.from(setCurrentIds).filter(id => !setUpToDateIds.has(id));
-      if (removedIds.length > 0) {
-        setDocuments(prevDocs => {
-          // Remove documents with IDs that are no longer listed
-          return prevDocs.filter(doc => !removedIds.includes(doc.id));
-        });
-      }
+      })();
     }
   }, [intPropIds]);
 
-  const fetchIntProps = async (ids: number[]) : Promise<Document[]> => {
-        
-    let docs: Document[] = [];
-    await Promise.all(
-      ids.map(async (id) => {
-        const result = await getIntProp([{ token_id: BigInt(id) }]);
-        if (result && 'ok' in result) {
-          docs.push({
-            id: Number(id),
-            title: result.ok.V1.title,
-            description: result.ok.V1.description,
-          });
-        }
-      })
-    );
-    return docs;
-  };
-
   useEffect(() => {
-    localStorage.setItem("miniSearchDocuments", JSON.stringify(documents));
+    try {
+      localStorage.setItem("miniSearchDocuments", JSON.stringify(documents));
+    } catch (err) {
+      console.warn("Failed to cache documents", err);
+    }
   }, [documents]);
 
-  const options = {
-    fields: ["title", "description"], // Fields to index
-    storeFields: ["title"], // Fields to return in search results
-    idField: "id", // Unique identifier for each document
+  const options: Options<Document> = {
+    fields: ["title", "description"],
+    storeFields: ["title"],
+    idField: "id",
   };
 
+  const miniSearch = useMemo(() => {
+    const search = new MiniSearch(options);
+    search.addAll(documents);
+    return search;
+  }, [documents, options]);
+
   return (
-    <SearchContext.Provider value={{documents, options, refreshDocuments}}>
+    <SearchContext.Provider value={{
+      refreshDocuments,
+      lastRefreshTime,
+      isRefreshing,
+      miniSearch,
+    }}>
       {children}
     </SearchContext.Provider>
   );
@@ -102,7 +141,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
 export const useSearch = (): SearchContextType => {
   const context = useContext(SearchContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useSearch must be used within a SearchProvider");
   }
   return context;
