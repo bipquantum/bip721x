@@ -12,11 +12,7 @@ interface UnlistIntPropArgs {
   onError?: () => void;
 }
 
-export const useUnlistIntProp = ({
-  onSuccess,
-  onError
-}: UnlistIntPropArgs) => {
-
+export const useUnlistIntProp = ({ onSuccess, onError }: UnlistIntPropArgs) => {
   const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
     functionName: "icrc37_revoke_token_approvals",
   });
@@ -28,7 +24,6 @@ export const useUnlistIntProp = ({
   const [loading, setLoading] = useState(false);
 
   const call = async (intPropId: bigint) => {
-    
     const info: RevokeTokenApprovalArg = {
       token_id: intPropId,
       memo: [],
@@ -54,7 +49,7 @@ export const useUnlistIntProp = ({
         return;
       }
 
-      const unlistResult = await unlistIntProp([{ token_id: intPropId } ]);
+      const unlistResult = await unlistIntProp([{ token_id: intPropId }]);
 
       if (!unlistResult || "err" in unlistResult) {
         toast.warn("Failed to unlist IP");

@@ -12,11 +12,7 @@ interface BuyIntPropArgs {
   onError?: () => void;
 }
 
-export const useBuyIntProp = ({
-  onSuccess,
-  onError
-}: BuyIntPropArgs) => {
-
+export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
   const { call: approveBqcTransfer } = bqcLedgerActor.useUpdateCall({
     functionName: "icrc2_approve",
   });
@@ -35,7 +31,7 @@ export const useBuyIntProp = ({
     setLoading(true);
 
     const e8sPrice = await getE8sPrice([{ token_id: intPropId }]);
-    
+
     if (!e8sPrice || "err" in e8sPrice) {
       toast.warn("Failed to get e8s price");
       console.error(e8sPrice?.err ?? "No result");
@@ -44,7 +40,6 @@ export const useBuyIntProp = ({
     }
 
     try {
-
       // Approve the BQC transfer if the price is greater than 0
       if (e8sPrice.ok > 0n) {
         const args: ApproveArgs = {
@@ -87,7 +82,6 @@ export const useBuyIntProp = ({
         console.error(buyResult.err);
         onError?.();
       }
-
     } catch (e) {
       console.error(e);
       toast.warn("Unexpected failure during buy");

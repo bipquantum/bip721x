@@ -22,13 +22,9 @@ interface BIPDetailsProps {
   principal: Principal;
 }
 
-const BIPDetails: React.FC<BIPDetailsProps> = ({
-  intPropId,
-  principal,
-}) => {
-
+const BIPDetails: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
   const [deleted, setDeleted] = useState(false);
-  
+
   const { data: intProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
@@ -39,7 +35,7 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({
   }
 
   if (deleted) {
-    return <></>
+    return <></>;
   }
 
   return (
@@ -94,7 +90,12 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({
         />
       </div>
       <div className="col-span-1 flex w-fit flex-row items-center justify-center gap-2">
-        <DeleteButton intPropId={intPropId} onSuccess={() => { setDeleted(true); }} />
+        <DeleteButton
+          intPropId={intPropId}
+          onSuccess={() => {
+            setDeleted(true);
+          }}
+        />
         <ShareButton intPropId={intPropId} />
       </div>
     </div>
@@ -108,7 +109,6 @@ interface WalletProps {
 const take: [] | [bigint] = [BigInt(5)];
 
 const Wallet = ({ principal }: WalletProps) => {
-  
   const [isGrid, setIsGrid] = useState(true);
   const [triggered, setTriggered] = useState(true);
 
@@ -140,24 +140,31 @@ const Wallet = ({ principal }: WalletProps) => {
   }, []);
 
   return (
-    <div className="flex w-full flex-col h-full flex-grow items-center text-black dark:text-white">
+    <div className="flex h-full w-full flex-grow flex-col items-center text-black dark:text-white">
       <div className="flex w-full flex-row items-center justify-between p-4">
         <p className="font-momentum text-xl font-extrabold text-black dark:text-white">
           Your BIPs
         </p>
         <div
-          onClick={() => { setTriggered(!triggered); setIsGrid(!isGrid); }}
+          onClick={() => {
+            setTriggered(!triggered);
+            setIsGrid(!isGrid);
+          }}
           className="hidden w-fit flex-row items-center justify-between gap-2 rounded-2xl bg-black/10 px-2 py-[6px] text-white backdrop-blur-[10px] dark:bg-white/20 lg:flex"
         >
-          <button className={`rounded-lg p-2 ${isGrid ? "bg-white text-black" : ""}`}>
+          <button
+            className={`rounded-lg p-2 ${isGrid ? "bg-white text-black" : ""}`}
+          >
             <IoGridOutline size={28} />
           </button>
-          <button className={`rounded-lg p-2 ${!isGrid ? "bg-white text-black" : ""}`}>
+          <button
+            className={`rounded-lg p-2 ${!isGrid ? "bg-white text-black" : ""}`}
+          >
             <IoListOutline size={28} />
           </button>
         </div>
       </div>
-      <div className="w-full h-full flex-grow px-4 pb-2">
+      <div className="h-full w-full flex-grow px-4 pb-2">
         <BipList
           scrollableClassName={"flex flex-col h-full flex-grow w-full gap-2"}
           principal={principal}

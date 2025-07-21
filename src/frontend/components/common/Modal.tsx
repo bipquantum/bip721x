@@ -25,10 +25,13 @@ const Modal = ({ isVisible, children, onClose }: Props) => {
 
   return ReactDOM.createPortal(
     <div
-      className="fixed left-0 top-0 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-black"
+      className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-black"
       onClick={handleOverlayClick}
     >
-      <div className="rounded-xl dark:bg-background-dark bg-background p-4" onClick={handleModalClick}>
+      <div
+        className="rounded-xl bg-background p-4 dark:bg-background-dark"
+        onClick={handleModalClick}
+      >
         <div className="flex w-full justify-end">
           <button onClick={onClose} className="text-black dark:text-white">
             <MdCancel size={24} />
@@ -37,7 +40,7 @@ const Modal = ({ isVisible, children, onClose }: Props) => {
         {children}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 };
 

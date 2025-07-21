@@ -1,4 +1,3 @@
-
 export const TOKEN_DECIMALS_ALLOWED = 2;
 export const MAX_IP_SIZE_MB = 1.5;
 export const NEW_USER_NICKNAME = "New User";

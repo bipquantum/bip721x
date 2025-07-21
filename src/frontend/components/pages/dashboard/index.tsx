@@ -13,7 +13,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="text-primary-text flex flex-grow w-full flex-col items-center justify-between">
+    <div className="text-primary-text flex w-full flex-grow flex-col items-center justify-between">
       <div className="mx-auto w-full">
         <div className="flex flex-col items-center gap-2 py-4 sm:py-8">
           <p className="font-momentum text-center text-lg font-extrabold uppercase text-black dark:text-white sm:text-2xl">

@@ -8,8 +8,10 @@ interface DeleteButtonProps {
   onSuccess?: () => void;
 }
 
-const DeleteButton: React.FC<DeleteButtonProps> = ({ intPropId, onSuccess }) => {
-
+const DeleteButton: React.FC<DeleteButtonProps> = ({
+  intPropId,
+  onSuccess,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { loading, call: deleteIntProp } = useDeleteIntProp({
@@ -22,24 +24,26 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({ intPropId, onSuccess }) => 
   return (
     <div className="w-full">
       <div
-        className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-500/20 backdrop-blur-sm hover:bg-neutral-500/30 cursor-pointer"
+        className="flex h-[36px] w-[36px] cursor-pointer items-center justify-center rounded-full bg-neutral-500/20 backdrop-blur-sm hover:bg-neutral-500/30"
         onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setIsModalOpen(true);
+          e.stopPropagation();
+          e.preventDefault();
+          setIsModalOpen(true);
         }}
-        >
-          <TbTrash size={24} />
-        </div>
+      >
+        <TbTrash size={24} />
+      </div>
       <ModalPopup
-        onConfirm={() => { deleteIntProp(intPropId) }}
+        onConfirm={() => {
+          deleteIntProp(intPropId);
+        }}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         isLoading={loading}
       >
         <div className="flex flex-col space-y-4">
           <h2 className="text-xl font-bold text-black dark:text-white">
-            Are you sure you want to delete this IP? 
+            Are you sure you want to delete this IP?
             <span className="text-red-500"> This action is irreversible.</span>
           </h2>
         </div>

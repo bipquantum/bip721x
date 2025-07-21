@@ -5,13 +5,10 @@ interface ShareButtonProps {
   intPropId: bigint;
 }
 
-const ShareButton: React.FC<ShareButtonProps> = ({
-  intPropId,
-}) => {
-
+const ShareButton: React.FC<ShareButtonProps> = ({ intPropId }) => {
   return (
     <div
-      className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-neutral-500/20 backdrop-blur-sm hover:bg-neutral-500/30 cursor-pointer"
+      className="flex h-[36px] w-[36px] cursor-pointer items-center justify-center rounded-full bg-neutral-500/20 backdrop-blur-sm hover:bg-neutral-500/30"
       onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();

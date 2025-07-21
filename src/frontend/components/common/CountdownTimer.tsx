@@ -46,20 +46,26 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
   const formatTime = (value: number) => value.toString().padStart(2, "0");
 
   return (
-    <div className="flex items-center justify-center p-4 bg-background-dark dark:bg-white text-black dark:text-white rounded-lg shadow-md border">
-      <div className="text-center px-2">
-        <p className="text-blue-500 text-lg font-bold">{formatTime(time.hours)}</p>
-        <p className="text-gray-500 text-sm">Hours</p>
+    <div className="flex items-center justify-center rounded-lg border bg-background-dark p-4 text-black shadow-md dark:bg-white dark:text-white">
+      <div className="px-2 text-center">
+        <p className="text-lg font-bold text-blue-500">
+          {formatTime(time.hours)}
+        </p>
+        <p className="text-sm text-gray-500">Hours</p>
       </div>
-      <span className="text-lg font-bold px-1">:</span>
-      <div className="text-center px-2">
-        <p className="text-blue-500 text-lg font-bold">{formatTime(time.minutes)}</p>
-        <p className="text-gray-500 text-sm">Minutes</p>
+      <span className="px-1 text-lg font-bold">:</span>
+      <div className="px-2 text-center">
+        <p className="text-lg font-bold text-blue-500">
+          {formatTime(time.minutes)}
+        </p>
+        <p className="text-sm text-gray-500">Minutes</p>
       </div>
-      <span className="text-lg font-bold px-1">:</span>
-      <div className="text-center px-2">
-        <p className="text-blue-500 text-lg font-bold">{formatTime(time.seconds)}</p>
-        <p className="text-gray-500 text-sm">Seconds</p>
+      <span className="px-1 text-lg font-bold">:</span>
+      <div className="px-2 text-center">
+        <p className="text-lg font-bold text-blue-500">
+          {formatTime(time.seconds)}
+        </p>
+        <p className="text-sm text-gray-500">Seconds</p>
       </div>
     </div>
   );

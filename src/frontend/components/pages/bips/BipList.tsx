@@ -55,7 +55,7 @@ const BipList: React.FC<BipsProps> = ({
     }
     setLoading(false);
   };
-  
+
   // Load initial entries on component mount
   useEffect(() => {
     loadEntries();
@@ -85,7 +85,7 @@ const BipList: React.FC<BipsProps> = ({
   });
 
   return (
-    <div className="flex-grow w-full" id="scrollableDiv">
+    <div className="w-full flex-grow" id="scrollableDiv">
       {!isGrid ? (
         <div className={scrollableClassName}>
           {Array.from(entries).map((intPropId) => (

@@ -169,7 +169,6 @@ interface NewIPButtonProps {
 }
 
 const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
-
   const navigate = useNavigate();
   const toastShownRef = useRef(false);
 
@@ -213,7 +212,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   const [step, setStep] = useState(1);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
   const [ipId, setIpId] = useState<bigint | undefined>(undefined);
-  const [intPropInput, setIntPropInput] = useState<IntPropInput>(loadIntPropInput());
+  const [intPropInput, setIntPropInput] =
+    useState<IntPropInput>(loadIntPropInput());
   // Required for file preview (step 4)
   // @todo: should use actual dataUri returned by query
   const [dataUri, setDataUri] = useState<string>(loadIntPropInput().dataUri);
@@ -229,7 +229,11 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         let errorMsg = "Unknown error";
         if (typeof data.err === "object" && data.err !== null) {
           const errVariant = Object.values(data.err)[0];
-          if (errVariant && typeof errVariant === "object" && "message" in errVariant) {
+          if (
+            errVariant &&
+            typeof errVariant === "object" &&
+            "message" in errVariant
+          ) {
             errorMsg = (errVariant as any).message;
           } else {
             errorMsg = JSON.stringify(data.err);
@@ -277,7 +281,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         } else {
           setUser(user);
         }
-      })
+      });
     }
   }, [principal]);
 
@@ -293,7 +297,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
       return "File required";
     }
     return undefined;
-  }
+  };
 
   const validateTitle = (input: IntPropInput): string | undefined => {
     const length = input.title.trim().length;
@@ -318,12 +322,17 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
   };
 
   return (
-    <div className={`relative flex w-full md:items-center justify-center flex-grow sm:flex-grow-0`}>
+    <div
+      className={`relative flex w-full flex-grow justify-center sm:flex-grow-0 md:items-center`}
+    >
       {step === 1 && (
         <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
           <button
             onClick={() => {
-              let error = validateTitle(intPropInput) || validateDateUri(intPropInput) ||  validateDescription(intPropInput);
+              let error =
+                validateTitle(intPropInput) ||
+                validateDateUri(intPropInput) ||
+                validateDescription(intPropInput);
               if (error !== undefined) {
                 toast.warn("Invalid BIP: fix required fields");
                 return;
@@ -343,7 +352,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
             className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
             {loading ? (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent dark:border-t-black border-t-white"></div>
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent border-t-white dark:border-t-black"></div>
             ) : (
               <TbArrowRight size={60} />
             )}
@@ -358,12 +367,12 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 toast.warn("Please accept the legal declaration");
                 return;
               }
-              createIntProp([intPropInput])
+              createIntProp([intPropInput]);
             }}
             className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
           >
             {loading ? (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent dark:border-t-black border-t-white"></div>
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent border-t-white dark:border-t-black"></div>
             ) : (
               <TbArrowRight size={60} />
             )}
@@ -381,10 +390,10 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
         </div>
       )}
 
-      <div className="flex flex-grow sm:flex-grow-0 sm:h-[80dvh] w-full flex-col gap-[30px] overflow-y-auto sm:rounded-[10px] bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12 ">
+      <div className="flex w-full flex-grow flex-col gap-[30px] overflow-y-auto bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[80dvh] sm:flex-grow-0 sm:rounded-[10px] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
         {step === 1 && (
-          <div className="flex w-full flex-col items-center gap-[30px] overflow-x-hidden flex-grow sm:flex-grow-0">
-            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
+          <div className="flex w-full flex-grow flex-col items-center gap-[30px] overflow-x-hidden sm:flex-grow-0">
+            <div className="flex w-full flex-col items-center gap-[15px] sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 1 : Create new BIP
               </p>
@@ -396,18 +405,16 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
             </div>
             <div className="flex w-full flex-col gap-[30px]">
-              <div className="flex w-full flex-col gap-2 items-center">
+              <div className="flex w-full flex-col items-center gap-2">
                 <div
                   className={`${dataUri ? "w-fit" : "w-[360px]"} h-[180px] rounded-lg bg-gray-800 dark:bg-gray-200`}
                 >
-                  {
-                    dataUri && (
-                      <FilePreview
-                        dataUri={dataUri}
-                        className="h-[180px] w-auto rounded-lg"
-                      />
-                    )
-                  }
+                  {dataUri && (
+                    <FilePreview
+                      dataUri={dataUri}
+                      className="h-[180px] w-auto rounded-lg"
+                    />
+                  )}
                 </div>
               </div>
               <div className="flex w-full flex-col gap-[30px] pr-2">
@@ -420,7 +427,10 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        <FieldValidator name={"IP File"} error={validateDateUri(intPropInput)} />
+                        <FieldValidator
+                          name={"IP File"}
+                          error={validateDateUri(intPropInput)}
+                        />
                       </p>
                       <label className="flex h-full w-full items-center justify-between p-4 text-base text-black dark:text-white">
                         <p>Upload Image/ Video</p>
@@ -447,7 +457,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        <FieldValidator name={"Creation Date"}/>
+                        <FieldValidator name={"Creation Date"} />
                       </p>
                       <div className="relative w-full">
                         <DatePicker
@@ -465,7 +475,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                             }
                           }}
                           dateFormat="yyyy-MM-dd"
-                          className="w-full relative bg-transparent text-base text-black dark:text-white"
+                          className="relative w-full bg-transparent text-base text-black dark:text-white"
                           calendarClassName="custom-calendar"
                           popperClassName="z-50"
                           popperModifiers={[
@@ -475,31 +485,42 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                                 boundariesElement: "viewport",
                                 padding: 8, // Keep some padding from the edge
                               },
-                              fn: function (state: MiddlewareState): MiddlewareReturn | Promise<MiddlewareReturn> {
+                              fn: function (
+                                state: MiddlewareState,
+                              ): MiddlewareReturn | Promise<MiddlewareReturn> {
                                 throw new Error("Function not implemented.");
-                              }
+                              },
                             },
                             {
                               name: "flip",
                               options: {
-                                fallbackPlacements: ["top", "bottom", "left", "right"], // Flip to any side if needed
+                                fallbackPlacements: [
+                                  "top",
+                                  "bottom",
+                                  "left",
+                                  "right",
+                                ], // Flip to any side if needed
                               },
-                              fn: function (state: MiddlewareState): MiddlewareReturn | Promise<MiddlewareReturn> {
+                              fn: function (
+                                state: MiddlewareState,
+                              ): MiddlewareReturn | Promise<MiddlewareReturn> {
                                 throw new Error("Function not implemented.");
-                              }
+                              },
                             },
                             {
                               name: "offset",
                               options: {
                                 offset: [0, 8], // Small vertical offset from the input
                               },
-                              fn: function (state: MiddlewareState): MiddlewareReturn | Promise<MiddlewareReturn> {
+                              fn: function (
+                                state: MiddlewareState,
+                              ): MiddlewareReturn | Promise<MiddlewareReturn> {
                                 throw new Error("Function not implemented.");
-                              }
+                              },
                             },
                           ]}
                         />
-                        <div className="pointer-events-none absolute w-fit right-3 top-1/2 -translate-y-1/2 text-black dark:text-gray-400">
+                        <div className="pointer-events-none absolute right-3 top-1/2 w-fit -translate-y-1/2 text-black dark:text-gray-400">
                           <TbCalendarEventFilled size={22} />
                         </div>
                       </div>
@@ -515,7 +536,10 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        <FieldValidator name={"Title of the IP"} error={validateTitle(intPropInput)} />
+                        <FieldValidator
+                          name={"Title of the IP"}
+                          error={validateTitle(intPropInput)}
+                        />
                       </p>
                       <input
                         type="text"
@@ -528,7 +552,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           });
                         }}
                         required
-                        className="bg-transparent p-[15px] text-base text-black dark:text-white text-base"
+                        className="bg-transparent p-[15px] text-base text-black dark:text-white"
                       />
                     </div>
                   </div>
@@ -539,7 +563,10 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        <FieldValidator name={"Description of the IP"} error={validateDescription(intPropInput)} />
+                        <FieldValidator
+                          name={"Description of the IP"}
+                          error={validateDescription(intPropInput)}
+                        />
                       </p>
                       <textarea
                         maxLength={BIP_DESCRIPTION_MAX_LENGTH}
@@ -560,8 +587,12 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 <div className="flex w-full flex-col gap-[20px] md:gap-[40px] lg:flex-row">
                   <div className="w-full lg:w-6/12">
                     <div className="relative flex w-full flex-col rounded-md border border-gray-400">
-                      <p className={"absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"}>
-                        <FieldValidator name={"IP Type"}/>
+                      <p
+                        className={
+                          "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
+                        }
+                      >
+                        <FieldValidator name={"IP Type"} />
                       </p>
                       <Select
                         value={
@@ -605,7 +636,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
                         }
                       >
-                        <FieldValidator name={"IP License"}/>
+                        <FieldValidator name={"IP License"} />
                       </p>
                       <Select
                         styles={getCustomStyles(isDark)}
@@ -623,12 +654,15 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                               );
                             })(),
                         )}
-                        onChange={(newValue: MultiValue<Option | Option[]>, actionMeta: ActionMeta<Option | Option[]>) => {
-                          const selectedOptions = newValue as Option[];  // Assuming multiple options
+                        onChange={(
+                          newValue: MultiValue<Option | Option[]>,
+                          actionMeta: ActionMeta<Option | Option[]>,
+                        ) => {
+                          const selectedOptions = newValue as Option[]; // Assuming multiple options
                           setIntPropInput({
                             ...intPropInput,
-                            intPropLicenses: selectedOptions.map(
-                              (option) => intPropLicenseFromIndex(Number(option.value))
+                            intPropLicenses: selectedOptions.map((option) =>
+                              intPropLicenseFromIndex(Number(option.value)),
                             ),
                           });
                         }}
@@ -670,14 +704,26 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                           ? Number(
                               fromNullable(intPropInput.percentageRoyalties),
                             )
-                          : 0
+                          : ""
                       }
+                      placeholder="0"
                       onChange={(e) => {
+                        const inputValue = e.target.value;
+                        if (inputValue === "") {
+                          setIntPropInput((intProp) => {
+                            return {
+                              ...intProp,
+                              percentageRoyalties: [],
+                            };
+                          });
+                          return;
+                        }
+
                         const value =
-                          Number(e.target.value) >= MIN_ROYALTY_PERCENTAGE
+                          Number(inputValue) >= MIN_ROYALTY_PERCENTAGE
                             ? BigInt(
                                 Math.min(
-                                  Number(e.target.value),
+                                  Number(inputValue),
                                   MAX_ROYALTY_PERCENTAGE,
                                 ),
                               )
@@ -692,7 +738,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       max={MAX_ROYALTY_PERCENTAGE}
                       min={0}
                       type="number"
-                      className={`w-[60px] rounded-xl bg-background px-[10px] py-[5px] text-base text-black dark:bg-white/10 dark:text-white ${!royaltySwitch ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-[60px] rounded-xl bg-background px-[10px] py-[5px] text-base text-black dark:bg-white/10 dark:text-white ${!royaltySwitch ? "cursor-not-allowed opacity-50" : ""}`}
                       disabled={!royaltySwitch}
                     />
                   </div>
@@ -729,7 +775,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     <p className="text-base font-semibold text-black dark:text-white">
                       Country
                     </p>
-                    <div className={`w-fit ${!publishSwitch ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <div
+                      className={`w-fit ${!publishSwitch ? "pointer-events-none opacity-50" : ""}`}
+                    >
                       <ReactCountryDropdown
                         defaultCountry={DEFAULT_PUBLISHING.countryCode}
                         onSelect={(val) =>
@@ -755,7 +803,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                   <p className="text-base font-semibold text-black dark:text-white">
                     Date
                   </p>
-                  <div className={`relative max-w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10 ${!publishSwitch ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <div
+                    className={`relative max-w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10 ${!publishSwitch ? "pointer-events-none opacity-50" : ""}`}
+                  >
                     <DatePicker
                       selected={
                         intPropInput.publishing?.[0]?.date
@@ -779,7 +829,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         }
                       }}
                       dateFormat="yyyy-MM-dd" // Matches native <input type="date">
-                      className="bg-transparent relative text-base text-black dark:text-white"
+                      className="relative bg-transparent text-base text-black dark:text-white"
                       calendarClassName="custom-calendar"
                       popperClassName="z-50 absolute right-[-220%] top-0"
                       placeholderText="YYYY-MM-DD"
@@ -795,8 +845,8 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </div>
         )}
         {step === 2 && (
-          <div className="flex w-full flex-col items-center gap-[30px] grow sm:flex-grow-0">
-            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
+          <div className="flex w-full grow flex-col items-center gap-[30px] sm:flex-grow-0">
+            <div className="flex w-full flex-col items-center gap-[15px] sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 2 : Validate Author Details
               </p>
@@ -808,7 +858,10 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
             </div>
             <div className="flex w-full flex-col items-center justify-center gap-[40px] md:w-6/12">
-              <UserImage principal={principal} className="size-[100px] rounded-full border bg-white"/>
+              <UserImage
+                principal={principal}
+                className="size-[100px] rounded-full border bg-white"
+              />
               <div className="flex w-full flex-col gap-[20px]">
                 <div className="relative flex w-full flex-col rounded-md border border-gray-400">
                   <p
@@ -895,38 +948,40 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
           </div>
         )}
         {step == 3 && (
-          <div className="flex w-full flex-col items-center gap-[30px] grow sm:flex-grow-0">
-            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
+          <div className="flex w-full grow flex-col items-center gap-[30px] sm:flex-grow-0">
+            <div className="flex w-full flex-col items-center gap-[15px] sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 3 : Legal declaration
               </p>
-              <div className="flex w-full w-fit flex-row items-center gap-1">
+              <div className="flex w-fit w-full flex-row items-center gap-1">
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
                 <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
               </div>
             </div>
-            <div className="text-sm sm:text-lg flex w-full flex-col items-center py-4 space-y-4 rounded-lg text-black dark:text-white h-full">
-              <LegalDeclaration/>
+            <div className="flex h-full w-full flex-col items-center space-y-4 rounded-lg py-4 text-sm text-black dark:text-white sm:text-lg">
+              <LegalDeclaration />
               <label className="flex flex-row items-center space-x-2 px-2">
                 <input
                   type="checkbox"
                   checked={disclaimerAccepted}
                   onChange={(e) => setDisclaimerAccepted(e.target.checked)}
                 />
-                <span>I have read and agree to the legal declaration above.</span>
+                <span>
+                  I have read and agree to the legal declaration above.
+                </span>
               </label>
             </div>
           </div>
         )}
         {step == 4 && ipId !== undefined && (
-          <div className="flex w-full flex-col items-center gap-[30px] flex-grow sm:flex-grow-0">
-            <div className="flex flex-col items-center gap-[15px] w-full sm:w-2/3">
+          <div className="flex w-full flex-grow flex-col items-center gap-[30px] sm:flex-grow-0">
+            <div className="flex w-full flex-col items-center gap-[15px] sm:w-2/3">
               <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
                 Step 4 : Success
               </p>
-              <div className="flex w-full w-fit flex-row items-center gap-1">
+              <div className="flex w-fit w-full flex-row items-center gap-1">
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
@@ -934,8 +989,13 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
               <div className="flex w-full flex-col items-center justify-center gap-[40px] pt-[20px]">
                 <div className="rounded-[40px] border-y-[2.5px] border-white/40 bg-white/10 px-3 py-4">
-                  <div className="h-full max-h-[240px] md:h-[280px] max-w-[240px] md:w-[280px] overflow-hidden rounded-[40px] bg-background">
-                    {dataUri && <FilePreview className="md:max-h-[280px] max-h-[240px] md:max-w-[280px] max-w-[240px] w-auto rounded-lg" dataUri={dataUri} />}
+                  <div className="h-full max-h-[240px] max-w-[240px] overflow-hidden rounded-[40px] bg-background md:h-[280px] md:w-[280px]">
+                    {dataUri && (
+                      <FilePreview
+                        className="max-h-[240px] w-auto max-w-[240px] rounded-lg md:max-h-[280px] md:max-w-[280px]"
+                        dataUri={dataUri}
+                      />
+                    )}
                   </div>
                   <p className="w-full py-[20px] text-center text-lg text-black dark:text-white md:text-2xl">
                     {intPropInput.title}
@@ -948,14 +1008,18 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
               </div>
               <div className="flex w-full flex-col gap-5 pt-[10px] md:w-fit md:flex-row">
                 <button
-                  onClick={() => { navigate(`/bip/${ipId}`); }}
+                  onClick={() => {
+                    navigate(`/bip/${ipId}`);
+                  }}
                   className="rounded-xl border-2 border-primary bg-transparent px-6 py-3 text-xl text-primary"
                 >
                   Manage IP
                 </button>
-                <ListButton 
-                  intPropId={ipId} 
-                  onSuccess={() => { navigate(`/marketplace`); }}
+                <ListButton
+                  intPropId={ipId}
+                  onSuccess={() => {
+                    navigate(`/marketplace`);
+                  }}
                   className="rounded-xl border-2 border-primary bg-gradient-to-t from-primary to-secondary px-6 py-3 text-xl text-white"
                 >
                   List On Marketplace

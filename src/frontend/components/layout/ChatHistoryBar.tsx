@@ -25,7 +25,10 @@ interface ChatHistoryBarProps {
   onChatSelected: (chatId: string) => void;
 }
 
-const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ className, onChatSelected }) => {
+const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
+  className,
+  onChatSelected,
+}) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -68,7 +71,12 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ className, onChatSelect
     setSettingOpen(chatId);
   };
   return (
-    <div className={ className ?? "bg-white/20 flex w-full flex-col justify-between text-black dark:text-white" }>
+    <div
+      className={
+        className ??
+        "flex w-full flex-col justify-between bg-white/20 text-black dark:text-white"
+      }
+    >
       <div className="h-[70dvh] w-full overflow-auto px-4 py-6">
         <div className="flex flex-row items-center justify-between">
           <p className="text-xl font-bold">Chat History</p>
@@ -83,57 +91,54 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ className, onChatSelect
           />
         </div>
         <div className="pt-4">
-        {chatHistories.map((chat) => (
-          <div
-            className={`flex w-full flex-row items-center justify-between ${isCurrentChat(chat.id) ? "font-bold" : ""}`}
-            key={chat.id}
-          >
-            <Link
-              className="col-span-4 text-wrap break-words text-[16px]"
-              to={"/chat/" + chat.id}
-              onClick={(e) => onChatSelected(chat.id)}
+          {chatHistories.map((chat) => (
+            <div
+              className={`flex w-full flex-row items-center justify-between ${isCurrentChat(chat.id) ? "font-bold" : ""}`}
+              key={chat.id}
             >
-              {chat.name}
-            </Link>
-            <div className="relative h-fit w-fit flex items-center justify-center">
-              <button onClick={(e) => handleSetting(chat.id)}>
-                <TbDots className="h-fit w-fit p-1" />
-              </button>
-              <div
-                className={`absolute right-[0%] top-[80%] h-[100px] w-[120px] flex-col justify-center gap-2 rounded-[20px] border bg-[#eee] dark:bg-[#2f2f2f] z-[50]  ${settingOpen === chat.id ? "flex" : "hidden"}`}
+              <Link
+                className="col-span-4 text-wrap break-words text-[16px]"
+                to={"/chat/" + chat.id}
+                onClick={(e) => onChatSelected(chat.id)}
               >
+                {chat.name}
+              </Link>
+              <div className="relative flex h-fit w-fit items-center justify-center">
+                <button onClick={(e) => handleSetting(chat.id)}>
+                  <TbDots className="h-fit w-fit p-1" />
+                </button>
                 <div
-                  onClick={(e) => {
-                    setChatName(chat.name);
-                    setActionCandidate({
-                      chatId: chat.id,
-                      action: ChatAction.RENAME,
-                    });
-                  }}
-                  className="text-black dark:text-white flex cursor-pointer flex-row items-center gap-2 px-5"
+                  className={`absolute right-[0%] top-[80%] z-[50] h-[100px] w-[120px] flex-col justify-center gap-2 rounded-[20px] border bg-[#eee] dark:bg-[#2f2f2f] ${settingOpen === chat.id ? "flex" : "hidden"}`}
                 >
-                  <TbPencil className={`size-[18px]`} />
-                  <p className="text-sm">Rename</p>
-                </div>
-                <div
-                  onClick={() =>
-                    setActionCandidate({
-                      chatId: chat.id,
-                      action: ChatAction.DELETE,
-                    })
-                  }
-                  className="flex cursor-pointer flex-row items-center gap-2 px-5"
-                >
-                  <HiOutlineTrash
-                    color="#ef4444"
-                    className={`size-[18px]`}
-                  />
-                  <p className="text-sm text-red-500">Delete</p>
+                  <div
+                    onClick={(e) => {
+                      setChatName(chat.name);
+                      setActionCandidate({
+                        chatId: chat.id,
+                        action: ChatAction.RENAME,
+                      });
+                    }}
+                    className="flex cursor-pointer flex-row items-center gap-2 px-5 text-black dark:text-white"
+                  >
+                    <TbPencil className={`size-[18px]`} />
+                    <p className="text-sm">Rename</p>
+                  </div>
+                  <div
+                    onClick={() =>
+                      setActionCandidate({
+                        chatId: chat.id,
+                        action: ChatAction.DELETE,
+                      })
+                    }
+                    className="flex cursor-pointer flex-row items-center gap-2 px-5"
+                  >
+                    <HiOutlineTrash color="#ef4444" className={`size-[18px]`} />
+                    <p className="text-sm text-red-500">Delete</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
         </div>
         <Modal
           isVisible={actionCandidate !== undefined}
@@ -159,7 +164,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({ className, onChatSelect
           )}
           <div className="flex w-full justify-center gap-4">
             <button
-              className="w-1/3 rounded-xl bg-background dark:bg-gray-600 text-black dark:text-white"
+              className="w-1/3 rounded-xl bg-background text-black dark:bg-gray-600 dark:text-white"
               onClick={() => {
                 setActionCandidate(undefined);
               }}

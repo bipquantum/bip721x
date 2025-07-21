@@ -10,10 +10,9 @@ import { Principal } from "@dfinity/principal";
 interface UserImageProps {
   principal: Principal | undefined;
   className?: string;
-};
+}
 
 const UserImage = ({ principal, className }: UserImageProps) => {
-  
   const [user, setUser] = useState<User | undefined>(undefined);
 
   const { data: queriedUser } = backendActor.useQueryCall({
@@ -31,8 +30,12 @@ const UserImage = ({ principal, className }: UserImageProps) => {
 
   return (
     <img
-      src={user !== undefined && user.imageUri !== "" ? user.imageUri : DefaultProfileImage}
-      className={ className ?? "h-10 w-10 rounded-full object-cover" }
+      src={
+        user !== undefined && user.imageUri !== ""
+          ? user.imageUri
+          : DefaultProfileImage
+      }
+      className={className ?? "h-10 w-10 rounded-full object-cover"}
     />
   );
 };

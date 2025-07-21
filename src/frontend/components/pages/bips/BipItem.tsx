@@ -29,7 +29,6 @@ const BipItem: React.FC<BipItemProps> = ({
   principal,
   hideUnlisted = false,
 }) => {
-  
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
   const [canDelete, setCanDelete] = useState<boolean>(false);
   const [deleted, setDeleted] = useState(false);
@@ -40,7 +39,8 @@ const BipItem: React.FC<BipItemProps> = ({
     args: [{ token_id: intPropId }],
   });
 
-  const authorPrincipal = intProp && !("err" in intProp) ? intProp.ok.V1.author : null;
+  const authorPrincipal =
+    intProp && !("err" in intProp) ? intProp.ok.V1.author : null;
   const { data: author } = backendActor.useQueryCall({
     functionName: "get_user",
     args: [authorPrincipal ?? Principal.anonymous()],
@@ -55,13 +55,14 @@ const BipItem: React.FC<BipItemProps> = ({
   });
 
   useEffect(() => {
-    setCanDelete(principal !== undefined &&
-      authorPrincipal !== undefined &&
-      authorPrincipal?.compareTo(principal) === "eq" &&
-      owner !== undefined &&
-      owner?.compareTo(principal) === "eq");
-  }
-  , [principal, authorPrincipal, owner]);
+    setCanDelete(
+      principal !== undefined &&
+        authorPrincipal !== undefined &&
+        authorPrincipal?.compareTo(principal) === "eq" &&
+        owner !== undefined &&
+        owner?.compareTo(principal) === "eq",
+    );
+  }, [principal, authorPrincipal, owner]);
 
   if (deleted || (hideUnlisted && unlisted)) {
     return <></>;
@@ -84,9 +85,7 @@ const BipItem: React.FC<BipItemProps> = ({
           <p>{"Cannot find IP"}</p>
         </div>
       ) : (
-        <div
-          className="col-span-1 h-fit w-full rounded-2xl border-2 border-black/50 bg-white backdrop-blur-[10px] dark:border-white/50 dark:bg-white/10"
-        >
+        <div className="col-span-1 h-fit w-full rounded-2xl border-2 border-black/50 bg-white backdrop-blur-[10px] dark:border-white/50 dark:bg-white/10">
           <div className="flex h-full flex-col gap-y-1 p-2 text-sm text-white lg:text-base">
             <Link
               to={`/bip/${intPropId}`}
@@ -112,26 +111,33 @@ const BipItem: React.FC<BipItemProps> = ({
                 </div>
               </div>
               <div className="absolute bottom-5 right-0 flex h-[75px] w-[40px] flex-col justify-between">
-                { canDelete && <DeleteButton intPropId={intPropId} onSuccess={() => { setDeleted(true); }}/> }
+                {canDelete && (
+                  <DeleteButton
+                    intPropId={intPropId}
+                    onSuccess={() => {
+                      setDeleted(true);
+                    }}
+                  />
+                )}
                 <ShareButton intPropId={intPropId} />
               </div>
             </Link>
 
             <div className="flex h-full flex-col justify-between pt-3">
               <div className="flex flex-col items-start justify-between gap-2 md:flex-row md:gap-0">
-                <div
-                  className={`flex w-full flex-row gap-2`}
-                >
-                  <UserImage principal={intProp.ok.V1.author}/>
+                <div className={`flex w-full flex-row gap-2`}>
+                  <UserImage principal={intProp.ok.V1.author} />
                   <div className="flex w-fit flex-col">
                     <div className="pb-1">
-                      <p className="text-2xl leading-none text-black dark:text-white break-all">
+                      <p className="break-all text-2xl leading-none text-black dark:text-white">
                         {intProp.ok.V1.title}
                       </p>
                       <p className="text-xs text-black dark:text-white">
-                        By @ {author === undefined || fromNullableExt(author) === undefined ? 
-                          "Anonymous" : 
-                          fromNullableExt(author)?.nickName}
+                        By @{" "}
+                        {author === undefined ||
+                        fromNullableExt(author) === undefined
+                          ? "Anonymous"
+                          : fromNullableExt(author)?.nickName}
                       </p>
                     </div>
                     <div className="w-fit pt-1">
@@ -155,12 +161,17 @@ const BipItem: React.FC<BipItemProps> = ({
               </div>
             </div>
             <div className="py-2">
-              { owner && (
+              {owner && (
                 <ListingDetails
                   principal={principal}
                   owner={owner}
                   intPropId={intPropId}
-                  onListingChange={(listingType) => setUnlisted(listingType === EListingType.UNLIST || listingType === EListingType.BUY)}
+                  onListingChange={(listingType) =>
+                    setUnlisted(
+                      listingType === EListingType.UNLIST ||
+                        listingType === EListingType.BUY,
+                    )
+                  }
                 />
               )}
             </div>

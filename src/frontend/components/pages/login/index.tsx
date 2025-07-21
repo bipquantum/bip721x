@@ -15,19 +15,26 @@ const APP_LOGO = "https://nfid.one/icons/favicon-96x96.png";
 const CONFIG_QUERY = `?applicationName=${APP_NAME}&applicationLogo=${APP_LOGO}`;
 
 const Login = () => {
-
   const { theme } = useContext(ThemeContext);
   const { login, authenticated } = useAuth({});
 
   if (authenticated) return <Navigate to="/" />;
 
   return (
-    <div className="flex flex-col flex-grow w-full items-center justify-center overflow-auto bg-background px-4 dark:bg-background-dark">
+    <div className="flex w-full flex-grow flex-col items-center justify-center overflow-auto bg-background px-4 dark:bg-background-dark">
       <div className="absolute top-0 w-full">
         <div className="flex flex-col items-center justify-center space-x-1 space-y-1 px-4 pt-6 text-black dark:text-white sm:flex-row sm:justify-between sm:px-20 sm:pt-16">
           <div className="flex flex-row items-center justify-center gap-2">
-            <img src={theme === "dark" ? LogoLight : LogoDark } className="h-16" alt=""/>
-            <img src={theme === "dark" ? BipquantumBetaWhite : BipquantumBetaBlack } className="h-16" alt="BIPQUANTUM BETA"/>
+            <img
+              src={theme === "dark" ? LogoLight : LogoDark}
+              className="h-16"
+              alt=""
+            />
+            <img
+              src={theme === "dark" ? BipquantumBetaWhite : BipquantumBetaBlack}
+              className="h-16"
+              alt="BIPQUANTUM BETA"
+            />
           </div>
           <Link
             className="border:border-black flex h-14 w-40 cursor-pointer items-center justify-center rounded-xl border text-lg font-bold leading-6 text-black dark:border-white dark:text-white"
@@ -37,7 +44,7 @@ const Login = () => {
           </Link>
         </div>
       </div>
-      <div className="flex w-full flex-col justify-center gap-6 rounded-2xl bg-white text-center text-xl text-black backdrop-blur-[20px] dark:bg-white/10 dark:text-white sm:w-[564px] sm:mt-0 mt-[40px] p-6">
+      <div className="mt-[40px] flex w-full flex-col justify-center gap-6 rounded-2xl bg-white p-6 text-center text-xl text-black backdrop-blur-[20px] dark:bg-white/10 dark:text-white sm:mt-0 sm:w-[564px]">
         <p className="hidden text-2xl font-extrabold uppercase text-black dark:text-white sm:block">
           100% on-chain governance
         </p>

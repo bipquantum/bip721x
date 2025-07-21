@@ -9,8 +9,11 @@ interface FileUploaderProps {
   children?: React.ReactNode;
 }
 
-const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, children }) => {
-  
+const FileUploader: React.FC<FileUploaderProps> = ({
+  setDataUri,
+  acceptedFiles,
+  children,
+}) => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -19,8 +22,9 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, 
 
   const max_size_bytes = MAX_IP_SIZE_MB * 1024 * 1024; // Convert MB to bytes
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) {
       setErrorMessage("No file selected.");
@@ -36,9 +40,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, 
   };
 
   const processFile = async (file: File) => {
-
     // Compress if it's an image and exceeds the limit
-    if ((file.type === "image/png" || file.type === "image/jpeg") && file.size > max_size_bytes) {
+    if (
+      (file.type === "image/png" || file.type === "image/jpeg") &&
+      file.size > max_size_bytes
+    ) {
       try {
         const options = {
           maxSizeMB: MAX_IP_SIZE_MB,
@@ -71,7 +77,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, 
     };
 
     reader.readAsDataURL(file);
-  }
+  };
 
   const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -108,23 +114,23 @@ const FileUploader: React.FC<FileUploaderProps> = ({ setDataUri, acceptedFiles, 
       <input
         type="file"
         accept={acceptedFiles}
-        className="absolute w-[1px] h-[1px] p-0 m-[-1] overflow-hidden whitespace-nowrap border-0"
+        className="absolute m-[-1] h-[1px] w-[1px] overflow-hidden whitespace-nowrap border-0 p-0"
         onChange={handleFileChange}
         ref={fileInputRef}
       />
-        <div
-          className="flex w-full items-center justify-center cursor-pointer"
-          onDrop={handleDrop}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDragOver={handleDragOver}
-          onClick={() => {
-            if (fileInputRef) fileInputRef.current?.click();
-          }}
-        >
-          {children}
-        </div>
-        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      <div
+        className="flex w-full cursor-pointer items-center justify-center"
+        onDrop={handleDrop}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onClick={() => {
+          if (fileInputRef) fileInputRef.current?.click();
+        }}
+      >
+        {children}
+      </div>
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
     </div>
   );
 };

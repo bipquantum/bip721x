@@ -9,11 +9,17 @@ interface BipsHeaderProps {
   changeQueryDirection: () => void;
 }
 
-const BipsHeader: React.FC<BipsHeaderProps> = ({ sort, changeQueryDirection }) => {
+const BipsHeader: React.FC<BipsHeaderProps> = ({
+  sort,
+  changeQueryDirection,
+}) => {
   return (
-    <div className="w-full flex flex-col sm:flex-row items-center justify-between p-4 space-y-2">
+    <div className="flex w-full flex-col items-center justify-between space-y-2 p-4 sm:flex-row">
       <SearchIPInput />
-      <button className="flex flex-row gap-[10px] bg-white/10 rounded-lg px-6 py-2 items-center self-end" onClick={() => changeQueryDirection()}>
+      <button
+        className="flex flex-row items-center gap-[10px] self-end rounded-lg bg-white/10 px-6 py-2"
+        onClick={() => changeQueryDirection()}
+      >
         <img
           src={sort === EQueryDirection.Forward ? SortUp : SortDown}
           alt="Logo"

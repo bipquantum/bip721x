@@ -43,8 +43,8 @@ const TopBar = () => {
   }, [queriedUser]);
 
   return (
-    <main className="flex w-full items-center justify-between bg-background text-white dark:bg-background-dark min-h-16 sm:min-h-20 px-3 sm:px-4 overflow-hidden">
-      <div className="flex flex-row space-x-3 text-black dark:text-white flex-shrink min-w-0">
+    <main className="fixed left-0 right-0 top-0 z-40 flex min-h-16 w-full items-center justify-between overflow-hidden bg-background px-3 text-white dark:bg-background-dark sm:relative sm:z-auto sm:min-h-20 sm:px-4">
+      <div className="flex min-w-0 flex-shrink flex-row space-x-3 text-black dark:text-white">
         <Link to={"/"} className="size-[48px] shrink-0">
           <img
             src={theme === "dark" ? LogoLight : LogoDark}
@@ -52,9 +52,9 @@ const TopBar = () => {
             className={`h-full w-full`}
           />
         </Link>
-        <div className="flex flex-col items-start justify-center min-w-0">
+        <div className="flex min-w-0 flex-col items-start justify-center">
           <p className="text-base font-bold md:text-xl">Hello,</p>
-          <p className="text-sm md:text-base truncate w-full">
+          <p className="w-full truncate text-sm md:text-base">
             {user === undefined ? NEW_USER_NICKNAME : user.nickName}
           </p>
         </div>
@@ -80,26 +80,38 @@ const TopBar = () => {
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Theme Toggle */}
         <button
-          className="rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white h-10 w-10"
+          className="h-10 w-10 rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
-          { theme === "dark" ?  <MdOutlineDarkMode size={22} /> :  <MdOutlineLightMode size={22} /> }
+          {theme === "dark" ? (
+            <MdOutlineDarkMode size={22} />
+          ) : (
+            <MdOutlineLightMode size={22} />
+          )}
         </button>
         <button
-          className="sm:hidden rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white h-10 w-10"
-          onClick={() => { setShowChatHistory(true); }}
+          className="h-10 w-10 rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white sm:hidden"
+          onClick={() => {
+            setShowChatHistory(true);
+          }}
         >
           <MdChat size={22} />
         </button>
         <Link to="/profile" className="h-10 w-10">
-          <UserImage principal={identity.getPrincipal()} className="h-10 w-10 rounded-full object-cover border-2 border-gray-300 dark:border-gray-700"/>
+          <UserImage
+            principal={identity.getPrincipal()}
+            className="h-10 w-10 rounded-full border-2 border-gray-300 object-cover dark:border-gray-700"
+          />
         </Link>
       </div>
       <Modal
         isVisible={showChatHistory}
         onClose={() => setShowChatHistory(false)}
       >
-        <ChatHistoryBar onChatSelected={() => setShowChatHistory(false)} className="flex w-full flex-col justify-between text-black dark:text-white"/>
+        <ChatHistoryBar
+          onChatSelected={() => setShowChatHistory(false)}
+          className="flex w-full flex-col justify-between text-black dark:text-white"
+        />
       </Modal>
     </main>
   );

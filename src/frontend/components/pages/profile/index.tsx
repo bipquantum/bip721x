@@ -102,7 +102,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center space-y-4 font-semibold text-black dark:text-white p-4 overflow-y-auto">
+    <div className="flex h-full w-full flex-col items-center space-y-4 overflow-y-auto p-4 font-semibold text-black dark:text-white">
       <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
         <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
           <FileUploader
@@ -163,7 +163,7 @@ const Profile = () => {
               />
             ) : field.name !== "imageUri" ? (
               <input
-                className="text-base w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-gray-400 placeholder-transparent outline-none"
+                className="w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-base text-gray-400 placeholder-transparent outline-none"
                 placeholder={field.label}
                 defaultValue={userArgs[field.name]}
                 onChange={(e) => {
@@ -182,16 +182,12 @@ const Profile = () => {
         ))}
       </div>
       <button
-          className="flex flex-col items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-sm uppercase text-white min-h-12 w-48"
-          onClick={() => onUpdateBtnClicked()}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <img src={SpinnerSvg} alt="" />
-          ) : (
-            "Add/Update User"
-          )}
-        </button>
+        className="flex min-h-12 w-48 flex-col items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-sm uppercase text-white"
+        onClick={() => onUpdateBtnClicked()}
+        disabled={isLoading}
+      >
+        {isLoading ? <img src={SpinnerSvg} alt="" /> : "Add/Update User"}
+      </button>
     </div>
   );
 };

@@ -9,8 +9,9 @@ interface BalanceContextType {
 
 const BalanceContext = createContext<BalanceContextType | undefined>(undefined);
 
-export const BalanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  
+export const BalanceProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { data: balance, call: refreshBalance } = bqcLedgerActor.useQueryCall({
     functionName: "icrc1_balance_of",
   });

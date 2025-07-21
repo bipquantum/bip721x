@@ -33,7 +33,6 @@ const Balance = ({ principal }: BalanceProps) => {
   });
 
   const triggerAirdrop = () => {
-
     airdropUser().then((result) => {
       if (!result || "err" in result) {
         console.error("Failed to airdrop user:", result);
@@ -57,13 +56,12 @@ const Balance = ({ principal }: BalanceProps) => {
   }, []);
 
   return (
-    <div className="flex w-full flex-row items-center justify-center gap-4 text-xl text-center">
+    <div className="flex w-full flex-row items-center justify-center gap-4 text-center text-xl">
       Your balance: {fromE8s(balance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC
-      {
-        isAirdropAvailable ?
+      {isAirdropAvailable ? (
         <button
           onClick={() => triggerAirdrop()}
-          className={`flex items-center justify-center rounded-lg bg-white/10 w-48 h-12 text-center text-sm font-medium text-black dark:text-white border border-primary`}
+          className={`flex h-12 w-48 items-center justify-center rounded-lg border border-primary bg-white/10 text-center text-sm font-medium text-black dark:text-white`}
           type="button"
           disabled={airdropUserLoading || isAirdropAvailableLoading}
         >
@@ -76,19 +74,25 @@ const Balance = ({ principal }: BalanceProps) => {
             </div>
           )}
         </button>
-        :
+      ) : (
         <></>
-      }
+      )}
       <Modal
-          isVisible={isPopupOpen}
-          onClose={() => {setIsPopupOpen(false)}}
+        isVisible={isPopupOpen}
+        onClose={() => {
+          setIsPopupOpen(false);
+        }}
       >
-        <div className="flex flex-col items-center justify-center px-4 pb-4 space-y-4">
+        <div className="flex flex-col items-center justify-center space-y-4 px-4 pb-4">
           <img src={GiftSvg} alt="Gift" className="mx-auto h-36 w-36" />
-          <h2 className="text-center text-lg font-bold text-black dark:text-white">1000.00 BQC have been credited to your account!</h2>
+          <h2 className="text-center text-lg font-bold text-black dark:text-white">
+            1000.00 BQC have been credited to your account!
+          </h2>
           <button
-            onClick={() => {setIsPopupOpen(false)}}
-            className="w-32 h-10 rounded-lg bg-primary text-white"
+            onClick={() => {
+              setIsPopupOpen(false);
+            }}
+            className="h-10 w-32 rounded-lg bg-primary text-white"
           >
             Close
           </button>

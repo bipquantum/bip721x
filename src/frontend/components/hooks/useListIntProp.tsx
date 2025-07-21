@@ -12,9 +12,7 @@ interface ListIntPropArgs {
   onError?: () => void;
 }
 
-export const useListIntProp = (
-  { onSuccess, onError }: ListIntPropArgs
-) => {
+export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
   const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
     functionName: "icrc37_approve_tokens",
   });
@@ -30,7 +28,7 @@ export const useListIntProp = (
     intPropId: bigint;
   }
 
-  const call = async ({sellPrice, intPropId}: CallArgs) => {
+  const call = async ({ sellPrice, intPropId }: CallArgs) => {
     const info: ApprovalInfo = {
       memo: [],
       from_subaccount: [],

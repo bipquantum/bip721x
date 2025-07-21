@@ -8,11 +8,9 @@ import { backendActor } from "../../actors/BackendActor";
 import CopyToClipboard from "../../common/CopyToClipboard";
 
 import ProfileSvg from "../../../assets/profile.png";
-import SpinnerSvg from "../../../assets/spinner.svg";
 import ReactCountryDropdown from "react-country-dropdown";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DEFAULT_COUNTRY_CODE } from "../../constants";
-import FileUploader from "../../common/FileUploader";
 import FilePreview from "../../common/FilePreview";
 
 const DEFAULT_ARGS = {
@@ -139,14 +137,13 @@ const DetailsView = () => {
 
                 {/* Input or Dropdown */}
                 {field.name === "countryCode" ? (
-                    <ReactCountryDropdown
-                      defaultCountry={userArgs.countryCode}
-                      onSelect={(val) => {
-                        setUserArgs({ ...userArgs, countryCode: val.code });
-                        handleBlur("countryCode", val.code);
-                      }}
-                      
-                    />
+                  <ReactCountryDropdown
+                    defaultCountry={userArgs.countryCode}
+                    onSelect={(val) => {
+                      setUserArgs({ ...userArgs, countryCode: val.code });
+                      handleBlur("countryCode", val.code);
+                    }}
+                  />
                 ) : field.name !== "imageUri" ? (
                   <input
                     className="w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-base text-gray-400 placeholder-transparent outline-none"

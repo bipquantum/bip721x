@@ -84,44 +84,44 @@ const ChatBox: React.FC<ChatBoxProps> = ({
     >
       {chats.map((chat, elem_index) => (
         <div key={elem_index} className="flex flex-col">
-          {
-            aiPrompts.get(elem_index)?.map((prompt, prompt_index) => (
-              <div key={prompt_index} className="flex flex-col">
-                <div className="flex flex-row justify-end gap-2 py-2">
-                  <span className="flex flex-col px-5"> {/* spacer */} </span>
-                  <div className="markdown-link flex items-center rounded-xl bg-white px-3 py-0 text-black sm:px-4 sm:py-2">
-                    {prompt.question}
-                  </div>
-                  <UserImage principal={principal} />
+          {aiPrompts.get(elem_index)?.map((prompt, prompt_index) => (
+            <div key={prompt_index} className="flex flex-col">
+              <div className="flex flex-row justify-end gap-2 py-2">
+                <span className="flex flex-col px-5"> {/* spacer */} </span>
+                <div className="markdown-link flex items-center rounded-xl bg-white px-3 py-0 text-black sm:px-4 sm:py-2">
+                  {prompt.question}
                 </div>
-                <div className="flex flex-row gap-2 py-2">
-                  <img src={AiBot} className={`h-10 rounded-full`} />
-                  <div className="items-center-xl markdown-link flex flex-col gap-3 rounded-xl bg-white px-3 py-2 text-black sm:px-4 sm:py-2">
-                    {prompt.answer === undefined ? (
-                      <img
-                        src={SpinnerSvg}
-                        className="dark:invert"
-                        alt="Loading..."
-                      />
-                    ) : (
-                      <>
-                        <Markdown components={MARKDOWN_COMPONENTS}>
-                          {prompt.answer}
-                        </Markdown>
-                        <div
-                          className="mb-2 mt-1 h-5 w-5 cursor-pointer self-end sm:mb-1 sm:mt-0 sm:h-6 sm:w-6"
-                          onClick={() => navigator.clipboard.writeText(chat.question)}
-                        >
-                          <CopyIcon className="text-gray-700 hover:text-black" />
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <span className="flex flex-col px-5"> {/* spacer */} </span>
-                </div>
+                <UserImage principal={principal} />
               </div>
-            ))
-          }
+              <div className="flex flex-row gap-2 py-2">
+                <img src={AiBot} className={`h-10 rounded-full`} />
+                <div className="items-center-xl markdown-link flex flex-col gap-3 rounded-xl bg-white px-3 py-2 text-black sm:px-4 sm:py-2">
+                  {prompt.answer === undefined ? (
+                    <img
+                      src={SpinnerSvg}
+                      className="dark:invert"
+                      alt="Loading..."
+                    />
+                  ) : (
+                    <>
+                      <Markdown components={MARKDOWN_COMPONENTS}>
+                        {prompt.answer}
+                      </Markdown>
+                      <div
+                        className="mb-2 mt-1 h-5 w-5 cursor-pointer self-end sm:mb-1 sm:mt-0 sm:h-6 sm:w-6"
+                        onClick={() =>
+                          navigator.clipboard.writeText(chat.question)
+                        }
+                      >
+                        <CopyIcon className="text-gray-700 hover:text-black" />
+                      </div>
+                    </>
+                  )}
+                </div>
+                <span className="flex flex-col px-5"> {/* spacer */} </span>
+              </div>
+            </div>
+          ))}
           <div className="flex flex-row gap-2 py-2">
             <img src={AiBot} className={`h-10 rounded-full`} />
             <div className="markdown-link flex flex-col rounded-xl bg-white px-3 py-0 text-black sm:px-4 sm:py-2">
@@ -153,8 +153,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({
             chat.answers[0].text === AUTOMATIC_CHATBOT_TRANSITION ? (
               <></>
             ) : (
-              <div className="flex flex-row gap-x-2 justify-end items-center">
-                <div className="flex flex-row py-2 gap-2 justify-start flex-wrap flex-row-reverse">
+              <div className="flex flex-row items-center justify-end gap-x-2">
+                <div className="flex flex-row flex-row-reverse flex-wrap justify-start gap-2 py-2">
                   {chat.answers.map((answer, answer_index) => (
                     <button
                       className={`h-10 rounded-full border border-gray-400 px-3 text-gray-400 sm:px-4 ${answer.state === ChatAnswerState.Unselectable || (answer.text === "US Copyright Certificate" && "bg-gray-300")} ${answer.state === ChatAnswerState.Selectable && answer.text !== "US Copyright Certificate" && "hover:bg-white hover:text-black"} ${answer.state === ChatAnswerState.Selected && answer.text !== "US Copyright Certificate" && "bg-white hover:text-white"} `}
@@ -183,7 +183,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({
                   ))}
                   <span className="flex flex-col px-5"> {/* spacer */} </span>
                 </div>
-                { chat.answers.length > 0 && <UserImage principal={principal} />}
+                {chat.answers.length > 0 && <UserImage principal={principal} />}
               </div>
             )
           }

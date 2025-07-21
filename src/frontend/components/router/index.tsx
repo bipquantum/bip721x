@@ -28,11 +28,17 @@ const Router = () => {
       />
       <Route
         path={"/dashboard"}
-        element={<PrivateRoute element={<Dashboard/>} />}
+        element={<PrivateRoute element={<Dashboard />} />}
       />
       <Route
         path={"/chat/:chatId"}
-        element={<PrivateRoute element={<WithHistoryWrapper principal={identity?.getPrincipal()!} />} />}
+        element={
+          <PrivateRoute
+            element={
+              <WithHistoryWrapper principal={identity?.getPrincipal()!} />
+            }
+          />
+        }
       />
       <Route
         path={"/marketplace"}
@@ -64,9 +70,7 @@ const Router = () => {
       />
       <Route
         path={"/bip/:ipId"}
-        element={
-          <BipDetails principal={identity?.getPrincipal()} />
-        }
+        element={<BipDetails principal={identity?.getPrincipal()} />}
       />
       <Route path={"/view"} element={<DetailsView />} />
       <Route path={"/login"} element={<Login />} />

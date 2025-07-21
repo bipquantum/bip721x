@@ -11,10 +11,13 @@ interface ChatHistoryContextType {
   deleteChat: (chatId: string) => void;
 }
 
-const ChatHistoryContext = createContext<ChatHistoryContextType | undefined>(undefined);
+const ChatHistoryContext = createContext<ChatHistoryContextType | undefined>(
+  undefined,
+);
 
-export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  
+export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
 
   const { call: fetchChatHistories } = backendActor.useQueryCall({
@@ -54,15 +57,16 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
   });
 
   const addChat = (name: string): string => {
-
     if (machine.version === undefined) {
       throw new Error("Machine version not found");
-    };
+    }
 
     const newChatId = uuidv4();
-    createChatHistory([{ id: newChatId, version: machine.version, name }]).then(() => {
-      fetchChatHistories();
-    });
+    createChatHistory([{ id: newChatId, version: machine.version, name }]).then(
+      () => {
+        fetchChatHistories();
+      },
+    );
     return newChatId;
   };
 
@@ -76,10 +80,12 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({ c
     renameChatHistory([{ id: chatId, name }]).then(() => {
       fetchChatHistories();
     });
-  }
+  };
 
   return (
-    <ChatHistoryContext.Provider value={{ chatHistories, addChat, deleteChat, renameChat }}>
+    <ChatHistoryContext.Provider
+      value={{ chatHistories, addChat, deleteChat, renameChat }}
+    >
       {children}
     </ChatHistoryContext.Provider>
   );

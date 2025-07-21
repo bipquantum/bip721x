@@ -56,24 +56,32 @@ function App() {
   useEffect(() => {
     // Set --vh to the actual viewport height on mobile
     const setVh = () => {
-      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      document.documentElement.style.setProperty(
+        "--vh",
+        `${window.innerHeight * 0.01}px`,
+      );
     };
     setVh();
-    window.addEventListener('resize', setVh);
-    return () => window.removeEventListener('resize', setVh);
+    window.addEventListener("resize", setVh);
+    return () => window.removeEventListener("resize", setVh);
   }, []);
 
   return (
-    <div 
-      className="flex w-full flex-col sm:flex-row bg-background dark:bg-background-dark"
-      style={{ minHeight: 'calc(var(--vh, 1vh) * 100)' }}
+    <div
+      className="flex w-full flex-col bg-background dark:bg-background-dark sm:flex-row"
+      style={{ minHeight: "calc(var(--vh, 1vh) * 100)" }}
     >
       <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
         <AgentProvider withProcessEnv>
           <BackendActorProvider>
             <BqcLedgerActorProvider>
               <Bip721LedgerActorProvider>
-                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <BrowserRouter
+                  future={{
+                    v7_startTransition: true,
+                    v7_relativeSplatPath: true,
+                  }}
+                >
                   <ChatHistoryProvider>
                     <BalanceProvider>
                       <AirdropBannerProvider>
@@ -94,7 +102,6 @@ function App() {
 }
 
 function AppContent() {
-  
   const location = useLocation();
   const { pathname } = location;
 
@@ -112,18 +119,23 @@ function AppContent() {
       <ToastContainer />
       <AirdropBanner />
       {/* Main Layout Container */}
-      <div className="flex flex-col w-full sm:flex-row bg-background dark:bg-background-dark flex-grow sm:flex-grow-0 pl-0 sm:ml-20">
-
-        { !(pathname.includes("login") || pathname.includes("certificate")) && <NavBar /> }
+      <div className="flex w-full flex-grow flex-col bg-background pl-0 dark:bg-background-dark sm:ml-20 sm:flex-grow-0 sm:flex-row">
+        {!(pathname.includes("login") || pathname.includes("certificate")) && (
+          <NavBar />
+        )}
 
         {/* Main Content Wrapper */}
-        <div className="flex flex-col w-full items-center flex-grow">
-          { !(pathname.includes("login") || pathname.includes("certificate")) && <TopBar/>}
-          <div className="flex flex-row w-full justify-between flex-grow">
+        <div className="flex w-full flex-grow flex-col items-center pb-16 pt-16 sm:pb-0 sm:pt-0">
+          {!(
+            pathname.includes("login") || pathname.includes("certificate")
+          ) && <TopBar />}
+          <div className="flex w-full flex-grow flex-row justify-between">
             <ChatHistory />
             <Router />
           </div>
-          { !(pathname.includes("login") || pathname.includes("certificate")) && <MobileNavBar /> }
+          {!(
+            pathname.includes("login") || pathname.includes("certificate")
+          ) && <MobileNavBar />}
         </div>
       </div>
     </>

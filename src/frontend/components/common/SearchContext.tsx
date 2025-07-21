@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import MiniSearch, { Options } from "minisearch";
 import { backendActor } from "../actors/BackendActor";
 import { EQueryDirection, toQueryDirection } from "../../utils/conversions";
@@ -20,7 +27,9 @@ const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 const REFRESH_INTERVAL = 10000; // 10 seconds
 
-export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [documents, setDocuments] = useState<Document[]>(() => {
     try {
       const raw = localStorage.getItem("miniSearchDocuments");
@@ -34,14 +43,17 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
-  const { data: intPropIds, call: refreshIntPropIds, loading } = backendActor.useQueryCall({
-    functionName: "get_listed_int_props",
-    args: [{
-      prev: [],
-      take: [100_000n],
-      direction: toQueryDirection(EQueryDirection.Forward),
-    }],
-  });
+  const { data: intPropIds, call: refreshIntPropIds } =
+    backendActor.useQueryCall({
+      functionName: "get_listed_int_props",
+      args: [
+        {
+          prev: [],
+          take: [100_000n],
+          direction: toQueryDirection(EQueryDirection.Forward),
+        },
+      ],
+    });
 
   const { call: getIntProp } = backendActor.useQueryCall({
     functionName: "get_int_prop",
@@ -63,7 +75,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           console.warn(`Failed to fetch intProp ${id}:`, err);
         }
         return null;
-      })
+      }),
     );
     return results.filter((r): r is Document => r !== null);
   };
@@ -91,14 +103,20 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const currentIds = new Set(documents.map((doc) => doc.id));
     const upToDateIds = new Set(intPropIds.map((id) => Number(id)));
 
-    const missingIds = Array.from(upToDateIds).filter((id) => !currentIds.has(id));
-    const removedIds = Array.from(currentIds).filter((id) => !upToDateIds.has(id));
+    const missingIds = Array.from(upToDateIds).filter(
+      (id) => !currentIds.has(id),
+    );
+    const removedIds = Array.from(currentIds).filter(
+      (id) => !upToDateIds.has(id),
+    );
 
     if (missingIds.length > 0 || removedIds.length > 0) {
       (async () => {
         const newDocs = await fetchIntProps(missingIds);
         setDocuments((prevDocs) => {
-          const keptDocs = prevDocs.filter((doc) => !removedIds.includes(doc.id));
+          const keptDocs = prevDocs.filter(
+            (doc) => !removedIds.includes(doc.id),
+          );
           return [...keptDocs, ...newDocs];
         });
       })();
@@ -126,12 +144,14 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [documents, options]);
 
   return (
-    <SearchContext.Provider value={{
-      refreshDocuments,
-      lastRefreshTime,
-      isRefreshing,
-      miniSearch,
-    }}>
+    <SearchContext.Provider
+      value={{
+        refreshDocuments,
+        lastRefreshTime,
+        isRefreshing,
+        miniSearch,
+      }}
+    >
       {children}
     </SearchContext.Provider>
   );

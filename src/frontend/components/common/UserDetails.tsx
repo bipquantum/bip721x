@@ -11,37 +11,56 @@ type UserDetailsArgs = {
 };
 
 const UserDetails = ({ principal }: UserDetailsArgs) => {
-  
   const { data: author } = backendActor.useQueryCall({
     functionName: "get_user",
     args: [principal],
   });
 
   return (
-    <div className="relative overflow-x-auto w-full">
+    <div className="relative w-full overflow-x-auto">
       {author === undefined || fromNullable(author) === undefined ? (
         <div className="text-center text-white">Anonymous</div>
       ) : (
         <table className="w-full text-left rtl:text-right">
           <tr>
-            <th className="whitespace-nowrap font-medium text-white">First Name</th>
-            <td className="font-semibold text-right">{fromNullable(author)?.firstName}</td>
+            <th className="whitespace-nowrap font-medium text-white">
+              First Name
+            </th>
+            <td className="text-right font-semibold">
+              {fromNullable(author)?.firstName}
+            </td>
           </tr>
           <tr>
-            <th className="whitespace-nowrap font-medium text-white">Nickname</th>
-            <td className="font-semibold text-right">{fromNullable(author)?.nickName}</td>
+            <th className="whitespace-nowrap font-medium text-white">
+              Nickname
+            </th>
+            <td className="text-right font-semibold">
+              {fromNullable(author)?.nickName}
+            </td>
           </tr>
           <tr>
-            <th className="whitespace-nowrap font-medium text-white">Last Name</th>
-            <td className="font-semibold text-right">{fromNullable(author)?.lastName}</td>
+            <th className="whitespace-nowrap font-medium text-white">
+              Last Name
+            </th>
+            <td className="text-right font-semibold">
+              {fromNullable(author)?.lastName}
+            </td>
           </tr>
           <tr>
-            <th className="whitespace-nowrap font-medium text-white">Specialty</th>
-            <td className="font-semibold text-right">{fromNullable(author)?.specialty}</td>
+            <th className="whitespace-nowrap font-medium text-white">
+              Specialty
+            </th>
+            <td className="text-right font-semibold">
+              {fromNullable(author)?.specialty}
+            </td>
           </tr>
           <tr>
-            <th className="whitespace-nowrap font-medium text-white">Country</th>
-            <td className="font-semibold text-right">{getName(fromNullable(author)?.countryCode)}</td>
+            <th className="whitespace-nowrap font-medium text-white">
+              Country
+            </th>
+            <td className="text-right font-semibold">
+              {getName(fromNullable(author)?.countryCode)}
+            </td>
           </tr>
         </table>
       )}

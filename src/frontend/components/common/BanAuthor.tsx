@@ -9,8 +9,7 @@ interface BanAuthorProps {
 }
 
 const BanAuthor: React.FC<BanAuthorProps> = ({ principal, author }) => {
-  
-    const { data: admin } = backendActor.useQueryCall({
+  const { data: admin } = backendActor.useQueryCall({
     functionName: "get_admin",
     args: [],
   });
@@ -29,12 +28,14 @@ const BanAuthor: React.FC<BanAuthorProps> = ({ principal, author }) => {
     functionName: "ban_author",
   });
 
-  const { call: unbanAuthor, loading: unbanLoading } = backendActor.useUpdateCall({
-    functionName: "unban_author",
-  });
+  const { call: unbanAuthor, loading: unbanLoading } =
+    backendActor.useUpdateCall({
+      functionName: "unban_author",
+    });
 
   // Early return if data is not ready
-  if (!principal || !admin || !moderators || isBanned === undefined) return null;
+  if (!principal || !admin || !moderators || isBanned === undefined)
+    return null;
 
   const isAuthorized =
     principal === admin ||
@@ -42,8 +43,8 @@ const BanAuthor: React.FC<BanAuthorProps> = ({ principal, author }) => {
 
   const handleClick = () => {
     const action = isBanned
-      ? unbanAuthor([{  author }])
-      :  banAuthor([{ author }]);
+      ? unbanAuthor([{ author }])
+      : banAuthor([{ author }]);
 
     action.then(() => getIsBanned());
   };
@@ -52,7 +53,7 @@ const BanAuthor: React.FC<BanAuthorProps> = ({ principal, author }) => {
 
   return (
     <VioletButton onClick={handleClick} isLoading={banLoading || unbanLoading}>
-      <span className="flex flex-row gap-x-1 items-center">
+      <span className="flex flex-row items-center gap-x-1">
         <TbBan size={20} /> {isBanned ? "Unban" : "Ban"} author
       </span>
     </VioletButton>

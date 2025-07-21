@@ -31,7 +31,6 @@ interface IPItemProps {
 }
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
-  
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
 
   const { ipId: intPropId } = useParams();
@@ -60,16 +59,20 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     },
   });
 
-  const extractRoyalties = (royalties: [] | [bigint]) : string => {
+  const extractRoyalties = (royalties: [] | [bigint]): string => {
     let value = fromNullable(royalties);
-    return value === undefined ? "None" : value === 0n ? "None" : Number(value) + "%";
-  }
+    return value === undefined
+      ? "None"
+      : value === 0n
+        ? "None"
+        : Number(value) + "%";
+  };
 
   return (
-    <div className="flex flex-grow w-full flex-col overflow-y-auto font-semibold text-black dark:text-white">
+    <div className="flex w-full flex-grow flex-col overflow-y-auto font-semibold text-black dark:text-white">
       {/* <BipsHeader/> */}
-      <div className="flex-grow w-full sm:p-8 md:p-4">
-        <div className="flex flex-grow w-full flex-1 flex-col items-center justify-center overflow-auto sm:rounded-xl">
+      <div className="w-full flex-grow sm:p-8 md:p-4">
+        <div className="flex w-full flex-1 flex-grow flex-col items-center justify-center overflow-auto sm:rounded-xl">
           {intProp === undefined ? (
             <div
               className="text-center text-white"
@@ -93,9 +96,9 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-grow max-h-[80dvh] w-full flex-col gap-[40px]">
+            <div className="flex max-h-[80dvh] w-full flex-grow flex-col gap-[40px]">
               <div className="flex h-fit w-full flex-col items-start justify-between gap-[30px] lg:flex-row">
-                <div className="flex w-full flex-col gap-[18px] lg:w-3/12 items-center">
+                <div className="flex w-full flex-col items-center gap-[18px] lg:w-3/12">
                   <div className="h-auto w-full p-2">
                     <div className="mx-auto w-full rounded-[32px] shadow-[0px_0px_40px_-20px] shadow-primary md:w-fit">
                       {intProp.ok.V1.dataUri && (
@@ -106,8 +109,8 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                       )}
                     </div>
                   </div>
-                  <div className="w-3/4 flex flex-col gap-[20px] items-center">
-                    <div className="w-full flex flex-col text-center text-xl items-center">
+                  <div className="flex w-3/4 flex-col items-center gap-[20px]">
+                    <div className="flex w-full flex-col items-center text-center text-xl">
                       {intProp.ok.V1.title}
                       {isBanned ? (
                         <div className="text-base text-red-500">
@@ -125,7 +128,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </button>
                   </div>
                 </div>
-                <div className="flex-grow w-full p-2 flex-col space-y-3 rounded-0 sm:rounded-[20px] bg-secondary/10 px-2 py-4 sm:p-6 dark:bg-white/10 md:p-6">
+                <div className="rounded-0 w-full flex-grow flex-col space-y-3 bg-secondary/10 p-2 px-2 py-4 dark:bg-white/10 sm:rounded-[20px] sm:p-6 md:p-6">
                   <div className="flex flex-col gap-[20px] rounded-[20px] px-[15px] py-[10px]">
                     <div className="flex flex-row items-center gap-[15px]">
                       <UserImage principal={intProp.ok.V1.author} />
@@ -146,16 +149,19 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </div>
                     <div className="flex flex-row justify-between gap-[10px] md:flex-row md:items-center">
                       <div className="flex flex-col">
-                        <p className="text-[26px]">BIP #{BigInt(intPropId).toString()}</p>
-                        { owner && <p className="pb-1 text-xl">
-                          Owned by @
-                          <span className="text-primary">
-                            <UserNickName principal={owner}/>
-                          </span>{" "}
+                        <p className="text-[26px]">
+                          BIP #{BigInt(intPropId).toString()}
                         </p>
-                        }
+                        {owner && (
+                          <p className="pb-1 text-xl">
+                            Owned by @
+                            <span className="text-primary">
+                              <UserNickName principal={owner} />
+                            </span>{" "}
+                          </p>
+                        )}
                       </div>
-                      <div className="flex flex-row gap-6 ml-auto">
+                      <div className="ml-auto flex flex-row gap-6">
                         <div className="flex items-center gap-1">
                           <button className="flex size-[40px] items-center justify-center rounded-full bg-white/10">
                             {" "}
@@ -173,43 +179,52 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col rounded-[20px] bg-white dark:bg-background-dark px-3 py-2">
-                    <div className="flex flex-grow w-full sm:flex-row flex-col items-start justify-between gap-3 sm:gap-x-2">
+                  <div className="flex flex-col rounded-[20px] bg-white px-3 py-2 dark:bg-background-dark">
+                    <div className="flex w-full flex-grow flex-col items-start justify-between gap-3 sm:flex-row sm:gap-x-2">
                       <ul className="w-full space-y-1 text-sm text-gray-500 dark:text-gray-300">
                         <li className="grid grid-cols-2">
                           IP Type:{" "}
-                          <span className="font-semibold text-gray-700 dark:text-gray-100 text-right">
+                          <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
                             {intPropTypeToString(intProp.ok.V1.intPropType)}
                           </span>
                         </li>
                         <li className="grid grid-cols-2">
                           Licenses:{" "}
-                          <span className="font-semibold text-gray-700 dark:text-gray-100 text-right">
-                            {intProp.ok.V1.intPropLicenses && intProp.ok.V1.intPropLicenses.length > 0
-                              ? intProp.ok.V1.intPropLicenses.map(intPropLicenseToString).join(", ")
+                          <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
+                            {intProp.ok.V1.intPropLicenses &&
+                            intProp.ok.V1.intPropLicenses.length > 0
+                              ? intProp.ok.V1.intPropLicenses
+                                  .map(intPropLicenseToString)
+                                  .join(", ")
                               : "N/A"}
                           </span>
                         </li>
                         <li className="grid grid-cols-2">
                           Royalties:{" "}
-                          <span className="font-semibold text-gray-700 dark:text-gray-100 text-right">
-                            { extractRoyalties(intProp.ok.V1.percentageRoyalties) }
+                          <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
+                            {extractRoyalties(
+                              intProp.ok.V1.percentageRoyalties,
+                            )}
                           </span>
                         </li>
                         <li className="grid grid-cols-2">
                           Creation Date:{" "}
-                          <span className="font-semibold text-gray-700 dark:text-gray-100 text-right">
+                          <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
                             {intProp.ok.V1.creationDate
-                              ? formatDate(timeToDate(intProp.ok.V1.creationDate))
+                              ? formatDate(
+                                  timeToDate(intProp.ok.V1.creationDate),
+                                )
                               : "N/A"}
                           </span>
                         </li>
                         <li className="grid grid-cols-2">
                           Publication:{" "}
-                          <span className="font-semibold text-gray-700 dark:text-gray-100 text-right">
+                          <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
                             {intProp.ok.V1.publishing
                               ? (() => {
-                                  const pub = fromNullable(intProp.ok.V1.publishing);
+                                  const pub = fromNullable(
+                                    intProp.ok.V1.publishing,
+                                  );
                                   if (!pub) return "N/A";
                                   const country = getName(pub.countryCode);
                                   const date = formatDate(timeToDate(pub.date));
@@ -219,7 +234,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                           </span>
                         </li>
                       </ul>
-                      <div className="flex flex-col space-y-2 mb-auto w-full">
+                      <div className="mb-auto flex w-full flex-col space-y-2">
                         {owner && (
                           <ListingDetails
                             principal={principal}
@@ -237,7 +252,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                         />
                       </div>
                     </div>
-                    <div className="flex flex-row gap-[10px] mt-2">
+                    <div className="mt-2 flex flex-row gap-[10px]">
                       <FundIcon />
                       <p className="mt-auto text-sm text-gray-600 dark:text-gray-400">
                         Supports creator — This listing ensures the collection
@@ -246,7 +261,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     </div>
                     {/* Put a horizontal light bar to separate the rest */}
                     <hr className="my-2 border-t border-gray-200 dark:border-gray-700" />
-                    <span className="block whitespace-pre-line text-base leading-[1.5em] break-words text-justify font-normal text-sm">
+                    <span className="block whitespace-pre-line break-words text-justify text-base text-sm font-normal leading-[1.5em]">
                       {intProp.ok.V1.description}
                     </span>
                   </div>

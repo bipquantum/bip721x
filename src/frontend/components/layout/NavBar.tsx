@@ -11,7 +11,6 @@ import NewIPIcon from "../icons/NewIPIcon";
 import SupportIcon from "../icons/SupportIcon";
 
 const NavBar = () => {
-  
   const { pathname } = useLocation();
 
   const { authenticated, logout, login } = useAuth({});
@@ -47,8 +46,7 @@ const NavBar = () => {
   ];
 
   return (
-    <div className="fixed top-0 left-0 border-r border-black/30 shadow shadow-black/30 dark:border-white/30 dark:shadow-white/30 flex
-      hidden h-full w-fit flex-col items-center justify-between font-bold text-black dark:text-white sm:flex min-w-20">
+    <div className="fixed left-0 top-0 flex hidden h-full w-fit min-w-20 flex-col items-center justify-between border-r border-black/30 font-bold text-black shadow shadow-black/30 dark:border-white/30 dark:text-white dark:shadow-white/30 sm:flex">
       <div>{/*spacer*/}</div>
       <div className="flex flex-col items-center space-y-2 pr-2">
         {NavBarItems.map((item, index) => (
@@ -59,14 +57,18 @@ const NavBar = () => {
             target={item.target}
             rel={item.rel}
           >
-            <div className={`flex flex-col items-center pl-4 p-2 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "bg-primary dark:bg-secondary rounded-r-full text-primary dark:text-secondary"}`}>
-              <div className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}>
-                { item.icon() }
+            <div
+              className={`flex flex-col items-center p-2 pl-4 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "rounded-r-full bg-primary text-primary dark:bg-secondary dark:text-secondary"}`}
+            >
+              <div
+                className={`flex size-[48px] items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}
+              >
+                {item.icon()}
               </div>
             </div>
 
             {/* Label */}
-            <div className="h-[10px] pl-2 -mt-2">
+            <div className="-mt-2 h-[10px] pl-2">
               {pathname !== "/" + item.link && (
                 <p className={`text-[10px] font-bold`}>{item.label}</p>
               )}

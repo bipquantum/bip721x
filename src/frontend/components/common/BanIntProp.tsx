@@ -28,12 +28,14 @@ const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
     functionName: "ban_int_prop",
   });
 
-  const { call: unbanIntProp, loading: unbanLoading } = backendActor.useUpdateCall({
-    functionName: "unban_int_prop",
-  });
+  const { call: unbanIntProp, loading: unbanLoading } =
+    backendActor.useUpdateCall({
+      functionName: "unban_int_prop",
+    });
 
   // Early return if data is not ready
-  if (!principal || !admin || !moderators || isBanned === undefined) return null;
+  if (!principal || !admin || !moderators || isBanned === undefined)
+    return null;
 
   const isAuthorized =
     principal === admin ||
@@ -51,8 +53,9 @@ const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
 
   return (
     <VioletButton onClick={handleClick} isLoading={banLoading || unbanLoading}>
-      <span className="flex flex-row gap-x-1 items-center">
-        <TbBan size={20} /> {isBanned ? "Unban" : "Ban"} BIP #{intPropId.toString()}
+      <span className="flex flex-row items-center gap-x-1">
+        <TbBan size={20} /> {isBanned ? "Unban" : "Ban"} BIP #
+        {intPropId.toString()}
       </span>
     </VioletButton>
   );

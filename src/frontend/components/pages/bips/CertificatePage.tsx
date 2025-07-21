@@ -5,12 +5,17 @@ import fontkit from "@pdf-lib/fontkit";
 import BipCertificateTemplate from "../../../assets/bIP_certificate_editable.pdf";
 
 // TODO: apparently @types/qrcode doesn't exist for the qrcode package
-// @ts-ignore: 
-import { toDataURL } from 'qrcode';
+// @ts-ignore:
+import { toDataURL } from "qrcode";
 import { backendActor } from "../../actors/BackendActor";
 import { IntProp, User } from "../../../../declarations/backend/backend.did";
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { formatDate, intPropLicenseToString, intPropTypeToString, timeToDate } from "../../../utils/conversions";
+import {
+  formatDate,
+  intPropLicenseToString,
+  intPropTypeToString,
+  timeToDate,
+} from "../../../utils/conversions";
 import { fromNullable } from "@dfinity/utils";
 
 // @ts-ignore
@@ -18,10 +23,12 @@ import { getName } from "country-list";
 import { Principal } from "@dfinity/principal";
 import { toast } from "react-toastify";
 
-const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> => {
+const getAssetAsArrayBuffer = async (
+  assetUrl: string,
+): Promise<ArrayBuffer> => {
   try {
     const response = await fetch(assetUrl);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch asset: ${response.statusText}`);
     }
@@ -36,10 +43,15 @@ const getAssetAsArrayBuffer = async (assetUrl: string) : Promise<ArrayBuffer> =>
     console.error("Error fetching the asset as ArrayBuffer:", error);
     throw error;
   }
-}
+};
 
 // TODO: Add the percentage royalties once the field has been added to the PDF template
-const generatePdf = async (intPropId: string, intProp: IntProp, author: User, owner: Principal | undefined) : Promise<Uint8Array> => {  
+const generatePdf = async (
+  intPropId: string,
+  intProp: IntProp,
+  author: User,
+  owner: Principal | undefined,
+): Promise<Uint8Array> => {
   // Load the PDF template
   const template = await getAssetAsArrayBuffer(BipCertificateTemplate);
 
@@ -51,36 +63,41 @@ const generatePdf = async (intPropId: string, intProp: IntProp, author: User, ow
   const form = pdfDoc.getForm();
 
   // Fetch the font and embed it
-  const fontBytes = await getAssetAsArrayBuffer('/fonts/Symbola.ttf');
+  const fontBytes = await getAssetAsArrayBuffer("/fonts/Symbola.ttf");
   const customFont = await pdfDoc.embedFont(fontBytes);
 
   var publication_date = undefined;
   var publication_country = undefined;
   let optPublishing = fromNullable(intProp.publishing);
-  if (optPublishing){
+  if (optPublishing) {
     publication_date = formatDate(timeToDate(optPublishing.date));
     publication_country = getName(optPublishing.countryCode);
   }
 
   // Define the field names and values to fill
-  const fieldValues : Record<string, string> = {
-    'registration_date': 'Unavailable', // @todo: this shall be queried from icrc3
-    'title': intProp.title,
-    'ip_type': intPropTypeToString(intProp.intPropType),
-    'ip_licenses': intProp.intPropLicenses.map(intPropLicenseToString).join(', '),
+  const fieldValues: Record<string, string> = {
+    registration_date: "Unavailable", // @todo: this shall be queried from icrc3
+    title: intProp.title,
+    ip_type: intPropTypeToString(intProp.intPropType),
+    ip_licenses: intProp.intPropLicenses.map(intPropLicenseToString).join(", "),
     // 250 characters is the maximum that can fit in the description field
-    'ip_description': intProp.description.length > 250 ? intProp.description.substring(0, 250).replace(/\s+\S*$/, '') + '[...]' : intProp.description,
-    'creation_date': formatDate(timeToDate(intProp.creationDate)),
-    'publication_date': publication_date ?? 'N/A',
-    'publication_country': publication_country ?? 'N/A',
-    'author_full_name': `${author.firstName} ${author.lastName}`,
-    'author_nickname': author.nickName,
-    'author_specialy': author.specialty,
-    'author_country': getName(author.countryCode),
-    'owner': owner?.toString() ?? '',
-    'royalties': fromNullable(intProp.percentageRoyalties) ? `${fromNullable(intProp.percentageRoyalties)}%` : '',
-    'first_listing_price': 'Unknown', // @todo: shall the first listing price be saved in the marketplace?
-    'us_copyright': 'Unavailable', // @todo: add US copyright when available
+    ip_description:
+      intProp.description.length > 250
+        ? intProp.description.substring(0, 250).replace(/\s+\S*$/, "") + "[...]"
+        : intProp.description,
+    creation_date: formatDate(timeToDate(intProp.creationDate)),
+    publication_date: publication_date ?? "N/A",
+    publication_country: publication_country ?? "N/A",
+    author_full_name: `${author.firstName} ${author.lastName}`,
+    author_nickname: author.nickName,
+    author_specialy: author.specialty,
+    author_country: getName(author.countryCode),
+    owner: owner?.toString() ?? "",
+    royalties: fromNullable(intProp.percentageRoyalties)
+      ? `${fromNullable(intProp.percentageRoyalties)}%`
+      : "",
+    first_listing_price: "Unknown", // @todo: shall the first listing price be saved in the marketplace?
+    us_copyright: "Unavailable", // @todo: add US copyright when available
   };
 
   // Fill in each field with the corresponding value
@@ -116,7 +133,7 @@ const generatePdf = async (intPropId: string, intProp: IntProp, author: User, ow
 
   // Generate the PDF
   return await pdfDoc.save();
-}
+};
 
 const CertificatePage = () => {
   const { intPropId } = useParams();
@@ -129,7 +146,7 @@ const CertificatePage = () => {
   });
 
   const { call: getIntProp } = backendActor.useQueryCall({
-      functionName: "get_int_prop",
+    functionName: "get_int_prop",
   });
 
   const { data: owner, call: getOwner } = backendActor.useQueryCall({
@@ -138,32 +155,31 @@ const CertificatePage = () => {
 
   useEffect(() => {
     if (intPropId !== undefined) {
-        getIntProp([{ token_id: BigInt(intPropId) }]).then((res) => {
-            if (res !== undefined && 'ok' in res) {
-              setIntProp(res.ok.V1);
-            } else {
-              console.error("Error fetching the intProp:", res);
-              toast.error("Error fetching the IP details");
-            }
-        });
-        getOwner([{ token_id: BigInt(intPropId) }]);
+      getIntProp([{ token_id: BigInt(intPropId) }]).then((res) => {
+        if (res !== undefined && "ok" in res) {
+          setIntProp(res.ok.V1);
+        } else {
+          console.error("Error fetching the intProp:", res);
+          toast.error("Error fetching the IP details");
+        }
+      });
+      getOwner([{ token_id: BigInt(intPropId) }]);
     }
   }, [intPropId]);
 
   useEffect(() => {
     if (intProp !== undefined) {
-        getAuthor([intProp.author]);
+      getAuthor([intProp.author]);
     }
   }, [intProp]);
 
   useEffect(() => {
-    
     const actualAuthor = author ? fromNullable(author) : undefined;
     const actualOwner = owner ? fromNullable(owner) : undefined;
 
     if (!intPropId || !intProp || !actualAuthor || !actualOwner) {
       return;
-    };
+    }
 
     // Fetch or generate the PDF
     generatePdf(intPropId, intProp, actualAuthor as User, actualOwner)
@@ -178,11 +194,15 @@ const CertificatePage = () => {
       });
   }, [intPropId, intProp, author, owner]);
 
-  return <div className="flex flex-col w-full h-full items-center justify-center">
-    {  
-      !pdfUrl ? <img src={SpinnerSvg} alt="Loading certificate..." /> : <iframe src={pdfUrl} width="100%" height="100%" />
-    }
-  </div>
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center">
+      {!pdfUrl ? (
+        <img src={SpinnerSvg} alt="Loading certificate..." />
+      ) : (
+        <iframe src={pdfUrl} width="100%" height="100%" />
+      )}
+    </div>
+  );
 };
 
 export default CertificatePage;
