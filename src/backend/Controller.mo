@@ -36,6 +36,10 @@ module {
   type AccessControl       = Types.AccessControl;
   type QueryDirection      = Types.QueryDirection;
   type CreateUserArgs      = Types.CreateUserArgs;
+  type Notification        = Types.Notification;
+  type NotificationType    = Types.NotificationType;
+  type NotificationState   = Types.NotificationState;
+  type Notifications       = Types.Notifications;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -48,6 +52,7 @@ module {
     tradeManager: TradeManager.TradeManager;
     airdrop: Airdrop;
     chatBot: ChatBot.ChatBot;
+    notifications: Notifications;
   }) {
 
     public func setUser(
@@ -300,6 +305,31 @@ module {
         case(#ok){
           // Remove the IP from the list of listed IPs
           Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+          
+          // Create notification for seller about IP purchase
+          createNotification(seller, #IP_PURCHASED({
+            ipId = id;
+            buyer = buyer;
+            price = e8s_price;
+          }));
+
+          // Create notification for original creator about royalty if applicable
+          switch (royalties) {
+            case (?{receiver; percentage}) {
+              if (receiver != seller) { // Only notify if creator is different from seller
+                let royaltyAmount = (e8s_price * percentage) / 100;
+                if (royaltyAmount > 0) {
+                  createNotification(receiver, #ROYALTY_RECEIVED({
+                    ipId = id;
+                    amount = royaltyAmount;
+                    fromSale = buyer;
+                  }));
+                };
+              };
+            };
+            case null { };
+          };
+          
           #ok;
         };
       };
@@ -566,6 +596,52 @@ module {
 
     public func chatbot_completion({body: Blob}) : async* ChatBot.HttpResponse {
       await* chatBot.get_completion(body);
+    };
+
+    // ================================ NOTIFICATIONS ================================
+
+    public func createNotification(recipient: Principal, notificationType: NotificationType) {
+      let notification: Notification = {
+        id = notifications.nextId;
+        notificationType = notificationType;
+        state = #UNREAD;
+        timestamp = Time.now();
+        recipient = recipient;
+      };
+
+      let existingNotifications = Map.get(notifications.byPrincipal, Map.phash, recipient) |> Option.get(_, []);
+      let updatedNotifications = Array.append(existingNotifications, [notification]);
+      
+      ignore Map.put(notifications.byPrincipal, Map.phash, recipient, updatedNotifications);
+      notifications.nextId += 1;
+    };
+
+    public func getUserNotifications(user: Principal) : [Notification] {
+      Map.get(notifications.byPrincipal, Map.phash, user) |> Option.get(_, []);
+    };
+
+    public func markNotificationAsRead(user: Principal, notificationId: Nat) : Bool {
+      switch (Map.get(notifications.byPrincipal, Map.phash, user)) {
+        case (?userNotifications) {
+          let updatedNotifications = Array.map<Notification, Notification>(userNotifications, func(notification) {
+            if (notification.id == notificationId) {
+              {
+                id = notification.id;
+                notificationType = notification.notificationType;
+                state = #READ;
+                timestamp = notification.timestamp;
+                recipient = notification.recipient;
+              }
+            } else {
+              notification
+            }
+          });
+          
+          ignore Map.put(notifications.byPrincipal, Map.phash, user, updatedNotifications);
+          true
+        };
+        case null { false };
+      };
     };
 
   };
