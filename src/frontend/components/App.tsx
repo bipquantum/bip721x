@@ -17,6 +17,7 @@ import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
 import TopBar from "./layout/TopBar";
 import ChatHistory from "./layout/ChatHistory";
 import { SearchProvider } from "./common/SearchContext";
+import { NotificationProvider } from "./common/NotificationContext";
 
 interface ThemeContextProps {
   theme: string;
@@ -86,7 +87,9 @@ function App() {
                     <BalanceProvider>
                       <AirdropBannerProvider>
                         <SearchProvider>
-                          <AppContent />
+                          <NotificationProvider>
+                            <AppContent />
+                          </NotificationProvider>
                         </SearchProvider>
                       </AirdropBannerProvider>
                     </BalanceProvider>

@@ -620,28 +620,28 @@ module {
       Map.get(notifications.byPrincipal, Map.phash, user) |> Option.get(_, []);
     };
 
-    public func markNotificationAsRead(user: Principal, notificationId: Nat) : Bool {
-      switch (Map.get(notifications.byPrincipal, Map.phash, user)) {
-        case (?userNotifications) {
-          let updatedNotifications = Array.map<Notification, Notification>(userNotifications, func(notification) {
-            if (notification.id == notificationId) {
-              {
-                id = notification.id;
-                notificationType = notification.notificationType;
-                state = #READ;
-                timestamp = notification.timestamp;
-                recipient = notification.recipient;
-              }
-            } else {
-              notification
-            }
-          });
-          
-          ignore Map.put(notifications.byPrincipal, Map.phash, user, updatedNotifications);
-          true
-        };
-        case null { false };
+    public func markNotificationAsRead(user: Principal, notificationId: Nat) {
+      
+      let userNotifications = switch(Map.get(notifications.byPrincipal, Map.phash, user)) {
+        case (null) { return; };
+        case (?notifications) { notifications };
       };
+      
+      let updatedNotifications = Array.map<Notification, Notification>(userNotifications, func(notification) {
+        if (notification.id == notificationId) {
+          {
+            id = notification.id;
+            notificationType = notification.notificationType;
+            state = #READ;
+            timestamp = notification.timestamp;
+            recipient = notification.recipient;
+          }
+        } else {
+          notification
+        }
+      });
+          
+      Map.set(notifications.byPrincipal, Map.phash, user, updatedNotifications);
     };
 
   };

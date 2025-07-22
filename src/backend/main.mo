@@ -254,13 +254,11 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().removeModerator({ caller; moderator; });
   };
 
-  // ================================ NOTIFICATIONS ================================
-
   public query({caller}) func get_user_notifications() : async [Notification] {
     getController().getUserNotifications(caller);
   };
 
-  public shared({caller}) func mark_notification_as_read({ notificationId: Nat; }) : async Bool {
+  public shared({caller}) func mark_notification_as_read({ notificationId: Nat; }) : async() {
     getController().markNotificationAsRead(caller, notificationId);
   };
 

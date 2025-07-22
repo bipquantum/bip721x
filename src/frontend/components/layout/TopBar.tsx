@@ -14,6 +14,7 @@ import LogoLight from "../../assets/logoLight.png";
 import UserImage from "../common/UserImage";
 import ChatHistoryBar from "./ChatHistoryBar";
 import Modal from "../common/Modal";
+import NotificationBell from "../common/NotificationBell";
 
 const TopBar = () => {
   const { theme, setTheme } = useContext(ThemeContext);
@@ -43,7 +44,7 @@ const TopBar = () => {
   }, [queriedUser]);
 
   return (
-    <main className="fixed left-0 right-0 top-0 z-40 flex min-h-16 w-full items-center justify-between overflow-hidden bg-background px-3 text-white dark:bg-background-dark sm:relative sm:z-auto sm:min-h-20 sm:px-4">
+    <main className="fixed left-0 right-0 top-0 z-40 flex min-h-16 w-full items-center justify-between overflow-visible bg-background px-3 text-white dark:bg-background-dark sm:relative sm:z-auto sm:min-h-20 sm:px-4">
       <div className="flex min-w-0 flex-shrink flex-row space-x-3 text-black dark:text-white">
         <Link to={"/"} className="size-[48px] shrink-0">
           <img
@@ -89,6 +90,8 @@ const TopBar = () => {
             <MdOutlineLightMode size={22} />
           )}
         </button>
+        {/* Notification Bell */}
+        <NotificationBell />
         <button
           className="h-10 w-10 rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white sm:hidden"
           onClick={() => {
