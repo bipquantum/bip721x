@@ -84,6 +84,9 @@ npm run tw:generate  # Generate Tailwind CSS with watch mode
 - Multiple context providers for authentication, balance, chat history
 - Stable storage with migration system in backend
 
+### React Hook Guidelines
+- **NEVER use actor calls (`useQueryCall`, `useUpdateCall`) as dependencies in `useEffect`** - This causes infinite re-render loops and makes the application unusable
+
 ### Styling
 - Tailwind CSS for styling
 - Dark/light theme support with localStorage persistence

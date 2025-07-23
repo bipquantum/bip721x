@@ -20,6 +20,10 @@ module {
   public type ChatHistories   = Types.Current.ChatHistories;
   public type Airdrop         = Types.Current.Airdrop;
   public type AccessControl   = Types.Current.AccessControl;
+  public type Notification    = Types.Current.Notification;
+  public type NotificationType = Types.Current.NotificationType;
+  public type NotificationState = Types.Current.NotificationState;
+  public type Notifications   = Types.Current.Notifications;
 
   public type CreateUserArgs = {
     firstName: Text;

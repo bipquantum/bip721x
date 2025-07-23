@@ -27,6 +27,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   type VersionnedIntProp     = Types.VersionnedIntProp;
   type CreateIntPropResult   = Types.CreateIntPropResult;
   type QueryDirection        = Types.QueryDirection;
+  type Notification          = Types.Notification;
+  type NotificationType      = Types.NotificationType;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
 
   // STABLE MEMBER
@@ -50,7 +52,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_4_0(stableData)){
+      case(#v0_5_0(stableData)){
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
@@ -65,7 +67,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
           });
         });
       };
-      case(_) { Debug.trap("Unexpected state version: v0_4_0 expected"); };
+      case(_) { Debug.trap("Unexpected state version: v0_5_0 expected"); };
     };
     
     #ok;
@@ -250,6 +252,14 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public shared({caller}) func remove_moderator({ moderator: Principal; }) : async Result<(), Text> {
     getController().removeModerator({ caller; moderator; });
+  };
+
+  public query({caller}) func get_user_notifications() : async [Notification] {
+    getController().getUserNotifications(caller);
+  };
+
+  public shared({caller}) func mark_notification_as_read({ notificationId: Nat; }) : async() {
+    getController().markNotificationAsRead(caller, notificationId);
   };
 
   func getController() : Controller.Controller {
