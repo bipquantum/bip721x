@@ -11,6 +11,7 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
+        data-notification-bell
         className="relative h-10 w-10 rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white"
       >
         {unreadCount > 0 ? (

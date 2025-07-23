@@ -97,7 +97,7 @@ module {
   };
 
   public type InitArgs = { e8sTransferFee: Nat; airdrop_per_user: Nat; admin: Principal; chatbot_api_key: Text; };
-  public type UpgradeArgs = { chatbot_api_key: Text; };
+  public type UpgradeArgs = {};
   public type DowngradeArgs = {};
 
 };
