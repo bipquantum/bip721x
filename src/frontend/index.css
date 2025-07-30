@@ -20,7 +20,7 @@
 
 /* Required for IOS mobile browsers*/
 :root {
-  --vh: 100vh;
+  height: 100dvh;
 }
 @media (max-width: 640px) {
   html,
@@ -29,6 +29,7 @@
     min-height: 100%;
     overscroll-behavior: none;
     overflow-x: hidden;
+    -webkit-fill-available: touch;
   }
 }
 

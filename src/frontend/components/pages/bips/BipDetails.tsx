@@ -70,7 +70,6 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
 
   return (
     <div className="flex w-full flex-grow flex-col overflow-y-auto font-semibold text-black dark:text-white">
-      {/* <BipsHeader/> */}
       <div className="w-full flex-grow sm:p-8 md:p-4">
         <div className="flex w-full flex-1 flex-grow flex-col items-center justify-center overflow-auto sm:rounded-xl">
           {intProp === undefined ? (

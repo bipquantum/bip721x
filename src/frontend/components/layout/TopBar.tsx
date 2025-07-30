@@ -44,7 +44,7 @@ const TopBar = () => {
   }, [queriedUser]);
 
   return (
-    <main className="fixed left-0 right-0 top-0 z-40 flex min-h-16 w-full items-center justify-between overflow-visible bg-background px-3 text-white dark:bg-background-dark sm:relative sm:z-auto sm:min-h-20 sm:px-4">
+    <header className="fixed left-0 right-0 top-0 z-40 flex min-h-16 w-full items-center justify-between overflow-visible bg-background px-3 text-white dark:bg-background-dark sm:relative sm:z-auto sm:min-h-20 sm:px-4">
       <div className="flex min-w-0 flex-shrink flex-row space-x-3 text-black dark:text-white">
         <Link to={"/"} className="size-[48px] shrink-0">
           <img
@@ -116,7 +116,7 @@ const TopBar = () => {
           className="flex w-full flex-col justify-between text-black dark:text-white"
         />
       </Modal>
-    </main>
+    </header>
   );
 };
 
