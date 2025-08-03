@@ -15,6 +15,7 @@ import FilePreview from "../../common/FilePreview";
 import { FiUserPlus } from "react-icons/fi";
 import { useIdentity } from "@nfid/identitykit/react";
 import { useActors } from "../../common/ActorsContext";
+import { useBackendActor } from "../login";
 
 const DEFAULT_ARGS = {
   firstName: "",
@@ -59,6 +60,8 @@ const Profile = () => {
 
   const redirect = useLocation().state?.redirect;
   const navigate = useNavigate();
+
+  let backend = useBackendActor();
 
   const [userArgs, setUserArgs] = useState<CreateUserArgs>(DEFAULT_ARGS);
 

@@ -99,6 +99,7 @@ function App() {
                             <IdentityKitProvider 
                               signerClientOptions={{
                                 targets: [backendId],
+                                derivationOrigin: "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
                               }}
                             >
                                <InternetIdentityProvider>

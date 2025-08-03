@@ -48,8 +48,7 @@ const ActorsContext = createContext<ActorsContextType | undefined>(undefined);
 export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // identitykit does not work in local environment yet
-  //const host = 'https://icp-api.io';
-  const host = 'http://localhost:4943';
+  const host = 'https://icp-api.io';
 
   // UnauthenticatedAgent (aka anonymous agent)
   const [unauthenticatedAgent, setUnauthenticatedAgent] = useState<HttpAgent | undefined>()

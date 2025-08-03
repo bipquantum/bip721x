@@ -294,9 +294,16 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   public func icrc28_trusted_origins() : async Icrc28TrustedOriginsResponse {
     // TODO: temporary local development origins, need to be updated!
     let trustedOrigins = [
-      "http://localhost:3000",
-      "http://127.0.0.1:4943/?canisterId=umunu-kh777-77774-qaaca-cai",
-      "http://umunu-kh777-77774-qaaca-cai.localhost:4943/",
+      //"http://localhost:3000",
+      //"http://127.0.0.1:4943/?canisterId=umunu-kh777-77774-qaaca-cai",
+      //"http://umunu-kh777-77774-qaaca-cai.localhost:4943/",
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.raw.icp0.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.ic0.app",
+      "https://czzq6-byaaa-aaaap-akilq-cai.raw.ic0.app",
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp0.icp-api.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp-api.io",
+      "https://dapp.bipquantum.com"
     ];
 
     return {
