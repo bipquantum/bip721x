@@ -1,14 +1,11 @@
-import { useAuth } from "@ic-reactor/react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useChatHistory } from "../../layout/ChatHistoryContext";
+import { useIdentity } from "@nfid/identitykit/react";
 
 const Main = () => {
-  const { authenticated, identity } = useAuth({});
 
-  if (!authenticated || !identity) {
-    return <></>;
-  }
+  const identity = useIdentity();
 
   const { addChat } = useChatHistory();
 
@@ -18,6 +15,10 @@ const Main = () => {
     const newChatId = addChat(name);
     navigate(`/chat/${newChatId}`);
   };
+
+  if (!identity || identity.getPrincipal().isAnonymous()) {
+    return <div>Not Authenticated</div>;
+  }
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center self-center overflow-auto bg-background text-lg text-black dark:bg-background-dark dark:text-white">

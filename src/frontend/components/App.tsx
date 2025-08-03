@@ -19,6 +19,14 @@ import ChatHistory from "./layout/ChatHistory";
 import { SearchProvider } from "./common/SearchContext";
 import { NotificationProvider } from "./common/NotificationContext";
 
+import "@nfid/identitykit/react/styles.css"
+import { IdentityKitProvider } from "@nfid/identitykit/react"
+import { IdentityKitAuthType, IdentityKitSignerConfig, InternetIdentity, MockedSigner, NFIDW, OISY, Stoic } from "@nfid/identitykit";
+import { ActorsProvider } from "./common/ActorsContext";
+import { canisterId as backendId } from "../../declarations/backend/index";
+
+import { InternetIdentityProvider } from "ic-use-internet-identity";
+
 interface ThemeContextProps {
   theme: string;
   setTheme: (theme: string) => void;
@@ -88,7 +96,17 @@ function App() {
                       <AirdropBannerProvider>
                         <SearchProvider>
                           <NotificationProvider>
-                            <AppContent />
+                            <IdentityKitProvider 
+                              signerClientOptions={{
+                                targets: [backendId],
+                              }}
+                            >
+                               <InternetIdentityProvider>
+                                <ActorsProvider>
+                                  <AppContent />  
+                                </ActorsProvider>
+                              </InternetIdentityProvider>
+                            </IdentityKitProvider>
                           </NotificationProvider>
                         </SearchProvider>
                       </AirdropBannerProvider>

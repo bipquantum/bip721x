@@ -1,13 +1,17 @@
-import { useAuth } from "@ic-reactor/react";
 import { Navigate } from "react-router-dom";
-import React from "react";
+import React, { useMemo } from "react";
+import { useIdentity } from "@nfid/identitykit/react";
 
 type PrivateRouteProps = {
   element: React.ReactNode;
 };
 
 function PrivateRoute({ element }: PrivateRouteProps) {
-  const { authenticated } = useAuth({});
+  const identity = useIdentity();
+  const authenticated = useMemo(
+    () => identity !== undefined && !identity.getPrincipal().isAnonymous(),
+    [identity],
+  );
 
   if (!authenticated) {
     return <Navigate to="/login" />;

@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@ic-reactor/react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { fromNullable } from "@dfinity/utils";
 
 import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
-import { backendActor } from "../../actors/BackendActor";
 import CopyToClipboard from "../../common/CopyToClipboard";
 
 import SpinnerSvg from "../../../assets/spinner.svg";
@@ -15,6 +13,8 @@ import FileUploader from "../../common/FileUploader";
 import FilePreview from "../../common/FilePreview";
 
 import { FiUserPlus } from "react-icons/fi";
+import { useIdentity } from "@nfid/identitykit/react";
+import { useActors } from "../../common/ActorsContext";
 
 const DEFAULT_ARGS = {
   firstName: "",
@@ -38,7 +38,9 @@ const ProfileFields: {
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { authenticated, identity } = useAuth({});
+  const identity = useIdentity();
+  const { authenticated } = useActors();
+  
   const [focusedFields, setFocusedFields] = useState<{
     [key: string]: boolean;
   }>({});
@@ -60,45 +62,68 @@ const Profile = () => {
 
   const [userArgs, setUserArgs] = useState<CreateUserArgs>(DEFAULT_ARGS);
 
-  const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: [identity?.getPrincipal()],
-  });
-
-  const { call: updateUser } = backendActor.useUpdateCall({
-    functionName: "set_user",
-    args: [userArgs],
-  });
-
   useEffect(() => {
-    queryUser();
-  }, [identity]);
+    authenticated.backend.get_user(identity?.getPrincipal()).then((user) => {
+      var args: CreateUserArgs = DEFAULT_ARGS;
+      const usr = fromNullable(user);
 
-  useEffect(() => {
-    var args: CreateUserArgs = DEFAULT_ARGS;
-    const user = fromNullable(queriedUser || []);
+      if (usr) {
+        args.firstName = usr.firstName;
+        args.lastName = usr.lastName;
+        args.nickName = usr.nickName;
+        args.specialty = usr.specialty;
+        args.countryCode = usr.countryCode;
+        args.imageUri = usr.imageUri;
+      }
 
-    if (user) {
-      args.firstName = user.firstName;
-      args.lastName = user.lastName;
-      args.nickName = user.nickName;
-      args.specialty = user.specialty;
-      args.countryCode = user.countryCode;
-      args.imageUri = user.imageUri;
-    }
+      setUserArgs(args);
+    });
+  }, [authenticated]);
 
-    setUserArgs(args);
-  }, [queriedUser]);
+//  const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
+//    functionName: "get_user",
+//    args: [identity?.getPrincipal()],
+//  });
+//
+//  const { call: updateUser } = backendActor.useUpdateCall({
+//    functionName: "set_user",
+//    args: [userArgs],
+//  });
+//
+//  useEffect(() => {
+//    queryUser();
+//  }, [identity]);
+//
+//  useEffect(() => {
+//    var args: CreateUserArgs = DEFAULT_ARGS;
+//    const user = fromNullable(queriedUser || []);
+//
+//    if (user) {
+//      args.firstName = user.firstName;
+//      args.lastName = user.lastName;
+//      args.nickName = user.nickName;
+//      args.specialty = user.specialty;
+//      args.countryCode = user.countryCode;
+//      args.imageUri = user.imageUri;
+//    }
+//
+//    setUserArgs(args);
+//  }, [queriedUser]);
 
   const onUpdateBtnClicked = async () => {
     setIsLoading(true);
-    await updateUser();
-    await queryUser();
-    toast.success("User information added/updated!");
+    authenticated.backend.set_user(
+      userArgs
+    ).then(() => {
+      toast.success("User information added/updated!");
+    }).catch((err) => {
+      console.error("Error updating user:", err);
+      toast.error("Failed to update user information.");
+    });
     setIsLoading(false);
-    if (redirect) {
-      navigate(redirect);
-    }
+    //if (redirect) {
+      //navigate(redirect);
+    //}
   };
 
   return (

@@ -269,4 +269,39 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
   };
   
+  public type SupportedStandard = {
+    url: Text;
+    name: Text;
+  };
+
+  public query func icrc10_supported_standards() : async [SupportedStandard] {
+    return [
+      {
+        url = "https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-10/ICRC-10.md";
+        name = "ICRC-10";
+      },
+      {
+        url = "https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_28_trusted_origins.md";
+        name = "ICRC-28";
+      }
+    ];
+  };
+
+  public type Icrc28TrustedOriginsResponse = {
+    trusted_origins: [Text];
+  };
+
+  public func icrc28_trusted_origins() : async Icrc28TrustedOriginsResponse {
+    // TODO: temporary local development origins, need to be updated!
+    let trustedOrigins = [
+      "http://localhost:3000",
+      "http://127.0.0.1:4943/?canisterId=umunu-kh777-77774-qaaca-cai",
+      "http://umunu-kh777-77774-qaaca-cai.localhost:4943/",
+    ];
+
+    return {
+        trusted_origins = trustedOrigins
+    };
+  };
+  
 };

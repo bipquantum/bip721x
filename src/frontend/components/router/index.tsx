@@ -15,13 +15,14 @@ import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import DetailsView from "../pages/profile/DetailsView";
+import { useIdentity } from "@nfid/identitykit/react";
 
 const Router = () => {
-  const { identity } = useAuth({});
+  const identity = useIdentity();
 
   return (
     <Routes>
-      <Route path={"/"} element={<PrivateRoute element={<Main />} />} />
+      <Route path={"/"} element={<Main />} />
       <Route
         path={"/poll"}
         element={<PrivateRoute element={<WhoAreYou />} />}
