@@ -5,11 +5,6 @@ import DfinitySvg from "../assets/dfinity.svg";
 
 import Router from "./router";
 import NavBar from "./layout/NavBar";
-import { AgentProvider } from "@ic-reactor/react";
-import { BackendActorProvider } from "./actors/BackendActor";
-import { BqcLedgerActorProvider } from "./actors/BqcLedgerActor";
-import { Bip721LedgerActorProvider } from "./actors/Bip721LedgerActor";
-
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
@@ -93,39 +88,31 @@ function App() {
       style={{ minHeight: "calc(var(--vh, 1vh) * 100)" }}
     >
       <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-        <AgentProvider withProcessEnv>
-          <BrowserRouter
-            future={{
-              v7_startTransition: true,
-              v7_relativeSplatPath: true,
-            }}
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <IdentityKitProvider
+            signerClientOptions={signerClientOptions}
+            signers={signers}
           >
-            <IdentityKitProvider
-              signerClientOptions={signerClientOptions}
-              signers={signers}
-            >
-              <ActorsProvider>
-                <BackendActorProvider>
-                  <BqcLedgerActorProvider>
-                    <Bip721LedgerActorProvider>
-                      <ChatHistoryProvider>
-                        <BalanceProvider>
-                          <AirdropBannerProvider>
-                            <SearchProvider>
-                              <NotificationProvider>
-                                <AppContent />  
-                              </NotificationProvider>
-                            </SearchProvider>
-                          </AirdropBannerProvider>
-                        </BalanceProvider>
-                      </ChatHistoryProvider>
-                    </Bip721LedgerActorProvider>
-                  </BqcLedgerActorProvider>
-                </BackendActorProvider>
-              </ActorsProvider>
-            </IdentityKitProvider>
-          </BrowserRouter>
-        </AgentProvider>
+            <ActorsProvider>
+              <ChatHistoryProvider>
+                <BalanceProvider>
+                  <AirdropBannerProvider>
+                    <SearchProvider>
+                      <NotificationProvider>
+                        <AppContent />  
+                      </NotificationProvider>
+                    </SearchProvider>
+                  </AirdropBannerProvider>
+                </BalanceProvider>
+              </ChatHistoryProvider>
+            </ActorsProvider>
+          </IdentityKitProvider>
+        </BrowserRouter>
       </ThemeContext.Provider>
     </div>
   );

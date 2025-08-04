@@ -3,10 +3,11 @@ import {
   useContext,
   useEffect,
   ReactNode,
+  useMemo,
 } from "react";
-import { useAuth } from "@ic-reactor/react";
 import { useNotifications } from "../hooks/useNotifications";
 import { ProcessedNotification } from "../../types/notifications";
+import { useIdentity } from "@nfid/identitykit/react";
 
 interface NotificationContextType {
   notifications: ProcessedNotification[];
@@ -26,7 +27,11 @@ interface NotificationProviderProps {
 export const NotificationProvider = ({
   children,
 }: NotificationProviderProps) => {
-  const { authenticated } = useAuth();
+  const identity = useIdentity();
+  const authenticated = useMemo(
+    () => identity !== undefined && !identity.getPrincipal().isAnonymous(),
+    [identity],
+  );
   const {
     notifications,
     unreadCount,

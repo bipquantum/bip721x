@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import LoginSvg from "../../../assets/login.svg";
 
 import "@nfid/identitykit/react/styles.css"
-import { ConnectWallet, useAgent } from "@nfid/identitykit/react"
+import { ConnectWallet, useAgent, useIdentity } from "@nfid/identitykit/react"
 import { useEffect } from "react";
 import { _SERVICE } from "../../../../declarations/backend/backend.did";
 

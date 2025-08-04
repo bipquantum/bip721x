@@ -80,7 +80,6 @@ npm run tw:generate  # Generate Tailwind CSS with watch mode
 ## Development Notes
 
 ### State Management
-- Uses `@ic-reactor/react` for IC integration
 - Multiple context providers for authentication, balance, chat history
 - Stable storage with migration system in backend
 

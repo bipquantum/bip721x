@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import { useAuth } from "@ic-reactor/react";
 
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/dashboard";

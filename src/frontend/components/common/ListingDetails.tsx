@@ -8,7 +8,6 @@ import { fromE8s, toE8s } from "../../utils/conversions";
 import { TOKEN_DECIMALS_ALLOWED } from "../constants";
 import { useBalance } from "./BalanceContext";
 import VioletButton from "./VioletButton";
-import { useAuth } from "@ic-reactor/react";
 import { TbCheck, TbX } from "react-icons/tb";
 import { IoIosPricetags } from "react-icons/io";
 import { ModalPopup } from "./ModalPopup";
@@ -33,7 +32,6 @@ const BuyButton: React.FC<BuyButtonProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { login } = useAuth();
   const { refreshBalance } = useBalance();
 
   const { loading, call: buyIntProp } = useBuyIntProp({
@@ -52,7 +50,7 @@ const BuyButton: React.FC<BuyButtonProps> = ({
       isLoading={loading}
       onClick={() => {
         principal === undefined || principal.isAnonymous()
-          ? login()
+          ? console.log("TODO: login")
           : setIsModalOpen(true);
       }}
     >

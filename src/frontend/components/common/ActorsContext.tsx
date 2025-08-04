@@ -33,12 +33,12 @@ const createBip721LedgerActor = (agent: Agent) => {
 interface ActorsContextType {
   unauthenticated?: {
     backend: ActorSubclass<BackendService>;
-    bcqLedger: ActorSubclass<BqcLedgerService>;
+    bqcLedger: ActorSubclass<BqcLedgerService>;
     bip721Ledger: ActorSubclass<Bip721LedgerService>;
   };
   authenticated?: {
     backend: ActorSubclass<BackendService>;
-    bcqLedger: ActorSubclass<BqcLedgerService>;
+    bqcLedger: ActorSubclass<BqcLedgerService>;
     bip721Ledger: ActorSubclass<Bip721LedgerService>;
   };
 }
@@ -92,7 +92,7 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const unauthenticatedActors = unauthenticatedAgent
       ? {
           backend: createBackendActor(unauthenticatedAgent),
-          bcqLedger: createBqcLedgerActor(unauthenticatedAgent),
+          bqcLedger: createBqcLedgerActor(unauthenticatedAgent),
           bip721Ledger: createBip721LedgerActor(unauthenticatedAgent),
         }
       : undefined;
@@ -100,7 +100,7 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const authenticatedActors = authenticatedAgent
       ? {
           backend: createBackendActor(authenticatedAgent),
-          bcqLedger: createBqcLedgerActor(authenticatedAgent),
+          bqcLedger: createBqcLedgerActor(authenticatedAgent),
           bip721Ledger: createBip721LedgerActor(authenticatedAgent),
         }
       : undefined;

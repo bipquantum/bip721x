@@ -2,18 +2,22 @@ import { Link, useLocation } from "react-router-dom";
 import LogoutSvg from "../../assets/logout.svg";
 import LoginSvg from "../../assets/login.svg";
 
-import { useAuth } from "@ic-reactor/react";
-
 import BipsIcon from "../icons/BipsIcon";
 import DashIcon from "../icons/DashIcon";
 import MarketIcon from "../icons/MarketIcon";
 import NewIPIcon from "../icons/NewIPIcon";
 import SupportIcon from "../icons/SupportIcon";
+import { useIdentity } from "@nfid/identitykit/react";
+import { useMemo } from "react";
 
 const MobileNavBar = () => {
   const { pathname } = useLocation();
 
-  const { authenticated, logout, login } = useAuth({});
+  const identity = useIdentity();
+  const authenticated = useMemo(
+    () => identity !== undefined && !identity.getPrincipal().isAnonymous(),
+    [identity],
+  );
 
   const NavBarItems = [
     {
@@ -75,9 +79,9 @@ const MobileNavBar = () => {
               className="flex h-7 w-7 grow cursor-pointer dark:invert"
               onClick={() => {
                 if (authenticated) {
-                  logout();
+                  console.log("TODO: Logging out");
                 } else {
-                  login();
+                  console.log("TODO: Logging in");
                 }
               }}
             />
