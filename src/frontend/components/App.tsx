@@ -94,37 +94,37 @@ function App() {
     >
       <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
         <AgentProvider withProcessEnv>
-          <BackendActorProvider>
-            <BqcLedgerActorProvider>
-              <Bip721LedgerActorProvider>
-                <BrowserRouter
-                  future={{
-                    v7_startTransition: true,
-                    v7_relativeSplatPath: true,
-                  }}
-                >
-                  <ChatHistoryProvider>
-                    <BalanceProvider>
-                      <AirdropBannerProvider>
-                        <SearchProvider>
-                          <NotificationProvider>
-                            <IdentityKitProvider
-                              signerClientOptions={signerClientOptions}
-                              signers={signers}
-                            >
-                              <ActorsProvider>
+          <BrowserRouter
+            future={{
+              v7_startTransition: true,
+              v7_relativeSplatPath: true,
+            }}
+          >
+            <IdentityKitProvider
+              signerClientOptions={signerClientOptions}
+              signers={signers}
+            >
+              <ActorsProvider>
+                <BackendActorProvider>
+                  <BqcLedgerActorProvider>
+                    <Bip721LedgerActorProvider>
+                      <ChatHistoryProvider>
+                        <BalanceProvider>
+                          <AirdropBannerProvider>
+                            <SearchProvider>
+                              <NotificationProvider>
                                 <AppContent />  
-                              </ActorsProvider>
-                            </IdentityKitProvider>
-                          </NotificationProvider>
-                        </SearchProvider>
-                      </AirdropBannerProvider>
-                    </BalanceProvider>
-                  </ChatHistoryProvider>
-                </BrowserRouter>
-              </Bip721LedgerActorProvider>
-            </BqcLedgerActorProvider>
-          </BackendActorProvider>
+                              </NotificationProvider>
+                            </SearchProvider>
+                          </AirdropBannerProvider>
+                        </BalanceProvider>
+                      </ChatHistoryProvider>
+                    </Bip721LedgerActorProvider>
+                  </BqcLedgerActorProvider>
+                </BackendActorProvider>
+              </ActorsProvider>
+            </IdentityKitProvider>
+          </BrowserRouter>
         </AgentProvider>
       </ThemeContext.Provider>
     </div>

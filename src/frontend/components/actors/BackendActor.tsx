@@ -1,10 +1,16 @@
-import { createActorContext } from "@ic-reactor/react";
-import { backend, canisterId, idlFactory } from "../../../declarations/backend";
+import { useQueryCall } from '../hooks/useQueryCall';
+import { useUpdateCall } from '../hooks/useUpdateCall';
+import { Backend } from "../../../declarations/backend/backend.did";
 
-export type Backend = typeof backend;
+export type { Backend };
 
-export const { ActorProvider: BackendActorProvider, ...backendActor } =
-  createActorContext<Backend>({
-    canisterId,
-    idlFactory,
-  });
+// Compatibility layer that mimics the ic-reactor backendActor API with full type safety
+export const backendActor = {
+  useQueryCall: useQueryCall,
+  useUpdateCall: useUpdateCall
+};
+
+// Legacy export for backwards compatibility
+export const BackendActorProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};

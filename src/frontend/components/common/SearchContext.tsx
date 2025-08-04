@@ -7,7 +7,7 @@ import React, {
   useMemo,
 } from "react";
 import MiniSearch, { Options } from "minisearch";
-import { backendActor } from "../actors/BackendActor";
+import { useActors } from "./ActorsContext";
 import { EQueryDirection, toQueryDirection } from "../../utils/conversions";
 
 interface SearchContextType {
@@ -30,6 +30,8 @@ const REFRESH_INTERVAL = 10000; // 10 seconds
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { unauthenticated } = useActors();
+  
   const [documents, setDocuments] = useState<Document[]>(() => {
     try {
       const raw = localStorage.getItem("miniSearchDocuments");
@@ -42,28 +44,15 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-
-  const { data: intPropIds, call: refreshIntPropIds } =
-    backendActor.useQueryCall({
-      functionName: "get_listed_int_props",
-      args: [
-        {
-          prev: [],
-          take: [100_000n],
-          direction: toQueryDirection(EQueryDirection.Forward),
-        },
-      ],
-    });
-
-  const { call: getIntProp } = backendActor.useQueryCall({
-    functionName: "get_int_prop",
-  });
+  const [intPropIds, setIntPropIds] = useState<bigint[]>([]);
 
   const fetchIntProps = async (ids: number[]): Promise<Document[]> => {
+    if (!unauthenticated) return [];
+    
     const results = await Promise.all(
       ids.map(async (id) => {
         try {
-          const result = await getIntProp([{ token_id: BigInt(id) }]);
+          const result = await unauthenticated.backend.get_int_prop({ token_id: BigInt(id) });
           if (result && "ok" in result) {
             return {
               id,
@@ -81,14 +70,23 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const refreshDocuments = useCallback(async () => {
+    if (!unauthenticated) return;
+    
     setIsRefreshing(true);
     try {
-      await refreshIntPropIds();
+      const result = await unauthenticated.backend.get_listed_int_props({
+        prev: [],
+        take: [100_000n],
+        direction: toQueryDirection(EQueryDirection.Forward),
+      });
+      setIntPropIds(result);
       setLastRefreshTime(Date.now());
+    } catch (err) {
+      console.error("Failed to refresh int prop ids:", err);
     } finally {
       setIsRefreshing(false);
     }
-  }, [refreshIntPropIds]);
+  }, [unauthenticated]);
 
   useEffect(() => {
     const interval = setInterval(() => {

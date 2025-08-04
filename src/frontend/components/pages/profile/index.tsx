@@ -121,9 +121,9 @@ const Profile = () => {
       toast.error("Failed to update user information.");
     });
     setIsLoading(false);
-    //if (redirect) {
-      //navigate(redirect);
-    //}
+    if (redirect) {
+      navigate(redirect);
+    }
   };
 
   return (

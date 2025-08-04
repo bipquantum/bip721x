@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@ic-reactor/react";
 import { toast } from "react-toastify";
 import { fromNullable, toNullable } from "@dfinity/utils";
 
 import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
-import { backendActor } from "../../actors/BackendActor";
 import CopyToClipboard from "../../common/CopyToClipboard";
+import { useIdentity } from "@nfid/identitykit/react";
+import { useActors } from "../../common/ActorsContext";
 
 import ProfileSvg from "../../../assets/profile.png";
 import ReactCountryDropdown from "react-country-dropdown";
@@ -35,7 +35,8 @@ const ProfileFields: {
 
 const DetailsView = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { authenticated, identity } = useAuth({});
+  const identity = useIdentity();
+  const { authenticated } = useActors();
   const [focusedFields, setFocusedFields] = useState<{
     [key: string]: boolean;
   }>({});
@@ -57,45 +58,43 @@ const DetailsView = () => {
 
   const [userArgs, setUserArgs] = useState<CreateUserArgs>(DEFAULT_ARGS);
 
-  const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
-    functionName: "get_user",
-    args: [identity?.getPrincipal()],
-  });
-
-  const { call: updateUser } = backendActor.useUpdateCall({
-    functionName: "set_user",
-    args: [userArgs],
-  });
-
   useEffect(() => {
-    queryUser();
-  }, [identity]);
+    if (authenticated && identity) {
+      authenticated.backend.get_user(identity.getPrincipal()).then((user) => {
+        var args: CreateUserArgs = DEFAULT_ARGS;
+        const usr = fromNullable(user);
 
-  useEffect(() => {
-    var args: CreateUserArgs = DEFAULT_ARGS;
+        if (usr) {
+          args.firstName = usr.firstName;
+          args.lastName = usr.lastName;
+          args.nickName = usr.nickName;
+          args.specialty = usr.specialty;
+          args.countryCode = usr.countryCode;
+          args.imageUri = usr.imageUri;
+        }
 
-    const user = fromNullable(queriedUser || []);
-
-    if (user) {
-      args.firstName = user.firstName;
-      args.lastName = user.lastName;
-      args.nickName = user.nickName;
-      args.specialty = user.specialty;
-      args.countryCode = user.countryCode;
-      args.imageUri = user.imageUri;
+        setUserArgs(args);
+      }).catch((err) => {
+        console.error("Error fetching user:", err);
+      });
     }
-
-    setUserArgs(args);
-  }, [queriedUser]);
+  }, [authenticated, identity]);
 
   const onUpdateBtnClicked = async () => {
+    if (!authenticated) return;
+    
     setIsLoading(true);
-    await updateUser();
-    queryUser();
-    toast.success("User information added/updated!");
-    setIsLoading(false);
-    if (redirect) {
-      navigate(redirect);
+    try {
+      await authenticated.backend.set_user(userArgs);
+      toast.success("User information added/updated!");
+      if (redirect) {
+        navigate(redirect);
+      }
+    } catch (err) {
+      console.error("Error updating user:", err);
+      toast.error("Failed to update user information.");
+    } finally {
+      setIsLoading(false);
     }
   };
 

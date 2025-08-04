@@ -1,5 +1,4 @@
 import { Principal } from "@dfinity/principal";
-import { backendActor } from "../../actors/BackendActor";
 import {
   EQueryDirection,
   intPropLicenseToString,
@@ -16,6 +15,7 @@ import UserNickName from "../../common/UserNickname";
 import AiBot from "../../../assets/ai-bot.png";
 import ShareButton from "../../common/ShareButton";
 import DeleteButton from "../../common/DeleteButton";
+import { useActors } from "../../common/ActorsContext";
 
 interface BIPDetailsProps {
   intPropId: bigint;
@@ -24,13 +24,25 @@ interface BIPDetailsProps {
 
 const BIPDetails: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
   const [deleted, setDeleted] = useState(false);
+  const [intProp, setIntProp] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { unauthenticated } = useActors();
 
-  const { data: intProp } = backendActor.useQueryCall({
-    functionName: "get_int_prop",
-    args: [{ token_id: intPropId }],
-  });
+  useEffect(() => {
+    if (unauthenticated) {
+      unauthenticated.backend.get_int_prop({ token_id: intPropId })
+        .then((result) => {
+          setIntProp(result);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching int prop:", err);
+          setLoading(false);
+        });
+    }
+  }, [unauthenticated, intPropId]);
 
-  if (intProp === undefined || "ok" in intProp === false) {
+  if (loading || !intProp || "ok" in intProp === false) {
     return <img src={SpinnerSvg} alt="Loading..." />;
   }
 
@@ -117,14 +129,16 @@ const Wallet = ({ principal }: WalletProps) => {
     return <img src={SpinnerSvg} alt="Loading..." />;
   }
 
-  const { call: getIntPropsOf } = backendActor.useQueryCall({
-    functionName: "get_int_props_of",
-  });
+  const { unauthenticated } = useActors();
 
   const fetchBips = async (prev: bigint | undefined) => {
-    return await getIntPropsOf([
-      { owner: principal, prev: toNullable(prev), take },
-    ]);
+    if (!unauthenticated) return [];
+    
+    return await unauthenticated.backend.get_int_props_of({
+      owner: principal,
+      prev: toNullable(prev),
+      take,
+    });
   };
 
   useEffect(() => {
