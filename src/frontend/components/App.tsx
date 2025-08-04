@@ -17,9 +17,8 @@ import { NotificationProvider } from "./common/NotificationContext";
 
 import "@nfid/identitykit/react/styles.css"
 import { IdentityKitProvider } from "@nfid/identitykit/react"
-import { IdentityKitTransportType, InternetIdentity, NFIDW, OISY, Stoic } from "@nfid/identitykit";
+import { IdentityKitAuthType, IdentityKitTransportType, InternetIdentity, NFIDW, OISY, Stoic } from "@nfid/identitykit";
 import { ActorsProvider } from "./common/ActorsContext";
-import { canisterId as backendId } from "../../declarations/backend/index";
 
 interface ThemeContextProps {
   theme: string;
@@ -77,8 +76,10 @@ function App() {
     label: "Internet Identity",
     icon: DfinitySvg,
   }] : [NFIDW, InternetIdentity, Stoic, OISY];
+  const backendId = process.env.CANISTER_ID_BACKEND;
+  console.log("TARGET: " + backendId);
   const signerClientOptions = {
-    targets: [backendId],
+    targets: backendId ? [backendId] : [],
     derivationOrigin: isLocal ? undefined: "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
   };
 
@@ -97,6 +98,7 @@ function App() {
           <IdentityKitProvider
             signerClientOptions={signerClientOptions}
             signers={signers}
+            authType={IdentityKitAuthType.DELEGATION}
           >
             <ActorsProvider>
               <ChatHistoryProvider>

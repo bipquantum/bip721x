@@ -1,5 +1,5 @@
 import { Actor, ActorSubclass, Agent, HttpAgent }                         from "@dfinity/agent";
-import { useAgent }                                                       from "@nfid/identitykit/react";
+import { useAgent, useDelegationType }                                                       from "@nfid/identitykit/react";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { idlFactory as backendIdlFactory,      canisterId as backendId      } from "../../../declarations/backend/index";
@@ -46,6 +46,11 @@ interface ActorsContextType {
 const ActorsContext = createContext<ActorsContextType | undefined>(undefined);
 
 export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+
+  const delegationType = useDelegationType();
+  useEffect(() => {
+    console.log("Delegation type:", delegationType);
+  }, [delegationType]);
 
   // identitykit does not work in local environment yet
   const isLocal = process.env.DFX_NETWORK === "local"
