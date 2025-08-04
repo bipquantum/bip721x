@@ -28,8 +28,6 @@
     "browser-image-compression": "^2.0.2",
     "country-list": "^2.3.0",
     "grapheme-splitter": "^1.0.4",
-    "ic-use-actor": "^0.1.0",
-    "ic-use-internet-identity": "^0.3.2",
     "minisearch": "^7.1.2",
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",

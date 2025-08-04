@@ -1,84 +1,27 @@
 import { useNavigate } from "react-router-dom";
 
-import DfinitySvg from "../../../assets/dfinity.svg";
 import LoginSvg from "../../../assets/login.svg";
 
 import "@nfid/identitykit/react/styles.css"
-import { ConnectWallet, useAgent, useIdentity } from "@nfid/identitykit/react"
-import { useEffect, useMemo } from "react";
-import { useInternetIdentity } from "ic-use-internet-identity";
-
-import { ReactNode } from "react";
-import {
-  ActorContextType,
-  ActorProvider,
-  createActorContext,
-  createUseActorHook,
-} from "ic-use-actor";
-import {
-  canisterId,
-  idlFactory,
-} from "../../../../declarations/backend";
+import { ConnectWallet, useAgent } from "@nfid/identitykit/react"
+import { useEffect } from "react";
 import { _SERVICE } from "../../../../declarations/backend/backend.did";
-
-const actorBackendContext = createActorContext<_SERVICE>();
-export const useBackendActor : () => ActorContextType<_SERVICE> = createUseActorHook<_SERVICE>(actorBackendContext);
-
-export function BackendActor({ children }: { children: ReactNode }) {
-
-  const isLocal = process.env.DFX_NETWORK === "local";
-  const localIdentity = useInternetIdentity().identity;
-  const mainnetIdentity = useIdentity();
-  const identity = useMemo(() => {
-    return isLocal ? localIdentity : mainnetIdentity;
-  }, [isLocal, localIdentity, mainnetIdentity]);
-
-  return (
-    <ActorProvider<_SERVICE>
-      canisterId={canisterId}
-      context={actorBackendContext}
-      identity={identity}
-      idlFactory={idlFactory}
-    >
-      {children}
-    </ActorProvider>
-  );
-}
-
-const LocalLoginButton = () => {
-  
-  const { identity, login, loginStatus, clear } = useInternetIdentity();
-
-  const disabled = loginStatus === "logging-in";
-  const authenticated = identity !== undefined && !identity.getPrincipal().isAnonymous();
-
-  // use https://www.npmjs.com/package/ic-use-internet-identity to create actors
-
-  return (
-    <button onClick={() => { authenticated ? clear() : login() }} disabled={disabled}>
-      {authenticated ? "Logout" : "Login"}
-    </button>
-  );
-}
 
 const Login = () => {
 
   const navigate = useNavigate();
 
-  const isLocal = process.env.DFX_NETWORK === "local";
-  console.log("isLocal:", isLocal);
-  const localIdentity = useInternetIdentity().identity;
-  const mainnetIdentity = useIdentity();
-  const identity = useMemo(() => {
-    return isLocal ? localIdentity : mainnetIdentity;
-  }, [isLocal, localIdentity, mainnetIdentity]);
+  const isLocal = process.env.DFX_NETWORK === "local"
+  const host = isLocal ? "http://127.0.0.1:4943" : 'https://icp-api.io';
+
+  const agent = useAgent({ host });
 
   useEffect(() => {
-    if (identity && !identity.getPrincipal().isAnonymous()) {
+    if (agent !== undefined) {
       console.log("Navigating to /");
       navigate("/");
     }
-  }, [identity]);
+  }, [agent]);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">
@@ -106,15 +49,8 @@ const Login = () => {
           Login To Your Account
         </p>
         <div className="flex w-full flex-col items-center justify-center gap-y-3">
-          <button
-            className="flex w-11/12 items-center justify-center gap-x-2 rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]"
-            onClick={() => {}}
-          >
-            Connect with
-            <img src={DfinitySvg} className="h-4" alt="Logo" />
-          </button>
           <div className="relative group flex w-full items-center justify-center rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]">
-            { isLocal ? <LocalLoginButton /> : <ConnectWallet /> }
+            <ConnectWallet/>
           </div>
         </div>
       </div>

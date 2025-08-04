@@ -48,18 +48,44 @@ const ActorsContext = createContext<ActorsContextType | undefined>(undefined);
 export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // identitykit does not work in local environment yet
-  const host = 'https://icp-api.io';
+  const isLocal = process.env.DFX_NETWORK === "local"
+  const host = isLocal ? "http://127.0.0.1:4943" : 'https://icp-api.io';
 
   // UnauthenticatedAgent (aka anonymous agent)
   const [unauthenticatedAgent, setUnauthenticatedAgent] = useState<HttpAgent | undefined>()
   useEffect(() => {
     HttpAgent.create({ host })
-      .then(setUnauthenticatedAgent)
+      .then((agent => {
+        console.log("Unauthenticated agent created successfully:", agent);
+        setUnauthenticatedAgent(agent);
+        if (isLocal) {
+          agent.fetchRootKey().then(() => {
+            console.log("Root key fetched for unauthenticated agent");
+          }).catch((err) => {
+            console.error("Failed to fetch root key for unauthenticated agent:", err);
+          });
+        }
+      }))
       .catch((err) => console.error("Failed to create unauthenticated agent:", err));
   }, [host]);
 
   // Authenticated agent
-  const authenticatedAgent = useAgent({ host });
+  const authenticatedAgent = useAgent({ 
+    host
+  });
+
+  useEffect(() => {
+    if (authenticatedAgent) {
+      console.log("Authenticated agent created successfully:", authenticatedAgent);
+      if (isLocal) {
+        authenticatedAgent.fetchRootKey().then(() => {
+          console.log("Root key fetched for authenticated agent");
+        }).catch((err) => {
+          console.error("Failed to fetch root key for authenticated agent:", err);
+        });
+      }
+    }
+  }, [authenticatedAgent, isLocal]);
 
   // Memoized actors
   const { unauthenticated, authenticated } = useMemo(() => {

@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import DfinitySvg from "../assets/dfinity.svg";
 
 import Router from "./router";
 import NavBar from "./layout/NavBar";
@@ -21,11 +22,9 @@ import { NotificationProvider } from "./common/NotificationContext";
 
 import "@nfid/identitykit/react/styles.css"
 import { IdentityKitProvider } from "@nfid/identitykit/react"
-import { IdentityKitAuthType, IdentityKitSignerConfig, InternetIdentity, MockedSigner, NFIDW, OISY, Stoic } from "@nfid/identitykit";
+import { IdentityKitTransportType, InternetIdentity, NFIDW, OISY, Stoic } from "@nfid/identitykit";
 import { ActorsProvider } from "./common/ActorsContext";
 import { canisterId as backendId } from "../../declarations/backend/index";
-
-import { InternetIdentityProvider } from "ic-use-internet-identity";
 
 interface ThemeContextProps {
   theme: string;
@@ -75,6 +74,19 @@ function App() {
     return () => window.removeEventListener("resize", setVh);
   }, []);
 
+  const isLocal = process.env.DFX_NETWORK === "local";
+  const signers = isLocal ? [{
+    id: "LocalInternetIdentity",
+    providerUrl: `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943/`,
+    transportType: IdentityKitTransportType.INTERNET_IDENTITY,
+    label: "Internet Identity",
+    icon: DfinitySvg,
+  }] : [NFIDW, InternetIdentity, Stoic, OISY];
+  const signerClientOptions = {
+    targets: [backendId],
+    derivationOrigin: isLocal ? undefined: "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
+  };
+
   return (
     <div
       className="flex w-full flex-col bg-background dark:bg-background-dark sm:flex-row"
@@ -96,17 +108,13 @@ function App() {
                       <AirdropBannerProvider>
                         <SearchProvider>
                           <NotificationProvider>
-                            <IdentityKitProvider 
-                              signerClientOptions={{
-                                targets: [backendId],
-                                derivationOrigin: "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
-                              }}
+                            <IdentityKitProvider
+                              signerClientOptions={signerClientOptions}
+                              signers={signers}
                             >
-                               <InternetIdentityProvider>
-                                <ActorsProvider>
-                                  <AppContent />  
-                                </ActorsProvider>
-                              </InternetIdentityProvider>
+                              <ActorsProvider>
+                                <AppContent />  
+                              </ActorsProvider>
                             </IdentityKitProvider>
                           </NotificationProvider>
                         </SearchProvider>
