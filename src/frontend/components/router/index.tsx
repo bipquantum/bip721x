@@ -21,7 +21,7 @@ const Router = () => {
 
   return (
     <Routes>
-      <Route path={"/"} element={<Main />} />
+      <Route path={"/"} element={<PrivateRoute element={<Main />} />} />
       <Route
         path={"/poll"}
         element={<PrivateRoute element={<WhoAreYou />} />}

@@ -1,58 +1,53 @@
-import { useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
-import LoginSvg from "../../../assets/login.svg";
-
-import "@nfid/identitykit/react/styles.css"
-import { ConnectWallet, useAgent, useIdentity } from "@nfid/identitykit/react"
-import { useEffect } from "react";
-import { _SERVICE } from "../../../../declarations/backend/backend.did";
+import LogoDark from "../../../assets/logoDark.png";
+import LogoLight from "../../../assets/logoLight.png";
+import BipquantumBetaWhite from "../../../assets/bipquantum_beta_white.png";
+import BipquantumBetaBlack from "../../../assets/bipquantum_beta_black.png";
+import { useContext } from "react";
+import { ThemeContext } from "../../App";
+import { useAuth } from "@nfid/identitykit/react";
+import WalletButton from "../../common/WalletButton";
 
 const Login = () => {
+  const { theme } = useContext(ThemeContext);
+  const { user } = useAuth();
 
-  const navigate = useNavigate();
-
-  const isLocal = process.env.DFX_NETWORK === "local"
-  const host = isLocal ? "http://127.0.0.1:4943" : 'https://icp-api.io';
-
-  const agent = useAgent({ host });
-
-  useEffect(() => {
-    if (agent !== undefined) {
-      console.log("Navigating to /");
-      navigate("/");
-    }
-  }, [agent]);
+  if (user) return <Navigate to="/" />;
 
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center overflow-auto bg-primary px-4">
+    <div className="flex w-full flex-grow flex-col items-center justify-center overflow-auto bg-background px-4 dark:bg-background-dark">
       <div className="absolute top-0 w-full">
-        <div className="flex items-center justify-center p-16 text-white sm:justify-between">
-          <button className="hidden h-14 w-40 cursor-pointer rounded-xl border border-white text-lg font-bold leading-6 sm:block">
-            Learn Home
-          </button>
+        <div className="flex flex-col items-center justify-center space-x-1 space-y-1 px-4 pt-6 text-black dark:text-white sm:flex-row sm:justify-between sm:px-20 sm:pt-16">
+          <div className="flex flex-row items-center justify-center gap-2">
+            <img
+              src={theme === "dark" ? LogoLight : LogoDark}
+              className="h-16"
+              alt=""
+            />
+            <img
+              src={theme === "dark" ? BipquantumBetaWhite : BipquantumBetaBlack}
+              className="h-16"
+              alt="BIPQUANTUM BETA"
+            />
+          </div>
+          <Link
+            className="border:border-black flex h-14 w-40 cursor-pointer items-center justify-center rounded-xl border text-lg font-bold leading-6 text-black dark:border-white dark:text-white"
+            to="/marketplace"
+          >
+            Marketplace
+          </Link>
         </div>
       </div>
-      <div className="flex h-[329px] w-full flex-col justify-center gap-6 rounded-2xl bg-white text-center text-xl text-secondary sm:w-[564px]">
-        <p className="hidden text-2xl font-bold sm:block">
+      <div className="mt-[40px] flex w-full flex-col justify-center items-center gap-6 rounded-2xl bg-white p-6 text-center text-xl text-black backdrop-blur-[20px] dark:bg-white/10 dark:text-white sm:mt-0 sm:w-[564px]">
+        <p className="hidden text-2xl font-extrabold uppercase text-black dark:text-white sm:block">
           100% on-chain governance
         </p>
-        <p className="hidden px-8 sm:block">
-          Manage your IPs, within the BipQuantum, hosted 100% on the Internet
+        <p className="hidden px-8 text-black dark:text-white sm:block">
+          Manage your IPs, within the BIPQuantum, hosted 100% on the Internet
           Computer blockchain.
         </p>
-        <img
-          src={LoginSvg}
-          className="block h-16 sm:hidden sm:h-14"
-          alt="Logo"
-        />
-        <p className="block text-2xl font-semibold leading-8 sm:hidden">
-          Login To Your Account
-        </p>
-        <div className="flex w-full flex-col items-center justify-center gap-y-3">
-          <div className="relative group flex w-full items-center justify-center rounded-2xl border-[2px] border-primary py-2 font-medium sm:w-[350px]">
-            <ConnectWallet/>
-          </div>
-        </div>
+        <WalletButton />
       </div>
     </div>
   );
