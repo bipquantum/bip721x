@@ -75,7 +75,7 @@ function App() {
     transportType: IdentityKitTransportType.INTERNET_IDENTITY,
     label: "Internet Identity",
     icon: DfinitySvg,
-  }] : [NFIDW, InternetIdentity, Stoic, OISY];
+  }] : [NFIDW, InternetIdentity, Stoic];
   const backendId = process.env.CANISTER_ID_BACKEND;
   console.log("TARGET: " + backendId);
   const signerClientOptions = {

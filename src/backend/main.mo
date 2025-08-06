@@ -7,6 +7,7 @@ import TradeManager   "TradeManager";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
+import BQCLedger     "canister:bqc_ledger";
 import BIP721Ledger  "canister:bip721_ledger";
 
 import Result        "mo:base/Result";
@@ -262,6 +263,11 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().markNotificationAsRead(caller, notificationId);
   };
 
+  // Required to bypass NFID user approval to get users' balance
+  public composite query func bqc_balance_of(account: Account) : async Nat {
+    await BQCLedger.icrc1_balance_of(account);
+  };
+
   func getController() : Controller.Controller {
     switch(_controller){
       case (null) { Debug.trap("The controller is not initialized"); };
@@ -292,11 +298,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public func icrc28_trusted_origins() : async Icrc28TrustedOriginsResponse {
-    // TODO: temporary local development origins, need to be updated!
-    let trustedOrigins = [
-      //"http://localhost:3000",
-      //"http://127.0.0.1:4943/?canisterId=umunu-kh777-77774-qaaca-cai",
-      //"http://umunu-kh777-77774-qaaca-cai.localhost:4943/",
+    let trusted_origins = [
       "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
       "https://czzq6-byaaa-aaaap-akilq-cai.raw.icp0.io",
       "https://czzq6-byaaa-aaaap-akilq-cai.ic0.app",
@@ -305,10 +307,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
       "https://czzq6-byaaa-aaaap-akilq-cai.icp-api.io",
       "https://dapp.bipquantum.com"
     ];
-
-    return {
-        trusted_origins = trustedOrigins
-    };
+    return { trusted_origins; };
   };
   
 };
