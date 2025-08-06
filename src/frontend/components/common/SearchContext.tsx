@@ -70,7 +70,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const refreshDocuments = useCallback(async () => {
-    if (!unauthenticated) return;
+    if (!unauthenticated || isRefreshing) return;
     
     setIsRefreshing(true);
     try {
@@ -79,14 +79,20 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
         take: [100_000n],
         direction: toQueryDirection(EQueryDirection.Forward),
       });
-      setIntPropIds(result);
-      setLastRefreshTime(Date.now());
+      
+      // Ensure result is valid and convert bigints to numbers safely
+      if (Array.isArray(result)) {
+        setIntPropIds(result);
+        setLastRefreshTime(Date.now());
+      } else {
+        console.warn("Invalid result from get_listed_int_props:", result);
+      }
     } catch (err) {
       console.error("Failed to refresh int prop ids:", err);
     } finally {
       setIsRefreshing(false);
     }
-  }, [unauthenticated]);
+  }, [unauthenticated, isRefreshing]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -115,7 +121,18 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
           const keptDocs = prevDocs.filter(
             (doc) => !removedIds.includes(doc.id),
           );
-          return [...keptDocs, ...newDocs];
+          
+          // Ensure no duplicates by creating a Map and converting back to array
+          const allDocs = [...keptDocs, ...newDocs];
+          const docMap = new Map<number, Document>();
+          
+          allDocs.forEach(doc => {
+            if (doc && typeof doc.id === 'number') {
+              docMap.set(doc.id, doc);
+            }
+          });
+          
+          return Array.from(docMap.values());
         });
       })();
     }
@@ -137,7 +154,22 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const miniSearch = useMemo(() => {
     const search = new MiniSearch(options);
-    search.addAll(documents);
+    
+    try {
+      // Ensure documents have unique IDs before adding
+      const uniqueDocuments = documents.filter((doc, index, arr) => 
+        arr.findIndex(d => d.id === doc.id) === index
+      );
+      
+      if (uniqueDocuments.length > 0) {
+        search.addAll(uniqueDocuments);
+      }
+    } catch (error) {
+      console.error("Error adding documents to MiniSearch:", error);
+      // Return an empty search instance if there's an error
+      return new MiniSearch(options);
+    }
+    
     return search;
   }, [documents, options]);
 
