@@ -15,6 +15,7 @@ import FilePreview from "../../common/FilePreview";
 import { FiUserPlus } from "react-icons/fi";
 import { useAuth } from "@nfid/identitykit/react";
 import WalletButton from "../../common/WalletButton";
+import { invalidateUserCache } from "../../common/UserImage";
 
 const DEFAULT_ARGS = {
   firstName: "",
@@ -93,6 +94,10 @@ const Profile = () => {
     setIsLoading(true);
     await updateUser([userArgs]);
     await queryUser();
+    
+    // Invalidate user cache to refresh all UserImage components
+    invalidateUserCache();
+    
     toast.success("User information added/updated!");
     setIsLoading(false);
     if (redirect) {
