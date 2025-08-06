@@ -305,6 +305,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
       "https://czzq6-byaaa-aaaap-akilq-cai.raw.ic0.app",
       "https://czzq6-byaaa-aaaap-akilq-cai.icp0.icp-api.io",
       "https://czzq6-byaaa-aaaap-akilq-cai.icp-api.io",
+      "https://www.dapp.bipquantum.com",
       "https://dapp.bipquantum.com"
     ];
     return { trusted_origins; };

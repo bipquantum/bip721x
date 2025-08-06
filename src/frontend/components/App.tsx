@@ -17,8 +17,9 @@ import { NotificationProvider } from "./common/NotificationContext";
 
 import "@nfid/identitykit/react/styles.css"
 import { IdentityKitProvider } from "@nfid/identitykit/react"
-import { IdentityKitAuthType, IdentityKitTransportType, InternetIdentity, NFIDW, OISY, Stoic } from "@nfid/identitykit";
+import { IdentityKitAuthType, IdentityKitTransportType, InternetIdentity, NFIDW, Stoic } from "@nfid/identitykit";
 import { ActorsProvider } from "./common/ActorsContext";
+import googleIcon from "../assets/google.ico";
 
 interface ThemeContextProps {
   theme: string;
@@ -69,18 +70,29 @@ function App() {
   }, []);
 
   const isLocal = process.env.DFX_NETWORK === "local";
-  const signers = isLocal ? [{
+  const backendId = process.env.CANISTER_ID_BACKEND;
+  const frontendId = process.env.CANISTER_ID_FRONTEND;
+
+  // Local II configuration for local development
+  const localInternetIdentity = {
     id: "LocalInternetIdentity",
     providerUrl: `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943/`,
     transportType: IdentityKitTransportType.INTERNET_IDENTITY,
     label: "Internet Identity",
     icon: DfinitySvg,
-  }] : [NFIDW, InternetIdentity, Stoic];
-  const backendId = process.env.CANISTER_ID_BACKEND;
-  console.log("TARGET: " + backendId);
+  };
+  
+  // Label and icon override for NFIDW to indicate Google login
+  let nfidw = NFIDW;
+  nfidw.description = undefined;
+  nfidw.label = "Google (via NFID)";
+  nfidw.icon = googleIcon;
+
+  const signers = isLocal ? [localInternetIdentity] : [InternetIdentity, nfidw, Stoic];
+
   const signerClientOptions = {
     targets: backendId ? [backendId] : [],
-    derivationOrigin: isLocal ? undefined: "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
+    derivationOrigin: isLocal ? undefined: `https://${frontendId}.icp0.io`,
   };
 
   return (
