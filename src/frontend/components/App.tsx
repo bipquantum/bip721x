@@ -1,14 +1,10 @@
 import { createContext, useState, useEffect } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import DfinitySvg from "../assets/dfinity.svg";
 
 import Router from "./router";
 import NavBar from "./layout/NavBar";
-import { AgentProvider } from "@ic-reactor/react";
-import { BackendActorProvider } from "./actors/BackendActor";
-import { BqcLedgerActorProvider } from "./actors/BqcLedgerActor";
-import { Bip721LedgerActorProvider } from "./actors/Bip721LedgerActor";
-
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
@@ -18,6 +14,12 @@ import TopBar from "./layout/TopBar";
 import ChatHistory from "./layout/ChatHistory";
 import { SearchProvider } from "./common/SearchContext";
 import { NotificationProvider } from "./common/NotificationContext";
+
+import "@nfid/identitykit/react/styles.css"
+import { IdentityKitProvider } from "@nfid/identitykit/react"
+import { IdentityKitAuthType, IdentityKitTransportType, InternetIdentity, NFIDW, Stoic } from "@nfid/identitykit";
+import { ActorsProvider } from "./common/ActorsContext";
+import googleIcon from "../assets/google.ico";
 
 interface ThemeContextProps {
   theme: string;
@@ -67,38 +69,64 @@ function App() {
     return () => window.removeEventListener("resize", setVh);
   }, []);
 
+  const isLocal = process.env.DFX_NETWORK === "local";
+  const backendId = process.env.CANISTER_ID_BACKEND;
+  const frontendId = process.env.CANISTER_ID_FRONTEND;
+
+  // Local II configuration for local development
+  const localInternetIdentity = {
+    id: "LocalInternetIdentity",
+    providerUrl: `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943/`,
+    transportType: IdentityKitTransportType.INTERNET_IDENTITY,
+    label: "Internet Identity",
+    icon: DfinitySvg,
+  };
+  
+  // Label and icon override for NFIDW to indicate Google login
+  let nfidw = NFIDW;
+  nfidw.description = undefined;
+  nfidw.label = "Google (via NFID)";
+  nfidw.icon = googleIcon;
+
+  const signers = isLocal ? [localInternetIdentity] : [InternetIdentity, nfidw, Stoic];
+
+  const signerClientOptions = {
+    targets: backendId ? [backendId] : [],
+    derivationOrigin: isLocal ? undefined: `https://${frontendId}.icp0.io`,
+  };
+
   return (
     <div
       className="flex w-full flex-col bg-background dark:bg-background-dark sm:flex-row"
       style={{ minHeight: "calc(var(--vh, 1vh) * 100)" }}
     >
       <ThemeContext.Provider value={{ theme, setTheme: rawSetTheme }}>
-        <AgentProvider withProcessEnv>
-          <BackendActorProvider>
-            <BqcLedgerActorProvider>
-              <Bip721LedgerActorProvider>
-                <BrowserRouter
-                  future={{
-                    v7_startTransition: true,
-                    v7_relativeSplatPath: true,
-                  }}
-                >
-                  <ChatHistoryProvider>
-                    <BalanceProvider>
-                      <AirdropBannerProvider>
-                        <SearchProvider>
-                          <NotificationProvider>
-                            <AppContent />
-                          </NotificationProvider>
-                        </SearchProvider>
-                      </AirdropBannerProvider>
-                    </BalanceProvider>
-                  </ChatHistoryProvider>
-                </BrowserRouter>
-              </Bip721LedgerActorProvider>
-            </BqcLedgerActorProvider>
-          </BackendActorProvider>
-        </AgentProvider>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+          }}
+        >
+          <IdentityKitProvider
+            signerClientOptions={signerClientOptions}
+            signers={signers}
+            authType={IdentityKitAuthType.DELEGATION}
+          >
+            <ActorsProvider>
+              <ChatHistoryProvider>
+                <BalanceProvider>
+                  <AirdropBannerProvider>
+                    <SearchProvider>
+                      <NotificationProvider>
+                        <AppContent />  
+                      </NotificationProvider>
+                    </SearchProvider>
+                  </AirdropBannerProvider>
+                </BalanceProvider>
+              </ChatHistoryProvider>
+            </ActorsProvider>
+          </IdentityKitProvider>
+        </BrowserRouter>
       </ThemeContext.Provider>
     </div>
   );

@@ -7,6 +7,7 @@ import TradeManager   "TradeManager";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
+import BQCLedger     "canister:bqc_ledger";
 import BIP721Ledger  "canister:bip721_ledger";
 
 import Result        "mo:base/Result";
@@ -262,11 +263,52 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().markNotificationAsRead(caller, notificationId);
   };
 
+  // Required to bypass NFID user approval to get users' balance
+  public composite query func bqc_balance_of(account: Account) : async Nat {
+    await BQCLedger.icrc1_balance_of(account);
+  };
+
   func getController() : Controller.Controller {
     switch(_controller){
       case (null) { Debug.trap("The controller is not initialized"); };
       case (?c) { c; };
     };
+  };
+  
+  public type SupportedStandard = {
+    url: Text;
+    name: Text;
+  };
+
+  public query func icrc10_supported_standards() : async [SupportedStandard] {
+    return [
+      {
+        url = "https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-10/ICRC-10.md";
+        name = "ICRC-10";
+      },
+      {
+        url = "https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_28_trusted_origins.md";
+        name = "ICRC-28";
+      }
+    ];
+  };
+
+  public type Icrc28TrustedOriginsResponse = {
+    trusted_origins: [Text];
+  };
+
+  public func icrc28_trusted_origins() : async Icrc28TrustedOriginsResponse {
+    let trusted_origins = [
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.raw.icp0.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.ic0.app",
+      "https://czzq6-byaaa-aaaap-akilq-cai.raw.ic0.app",
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp0.icp-api.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp-api.io",
+      "https://www.dapp.bipquantum.com",
+      "https://dapp.bipquantum.com"
+    ];
+    return { trusted_origins; };
   };
   
 };

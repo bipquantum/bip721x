@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../App";
-import { useAuth } from "@ic-reactor/react";
 import { Link, useLocation } from "react-router-dom";
 import { backendActor } from "../../components/actors/BackendActor";
 import { NEW_USER_NICKNAME } from "../../components/constants";
@@ -15,24 +14,20 @@ import UserImage from "../common/UserImage";
 import ChatHistoryBar from "./ChatHistoryBar";
 import Modal from "../common/Modal";
 import NotificationBell from "../common/NotificationBell";
+import { useIdentity } from "@nfid/identitykit/react";
 
 const TopBar = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   const location = useLocation();
   const { pathname } = location;
 
-  const { identity, authenticated } = useAuth({});
+  const identity = useIdentity();
   const [showChatHistory, setShowChatHistory] = useState(false);
-
-  if (!identity || !authenticated) {
-    return <></>;
-  }
-
   const [user, setUser] = useState<User | undefined>(undefined);
 
   const { data: queriedUser } = backendActor.useQueryCall({
     functionName: "get_user",
-    args: [identity?.getPrincipal()],
+    args: identity && [identity?.getPrincipal()],
   });
 
   useEffect(() => {
@@ -42,6 +37,10 @@ const TopBar = () => {
       setUser(undefined);
     }
   }, [queriedUser]);
+
+  if (!identity || identity.getPrincipal().isAnonymous()) {
+    return <></>;
+  }
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 flex min-h-16 w-full items-center justify-between overflow-visible bg-background px-3 text-white dark:bg-background-dark sm:relative sm:z-auto sm:min-h-20 sm:px-4">

@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@ic-reactor/react";
 import { toast } from "react-toastify";
 import { fromNullable } from "@dfinity/utils";
 
 import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
-import CopyToClipboard from "../../common/CopyToClipboard";
 
 import SpinnerSvg from "../../../assets/spinner.svg";
 import ReactCountryDropdown from "react-country-dropdown";
@@ -15,6 +13,9 @@ import FileUploader from "../../common/FileUploader";
 import FilePreview from "../../common/FilePreview";
 
 import { FiUserPlus } from "react-icons/fi";
+import { useAuth } from "@nfid/identitykit/react";
+import WalletButton from "../../common/WalletButton";
+import { invalidateUserCache } from "../../common/UserImage";
 
 const DEFAULT_ARGS = {
   firstName: "",
@@ -38,7 +39,7 @@ const ProfileFields: {
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { authenticated, identity } = useAuth({});
+  const { user } = useAuth();
   const [focusedFields, setFocusedFields] = useState<{
     [key: string]: boolean;
   }>({});
@@ -51,7 +52,7 @@ const Profile = () => {
     setFocusedFields((prev) => ({ ...prev, [fieldName]: !!value })); // Keep label up if input has content
   };
 
-  if (!authenticated || !identity) {
+  if (!user) {
     return <></>;
   }
 
@@ -62,17 +63,16 @@ const Profile = () => {
 
   const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
     functionName: "get_user",
-    args: [identity?.getPrincipal()],
+    args: [user.principal],
   });
 
   const { call: updateUser } = backendActor.useUpdateCall({
     functionName: "set_user",
-    args: [userArgs],
   });
 
   useEffect(() => {
     queryUser();
-  }, [identity]);
+  }, [user]);
 
   useEffect(() => {
     var args: CreateUserArgs = DEFAULT_ARGS;
@@ -92,8 +92,12 @@ const Profile = () => {
 
   const onUpdateBtnClicked = async () => {
     setIsLoading(true);
-    await updateUser();
+    await updateUser([userArgs]);
     await queryUser();
+    
+    // Invalidate user cache to refresh all UserImage components
+    invalidateUserCache();
+    
     toast.success("User information added/updated!");
     setIsLoading(false);
     if (redirect) {
@@ -124,16 +128,7 @@ const Profile = () => {
               </div>
             )}
           </FileUploader>
-          <div className="flex flex-col gap-[5px] text-black dark:text-white">
-            <div className="flex flex-row items-center gap-0 text-left text-xs text-gray-600 dark:text-gray-400 sm:text-sm md:text-center">
-              <p className="w-10/12 pb-1 md:w-full">
-                {identity?.getPrincipal().toString()}
-              </p>
-              <CopyToClipboard
-                copiedText={identity?.getPrincipal().toString()}
-              />
-            </div>
-          </div>
+          <WalletButton/>
         </div>
       </div>
       <div className="grid w-full grid-cols-1 gap-[30px] text-base md:grid-cols-2 lg:w-8/12">

@@ -7,7 +7,7 @@ import React, {
   useMemo,
 } from "react";
 import MiniSearch, { Options } from "minisearch";
-import { backendActor } from "../actors/BackendActor";
+import { useActors } from "./ActorsContext";
 import { EQueryDirection, toQueryDirection } from "../../utils/conversions";
 
 interface SearchContextType {
@@ -30,6 +30,8 @@ const REFRESH_INTERVAL = 10000; // 10 seconds
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { unauthenticated } = useActors();
+  
   const [documents, setDocuments] = useState<Document[]>(() => {
     try {
       const raw = localStorage.getItem("miniSearchDocuments");
@@ -42,28 +44,15 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [lastRefreshTime, setLastRefreshTime] = useState<number>(Date.now());
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-
-  const { data: intPropIds, call: refreshIntPropIds } =
-    backendActor.useQueryCall({
-      functionName: "get_listed_int_props",
-      args: [
-        {
-          prev: [],
-          take: [100_000n],
-          direction: toQueryDirection(EQueryDirection.Forward),
-        },
-      ],
-    });
-
-  const { call: getIntProp } = backendActor.useQueryCall({
-    functionName: "get_int_prop",
-  });
+  const [intPropIds, setIntPropIds] = useState<bigint[]>([]);
 
   const fetchIntProps = async (ids: number[]): Promise<Document[]> => {
+    if (!unauthenticated) return [];
+    
     const results = await Promise.all(
       ids.map(async (id) => {
         try {
-          const result = await getIntProp([{ token_id: BigInt(id) }]);
+          const result = await unauthenticated.backend.get_int_prop({ token_id: BigInt(id) });
           if (result && "ok" in result) {
             return {
               id,
@@ -81,14 +70,29 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const refreshDocuments = useCallback(async () => {
+    if (!unauthenticated || isRefreshing) return;
+    
     setIsRefreshing(true);
     try {
-      await refreshIntPropIds();
-      setLastRefreshTime(Date.now());
+      const result = await unauthenticated.backend.get_listed_int_props({
+        prev: [],
+        take: [100_000n],
+        direction: toQueryDirection(EQueryDirection.Forward),
+      });
+      
+      // Ensure result is valid and convert bigints to numbers safely
+      if (Array.isArray(result)) {
+        setIntPropIds(result);
+        setLastRefreshTime(Date.now());
+      } else {
+        console.warn("Invalid result from get_listed_int_props:", result);
+      }
+    } catch (err) {
+      console.error("Failed to refresh int prop ids:", err);
     } finally {
       setIsRefreshing(false);
     }
-  }, [refreshIntPropIds]);
+  }, [unauthenticated, isRefreshing]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -117,7 +121,18 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
           const keptDocs = prevDocs.filter(
             (doc) => !removedIds.includes(doc.id),
           );
-          return [...keptDocs, ...newDocs];
+          
+          // Ensure no duplicates by creating a Map and converting back to array
+          const allDocs = [...keptDocs, ...newDocs];
+          const docMap = new Map<number, Document>();
+          
+          allDocs.forEach(doc => {
+            if (doc && typeof doc.id === 'number') {
+              docMap.set(doc.id, doc);
+            }
+          });
+          
+          return Array.from(docMap.values());
         });
       })();
     }
@@ -139,7 +154,22 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const miniSearch = useMemo(() => {
     const search = new MiniSearch(options);
-    search.addAll(documents);
+    
+    try {
+      // Ensure documents have unique IDs before adding
+      const uniqueDocuments = documents.filter((doc, index, arr) => 
+        arr.findIndex(d => d.id === doc.id) === index
+      );
+      
+      if (uniqueDocuments.length > 0) {
+        search.addAll(uniqueDocuments);
+      }
+    } catch (error) {
+      console.error("Error adding documents to MiniSearch:", error);
+      // Return an empty search instance if there's an error
+      return new MiniSearch(options);
+    }
+    
     return search;
   }, [documents, options]);
 

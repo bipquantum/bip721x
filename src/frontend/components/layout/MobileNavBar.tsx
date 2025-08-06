@@ -1,19 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import LogoutSvg from "../../assets/logout.svg";
-import LoginSvg from "../../assets/login.svg";
-
-import { useAuth } from "@ic-reactor/react";
 
 import BipsIcon from "../icons/BipsIcon";
 import DashIcon from "../icons/DashIcon";
 import MarketIcon from "../icons/MarketIcon";
 import NewIPIcon from "../icons/NewIPIcon";
 import SupportIcon from "../icons/SupportIcon";
+import { useAuth } from "@nfid/identitykit/react";
 
 const MobileNavBar = () => {
   const { pathname } = useLocation();
-
-  const { authenticated, logout, login } = useAuth({});
+  const { user } = useAuth();
 
   const NavBarItems = [
     {
@@ -51,37 +47,19 @@ const MobileNavBar = () => {
         <footer className="fixed bottom-0 left-0 right-0 z-50 flex h-16 min-h-16 w-full flex-row items-center bg-background px-4 pt-2 font-bold text-black shadow shadow-black/30 dark:bg-background-dark dark:text-white dark:shadow-white/30 sm:hidden">
           {NavBarItems.map((item, index) => (
             <Link
-              className={`flex h-full grow flex-row items-end justify-center text-black dark:text-white ${!authenticated && "hidden"} ${pathname === "/" + item.link ? "active-link" : ""}`}
+              className={`flex h-full grow flex-row items-end justify-center text-black dark:text-white ${!user && "hidden"} ${pathname === "/" + item.link ? "active-link" : ""}`}
               to={item.link}
               key={index}
               target={item.target}
               rel={item.rel}
             >
-              <div
-                className={`flex flex-col px-1 pb-4 pt-1 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "rounded-t-full bg-primary text-primary dark:bg-secondary dark:text-secondary"}`}
-              >
-                <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}
-                >
+              <div className={`flex flex-col px-1 pb-4 pt-1 ${pathname !== "/" + item.link ? "text-primary dark:text-secondary" : "rounded-t-full bg-primary text-primary dark:bg-secondary dark:text-secondary"}`}>
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full ${pathname !== "/" + item.link ? "" : "bg-white"}`}>
                   {item.icon()}
                 </div>
               </div>
             </Link>
           ))}
-          <div className="flex grow flex-col items-center px-1 pb-2 pt-1">
-            <img
-              src={authenticated ? LogoutSvg : LoginSvg}
-              alt=""
-              className="flex h-7 w-7 grow cursor-pointer dark:invert"
-              onClick={() => {
-                if (authenticated) {
-                  logout();
-                } else {
-                  login();
-                }
-              }}
-            />
-          </div>
         </footer>
       )}
     </>

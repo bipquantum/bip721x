@@ -1,15 +1,15 @@
-import { useAuth } from "@ic-reactor/react";
 import { Navigate } from "react-router-dom";
 import React from "react";
+import { useAuth } from "@nfid/identitykit/react";
 
 type PrivateRouteProps = {
   element: React.ReactNode;
 };
 
 function PrivateRoute({ element }: PrivateRouteProps) {
-  const { authenticated } = useAuth({});
+  const { user } = useAuth();
 
-  if (!authenticated) {
+  if (!user) {
     return <Navigate to="/login" />;
   }
 

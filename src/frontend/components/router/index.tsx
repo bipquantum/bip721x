@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import { useAuth } from "@ic-reactor/react";
 
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/dashboard";
@@ -15,9 +14,10 @@ import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import DetailsView from "../pages/profile/DetailsView";
+import { useIdentity } from "@nfid/identitykit/react";
 
 const Router = () => {
-  const { identity } = useAuth({});
+  const identity = useIdentity();
 
   return (
     <Routes>
