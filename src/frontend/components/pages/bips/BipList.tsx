@@ -7,6 +7,7 @@ import { Principal } from "@dfinity/principal";
 import useInfiniteScroll from "react-infinite-scroll-hook";
 import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
+import { useAuth, useIdentity } from "@nfid/identitykit/react";
 
 interface BipsProps {
   principal: Principal;
@@ -35,6 +36,7 @@ const BipList: React.FC<BipsProps> = ({
   triggered,
   hideUnlisted,
 }) => {
+  const identity = useIdentity();
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
   const [prev, setPrev] = useState<bigint | undefined>(undefined); // Keep track of previous entries
   const [loading, setLoading] = useState(false); // Loading state to prevent double fetch
@@ -59,7 +61,7 @@ const BipList: React.FC<BipsProps> = ({
   // Load initial entries on component mount
   useEffect(() => {
     loadEntries();
-  }, [triggered]);
+  }, [triggered, identity]);
 
   // TODO: the infinite scroll component does not get refreshed when the queryDirection changes
   useEffect(() => {

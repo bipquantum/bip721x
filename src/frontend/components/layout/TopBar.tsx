@@ -24,6 +24,7 @@ const TopBar = () => {
   const identity = useIdentity();
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { data: queriedUser } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -38,7 +39,15 @@ const TopBar = () => {
     }
   }, [queriedUser]);
 
-  if (!identity || identity.getPrincipal().isAnonymous()) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading || !identity || identity.getPrincipal().isAnonymous()) {
     return <></>;
   }
 
