@@ -32,13 +32,13 @@ const BuyButton: React.FC<BuyButtonProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { refreshBalance } = useBalance();
+  const { refreshBtcBalance } = useBalance();
 
   const { loading, call: buyIntProp } = useBuyIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
       if (principal !== undefined) {
-        refreshBalance([{ owner: principal, subaccount: [] }]);
+        refreshBtcBalance([{ owner: principal, subaccount: [] }]);
       }
       onSuccess?.();
     },

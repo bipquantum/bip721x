@@ -8,6 +8,25 @@
       "main": "src/bqc_ledger/main.mo",
       "type": "motoko"
     },
+    "ckbtc_ledger": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-04-14/ledger.did",
+      "wasm": "https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2025-04-14/ic-icrc1-ledger.wasm.gz",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ],
+      "remote": { 
+        "id": { 
+          "ic": "mxzaz-hqaaa-aaaar-qaada-cai" 
+        }
+      }
+    },
+    "faucet": {
+      "main": "src/stubs/faucet/main.mo",
+      "type": "motoko"
+    },
     "idempotent_proxy_canister": {
       "candid": "src/idempotent_proxy_canister/idempotent_proxy_canister.did",
       "package": "idempotent_proxy_canister",
@@ -26,6 +45,11 @@
     "internet_identity": {
       "type": "pull",
       "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
+    "icp_coins": {
+      "main": "src/stubs/icp_coins/main.mo",
+      "type": "motoko",
+      "id": "u45jl-liaaa-aaaam-abppa-cai"
     }
   },
   "defaults": {

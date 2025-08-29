@@ -7,7 +7,7 @@ import Debug "mo:base/Debug";
 import ICRC7 "mo:icrc7-mo";
 
 import BIP721Ledger "canister:bip721_ledger";
-import BQCLedger "canister:bqc_ledger";
+import ckBTCLedger "canister:ckbtc_ledger";
 
 module {
 
@@ -55,7 +55,7 @@ public class TradeManager({
 
     if (e8s_price > 0) {
       // Transfer ICPs to the stage account
-      let icp_transfer = await BQCLedger.icrc2_transfer_from({
+      let icp_transfer = await ckBTCLedger.icrc2_transfer_from({
         from = buyer;
         spender_subaccount = null;
         to = stage_account;
@@ -80,7 +80,7 @@ public class TradeManager({
         // Only reimburse if there was actually a payment
         if (e8s_price > 0) {
           // Reimburse the buyer if the transfer of the intellectual property failed
-          let icp_reimbursement = await BQCLedger.icrc1_transfer({
+          let icp_reimbursement = await ckBTCLedger.icrc1_transfer({
             from_subaccount = stage_account.subaccount;
             to = buyer;
             amount = e8s_price - fee;
@@ -142,7 +142,7 @@ public class TradeManager({
           // Only transfer royalties if amount is greater than fee
           if (royalties_amount > fee) {
             // Transfer ICPs to the receiver of the royalties
-            let royalties_transfer = await BQCLedger.icrc1_transfer({
+            let royalties_transfer = await ckBTCLedger.icrc1_transfer({
               from_subaccount = stage_account.subaccount;
               to = { owner = receiver; subaccount = null };
               amount = royalties_amount - fee;
@@ -168,7 +168,7 @@ public class TradeManager({
     // Only transfer to seller if amount is greater than fee
     if (seller_amount > fee) {
       // Transfer the ICPs to the seller
-      let icp_transfer = await BQCLedger.icrc1_transfer({
+      let icp_transfer = await ckBTCLedger.icrc1_transfer({
         from_subaccount = stage_account.subaccount;
         to = seller;
         amount = seller_amount - fee;

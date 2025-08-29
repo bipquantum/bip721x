@@ -10,19 +10,19 @@ import { backendActor } from "../actors/BackendActor";
 import { useEffect, useState } from "react";
 import { useBalance } from "./BalanceContext";
 import Modal from "./Modal";
+import { icpCoinsActor } from "../actors/IcpCoinsActor";
 
 type BalanceProps = {
   principal: Principal;
 };
 
 const Balance = ({ principal }: BalanceProps) => {
-  const { balance, refreshBalance } = useBalance();
+  const { bqcBalance, btcBalance, refreshBqcBalance, refreshBtcBalance } = useBalance();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  const { call: airdropUser, loading: airdropUserLoading } =
-    backendActor.useUpdateCall({
-      functionName: "airdrop_user",
-    });
+  const { call: airdropUser, loading: airdropUserLoading } = backendActor.useUpdateCall({
+    functionName: "airdrop_user",
+  });
 
   const {
     data: isAirdropAvailable,
@@ -30,6 +30,32 @@ const Balance = ({ principal }: BalanceProps) => {
     loading: isAirdropAvailableLoading,
   } = backendActor.useQueryCall({
     functionName: "is_airdrop_available",
+  });
+
+  const [price, setPrice] = useState<number | undefined>(undefined);
+
+  const { call: fetchLatestPrices } = icpCoinsActor.useQueryCall({
+    functionName: "get_latest",
+    args: [],
+    onSuccess: (data) => {
+      if(data !== undefined) {
+        // Search for the pair ckBTC/USD or ckUSDT/USD depending on the ledger type
+        const priceRow = data.find(row => {
+          const [tokenIds, tokenName] = row;
+          return tokenName === "ckBTC/USD";
+        });
+        if (priceRow) {
+          const [, , price] = priceRow;
+          setPrice(price);
+        } else {
+          console.warn(`ckBTC price not found in latest prices.`);
+          setPrice(undefined);
+        }
+      } else {
+        console.warn("No latest prices data available.");
+        setPrice(undefined);
+      }
+    }
   });
 
   const triggerAirdrop = () => {
@@ -40,7 +66,7 @@ const Balance = ({ principal }: BalanceProps) => {
       } else {
         setIsPopupOpen(true);
         checkAirdropAvailability();
-        refreshBalance([
+        refreshBqcBalance([
           {
             owner: principal,
             subaccount: [],
@@ -51,13 +77,17 @@ const Balance = ({ principal }: BalanceProps) => {
   };
 
   useEffect(() => {
-    refreshBalance([{ owner: principal, subaccount: [] }]);
+    fetchLatestPrices();
+    refreshBqcBalance([{ owner: principal, subaccount: [] }]);
+    refreshBtcBalance([{ owner: principal, subaccount: [] }]);
     checkAirdropAvailability();
   }, []);
 
   return (
     <div className="flex w-full flex-row items-center justify-center gap-4 text-center text-xl">
-      Your balance: {fromE8s(balance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC
+      <span>BQC balance: {fromE8s(bqcBalance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC</span>
+      <span>ckBTC balance: {fromE8s(btcBalance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} ckBTC</span>
+      <span>Price: {price !== undefined ? price.toFixed(2) : "Loading..."} USD/ckBTC</span>
       {isAirdropAvailable ? (
         <button
           onClick={() => triggerAirdrop()}
