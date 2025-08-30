@@ -86,6 +86,7 @@ npm run tw:generate  # Generate Tailwind CSS with watch mode
 
 ### React Hook Guidelines
 - **NEVER use actor calls (`useQueryCall`, `useUpdateCall`) as dependencies in `useEffect`** - This causes infinite re-render loops and makes the application unusable
+- **ALWAYS provide `args` parameter to actor hooks** - Query calls like `useQueryCall` require an `args` parameter (even if empty array `args: []`) to execute. Without it, the query won't run and `data` will remain `undefined`
 
 ### Styling
 - Tailwind CSS for styling
