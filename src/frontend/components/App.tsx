@@ -20,6 +20,7 @@ import { IdentityKitProvider } from "@nfid/identitykit/react"
 import { IdentityKitAuthType, IdentityKitTransportType, InternetIdentity, NFIDW, Stoic } from "@nfid/identitykit";
 import { ActorsProvider } from "./common/ActorsContext";
 import googleIcon from "../assets/google.ico";
+import { FungibleLedgerProvider } from "./contexts/FungibleLedgerContext";
 
 interface ThemeContextProps {
   theme: string;
@@ -118,7 +119,9 @@ function App() {
                   <AirdropBannerProvider>
                     <SearchProvider>
                       <NotificationProvider>
-                        <AppContent />  
+                        <FungibleLedgerProvider>
+                          <AppContent />  
+                        </FungibleLedgerProvider>
                       </NotificationProvider>
                     </SearchProvider>
                   </AirdropBannerProvider>

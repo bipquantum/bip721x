@@ -13,6 +13,7 @@ import Modal from "./Modal";
 import { icpCoinsActor } from "../actors/IcpCoinsActor";
 import DualLabel from "./DualLabel";
 import { LedgerType, useFungibleLedger } from "../hooks/useFungibleLedger";
+import { TokenLabel } from "./TokenLabel";
 
 type BalanceProps = {
   principal: Principal;
@@ -21,7 +22,7 @@ type BalanceProps = {
 const Balance = ({ principal }: BalanceProps) => {
   const { bqcBalance, refreshBqcBalance, refreshBtcBalance } = useBalance();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const { userBalance: btcBalance, formatAmount, formatAmountUsd } = useFungibleLedger(LedgerType.CK_BTC);
+  const { userBalance: btcBalance, formatAmount, formatAmountUsd, metadata: btcMetadata } = useFungibleLedger(LedgerType.CK_BTC);
 
   const { call: airdropUser, loading: airdropUserLoading } = backendActor.useUpdateCall({
     functionName: "airdrop_user",
@@ -89,6 +90,7 @@ const Balance = ({ principal }: BalanceProps) => {
   return (
     <div className="flex w-full flex-row items-center justify-center gap-4 text-center text-xl">
       <span>BQC balance: {fromE8s(bqcBalance ?? 0n).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC</span>
+      <TokenLabel metadata={btcMetadata} />
       <DualLabel top={`${formatAmount(btcBalance)} BTC`} bottom={`${formatAmountUsd(btcBalance)}`} mainLabel="top"/>
       <span>Price: {price !== undefined ? price.toFixed(2) : "Loading..."} USD/ckBTC</span>
       {isAirdropAvailable ? (
