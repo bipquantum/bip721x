@@ -5,8 +5,9 @@ import { faucetActor } from "../actors/FaucetActor";
 import { fromFixedPoint, toFixedPoint } from "../../utils/conversions";
 import { getTokenDecimals, getTokenFee } from "../../utils/metadata";
 import { useEffect, useMemo, useState } from "react";
-import { Account, MetadataValue } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { Account, MetadataValue, TransferResult } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
 import { useAuth } from "@nfid/identitykit/react";
+import { toNullable } from "@dfinity/utils";
 
 export enum LedgerType {
   CK_BTC = 'ckBTC',
@@ -24,6 +25,7 @@ export interface FungibleLedger {
   convertFromUsd: (amountFixedPoint: number | undefined) => bigint | undefined;
   convertToFixedPoint: (amount: number | undefined) => bigint | undefined;
   convertToFloatingPoint: (amountFixedPoint: bigint | number | undefined) => number | undefined;
+  transferTokens: (amount: bigint, to: Account) => Promise<TransferResult>;
   subtractFee?: (amount: bigint) => bigint;
   userBalance: bigint | undefined;
   refreshUserBalance: () => void;
@@ -81,6 +83,21 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     functionName: 'icrc1_total_supply',
     args: [],
   });
+
+  const { call: transfer } = actor.useUpdateCall({
+    functionName: 'icrc1_transfer',
+  });
+
+  const transferTokens = (amount: bigint, to: Account) => {
+    return transfer([{
+        fee: toNullable(tokenFee),
+        from_subaccount: account?.subaccount || [],
+        memo: [],
+        created_at_time: [],
+        to,
+        amount
+    }]);
+  };
 
   const [price, setPrice] = useState<number | undefined>(undefined);
 
@@ -223,6 +240,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     convertFromUsd,
     convertToFixedPoint,
     convertToFloatingPoint,
+    transferTokens,
     subtractFee,
     userBalance,
     refreshUserBalance,

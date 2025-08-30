@@ -6,9 +6,10 @@ interface Props {
   isVisible: boolean;
   children: ReactNode;
   onClose: () => void;
+  title?: string;
 }
 
-const Modal = ({ isVisible, children, onClose }: Props) => {
+const Modal = ({ isVisible, children, onClose, title }: Props) => {
   if (!isVisible) {
     return null;
   }
@@ -32,8 +33,17 @@ const Modal = ({ isVisible, children, onClose }: Props) => {
         className="rounded-xl bg-background p-4 dark:bg-background-dark"
         onClick={handleModalClick}
       >
-        <div className="flex w-full justify-end">
-          <button onClick={onClose} className="text-black dark:text-white">
+        {/* Header with title and close button on same line */}
+        <div className="flex w-full justify-between items-center mb-4">
+          {title && (
+            <h2 className="text-xl font-semibold text-black dark:text-white">
+              {title}
+            </h2>
+          )}
+          <button 
+            onClick={onClose} 
+            className={`text-black dark:text-white ${title ? '' : 'ml-auto'}`}
+          >
             <MdCancel size={24} />
           </button>
         </div>

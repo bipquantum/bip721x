@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MdClose, MdAccountBalanceWallet } from "react-icons/md";
 import { LedgerType } from "../hooks/useFungibleLedger";
-import TokenBalanceCard from "./TokenBalanceCard";
+import WalletRow from "./WalletRow";
 
 interface WalletProps {
   isOpen: boolean;
@@ -51,13 +51,13 @@ const Wallet = ({ isOpen, onClose }: WalletProps) => {
 
         {/* Content */}
         <div className="flex flex-col gap-4 p-4">
-          <TokenBalanceCard 
+          <WalletRow 
             ledgerType={LedgerType.CK_BTC}
             showActions={activeCard === LedgerType.CK_BTC}
             onCardClick={handleCardClick}
             isActive={activeCard === null || activeCard === LedgerType.CK_BTC}
           />
-          <TokenBalanceCard 
+          <WalletRow 
             ledgerType={LedgerType.BQC}
             showActions={activeCard === LedgerType.BQC}
             onCardClick={handleCardClick}

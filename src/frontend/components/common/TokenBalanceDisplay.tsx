@@ -2,12 +2,12 @@ import { LedgerType } from "../hooks/useFungibleLedger";
 import { useFungibleLedgerContext } from "../contexts/FungibleLedgerContext";
 import { getTokenLogo, getTokenName, getTokenSymbol } from "../../utils/metadata";
 
-interface TokenBalanceCardProps {
+interface TokenBalanceDisplayProps {
   ledgerType: LedgerType;
   className?: string;
 }
 
-const TokenBalanceCard: React.FC<TokenBalanceCardProps> = ({ 
+const TokenBalanceDisplay: React.FC<TokenBalanceDisplayProps> = ({ 
   ledgerType,
   className = ""
 }) => {
@@ -65,4 +65,4 @@ const TokenBalanceCard: React.FC<TokenBalanceCardProps> = ({
   );
 };
 
-export default TokenBalanceCard;
+export default TokenBalanceDisplay;
