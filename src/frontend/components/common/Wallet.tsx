@@ -1,15 +1,21 @@
+import { useState } from "react";
 import { MdClose, MdAccountBalanceWallet } from "react-icons/md";
-import { Principal } from "@dfinity/principal";
 import { LedgerType } from "../hooks/useFungibleLedger";
 import TokenBalanceCard from "./TokenBalanceCard";
 
 interface WalletProps {
   isOpen: boolean;
   onClose: () => void;
-  principal: Principal;
 }
 
-const Wallet = ({ isOpen, onClose, principal }: WalletProps) => {
+const Wallet = ({ isOpen, onClose }: WalletProps) => {
+  const [activeCard, setActiveCard] = useState<LedgerType | null>(null);
+
+  const handleCardClick = (ledgerType: LedgerType) => {
+    // Toggle: if clicking the already active card, hide it; otherwise show the new one
+    setActiveCard(activeCard === ledgerType ? null : ledgerType);
+  };
+
   // Close drawer when clicking outside
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -45,14 +51,17 @@ const Wallet = ({ isOpen, onClose, principal }: WalletProps) => {
 
         {/* Content */}
         <div className="flex flex-col gap-4 p-4">
-          {/* ckBTC Balance */}
-          <TokenBalanceCard
+          <TokenBalanceCard 
             ledgerType={LedgerType.CK_BTC}
+            showActions={activeCard === LedgerType.CK_BTC}
+            onCardClick={handleCardClick}
+            isActive={activeCard === null || activeCard === LedgerType.CK_BTC}
           />
-
-          {/* BQC Balance */}
-          <TokenBalanceCard
+          <TokenBalanceCard 
             ledgerType={LedgerType.BQC}
+            showActions={activeCard === LedgerType.BQC}
+            onCardClick={handleCardClick}
+            isActive={activeCard === null || activeCard === LedgerType.BQC}
           />
         </div>
       </div>

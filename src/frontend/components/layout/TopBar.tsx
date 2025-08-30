@@ -137,7 +137,6 @@ const TopBar = () => {
       <Wallet
         isOpen={showWallet}
         onClose={() => setShowWallet(false)}
-        principal={identity.getPrincipal()}
       />
     </header>
   );
