@@ -14,12 +14,12 @@ import ICRC2 "mo:icrc2-mo/ICRC2";
 import ICRC3 "mo:icrc3-mo/";
 import ICRC4 "mo:icrc4-mo/ICRC4";
 
-shared ({ caller = _owner }) actor class BQCLedger({minting_account: ICRC1.Account}) = this {
+shared ({ caller = _owner }) actor class BQCLedger({minting_account: ICRC1.Account; logo: ?Text}) = this {
 
     let icrc1_args : ICRC1.InitArgs = {
       name = ?"bIPQuantum Coin";
       symbol = ?"bQC";
-      logo = null;
+      logo = logo;
       decimals = 8;
       fee = ?#Fixed(10000);
       minting_account = ?minting_account;

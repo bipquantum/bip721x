@@ -8,7 +8,6 @@ import NavBar from "./layout/NavBar";
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
-import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
 import TopBar from "./layout/TopBar";
 import ChatHistory from "./layout/ChatHistory";
@@ -115,17 +114,15 @@ function App() {
           >
             <ActorsProvider>
               <ChatHistoryProvider>
-                <BalanceProvider>
-                  <AirdropBannerProvider>
-                    <SearchProvider>
-                      <NotificationProvider>
-                        <FungibleLedgerProvider>
-                          <AppContent />  
-                        </FungibleLedgerProvider>
-                      </NotificationProvider>
-                    </SearchProvider>
-                  </AirdropBannerProvider>
-                </BalanceProvider>
+                <AirdropBannerProvider>
+                  <SearchProvider>
+                    <NotificationProvider>
+                      <FungibleLedgerProvider>
+                        <AppContent />  
+                      </FungibleLedgerProvider>
+                    </NotificationProvider>
+                  </SearchProvider>
+                </AirdropBannerProvider>
               </ChatHistoryProvider>
             </ActorsProvider>
           </IdentityKitProvider>

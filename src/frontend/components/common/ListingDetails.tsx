@@ -1,12 +1,24 @@
 import { Principal } from "@dfinity/principal";
-import { NumericFormat } from "react-number-format";
 import { useEffect, useState } from "react";
 import Spinner from "../../assets/spinner.svg";
+import TokenAmountInput from "./TokenAmountInput";
 
 import { backendActor } from "../actors/BackendActor";
 import { fromE8s, toE8s } from "../../utils/conversions";
-import { TOKEN_DECIMALS_ALLOWED } from "../constants";
-import { useBalance } from "./BalanceContext";
+
+const formatBtcAmount = (e8sAmount: bigint): string => {
+  const btcAmount = fromE8s(e8sAmount);
+  
+  // For amounts >= 0.01, show 2 decimals (standard)
+  if (btcAmount >= 0.01) {
+    return btcAmount.toFixed(2);
+  }
+  
+  // For smaller amounts, show up to 8 decimals but remove trailing zeros
+  // This ensures we never show "0.00" when there's actual value
+  const formatted = btcAmount.toFixed(8);
+  return formatted.replace(/\.?0+$/, '') || '0';
+};
 import VioletButton from "./VioletButton";
 import { TbCheck, TbX } from "react-icons/tb";
 import { IoIosPricetags } from "react-icons/io";
@@ -14,8 +26,9 @@ import { ModalPopup } from "./ModalPopup";
 import { useListIntProp } from "../hooks/useListIntProp";
 import { useUnlistIntProp } from "../hooks/useUnlistIntProp";
 import { useBuyIntProp } from "../hooks/useBuyIntProp";
-import { BiPencil } from "react-icons/bi";
+import { MdEdit } from "react-icons/md";
 import { useSearch } from "./SearchContext";
+import { useFungibleLedgerContext } from "../contexts/FungibleLedgerContext";
 
 interface BuyButtonProps {
   principal: Principal | undefined;
@@ -32,13 +45,13 @@ const BuyButton: React.FC<BuyButtonProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { refreshBtcBalance } = useBalance();
+  const { ckbtcLedger } = useFungibleLedgerContext();
 
   const { loading, call: buyIntProp } = useBuyIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
       if (principal !== undefined) {
-        refreshBtcBalance([{ owner: principal, subaccount: [] }]);
+        ckbtcLedger.refreshUserBalance();
       }
       onSuccess?.();
     },
@@ -67,7 +80,13 @@ const BuyButton: React.FC<BuyButtonProps> = ({
           {e8sPrice === 0n ? (
             <>Do you want to get this IP for free?</>
           ) : (
-            <>{`Do you want to buy this IP for ${fromE8s(e8sPrice).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC?`}</>
+            <>
+              Do you want to buy this IP for {formatBtcAmount(e8sPrice)} ckBTC?
+              <br />
+              <span className="text-sm text-gray-500 dark:text-gray-400 font-normal">
+                (≈ {ckbtcLedger.formatAmountUsd(e8sPrice)})
+              </span>
+            </>
           )}
         </h2>
       </ModalPopup>
@@ -92,16 +111,25 @@ export const ListButton: React.FC<ListButtonProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState<bigint>(0n);
+  const [sellPriceString, setSellPriceString] = useState<string>("");
   const { refreshDocuments } = useSearch();
+  const { ckbtcLedger } = useFungibleLedgerContext();
 
   const { loading, call: listIntProp } = useListIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
       setSellPrice(0n);
+      setSellPriceString("");
       refreshDocuments();
       onSuccess?.();
     },
   });
+
+  const handlePriceChange = (value: string) => {
+    setSellPriceString(value);
+    const numericValue = parseFloat(value || "0");
+    setSellPrice(toE8s(numericValue));
+  };
 
   return (
     <button
@@ -136,20 +164,15 @@ export const ListButton: React.FC<ListButtonProps> = ({
           <h2 className="text-xl font-bold text-black dark:text-white">
             {modalLabel || "Do you want to List your IP?"}
           </h2>
-          <NumericFormat
-            className="focus:ring-primary-600 focus:border-primary-600 dark:focus:ring-primary-500 dark:focus:border-primary-500 ml-1 block w-full rounded-lg border border-gray-300 bg-white p-1.5 text-right text-sm text-gray-900 dark:border-gray-500 dark:placeholder-gray-400"
-            thousandSeparator=","
-            decimalScale={TOKEN_DECIMALS_ALLOWED}
-            value={Number(fromE8s(sellPrice))}
-            onValueChange={(e) => {
-              setSellPrice(
-                toE8s(
-                  parseFloat(e.value === "" ? "0" : e.value.replace(/,/g, "")),
-                ),
-              );
-            }}
-            suffix="BQC "
-            spellCheck="false"
+          <TokenAmountInput
+            value={sellPriceString}
+            onChange={handlePriceChange}
+            placeholder="0.00"
+            tokenSymbol="ckBTC"
+            usdValue={sellPriceString ? 
+              `≈ ${ckbtcLedger.formatAmountUsd(ckbtcLedger.convertToFixedPoint(parseFloat(sellPriceString) || 0))}` :
+              '≈ $0.00'
+            }
           />
         </div>
       </ModalPopup>
@@ -231,6 +254,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
 }) => {
   const [listingType, setListingType] = useState<EListingType | null>(null);
   const [e8sPrice, setE8sPrice] = useState<bigint | undefined>(undefined);
+  const { ckbtcLedger } = useFungibleLedgerContext();
 
   const queryE8sPrice = backendActor.useQueryCall({
     functionName: "get_e8s_price",
@@ -272,25 +296,30 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   ) : (
     <div className="flex grid w-full grid-cols-2 items-center justify-center space-x-2 px-2 text-black dark:text-white">
       {e8sPrice !== undefined ? (
-        <div className="flex flex-row items-center gap-1 text-base font-bold md:text-2xl">
-          <span>
-            <IoIosPricetags size={22} />
+        <div className="flex flex-col items-start gap-0.5">
+          <div className="flex flex-row items-center gap-1 text-base font-bold md:text-2xl">
+            <span>
+              <IoIosPricetags size={22} />
+            </span>
+            <span className="whitespace-nowrap">
+              {formatBtcAmount(e8sPrice)} ckBTC
+            </span>
+            {listingType === EListingType.UNLIST && (
+              <ListButton
+                intPropId={intPropId}
+                onSuccess={() => {
+                  refreshListingType();
+                }}
+                className="hover:text-gray-600 dark:hover:text-gray-400 p-1"
+                modalLabel="Do you want to edit the IP price?"
+              >
+                <MdEdit size={22} />
+              </ListButton>
+            )}
+          </div>
+          <span className="text-sm text-gray-500 dark:text-gray-400 ml-6">
+            ≈ {ckbtcLedger.formatAmountUsd(e8sPrice)}
           </span>
-          <span className="whitespace-nowrap">
-            {fromE8s(e8sPrice).toFixed(TOKEN_DECIMALS_ALLOWED)} BQC
-          </span>
-          {listingType === EListingType.UNLIST && (
-            <ListButton
-              intPropId={intPropId}
-              onSuccess={() => {
-                refreshListingType();
-              }}
-              className="hover:text-gray-600 dark:hover:text-gray-400"
-              modalLabel="Do you want to edit the IP price?"
-            >
-              <BiPencil size={22} />
-            </ListButton>
-          )}
         </div>
       ) : (
         <div>{/*spacer */}</div>

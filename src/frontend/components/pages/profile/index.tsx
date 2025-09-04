@@ -60,6 +60,7 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const [userArgs, setUserArgs] = useState<CreateUserArgs>(DEFAULT_ARGS);
+  const [userKey, setUserKey] = useState<string>("");
 
   const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
     functionName: "get_user",
@@ -71,8 +72,20 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    queryUser();
-  }, [user]);
+    if (user) {
+      const newUserKey = user.principal.toText();
+      if (userKey !== newUserKey) {
+        // Clear form data when user changes (logout/login)
+        setUserArgs(DEFAULT_ARGS);
+        setFocusedFields({});
+        setUserKey(newUserKey);
+        // Force a fresh query by calling it after clearing state
+        setTimeout(() => {
+          queryUser();
+        }, 100); // Slight delay to ensure state is cleared first
+      }
+    }
+  }, [user?.principal.toText(), userKey]); // Use principal text as dependency to detect user changes
 
   useEffect(() => {
     var args: CreateUserArgs = DEFAULT_ARGS;
@@ -98,6 +111,10 @@ const Profile = () => {
     // Invalidate user cache to refresh all UserImage components
     invalidateUserCache();
     
+    // Clear form inputs
+    setUserArgs(DEFAULT_ARGS);
+    setFocusedFields({});
+    
     toast.success("User information added/updated!");
     setIsLoading(false);
     if (redirect) {
@@ -106,7 +123,10 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col items-center space-y-4 overflow-y-auto p-4 font-semibold text-black dark:text-white">
+    <div 
+      key={user?.principal.toText() || "anonymous"} 
+      className="flex h-full w-full flex-col items-center space-y-4 overflow-y-auto p-4 font-semibold text-black dark:text-white"
+    >
       <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
         <div className="flex flex-col items-center gap-2 md:flex-row md:gap-5">
           <FileUploader

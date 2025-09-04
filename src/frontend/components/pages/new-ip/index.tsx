@@ -988,11 +988,11 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
               </div>
               <div className="flex w-full flex-col items-center justify-center gap-[40px] pt-[20px]">
-                <div className="rounded-[40px] border-y-[2.5px] border-white/40 bg-white/10 px-3 py-4">
-                  <div className="h-full max-h-[240px] max-w-[240px] overflow-hidden rounded-[40px] bg-background md:h-[280px] md:w-[280px]">
+                <div className="flex flex-col items-center justify-center rounded-[40px] border-y-[2.5px] border-white/40 bg-white/10 px-3 py-4">
+                  <div className="flex h-[240px] w-[240px] items-center justify-center rounded-[40px] bg-background md:h-[280px] md:w-[280px]">
                     {dataUri && (
                       <FilePreview
-                        className="max-h-[240px] w-auto max-w-[240px] rounded-lg md:max-h-[280px] md:max-w-[280px]"
+                        className="h-full w-full rounded-[40px] object-contain"
                         dataUri={dataUri}
                       />
                     )}
