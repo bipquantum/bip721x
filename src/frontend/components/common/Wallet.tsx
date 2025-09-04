@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MdClose, MdAccountBalanceWallet } from "react-icons/md";
 import { LedgerType } from "../hooks/useFungibleLedger";
 import WalletRow from "./WalletRow";
@@ -10,6 +10,20 @@ interface WalletProps {
 
 const Wallet = ({ isOpen, onClose }: WalletProps) => {
   const [activeCard, setActiveCard] = useState<LedgerType | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setShouldRender(true);
+      // Small delay to trigger transition
+      setTimeout(() => setIsVisible(true), 10);
+    } else {
+      setIsVisible(false);
+      // Remove from DOM after animation completes
+      setTimeout(() => setShouldRender(false), 300);
+    }
+  }, [isOpen]);
 
   const handleCardClick = (ledgerType: LedgerType) => {
     // Toggle: if clicking the already active card, hide it; otherwise show the new one
@@ -23,16 +37,18 @@ const Wallet = ({ isOpen, onClose }: WalletProps) => {
     }
   };
 
-  if (!isOpen) return null;
+  if (!shouldRender) return null;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-end bg-black/50"
+      className={`fixed inset-0 z-50 flex items-center justify-end transition-all duration-300 ease-in-out ${
+        isVisible ? "bg-black/50" : "bg-black/0 pointer-events-none"
+      }`}
       onClick={handleBackdropClick}
     >
       <div
-        className={`h-full w-96 transform bg-white shadow-lg transition-transform duration-300 ease-in-out dark:bg-gray-800 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`h-full w-full sm:w-96 transform bg-white shadow-lg transition-transform duration-300 ease-out dark:bg-gray-800 ${
+          isVisible ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}

@@ -90,10 +90,9 @@ const ReceiveModal: React.FC<ReceiveModalProps> = ({ isOpen, onClose, tokenSymbo
           )}
 
           {/* Instructions */}
-          <div className="w-full max-w-sm rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
+          <div className="w-full rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
             <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed break-words">
-              Share this Principal ID with others to receive {tokenSymbol} tokens. 
-              Make sure to double-check the address before sharing.
+              Share this Principal ID with others to receive {tokenSymbol} tokens.
             </p>
           </div>
         </div>
