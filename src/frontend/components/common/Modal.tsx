@@ -26,11 +26,11 @@ const Modal = ({ isVisible, children, onClose, title }: Props) => {
 
   return ReactDOM.createPortal(
     <div
-      className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-black"
+      className="fixed inset-0 z-50 bg-black bg-opacity-50 text-black"
       onClick={handleOverlayClick}
     >
       <div
-        className="rounded-xl bg-background px-4 pb-4 dark:bg-background-dark"
+        className="absolute left-1/2 top-1/2 w-[calc(100%-2rem)] max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-background px-4 pb-4 dark:bg-background-dark -translate-x-1/2 -translate-y-1/2"
         onClick={handleModalClick}
       >
         {/* Header with title and close button on same line */}
