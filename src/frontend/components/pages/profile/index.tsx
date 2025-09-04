@@ -140,7 +140,7 @@ const Profile = () => {
             <p
               className={`absolute left-4 bg-background px-1 text-xs transition-all duration-200 ease-in dark:bg-background-dark ${
                 focusedFields[field.name] || userArgs[field.name]
-                  ? "-top-[15%] text-sm text-gray-200"
+                  ? "-top-[15%] text-sm text-gray-700 dark:text-gray-200"
                   : "top-1/2 -translate-y-1/2 text-sm text-gray-400"
               }`}
             >

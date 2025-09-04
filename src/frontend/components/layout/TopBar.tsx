@@ -8,7 +8,7 @@ import { User } from "../../../declarations/backend/backend.did";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { MdOutlineLightMode } from "react-icons/md";
 import { MdChat } from "react-icons/md";
-import { MdAccountBalanceWallet } from "react-icons/md";
+import { MdOutlineAccountBalanceWallet } from "react-icons/md";
 import LogoDark from "../../assets/logoDark.png";
 import LogoLight from "../../assets/logoLight.png";
 import UserImage from "../common/UserImage";
@@ -111,19 +111,19 @@ const TopBar = () => {
         >
           <MdChat size={22} />
         </button>
+        {/* Wallet Button */}
+        <button
+          className="h-10 w-10 rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white"
+          onClick={() => setShowWallet(true)}
+        >
+          <MdOutlineAccountBalanceWallet size={22} />
+        </button>
         <Link to="/profile" className="h-10 w-10">
           <UserImage
             principal={identity.getPrincipal()}
             className="h-10 w-10 rounded-full border-2 border-gray-300 object-cover dark:border-gray-700"
           />
         </Link>
-        {/* Wallet Button */}
-        <button
-          className="h-10 w-10 rounded-md bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white"
-          onClick={() => setShowWallet(true)}
-        >
-          <MdAccountBalanceWallet size={22} />
-        </button>
       </div>
       <Modal
         isVisible={showChatHistory}

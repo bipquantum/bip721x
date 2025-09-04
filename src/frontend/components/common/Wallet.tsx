@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MdClose, MdAccountBalanceWallet } from "react-icons/md";
+import { MdClose, MdOutlineAccountBalanceWallet } from "react-icons/md";
 import { LedgerType } from "../hooks/useFungibleLedger";
 import WalletRow from "./WalletRow";
 
@@ -54,7 +54,7 @@ const Wallet = ({ isOpen, onClose }: WalletProps) => {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <MdAccountBalanceWallet size={24} className="text-black dark:text-white" />
+            <MdOutlineAccountBalanceWallet size={24} className="text-black dark:text-white" />
             <h2 className="text-xl font-semibold text-black dark:text-white">Wallet</h2>
           </div>
           <button

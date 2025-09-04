@@ -8,6 +8,9 @@
   "bip721_ledger": {
     "ic": "cf5kp-wyaaa-aaaap-akijq-cai"
   },
+  "bqc_ledger": {
+    "ic": "envry-sqaaa-aaaap-akqga-cai"
+  },
   "ckbtc_ledger": {
     "ic": "mxzaz-hqaaa-aaaar-qaada-cai"
   },
