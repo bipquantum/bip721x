@@ -30,19 +30,19 @@ const Modal = ({ isVisible, children, onClose, title }: Props) => {
       onClick={handleOverlayClick}
     >
       <div
-        className="rounded-xl bg-background p-4 dark:bg-background-dark"
+        className="rounded-xl bg-background px-4 pb-4 dark:bg-background-dark"
         onClick={handleModalClick}
       >
         {/* Header with title and close button on same line */}
         <div className="flex w-full justify-between items-center mb-4">
           {title && (
-            <h2 className="text-xl font-semibold text-black dark:text-white">
+            <h2 className="text-xl font-semibold text-black dark:text-white pt-4">
               {title}
             </h2>
           )}
           <button 
             onClick={onClose} 
-            className={`text-black dark:text-white ${title ? '' : 'ml-auto'}`}
+            className={`text-black dark:text-white ${title ? '' : 'ml-auto'} self-start mt-4`}
           >
             <MdCancel size={24} />
           </button>

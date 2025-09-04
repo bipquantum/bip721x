@@ -72,7 +72,7 @@ const WalletRow: React.FC<WalletRowProps> = ({
           ) : (
             <>
               <span className="text-lg font-bold text-black dark:text-white">
-                {balance || "0"} {tokenSymbol}
+                {balance || "0"}
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400">
                 {usdAmount || "$0.00"}
