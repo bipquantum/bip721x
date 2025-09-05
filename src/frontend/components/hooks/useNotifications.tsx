@@ -8,6 +8,7 @@ export const useNotifications = () => {
   const { data: rawNotifications, call: refetchNotifications } =
     backendActor.useQueryCall({
       functionName: "get_user_notifications",
+      args: [], // Empty args array to trigger the query
     });
 
   // Mark notification as read
