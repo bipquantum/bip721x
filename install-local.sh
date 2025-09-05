@@ -24,7 +24,7 @@ dfx deploy bqc_ledger --argument 'record {
     owner = principal "'${FAUCET_CANISTER}'";
     subaccount = null;
   };
-  logo = opt "data:image/png;base64,${BQC_LOGO}";
+  logo = opt "data:image/png;base64,'${BQC_LOGO}'";
 }' & 
 dfx deploy ckbtc_ledger --argument '(
   variant {

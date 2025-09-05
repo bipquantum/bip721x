@@ -3,7 +3,7 @@ import { bip721LedgerActor } from "../actors/Bip721LedgerActor";
 import { ApprovalInfo } from "../../../declarations/bip721_ledger/bip721_ledger.did";
 import { dateToTime } from "../../utils/conversions";
 import { Principal } from "@dfinity/principal";
-import { canisterId } from "../../../declarations/backend";
+import { canisterId as backendId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
 
@@ -15,6 +15,10 @@ interface ListIntPropArgs {
 export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
   const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
     functionName: "icrc37_approve_tokens",
+  });
+
+  const { call: isBip721TranferApproved } = bip721LedgerActor.useQueryCall({
+    functionName: "icrc37_is_approved",
   });
 
   const { call: listIntProp } = backendActor.useUpdateCall({
@@ -29,28 +33,44 @@ export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
   }
 
   const call = async ({ sellPrice, intPropId }: CallArgs) => {
-    const info: ApprovalInfo = {
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: {
-        owner: Principal.fromText(canisterId),
-        subaccount: [],
-      },
-      expires_at: [],
-    };
-
     setLoading(true);
-    try {
-      const approvalResult = await approveBip721Transfer([
-        [{ token_id: intPropId, approval_info: info }],
-      ]);
 
-      if (!approvalResult || "Err" in approvalResult) {
-        toast.warn("Failed to approve IP transfer");
-        console.error(approvalResult?.Err ?? "No result");
-        onError?.();
-        return;
+    try {
+      // Check if the token is already approved
+      const isApprovedResult = await isBip721TranferApproved([[
+        {
+          token_id: intPropId,
+          from_subaccount: [],
+          spender: {
+            owner: Principal.fromText(backendId),
+            subaccount: [],
+          },
+        },
+      ]]);
+
+      // Only approve if not already approved
+      if (!isApprovedResult || !isApprovedResult[0]) {
+        const info: ApprovalInfo = {
+          memo: [],
+          from_subaccount: [],
+          created_at_time: [dateToTime(new Date())],
+          spender: {
+            owner: Principal.fromText(backendId),
+            subaccount: [],
+          },
+          expires_at: [],
+        };
+
+        const approvalResult = await approveBip721Transfer([
+          [{ token_id: intPropId, approval_info: info }],
+        ]);
+
+        if (!approvalResult || "Err" in approvalResult) {
+          toast.warn("Failed to approve IP transfer");
+          console.error(approvalResult?.Err ?? "No result");
+          onError?.();
+          return;
+        }
       }
 
       const listResult = await listIntProp([

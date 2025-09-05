@@ -17,6 +17,10 @@ export const useUnlistIntProp = ({ onSuccess, onError }: UnlistIntPropArgs) => {
     functionName: "icrc37_revoke_token_approvals",
   });
 
+  const { call: isBip721TranferApproved } = bip721LedgerActor.useQueryCall({
+    functionName: "icrc37_is_approved",
+  });
+
   const { call: unlistIntProp } = backendActor.useUpdateCall({
     functionName: "unlist_int_prop",
   });
@@ -24,29 +28,44 @@ export const useUnlistIntProp = ({ onSuccess, onError }: UnlistIntPropArgs) => {
   const [loading, setLoading] = useState(false);
 
   const call = async (intPropId: bigint) => {
-    const info: RevokeTokenApprovalArg = {
-      token_id: intPropId,
-      memo: [],
-      from_subaccount: [],
-      created_at_time: [dateToTime(new Date())],
-      spender: [
-        {
-          owner: Principal.fromText(canisterId),
-          subaccount: [],
-        },
-      ],
-    };
-
     setLoading(true);
 
     try {
-      const revokeResult = await revokeBip721Transfer([[info]]);
+      // Check if the token is currently approved
+      const isApprovedResult = await isBip721TranferApproved([[
+        {
+          token_id: intPropId,
+          from_subaccount: [],
+          spender: {
+            owner: Principal.fromText(canisterId),
+            subaccount: [],
+          },
+        },
+      ]]);
 
-      if (!revokeResult || "Err" in revokeResult) {
-        toast.warn("Failed to revoke IP transfer");
-        console.error(revokeResult?.Err ?? "No result");
-        onError?.();
-        return;
+      // Only revoke if currently approved
+      if (isApprovedResult && isApprovedResult[0]) {
+        const info: RevokeTokenApprovalArg = {
+          token_id: intPropId,
+          memo: [],
+          from_subaccount: [],
+          created_at_time: [dateToTime(new Date())],
+          spender: [
+            {
+              owner: Principal.fromText(canisterId),
+              subaccount: [],
+            },
+          ],
+        };
+
+        const revokeResult = await revokeBip721Transfer([[info]]);
+
+        if (!revokeResult || "Err" in revokeResult) {
+          toast.warn("Failed to revoke IP transfer");
+          console.error(revokeResult?.Err ?? "No result");
+          onError?.();
+          return;
+        }
       }
 
       const unlistResult = await unlistIntProp([{ token_id: intPropId }]);
