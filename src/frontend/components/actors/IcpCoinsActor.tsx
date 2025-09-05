@@ -1,27 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useActors } from '../common/ActorsContext';
 import { ActorMethod } from '@dfinity/agent';
-import { _SERVICE as BqcLedger } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { IcpCoins } from "../../../declarations/icp_coins/icp_coins.did";
 
 // Type utilities to extract function signatures from ActorMethod
-type BqcLedgerMethods = keyof BqcLedger;
+type IcpCoinsMethods = keyof IcpCoins;
 type ExtractArgs<T> = T extends ActorMethod<infer P, any> ? P : never;
 type ExtractReturn<T> = T extends ActorMethod<any, infer R> ? R : never;
 
-interface UseQueryCallOptions<T extends BqcLedgerMethods> {
+interface UseQueryCallOptions<T extends IcpCoinsMethods> {
   functionName: T;
-  args?: ExtractArgs<BqcLedger[T]>;
-  onSuccess?: (data: ExtractReturn<BqcLedger[T]>) => void;
+  args?: ExtractArgs<IcpCoins[T]>;
+  onSuccess?: (data: ExtractReturn<IcpCoins[T]>) => void;
   onError?: (error: any) => void;
 }
 
-const useQueryCall = <T extends BqcLedgerMethods>(options: UseQueryCallOptions<T>) => {
-  const [data, setData] = useState<ExtractReturn<BqcLedger[T]> | undefined>(undefined);
+const useQueryCall = <T extends IcpCoinsMethods>(options: UseQueryCallOptions<T>) => {
+  const [data, setData] = useState<ExtractReturn<IcpCoins[T]> | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const { authenticated, unauthenticated } = useActors();
 
-  const call = async (callArgs?: ExtractArgs<BqcLedger[T]>): Promise<ExtractReturn<BqcLedger[T]> | undefined> => {
+  const call = async (callArgs?: ExtractArgs<IcpCoins[T]>): Promise<ExtractReturn<IcpCoins[T]> | undefined> => {
     const actor = authenticated || unauthenticated;
     if (!actor) return undefined;
 
@@ -30,7 +30,7 @@ const useQueryCall = <T extends BqcLedgerMethods>(options: UseQueryCallOptions<T
     
     try {
       const args = callArgs || options.args || [];
-      const result = await (actor.bqcLedger as any)[options.functionName](...args);
+      const result = await (actor.icpCoins as any)[options.functionName](...args);
       setData(result);
       options.onSuccess?.(result);
       return result;
@@ -46,7 +46,7 @@ const useQueryCall = <T extends BqcLedgerMethods>(options: UseQueryCallOptions<T
   // Helper function to safely serialize args including BigInt
   const serializeArgs = (args: any) => {
     try {
-      return JSON.stringify(args, (_, value) =>
+      return JSON.stringify(args, (key, value) =>
         typeof value === 'bigint' ? value.toString() + 'n' : value
       );
     } catch {
@@ -65,18 +65,18 @@ const useQueryCall = <T extends BqcLedgerMethods>(options: UseQueryCallOptions<T
   return { data, loading, error, call };
 };
 
-interface UseUpdateCallOptions<T extends BqcLedgerMethods> {
+interface UseUpdateCallOptions<T extends IcpCoinsMethods> {
   functionName: T;
-  onSuccess?: (data: ExtractReturn<BqcLedger[T]>) => void;
+  onSuccess?: (data: ExtractReturn<IcpCoins[T]>) => void;
   onError?: (error: any) => void;
 }
 
-const useUpdateCall = <T extends BqcLedgerMethods>(options: UseUpdateCallOptions<T>) => {
+export const useUpdateCall = <T extends IcpCoinsMethods>(options: UseUpdateCallOptions<T>) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const { authenticated } = useActors();
 
-  const call = async (args: ExtractArgs<BqcLedger[T]> = [] as any): Promise<ExtractReturn<BqcLedger[T]>> => {
+  const call = async (args: ExtractArgs<IcpCoins[T]> = [] as any): Promise<ExtractReturn<IcpCoins[T]>> => {
     if (!authenticated) {
       const authError = new Error('Not authenticated');
       setError(authError);
@@ -88,7 +88,7 @@ const useUpdateCall = <T extends BqcLedgerMethods>(options: UseUpdateCallOptions
     setError(null);
     
     try {
-      const result = await (authenticated.bqcLedger as any)[options.functionName](...args);
+      const result = await (authenticated.icpCoins as any)[options.functionName](...args);
       options.onSuccess?.(result);
       return result;
     } catch (err) {
@@ -103,10 +103,10 @@ const useUpdateCall = <T extends BqcLedgerMethods>(options: UseUpdateCallOptions
   return { call, loading, error };
 };
 
-export type { BqcLedger };
+export type { IcpCoins };
 
-// Compatibility layer that mimics the ic-reactor bqcLedgerActor API with full type safety
-export const bqcLedgerActor = {
+// Compatibility layer that mimics the ic-reactor icpCoinsActor API with full type safety
+export const icpCoinsActor = {
   useQueryCall: useQueryCall,
   useUpdateCall: useUpdateCall
 };

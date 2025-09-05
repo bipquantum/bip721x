@@ -11,6 +11,9 @@
   "bqc_ledger": {
     "ic": "envry-sqaaa-aaaap-akqga-cai"
   },
+  "ckbtc_ledger": {
+    "ic": "mxzaz-hqaaa-aaaar-qaada-cai"
+  },
   "idempotent_proxy_canister": {
     "ic": "cx35w-2iaaa-aaaap-akikq-cai"
   }

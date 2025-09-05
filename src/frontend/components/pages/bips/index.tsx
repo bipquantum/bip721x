@@ -1,7 +1,5 @@
 import { Principal } from "@dfinity/principal";
 
-import Balance from "../../common/Balance";
-
 import BipsHeader from "./BipsHeader";
 import BipList from "./BipList";
 import { backendActor } from "../../actors/BackendActor";
@@ -51,11 +49,6 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
         sort={queryDirection}
         changeQueryDirection={changeQueryDirection}
       />
-      <div className="flex w-full flex-col items-center gap-2 px-2 sm:flex-row sm:px-8 md:w-fit">
-        {principal !== undefined && !principal.isAnonymous() && (
-          <Balance principal={principal} />
-        )}
-      </div>
       <div className="w-full px-4">
         <BipList
           scrollableClassName="grid w-full flex-grow lg:grid-cols-2 xl:grid-cols-4 gap-[20px]"

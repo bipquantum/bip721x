@@ -52,6 +52,7 @@
   "devDependencies": {
     "@dfinity/auth-client": "^2.4.1",
     "@types/node": "^24.0.10",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/uuid": "^10.0.0",

@@ -4,8 +4,8 @@ import { Principal } from "@dfinity/principal";
 import { canisterId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
-import { bqcLedgerActor } from "../actors/BqcLedgerActor";
-import { ApproveArgs } from "../../../declarations/bqc_ledger/bqc_ledger.did";
+import { ckbtcLedgerActor } from "../actors/CkBtcLedgerActor";
+import { ApproveArgs } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
 
 interface BuyIntPropArgs {
   onSuccess?: () => void;
@@ -13,7 +13,7 @@ interface BuyIntPropArgs {
 }
 
 export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
-  const { call: approveBqcTransfer } = bqcLedgerActor.useUpdateCall({
+  const { call: approveCkBtcTransfer } = ckbtcLedgerActor.useUpdateCall({
     functionName: "icrc2_approve",
   });
 
@@ -40,7 +40,7 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
     }
 
     try {
-      // Approve the BQC transfer if the price is greater than 0
+      // Approve the BTC transfer if the price is greater than 0
       if (e8sPrice.ok > 0n) {
         const args: ApproveArgs = {
           amount: e8sPrice.ok + 10_000n,
@@ -56,10 +56,10 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
           expected_allowance: [],
         };
 
-        const approvalResult = await approveBqcTransfer([args]);
+        const approvalResult = await approveCkBtcTransfer([args]);
 
         if (!approvalResult || "Err" in approvalResult) {
-          toast.warn("Failed to approve BQC transfer");
+          toast.warn("Failed to approve BTC transfer");
           console.error(approvalResult?.Err ?? "No result");
           onError?.();
           return;

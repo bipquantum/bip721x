@@ -6,9 +6,10 @@ interface Props {
   isVisible: boolean;
   children: ReactNode;
   onClose: () => void;
+  title?: string;
 }
 
-const Modal = ({ isVisible, children, onClose }: Props) => {
+const Modal = ({ isVisible, children, onClose, title }: Props) => {
   if (!isVisible) {
     return null;
   }
@@ -25,15 +26,25 @@ const Modal = ({ isVisible, children, onClose }: Props) => {
 
   return ReactDOM.createPortal(
     <div
-      className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-black bg-opacity-50 text-black"
+      className="fixed inset-0 z-50 bg-black bg-opacity-50 text-black flex items-center justify-center p-4"
       onClick={handleOverlayClick}
+      style={{ minHeight: '100dvh' }}
     >
       <div
-        className="rounded-xl bg-background p-4 dark:bg-background-dark"
+        className="w-full max-w-md max-h-[80vh] max-h-[80dvh] overflow-y-auto rounded-xl bg-background px-4 pb-4 dark:bg-background-dark"
         onClick={handleModalClick}
       >
-        <div className="flex w-full justify-end">
-          <button onClick={onClose} className="text-black dark:text-white">
+        {/* Header with title and close button on same line */}
+        <div className="flex w-full justify-between items-center mb-4">
+          {title && (
+            <h2 className="text-xl font-semibold text-black dark:text-white pt-4">
+              {title}
+            </h2>
+          )}
+          <button 
+            onClick={onClose} 
+            className={`text-black dark:text-white ${title ? '' : 'ml-auto'} self-start mt-4`}
+          >
             <MdCancel size={24} />
           </button>
         </div>

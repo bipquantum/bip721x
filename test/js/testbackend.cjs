@@ -14,7 +14,7 @@ const dateToTime = (date) => {
 const getCanisterIds = () => {
   const canisterIds = {
     bip721: process.env.CANISTER_ID_BIP721_LEDGER,
-    bqc: process.env.CANISTER_ID_BQC_LEDGER,
+    bqc: process.env.CANISTER_ID_ckbtc_ledger,
     backend: process.env.CANISTER_ID_BACKEND,
   };
 
@@ -26,7 +26,7 @@ const getCanisterIds = () => {
 
 const getActorFactories = async () => {
   const bip721ServicePromise = import("../../.dfx/local/canisters/bip721_ledger/service.did.js");
-  const bqcServicePromise = import("../../.dfx/local/canisters/bqc_ledger/service.did.js");
+  const bqcServicePromise = import("../../.dfx/local/canisters/ckbtc_ledger/service.did.js");
   const backendServicePromise = import("../../.dfx/local/canisters/backend/service.did.js");
 
   return await Promise.all([bip721ServicePromise, bqcServicePromise, backendServicePromise]).then(([bip721Service, bqcService, backendService]) => {

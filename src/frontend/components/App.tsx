@@ -8,7 +8,6 @@ import NavBar from "./layout/NavBar";
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
-import { BalanceProvider } from "./common/BalanceContext";
 import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
 import TopBar from "./layout/TopBar";
 import ChatHistory from "./layout/ChatHistory";
@@ -20,6 +19,7 @@ import { IdentityKitProvider } from "@nfid/identitykit/react"
 import { IdentityKitAuthType, IdentityKitTransportType, InternetIdentity, NFIDW, Stoic } from "@nfid/identitykit";
 import { ActorsProvider } from "./common/ActorsContext";
 import googleIcon from "../assets/google.ico";
+import { FungibleLedgerProvider } from "./contexts/FungibleLedgerContext";
 
 interface ThemeContextProps {
   theme: string;
@@ -114,15 +114,15 @@ function App() {
           >
             <ActorsProvider>
               <ChatHistoryProvider>
-                <BalanceProvider>
-                  <AirdropBannerProvider>
-                    <SearchProvider>
-                      <NotificationProvider>
+                <AirdropBannerProvider>
+                  <SearchProvider>
+                    <NotificationProvider>
+                      <FungibleLedgerProvider>
                         <AppContent />  
-                      </NotificationProvider>
-                    </SearchProvider>
-                  </AirdropBannerProvider>
-                </BalanceProvider>
+                      </FungibleLedgerProvider>
+                    </NotificationProvider>
+                  </SearchProvider>
+                </AirdropBannerProvider>
               </ChatHistoryProvider>
             </ActorsProvider>
           </IdentityKitProvider>

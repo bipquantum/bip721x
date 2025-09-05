@@ -7,8 +7,9 @@ import TradeManager   "TradeManager";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
-import BQCLedger     "canister:bqc_ledger";
 import BIP721Ledger  "canister:bip721_ledger";
+import BQCLedger     "canister:bqc_ledger";
+import CKBTCLedger   "canister:ckbtc_ledger";
 
 import Result        "mo:base/Result";
 import Principal     "mo:base/Principal";
@@ -263,9 +264,14 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().markNotificationAsRead(caller, notificationId);
   };
 
-  // Required to bypass NFID user approval to get users' balance
+  // Required to bypass NFID user approval to get users' BQC balance
   public composite query func bqc_balance_of(account: Account) : async Nat {
     await BQCLedger.icrc1_balance_of(account);
+  };
+
+  // Required to bypass NFID user approval to get users' ckBTC balance
+  public composite query func ckbtc_balance_of(account: Account) : async Nat {
+    await CKBTCLedger.icrc1_balance_of(account);
   };
 
   func getController() : Controller.Controller {

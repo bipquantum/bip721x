@@ -135,3 +135,27 @@ export const toQueryDirection = (e: EQueryDirection): QueryDirection => {
       return { BACKWARD: null };
   }
 };
+
+/**
+ * Converts a float to fixed-point BigInt based on decimals.
+ * @param amount - Human-readable float (e.g. 1.23)
+ * @param decimals - Number of decimals (e.g. 8 for e8s, 6 for e6s)
+ */
+export const toFixedPoint = (amount: number, decimals: number): bigint | undefined => {
+  if (isNaN(amount) || amount < 0) {
+    return undefined;
+  }
+
+  const scale = 10 ** decimals;
+  return BigInt(Math.trunc(amount * scale));
+};
+
+/**
+ * Converts a fixed-point BigInt to float based on decimals.
+ * @param amount - Amount in fixed-point representation (e.g. e8s)
+ * @param decimals - Number of decimals used (e.g. 8 for e8s)
+ */
+export const fromFixedPoint = (amount: bigint | number, decimals: number): number => {
+  const scale = 10 ** decimals;
+  return Number(amount) / scale;
+};

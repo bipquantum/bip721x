@@ -132,8 +132,8 @@ const BipItem: React.FC<BipItemProps> = ({
                       <p className="break-all text-2xl leading-none text-black dark:text-white">
                         {intProp.ok.V1.title}
                       </p>
-                      <p className="text-xs text-black dark:text-white">
-                        By @{" "}
+                      <p className="text-xs text-black dark:text-white items-baseline">
+                        By @
                         {author === undefined ||
                         fromNullableExt(author) === undefined
                           ? "Anonymous"

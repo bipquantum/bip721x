@@ -8,12 +8,14 @@ import { User } from "../../../declarations/backend/backend.did";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { MdOutlineLightMode } from "react-icons/md";
 import { MdChat } from "react-icons/md";
+import { MdOutlineAccountBalanceWallet } from "react-icons/md";
 import LogoDark from "../../assets/logoDark.png";
 import LogoLight from "../../assets/logoLight.png";
 import UserImage from "../common/UserImage";
 import ChatHistoryBar from "./ChatHistoryBar";
 import Modal from "../common/Modal";
 import NotificationBell from "../common/NotificationBell";
+import Wallet from "../common/Wallet";
 import { useIdentity } from "@nfid/identitykit/react";
 
 const TopBar = () => {
@@ -23,6 +25,7 @@ const TopBar = () => {
 
   const identity = useIdentity();
   const [showChatHistory, setShowChatHistory] = useState(false);
+  const [showWallet, setShowWallet] = useState(false);
   const [user, setUser] = useState<User | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -108,6 +111,13 @@ const TopBar = () => {
         >
           <MdChat size={22} />
         </button>
+        {/* Wallet Button */}
+        <button
+          className="h-10 w-10 rounded-full bg-white p-2 text-xl text-black dark:bg-white/10 dark:text-white"
+          onClick={() => setShowWallet(true)}
+        >
+          <MdOutlineAccountBalanceWallet size={22} />
+        </button>
         <Link to="/profile" className="h-10 w-10">
           <UserImage
             principal={identity.getPrincipal()}
@@ -124,6 +134,10 @@ const TopBar = () => {
           className="flex w-full flex-col justify-between text-black dark:text-white"
         />
       </Modal>
+      <Wallet
+        isOpen={showWallet}
+        onClose={() => setShowWallet(false)}
+      />
     </header>
   );
 };
