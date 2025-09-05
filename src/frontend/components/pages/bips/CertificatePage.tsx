@@ -139,52 +139,36 @@ const CertificatePage = () => {
   const { intPropId } = useParams();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  const [intProp, setIntProp] = useState<IntProp>();
-
-  const { data: author, call: getAuthor } = backendActor.useQueryCall({
-    functionName: "get_user",
-  });
-
-  const { call: getIntProp } = backendActor.useQueryCall({
+  const { data: intPropResult } = backendActor.useQueryCall({
     functionName: "get_int_prop",
+    args: intPropId ? [{ token_id: BigInt(intPropId) }] : undefined,
   });
 
-  const { data: owner, call: getOwner } = backendActor.useQueryCall({
+  const intProp = intPropResult && "ok" in intPropResult ? intPropResult.ok.V1 : undefined;
+
+  const { data: authorResult } = backendActor.useQueryCall({
+    functionName: "get_user",
+    args: intProp ? [intProp.author] : undefined,
+  });
+
+  const author = authorResult ? fromNullable(authorResult) : undefined;
+
+  const { data: ownerResult } = backendActor.useQueryCall({
     functionName: "owner_of",
+    args: intPropId ? [{ token_id: BigInt(intPropId) }] : undefined,
   });
 
-  useEffect(() => {
-    if (intPropId !== undefined) {
-      getIntProp([{ token_id: BigInt(intPropId) }]).then((res) => {
-        if (res !== undefined && "ok" in res) {
-          setIntProp(res.ok.V1);
-        } else {
-          console.error("Error fetching the intProp:", res);
-          toast.error("Error fetching the IP details");
-        }
-      });
-      getOwner([{ token_id: BigInt(intPropId) }]);
-    }
-  }, [intPropId]);
+  const owner = ownerResult ? fromNullable(ownerResult) : undefined;
 
   useEffect(() => {
-    if (intProp !== undefined) {
-      getAuthor([intProp.author]);
-    }
-  }, [intProp]);
-
-  useEffect(() => {
-    const actualAuthor = author ? fromNullable(author) : undefined;
-    const actualOwner = owner ? fromNullable(owner) : undefined;
-
-    if (!intPropId || !intProp || !actualAuthor || !actualOwner) {
+    if (!intPropId || !intProp || !author || !owner) {
       return;
     }
 
     // Fetch or generate the PDF
-    generatePdf(intPropId, intProp, actualAuthor as User, actualOwner)
+    generatePdf(intPropId, intProp, author, owner)
       .then((data) => {
-        const pdfData = new Blob([data], { type: "application/pdf" });
+        const pdfData = new Blob([new Uint8Array(data)], { type: "application/pdf" });
         setPdfUrl(URL.createObjectURL(pdfData));
       })
       .catch((error) => {
