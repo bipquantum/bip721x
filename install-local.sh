@@ -12,6 +12,8 @@ FAUCET_CANISTER=$(dfx canister id faucet)
 BQC_LEDGER_CANISTER=$(dfx canister id bqc_ledger)
 CKBTC_LEDGER_CANISTER=$(dfx canister id ckbtc_ledger)
 
+BQC_LOGO=$(base64 -w 0 ./src/frontend/assets/logobqc.png)
+
 # Deploy all independent canisters
 
 dfx deploy bip721_ledger --argument 'record {
@@ -22,6 +24,7 @@ dfx deploy bqc_ledger --argument 'record {
     owner = principal "'${FAUCET_CANISTER}'";
     subaccount = null;
   };
+  logo = opt "data:image/png;base64,${BQC_LOGO}";
 }' & 
 dfx deploy ckbtc_ledger --argument '(
   variant {
