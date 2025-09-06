@@ -1,4 +1,4 @@
-import V0_5_0         "./00-05-00-notifications/State";
+import V0_6_0         "./00-06-00-ckbtc_rate/State";
 import MigrationTypes "Types";
 
 import Debug          "mo:base/Debug";
@@ -11,7 +11,7 @@ module {
   type State = MigrationTypes.State;
 
   // do not forget to change current migration when you add a new one
-  let { init; upgrade; downgrade; } = V0_5_0;
+  let { init; upgrade; downgrade; } = V0_6_0;
 
   public func install(args: Args) : State {
     switch(args){

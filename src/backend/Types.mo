@@ -14,16 +14,17 @@ module {
   public type IntPropInput      = IntPropTypes.IntPropInput;
   public type IntProp           = IntPropTypes.IntProp;
 
-  public type IntPropRegister = Types.Current.IntPropRegister;
-  public type User            = Types.Current.User;
-  public type ChatHistory     = Types.Current.ChatHistory;
-  public type ChatHistories   = Types.Current.ChatHistories;
-  public type Airdrop         = Types.Current.Airdrop;
-  public type AccessControl   = Types.Current.AccessControl;
-  public type Notification    = Types.Current.Notification;
-  public type NotificationType = Types.Current.NotificationType;
+  public type IntPropRegister   = Types.Current.IntPropRegister;
+  public type User              = Types.Current.User;
+  public type ChatHistory       = Types.Current.ChatHistory;
+  public type ChatHistories     = Types.Current.ChatHistories;
+  public type Airdrop           = Types.Current.Airdrop;
+  public type AccessControl     = Types.Current.AccessControl;
+  public type Notification      = Types.Current.Notification;
+  public type NotificationType  = Types.Current.NotificationType;
   public type NotificationState = Types.Current.NotificationState;
-  public type Notifications   = Types.Current.Notifications;
+  public type Notifications     = Types.Current.Notifications;
+  public type CkbtcRate         = Types.Current.CkbtcRate;
 
   public type CreateUserArgs = {
     firstName: Text;
@@ -38,6 +39,11 @@ module {
     allowed_per_user: Nat;
     total_distributed: Nat;
     map_distributed: [(Principal, Nat)];
+  };
+
+  public type SCkbtcRate = {
+    usd_price: Nat64;
+    last_update: Int;
   };
 
   public type Account = {

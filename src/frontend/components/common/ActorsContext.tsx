@@ -6,13 +6,11 @@ import { idlFactory as backendIdlFactory,      canisterId as backendId      } fr
 import { idlFactory as bqcLedgerIdlFactory,    canisterId as bqcLedgerId    } from "../../../declarations/bqc_ledger/index";
 import { idlFactory as ckbtcLedgerIdlFactory,  canisterId as ckbtcLedgerId  } from "../../../declarations/ckbtc_ledger/index";
 import { idlFactory as bip721LedgerIdlFactory, canisterId as bip721LedgerId } from "../../../declarations/bip721_ledger/index";
-import { idlFactory as icpCoinsIdlFactory,     canisterId as icpCoinsId   } from "../../../declarations/icp_coins/index";
 import { idlFactory as faucetIdlFactory,       canisterId as faucetId   } from "../../../declarations/faucet/index";
 import { _SERVICE as BackendService      } from "../../../declarations/backend/backend.did";
 import { _SERVICE as BqcLedgerService    } from "../../../declarations/bqc_ledger/bqc_ledger.did";
 import { _SERVICE as CkBtcLedgerService  } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
 import { _SERVICE as Bip721LedgerService } from "../../../declarations/bip721_ledger/bip721_ledger.did";
-import { _SERVICE as IcpCoins            } from "../../../declarations/icp_coins/icp_coins.did";
 import { _SERVICE as Faucet              } from "../../../declarations/faucet/faucet.did";
 
 const createBackendActor = (agent: Agent) => {
@@ -43,13 +41,6 @@ const createBip721LedgerActor = (agent: Agent) => {
   });
 }
 
-const createIcpCoinsActor = (agent: Agent) => {
-  return Actor.createActor<IcpCoins>(icpCoinsIdlFactory, {
-    agent,
-    canisterId: icpCoinsId,
-  });
-}
-
 const createFaucetActor = (agent: Agent) => {
   return Actor.createActor<Faucet>(faucetIdlFactory, {
     agent,
@@ -63,7 +54,6 @@ interface ActorsContextType {
     bqcLedger: ActorSubclass<BqcLedgerService>;
     ckbtcLedger: ActorSubclass<CkBtcLedgerService>;
     bip721Ledger: ActorSubclass<Bip721LedgerService>;
-    icpCoins: ActorSubclass<IcpCoins>;
     faucet: ActorSubclass<Faucet>;
   };
   authenticated?: {
@@ -71,7 +61,6 @@ interface ActorsContextType {
     bqcLedger: ActorSubclass<BqcLedgerService>;
     ckbtcLedger: ActorSubclass<CkBtcLedgerService>;
     bip721Ledger: ActorSubclass<Bip721LedgerService>;
-    icpCoins: ActorSubclass<IcpCoins>;
     faucet: ActorSubclass<Faucet>;
   };
 }
@@ -128,7 +117,6 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           bqcLedger: createBqcLedgerActor(unauthenticatedAgent),
           ckbtcLedger: createCkBtcLedgerActor(unauthenticatedAgent),
           bip721Ledger: createBip721LedgerActor(unauthenticatedAgent),
-          icpCoins: createIcpCoinsActor(unauthenticatedAgent),
           faucet: createFaucetActor(unauthenticatedAgent),
         }
       : undefined;
@@ -139,7 +127,6 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           bqcLedger: createBqcLedgerActor(authenticatedAgent),
           ckbtcLedger: createCkBtcLedgerActor(authenticatedAgent),
           bip721Ledger: createBip721LedgerActor(authenticatedAgent),
-          icpCoins: createIcpCoinsActor(authenticatedAgent),
           faucet: createFaucetActor(authenticatedAgent),
         }
       : undefined;

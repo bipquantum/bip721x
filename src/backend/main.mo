@@ -18,7 +18,6 @@ import Option        "mo:base/Option";
 import Cycles        "mo:base/ExperimentalCycles";
 import Time          "mo:base/Time";
 
-
 shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = this {
 
   type User                  = Types.User;
@@ -31,6 +30,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   type QueryDirection        = Types.QueryDirection;
   type Notification          = Types.Notification;
   type NotificationType      = Types.NotificationType;
+  type SCkbtcRate            = Types.SCkbtcRate;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
 
   // STABLE MEMBER
@@ -54,7 +54,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_5_0(stableData)){
+      case(#v0_6_0(stableData)){
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
@@ -69,7 +69,17 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
           });
         });
       };
-      case(_) { Debug.trap("Unexpected state version: v0_5_0 expected"); };
+      case(_) { Debug.trap("Unexpected state version: v0_6_0"); };
+    };
+    
+    // Start the price update timer
+    switch(_controller) {
+      case(?controller) {
+        ignore controller.startPriceUpdateTimer();
+      };
+      case(null) {
+        Debug.trap("Controller is not initialized");
+      };
     };
     
     #ok;
@@ -262,6 +272,10 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public shared({caller}) func mark_notification_as_read({ notificationId: Nat; }) : async() {
     getController().markNotificationAsRead(caller, notificationId);
+  };
+
+  public query func get_ckbtc_usd_price() : async SCkbtcRate {
+    getController().getCkbtcUsdPrice();
   };
 
   // Required to bypass NFID user approval to get users' BQC balance

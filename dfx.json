@@ -46,10 +46,10 @@
       "type": "pull",
       "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
     },
-    "icp_coins": {
-      "main": "src/stubs/icp_coins/main.mo",
+    "exchange_rate": {
+      "main": "src/stubs/exchange_rate/main.mo",
       "type": "motoko",
-      "id": "u45jl-liaaa-aaaam-abppa-cai"
+      "id": "uf6dk-hyaaa-aaaaq-qaaaq-cai"
     }
   },
   "defaults": {

@@ -6,6 +6,7 @@ import ChatBot           "ChatBot";
 
 import BIP721Ledger      "canister:bip721_ledger";
 import BQCLedger         "canister:bqc_ledger";
+import ExchangeRate      "canister:exchange_rate";
 
 import Set               "mo:map/Set";
 import ICRC7             "mo:icrc7-mo";
@@ -19,6 +20,10 @@ import Option            "mo:base/Option";
 import Int               "mo:base/Int";
 import Time              "mo:base/Time";
 import Nat64             "mo:base/Nat64";
+import Timer             "mo:base/Timer";
+import Cycles            "mo:base/ExperimentalCycles";
+import Debug             "mo:base/Debug";
+import Error             "mo:base/Error";
 
 module {
 
@@ -40,6 +45,8 @@ module {
   type NotificationType    = Types.NotificationType;
   type NotificationState   = Types.NotificationState;
   type Notifications       = Types.Notifications;
+  type CkbtcRate           = Types.CkbtcRate;
+  type SCkbtcRate          = Types.SCkbtcRate;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -53,7 +60,10 @@ module {
     airdrop: Airdrop;
     chatBot: ChatBot.ChatBot;
     notifications: Notifications;
+    ckbtcRate: CkbtcRate;
   }) {
+
+    var priceUpdateTimer : ?Timer.TimerId = null;
 
     public func setUser(
       args: CreateUserArgs and {
@@ -642,6 +652,57 @@ module {
       });
           
       Map.set(notifications.byPrincipal, Map.phash, user, updatedNotifications);
+    };
+
+    public func startPriceUpdateTimer() : async () {
+      if (priceUpdateTimer != null) {
+        Debug.trap("Price update timer is already running");
+      };
+      priceUpdateTimer := ?Timer.recurringTimer<system>(
+        #nanoseconds(5 * 60 * 1_000_000_000), // 5 minutes in nanoseconds
+        func () : async () {
+          await updateCkBtcPrice();
+        }
+      );
+    };
+
+    public func updateCkBtcPrice() : async () {
+      try {
+
+        let cyclesToSend = 5_000_000_000; // 5B cycles upper bound
+        Cycles.add(cyclesToSend);
+        
+        let result = await ExchangeRate.get_exchange_rate({
+          base_asset = {
+            symbol = "ckBTC";
+            assetClass = #Cryptocurrency;
+          };
+          quote_asset = {
+            symbol = "USD";
+            assetClass = #FiatCurrency;
+          };
+          timestamp = null;
+        });
+        
+        switch (result) {
+          case (#Ok(exchangeRate)) {
+            ckbtcRate.usd_price := exchangeRate.rate;
+            ckbtcRate.last_update := Time.now();
+          };
+          case (#Err(error)) {
+            Debug.print("Failed to fetch ckBTC price: " # debug_show(error));
+          };
+        };
+      } catch (error) {
+        Debug.print("Error fetching ckBTC price: " # debug_show(Error.message(error)));
+      };
+    };
+
+    public func getCkbtcUsdPrice() : SCkbtcRate {
+      {
+        usd_price = ckbtcRate.usd_price;
+        last_update = ckbtcRate.last_update;
+      };
     };
 
   };

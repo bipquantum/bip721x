@@ -1,6 +1,6 @@
 import { ckbtcLedgerActor } from "../actors/CkBtcLedgerActor";
 import { bqcLedgerActor } from "../actors/BqcLedgerActor";
-import { icpCoinsActor } from "../actors/IcpCoinsActor";
+import { backendActor } from "../actors/BackendActor";
 import { faucetActor } from "../actors/FaucetActor";
 import { fromFixedPoint, toFixedPoint } from "../../utils/conversions";
 import { getTokenDecimals, getTokenFee } from "../../utils/metadata";
@@ -54,29 +54,9 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     args: [],
   });
 
-  const { call: fetchLatestPrices } = icpCoinsActor.useQueryCall({
-    functionName: "get_latest",
+  const { data: ckbtcPriceData, call: fetchCkbtcPrice } = backendActor.useQueryCall({
+    functionName: "get_ckbtc_usd_price",
     args: [],
-    onSuccess: (data) => {
-      if(data !== undefined) {
-        // Search for the pair ckBTC/USD or ckUSDT/USD depending on the ledger type
-        const priceRow = data.find(row => {
-          const [, tokenName] = row;
-          return (ledgerType === LedgerType.CK_BTC && tokenName === "ckBTC/USD") ||
-                 (ledgerType === LedgerType.BQC && tokenName === "BQC/USD");
-        });
-        if (priceRow) {
-          const [, , price] = priceRow;
-          setPrice(price);
-        } else {
-          console.warn(`Price for ${ledgerType} not found in latest prices.`);
-          setPrice(undefined);
-        }
-      } else {
-        console.warn("No latest prices data available.");
-        setPrice(undefined);
-      }
-    }
   });
 
   const { data: totalSupply } = actor.useQueryCall({
@@ -101,9 +81,17 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
 
   const [price, setPrice] = useState<number | undefined>(undefined);
 
+  // Handle ckBTC price data from backend
   useEffect(() => {
-    fetchLatestPrices();
-  }, []);
+    if (ckbtcPriceData && ledgerType === LedgerType.CK_BTC) {
+      // Convert from Nat64 (8 decimal places) to number
+      const priceNumber = Number(ckbtcPriceData.usd_price) / 100_000_000;
+      setPrice(priceNumber);
+    } else if (ledgerType === LedgerType.BQC) {
+      // For BQC, we might need a different price source or default to 1 USD
+      setPrice(1.0);
+    }
+  }, [ckbtcPriceData, ledgerType]);
 
   const tokenDecimals = useMemo(() => getTokenDecimals(metadata), [metadata]);
   const tokenFee = useMemo(() => getTokenFee(metadata), [metadata]);
