@@ -8,7 +8,7 @@ module {
 
   public type IntPropRegister = {
     var index: Nat;
-    e8sIcpPrices: Map.Map<Nat, Nat>;
+    e8sBtcPrices: Map.Map<Nat, Nat>;
   };
 
   public type User = {
@@ -85,7 +85,7 @@ module {
     airdrop: Airdrop;
     intProps: {
       var index: Nat;
-      e8sIcpPrices: Map.Map<Nat, Nat>;
+      e8sBtcPrices: Map.Map<Nat, Nat>;
     };
     chatHistories: ChatHistories;
     e8sTransferFee: Nat;
@@ -102,8 +102,19 @@ module {
     #none;
   };
 
-  public type InitArgs = { e8sTransferFee: Nat; airdrop_per_user: Nat; admin: Principal; chatbot_api_key: Text; ckbtc_usd_price: Nat64; };
-  public type UpgradeArgs = { ckbtc_usd_price: Nat64; };
-  public type DowngradeArgs = {};
+  public type InitArgs = { 
+    e8sTransferFee: Nat;
+    airdrop_per_user: Nat;
+    admin: Principal;
+    chatbot_api_key: Text;
+    ckbtc_usd_price: Nat64;
+  };
+  public type UpgradeArgs = { 
+    ckbtc_usd_price: Nat64;
+    bqc_to_ckbtc: Float;
+  };
+  public type DowngradeArgs = {
+    ckbtc_to_bqc: Float;
+  };
 
 };

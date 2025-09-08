@@ -74,7 +74,7 @@ export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
       }
 
       const listResult = await listIntProp([
-        { token_id: intPropId, e8s_icp_price: sellPrice },
+        { token_id: intPropId, e8s_btc_price: sellPrice },
       ]);
 
       if (!listResult || "err" in listResult) {

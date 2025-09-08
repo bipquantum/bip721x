@@ -2,6 +2,8 @@ import Map "mo:map/Map";
 import Set "mo:map/Set";
 import Debug "mo:base/Debug";
 import Time "mo:base/Time";
+import Int "mo:base/Int";
+import Float "mo:base/Float";
 
 import V0_6_0 "./Types";
 import MigrationTypes "../Types";
@@ -25,7 +27,7 @@ module {
       };
       intProps = {
         var index = 0;
-        e8sIcpPrices = Map.new<Nat, Nat>();
+        e8sBtcPrices = Map.new<Nat, Nat>();
       };
       chatHistories = {
         histories = Map.new<Text, V0_6_0.ChatHistory>();
@@ -55,20 +57,34 @@ module {
       case (#v0_5_0(state)) state;
       case (_) Debug.trap("Unexpected migration state (v0_5_0 expected)") 
     };
-    #v0_6_0({ state with ckbtcRate = {
+    #v0_6_0({ state with 
+      ckbtcRate = {
         var usd_price = args.ckbtc_usd_price;
         var last_update = Time.now();
-      }
+      };
+      intProps = {
+        var index = state.intProps.index;
+        e8sBtcPrices = Map.map<Nat, Nat, Nat>(state.intProps.e8sIcpPrices, Map.nhash, func(key: Nat, old_price: Nat): Nat {
+          Int.abs(Float.toInt(Float.fromInt(old_price) * args.bqc_to_ckbtc));
+        });
+      };
     });
   };
 
-  public func downgrade(migration_state: MigrationTypes.State, _: DowngradeArgs): MigrationTypes.State {
+  public func downgrade(migration_state: MigrationTypes.State, args: DowngradeArgs): MigrationTypes.State {
     // Access current state
     let state = switch (migration_state) {
       case (#v0_6_0(state)) state;
       case (_) Debug.trap("Unexpected migration state (v0_6_0 expected)") 
     };
-    #v0_5_0(state);
+    #v0_5_0({ state with 
+      intProps = {
+        var index = state.intProps.index;
+        e8sIcpPrices = Map.map<Nat, Nat, Nat>(state.intProps.e8sBtcPrices, Map.nhash, func(key: Nat, old_price: Nat): Nat {
+          Int.abs(Float.toInt(Float.fromInt(old_price) * args.ckbtc_to_bqc));
+        });
+      };
+    });
   };
 
 };

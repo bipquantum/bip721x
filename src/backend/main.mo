@@ -121,8 +121,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     await getController().createIntProp({ args with author = caller; });
   };
 
-  public shared({caller}) func list_int_prop({ token_id: Nat; e8s_icp_price: Nat; }) : async Result<(), Text> {
-    await* getController().listIntProp({ caller; id = token_id; e8sIcpPrice = e8s_icp_price; });
+  public shared({caller}) func list_int_prop({ token_id: Nat; e8s_btc_price: Nat; }) : async Result<(), Text> {
+    await* getController().listIntProp({ caller; id = token_id; e8sBtcPrice = e8s_btc_price; });
   };
 
   public shared({caller}) func unlist_int_prop({token_id: Nat;}) : async Result<(), Text> {

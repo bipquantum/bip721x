@@ -191,7 +191,7 @@ module {
     public func listIntProp({
       caller: Principal;
       id: Nat;
-      e8sIcpPrice: Nat;
+      e8sBtcPrice: Nat;
     }) : async* Result<(), Text> {
       
       let #ok(owner) = await* findIntPropOwner(id) 
@@ -205,7 +205,7 @@ module {
         return #err("You cannot list a banned IP");
       };
 
-      Map.set(intProps.e8sIcpPrices, Map.nhash, id, e8sIcpPrice);
+      Map.set(intProps.e8sBtcPrices, Map.nhash, id, e8sBtcPrice);
       #ok;
     };
 
@@ -223,7 +223,7 @@ module {
         return #err("You cannot unlist an IP that you do not own");
       };
 
-      Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+      Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
       #ok;
     };
 
@@ -237,7 +237,7 @@ module {
         case(#BACKWARD) { Map.keysFromDesc; };
       };
       let listed_ids = Buffer.Buffer<Nat>(0);
-      for (key in iter_keys(intProps.e8sIcpPrices, Map.nhash, prev)){
+      for (key in iter_keys(intProps.e8sBtcPrices, Map.nhash, prev)){
         switch(take){
           case(null) {};
           case(?take) {
@@ -252,11 +252,11 @@ module {
     };
 
     public func isListedIntProp(id: Nat) : Bool {
-      Map.has(intProps.e8sIcpPrices, Map.nhash, id);
+      Map.has(intProps.e8sBtcPrices, Map.nhash, id);
     };
 
     public func getE8sPrice({id: Nat}) : Result<Nat, Text> {
-      switch(Map.get(intProps.e8sIcpPrices, Map.nhash, id)){
+      switch(Map.get(intProps.e8sBtcPrices, Map.nhash, id)){
         case(null) { #err("IP is not listed"); };
         case(?price) { #ok(price); };
       };
@@ -314,7 +314,7 @@ module {
         case(#err(err)){ #err(err); };
         case(#ok){
           // Remove the IP from the list of listed IPs
-          Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+          Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
           
           // Create notification for seller about IP purchase
           createNotification(seller, #IP_PURCHASED({
@@ -470,7 +470,7 @@ module {
       // Add it to the banned IPs
       Set.add(accessControl.bannedIps, Set.nhash, id);
       // Remove it from the marketplace if it is currently listed
-      Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+      Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
       // Ban the author
       if (ban_author) {
         let author = switch(await* queryIntProp(id)){
@@ -531,7 +531,7 @@ module {
 
       // Remove them from the marketplace
       for (id in intPropIds.vals()){
-        Map.delete(intProps.e8sIcpPrices, Map.nhash, id);
+        Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
       };
 
       #ok;
@@ -670,7 +670,7 @@ module {
       try {
 
         let cyclesToSend = 5_000_000_000; // 5B cycles upper bound
-        Cycles.add(cyclesToSend);
+        Cycles.add<system>(cyclesToSend);
         
         let result = await ExchangeRate.get_exchange_rate({
           base_asset = {

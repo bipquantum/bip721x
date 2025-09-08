@@ -54,7 +54,7 @@ const createActors = async (canisterIds,actorFactories, identity) => {
   });
 }
 
-const listIp = async (canisterIds, user_actors, token_id, e8s_icp_price) => {
+const listIp = async (canisterIds, user_actors, token_id, e8s_btc_price) => {
   
   // Approve the backend to transfer the IP
   let approve_transfer_result = await user_actors.bip721Actor.icrc37_approve_tokens([{
@@ -76,16 +76,16 @@ const listIp = async (canisterIds, user_actors, token_id, e8s_icp_price) => {
 
   // List the IP
   let list_int_prop_result = await user_actors.backendActor.list_int_prop({
-    token_id: token_id, e8s_icp_price: e8s_icp_price
+    token_id: token_id, e8s_btc_price: e8s_btc_price
   });
   return list_int_prop_result.ok !== undefined;
 }
 
-const buyIp = async (canisterIds, user_actors, token_id, e8s_icp_price) => {
+const buyIp = async (canisterIds, user_actors, token_id, e8s_btc_price) => {
     
   // Allow the backend to spend the ICP
   let approve_result = await user_actors.bqcActor.icrc2_approve({
-    amount: e8s_icp_price + 10_000n,
+    amount: e8s_btc_price + 10_000n,
     memo: [],
     from_subaccount: [],
     created_at_time: [dateToTime(new Date())],
@@ -138,8 +138,8 @@ async function testBuyIpThenBuyBack() {
   console.log(create_int_prop_result);
   let token_id = create_int_prop_result.ok;
 
-  var e8s_icp_price = 100n * 100_000_000n // 100 ICP
-  const list_ip_result = await listIp(canisterIds, author, token_id, e8s_icp_price);
+  var e8s_btc_price = 100n * 100_000_000n // 100 ICP
+  const list_ip_result = await listIp(canisterIds, author, token_id, e8s_btc_price);
   console.log(list_ip_result);
 
   let buyer = await createActors(canisterIds, actorFactories, Ed25519KeyIdentity.generate());
@@ -149,19 +149,19 @@ async function testBuyIpThenBuyBack() {
   console.log(airdrop_result);
 
   // Allow the backend to spend the ICP
-  let buy_ip_result = await buyIp(canisterIds, buyer, token_id, e8s_icp_price);
+  let buy_ip_result = await buyIp(canisterIds, buyer, token_id, e8s_btc_price);
   console.log(buy_ip_result);
 
   // The buyer lists the IP for sale for a different price
-  e8s_icp_price = 200n * 100_000_000n // 200 ICP
-  let list_ip_result2 = await listIp(canisterIds, buyer, token_id, e8s_icp_price);
+  e8s_btc_price = 200n * 100_000_000n // 200 ICP
+  let list_ip_result2 = await listIp(canisterIds, buyer, token_id, e8s_btc_price);
   console.log(list_ip_result2);
 
   // The author buys the IP back, but needs airdrop first
   let airdrop_result2 = await author.backendActor.airdrop_user();
   console.log(airdrop_result2);
 
-  let buy_ip_result2 = await buyIp(canisterIds, author, token_id, e8s_icp_price);
+  let buy_ip_result2 = await buyIp(canisterIds, author, token_id, e8s_btc_price);
   console.log(buy_ip_result2);
 }
 
@@ -194,8 +194,8 @@ async function testBuyTwoIps() {
   })).ok;
   console.log(token_1);
 
-  const e8s_icp_price = 100n * 100_000_000n // 100 ICP
-  const list_ip_result = await listIp(canisterIds, author, token_1, e8s_icp_price);
+  const e8s_btc_price = 100n * 100_000_000n // 100 ICP
+  const list_ip_result = await listIp(canisterIds, author, token_1, e8s_btc_price);
   console.log(list_ip_result);
 
   let token_2 = (await author.backendActor.create_int_prop({
@@ -209,7 +209,7 @@ async function testBuyTwoIps() {
   })).ok;
   console.log(token_2);
 
-  const list_ip_result2 = await listIp(canisterIds, author, token_2, e8s_icp_price);
+  const list_ip_result2 = await listIp(canisterIds, author, token_2, e8s_btc_price);
   console.log(list_ip_result2);
 
   let buyer = await createActors(canisterIds, actorFactories, Ed25519KeyIdentity.generate());
@@ -219,11 +219,11 @@ async function testBuyTwoIps() {
   console.log(airdrop_result);
 
   // Buy IP1
-  let buy_ip_result = await buyIp(canisterIds, buyer, token_1, e8s_icp_price);
+  let buy_ip_result = await buyIp(canisterIds, buyer, token_1, e8s_btc_price);
   console.log(buy_ip_result);
 
   // Buy IP2
-  let buy_ip_result2 = await buyIp(canisterIds, buyer, token_2, e8s_icp_price);
+  let buy_ip_result2 = await buyIp(canisterIds, buyer, token_2, e8s_btc_price);
   console.log(buy_ip_result2);
 };
 
