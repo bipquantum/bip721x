@@ -10,7 +10,7 @@ shared actor class ExchangeRate({ ckbtc_usd_price: Nat64 }) {
 
   public type Asset = {
     symbol : Text;
-    assetClass : AssetClass;
+    class_ : AssetClass;
   };
 
   public type GetExchangeRateRequest = {

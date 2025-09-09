@@ -13,7 +13,7 @@ export const useDeleteIntProp = ({ onSuccess, onError }: DeleteIntPropArgs) => {
   const { call: unlistIntProp } = backendActor.useUpdateCall({
     functionName: "unlist_int_prop",
   });
-  const { call: burn } = bip721LedgerActor.useUpdateCall({
+  const { call: burn } = bip721LedgerActor.authenticated.useUpdateCall({
     functionName: "icrcX_burn",
   });
 

@@ -278,16 +278,6 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().getCkbtcUsdPrice();
   };
 
-  // Required to bypass NFID user approval to get users' BQC balance
-  public composite query func bqc_balance_of(account: Account) : async Nat {
-    await BQCLedger.icrc1_balance_of(account);
-  };
-
-  // Required to bypass NFID user approval to get users' ckBTC balance
-  public composite query func ckbtc_balance_of(account: Account) : async Nat {
-    await CKBTCLedger.icrc1_balance_of(account);
-  };
-
   func getController() : Controller.Controller {
     switch(_controller){
       case (null) { Debug.trap("The controller is not initialized"); };

@@ -74,7 +74,7 @@ const SendModal: React.FC<SendModalProps> = ({ isOpen, onClose, tokenSymbol, led
     try {
       const result = await ledger.transferTokens(transferAmount, recipientAccount);
       
-      if ('Ok' in result) {
+      if (result && 'Ok' in result) {
         setTransactionStatus('success');
         // Refresh balance after successful transfer
         ledger.refreshUserBalance();
@@ -86,8 +86,11 @@ const SendModal: React.FC<SendModalProps> = ({ isOpen, onClose, tokenSymbol, led
           setAmount("");
           setTransactionStatus('idle');
         }, 2000);
-      } else {
+      } else if (result && 'Err' in result) {
         console.error("Transfer failed:", result.Err);
+        setTransactionStatus('error');
+      } else {
+        console.error("Transfer failed: Unknown error");
         setTransactionStatus('error');
       }
     } catch (error) {

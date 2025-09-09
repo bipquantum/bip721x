@@ -1,4 +1,4 @@
-import { ckbtcLedgerActor } from "../actors/CkBtcLedgerActor";
+import { CkBtcLedger, ckbtcLedgerActor } from "../actors/CkBtcLedgerActor";
 import { bqcLedgerActor } from "../actors/BqcLedgerActor";
 import { backendActor } from "../actors/BackendActor";
 import { faucetActor } from "../actors/FaucetActor";
@@ -25,7 +25,7 @@ export interface FungibleLedger {
   convertFromUsd: (amountFixedPoint: number | undefined) => bigint | undefined;
   convertToFixedPoint: (amount: number | undefined) => bigint | undefined;
   convertToFloatingPoint: (amountFixedPoint: bigint | number | undefined) => number | undefined;
-  transferTokens: (amount: bigint, to: Account) => Promise<TransferResult>;
+  transferTokens: (amount: bigint, to: Account) => Promise<TransferResult | undefined>;
   subtractFee?: (amount: bigint) => bigint;
   userBalance: bigint | undefined;
   refreshUserBalance: () => void;
@@ -49,22 +49,22 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     return undefined;
   }, [user]);
 
-  const { data: metadata } = actor.useQueryCall({
+  const { data: metadata } = actor.unauthenticated.useQueryCall({
     functionName: 'icrc1_metadata',
     args: [],
   });
 
-  const { data: ckbtcPriceData, call: fetchCkbtcPrice } = backendActor.useQueryCall({
+  const { data: ckbtcPriceData } = backendActor.useQueryCall({
     functionName: "get_ckbtc_usd_price",
     args: [],
   });
 
-  const { data: totalSupply } = actor.useQueryCall({
+  const { data: totalSupply } = actor.unauthenticated.useQueryCall({
     functionName: 'icrc1_total_supply',
     args: [],
   });
 
-  const { call: transfer } = actor.useUpdateCall({
+  const { call: transfer } = actor.authenticated.useUpdateCall({
     functionName: 'icrc1_transfer',
   });
 
@@ -88,8 +88,8 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
       const priceNumber = Number(ckbtcPriceData.usd_price) / 100_000_000;
       setPrice(priceNumber);
     } else if (ledgerType === LedgerType.BQC) {
-      // For BQC, we might need a different price source or default to 1 USD
-      setPrice(1.0);
+      // For BQC, since the token is not listed yet, the price is undefined
+      setPrice(undefined);
     }
   }, [ckbtcPriceData, ledgerType]);
 
@@ -155,7 +155,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     return amount - tokenFee; // Subtract the token fee from the amount
   };
 
-  const { call: icrc1BalanceOf } = actor.useQueryCall({
+  const { call: icrc1BalanceOf } = actor.unauthenticated.useQueryCall({
     functionName: 'icrc1_balance_of',
   });
 

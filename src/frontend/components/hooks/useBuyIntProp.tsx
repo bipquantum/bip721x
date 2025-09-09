@@ -13,7 +13,7 @@ interface BuyIntPropArgs {
 }
 
 export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
-  const { call: approveCkBtcTransfer } = ckbtcLedgerActor.useUpdateCall({
+  const { call: approveCkBtcTransfer } = ckbtcLedgerActor.authenticated.useUpdateCall({
     functionName: "icrc2_approve",
   });
 

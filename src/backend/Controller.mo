@@ -659,7 +659,7 @@ module {
         Debug.trap("Price update timer is already running");
       };
       priceUpdateTimer := ?Timer.recurringTimer<system>(
-        #nanoseconds(5 * 60 * 1_000_000_000), // 5 minutes in nanoseconds
+        #seconds(15 * 60), // 15 minutes in seconds
         func () : async () {
           await updateCkBtcPrice();
         }
@@ -675,11 +675,11 @@ module {
         let result = await ExchangeRate.get_exchange_rate({
           base_asset = {
             symbol = "ckBTC";
-            assetClass = #Cryptocurrency;
+            class_ = #Cryptocurrency;
           };
           quote_asset = {
             symbol = "USD";
-            assetClass = #FiatCurrency;
+            class_ = #FiatCurrency;
           };
           timestamp = null;
         });

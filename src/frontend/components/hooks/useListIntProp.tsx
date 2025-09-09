@@ -13,11 +13,11 @@ interface ListIntPropArgs {
 }
 
 export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
-  const { call: approveBip721Transfer } = bip721LedgerActor.useUpdateCall({
+  const { call: approveBip721Transfer } = bip721LedgerActor.authenticated.useUpdateCall({
     functionName: "icrc37_approve_tokens",
   });
 
-  const { call: isBip721TranferApproved } = bip721LedgerActor.useQueryCall({
+  const { call: isBip721TranferApproved } = bip721LedgerActor.unauthenticated.useQueryCall({
     functionName: "icrc37_is_approved",
   });
 

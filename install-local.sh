@@ -13,7 +13,7 @@ BQC_LEDGER_CANISTER=$(dfx canister id bqc_ledger)
 CKBTC_LEDGER_CANISTER=$(dfx canister id ckbtc_ledger)
 
 BQC_LOGO=$(base64 -w 0 ./src/frontend/assets/logobqc.png)
-CKBTC_USD_PRICE=10_833_200_000_000  # 1 ckBTC = 108,332 USD (price in e8s)
+CKBTC_USD_PRICE=11_236_300_000_000  # 1 ckBTC = 108,332 USD (price in e8s)
 
 # Deploy all independent canisters
 

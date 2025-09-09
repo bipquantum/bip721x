@@ -75,7 +75,7 @@ const WalletRow: React.FC<WalletRowProps> = ({
                 {balance || "0"}
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                {usdAmount || "$0.00"}
+                {usdAmount || "\u00A0"}
               </span>
             </>
           )}

@@ -13,11 +13,11 @@ interface UnlistIntPropArgs {
 }
 
 export const useUnlistIntProp = ({ onSuccess, onError }: UnlistIntPropArgs) => {
-  const { call: revokeBip721Transfer } = bip721LedgerActor.useUpdateCall({
+  const { call: revokeBip721Transfer } = bip721LedgerActor.authenticated.useUpdateCall({
     functionName: "icrc37_revoke_token_approvals",
   });
 
-  const { call: isBip721TranferApproved } = bip721LedgerActor.useQueryCall({
+  const { call: isBip721TranferApproved } = bip721LedgerActor.unauthenticated.useQueryCall({
     functionName: "icrc37_is_approved",
   });
 
