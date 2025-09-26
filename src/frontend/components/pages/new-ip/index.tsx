@@ -59,7 +59,6 @@ import UserImage from "../../common/UserImage";
 import { ListButton } from "../../common/ListingDetails";
 import { LegalDeclaration } from "./LegalDeclaration";
 import FieldValidator from "./FieldValidator";
-import { useSearch } from "../../common/SearchContext";
 
 const IP_TYPE_OPTIONS: Option[] = [
   {
@@ -459,71 +458,66 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                       >
                         <FieldValidator name={"Creation Date"} />
                       </p>
-                      <div className="relative w-full">
-                        <DatePicker
-                          selected={
-                            typeof intPropInput.creationDate === "bigint"
-                              ? timeToDate(intPropInput.creationDate)
-                              : new Date()
+                      <DatePicker
+                        selected={
+                          typeof intPropInput.creationDate === "bigint"
+                            ? timeToDate(intPropInput.creationDate)
+                            : new Date()
+                        }
+                        onChange={(date) => {
+                          if (date) {
+                            setIntPropInput({
+                              ...intPropInput,
+                              creationDate: dateToTime(date),
+                            });
                           }
-                          onChange={(date) => {
-                            if (date) {
-                              setIntPropInput({
-                                ...intPropInput,
-                                creationDate: dateToTime(date),
-                              });
-                            }
-                          }}
-                          dateFormat="yyyy-MM-dd"
-                          className="relative w-full bg-transparent text-base text-black dark:text-white"
-                          calendarClassName="custom-calendar"
-                          popperClassName="z-50"
-                          popperModifiers={[
-                            {
-                              name: "preventOverflow",
-                              options: {
-                                boundariesElement: "viewport",
-                                padding: 8, // Keep some padding from the edge
-                              },
-                              fn: function (
-                                state: MiddlewareState,
-                              ): MiddlewareReturn | Promise<MiddlewareReturn> {
-                                throw new Error("Function not implemented.");
-                              },
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="w-full bg-transparent text-base text-black dark:text-white"
+                        calendarClassName="custom-calendar"
+                        popperClassName="z-50"
+                        popperModifiers={[
+                          {
+                            name: "preventOverflow",
+                            options: {
+                              boundariesElement: "viewport",
+                              padding: 8, // Keep some padding from the edge
                             },
-                            {
-                              name: "flip",
-                              options: {
-                                fallbackPlacements: [
-                                  "top",
-                                  "bottom",
-                                  "left",
-                                  "right",
-                                ], // Flip to any side if needed
-                              },
-                              fn: function (
-                                state: MiddlewareState,
-                              ): MiddlewareReturn | Promise<MiddlewareReturn> {
-                                throw new Error("Function not implemented.");
-                              },
+                            fn: function (
+                              state: MiddlewareState,
+                            ): MiddlewareReturn | Promise<MiddlewareReturn> {
+                              throw new Error("Function not implemented.");
                             },
-                            {
-                              name: "offset",
-                              options: {
-                                offset: [0, 8], // Small vertical offset from the input
-                              },
-                              fn: function (
-                                state: MiddlewareState,
-                              ): MiddlewareReturn | Promise<MiddlewareReturn> {
-                                throw new Error("Function not implemented.");
-                              },
+                          },
+                          {
+                            name: "flip",
+                            options: {
+                              fallbackPlacements: [
+                                "top",
+                                "bottom",
+                                "left",
+                                "right",
+                              ], // Flip to any side if needed
                             },
-                          ]}
-                        />
-                        <div className="pointer-events-none absolute right-3 top-1/2 w-fit -translate-y-1/2 text-black dark:text-gray-400">
-                          <TbCalendarEventFilled size={22} />
-                        </div>
-                      </div>
+                            fn: function (
+                              state: MiddlewareState,
+                            ): MiddlewareReturn | Promise<MiddlewareReturn> {
+                              throw new Error("Function not implemented.");
+                            },
+                          },
+                          {
+                            name: "offset",
+                            options: {
+                              offset: [0, 8], // Small vertical offset from the input
+                            },
+                            fn: function (
+                              state: MiddlewareState,
+                            ): MiddlewareReturn | Promise<MiddlewareReturn> {
+                              throw new Error("Function not implemented.");
+                            },
+                          },
+                        ]}
+                      />
                     </div>
                   </div>
                 </div>
@@ -675,81 +669,89 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                 </div>
               </div>
             </div>
-            <div className="flex w-full flex-col gap-[30px]">
-              <div className="flex w-full flex-col lg:flex-row">
-                <div className="flex w-full flex-col items-center justify-between gap-[30px] md:flex-row lg:w-6/12">
-                  <div className="flex w-full flex-row items-center justify-between md:w-6/12">
+            <div className="flex w-full flex-col gap-[24px]">
+              {/* Royalties Section */}
+              <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      onClick={() => setRoyaltySwitch(!royaltySwitch)}
+                      className={`relative h-6 w-11 cursor-pointer rounded-full transition-colors duration-200 ${royaltySwitch ? 'bg-gradient-to-r from-primary to-secondary' : 'bg-gray-300 dark:bg-gray-600'}`}
+                    >
+                      <div
+                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${royaltySwitch ? 'translate-x-5' : 'translate-x-0.5'}`}
+                      >
+                        {royaltySwitch && (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <TbCheck size={12} className="text-primary" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     <p className="text-base font-semibold text-black dark:text-white">
                       Royalties
                     </p>
-                    <div
-                      onClick={() => setRoyaltySwitch(!royaltySwitch)}
-                      className="relative h-[32px] w-[52px] cursor-pointer rounded-full bg-[#D0BCFF] px-[4px] py-[2px]"
-                    >
-                      <div
-                        className={`absolute bottom-1/2 left-[4px] flex h-[24px] w-[24px] translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-white ${royaltySwitch ? "translate-x-[85%]" : ""}`}
-                      >
-                        {royaltySwitch && <TbCheck size={16} />}
-                      </div>
-                    </div>
                   </div>
-                  <div className="flex w-full flex-row items-center justify-between md:ml-auto md:w-6/12">
-                    <p className="text-base font-semibold text-black dark:text-white">
-                      percent %
-                    </p>
-                    <input
-                      value={
-                        fromNullable(intPropInput.percentageRoyalties) !==
-                        undefined
-                          ? Number(
-                              fromNullable(intPropInput.percentageRoyalties),
-                            )
-                          : ""
-                      }
-                      placeholder="0"
-                      onChange={(e) => {
-                        const inputValue = e.target.value;
-                        if (inputValue === "") {
+                  <div className={`flex items-center gap-2 transition-opacity duration-200 ${!royaltySwitch ? 'opacity-30' : ''}`}>
+                    <div className="flex items-center gap-1">
+                      <input
+                        value={
+                          fromNullable(intPropInput.percentageRoyalties) !==
+                          undefined
+                            ? Number(
+                                fromNullable(intPropInput.percentageRoyalties),
+                              )
+                            : ""
+                        }
+                        placeholder="0"
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (inputValue === "") {
+                            setIntPropInput((intProp) => {
+                              return {
+                                ...intProp,
+                                percentageRoyalties: [],
+                              };
+                            });
+                            return;
+                          }
+
+                          const value =
+                            Number(inputValue) >= MIN_ROYALTY_PERCENTAGE
+                              ? BigInt(
+                                  Math.min(
+                                    Number(inputValue),
+                                    MAX_ROYALTY_PERCENTAGE,
+                                  ),
+                                )
+                              : undefined;
                           setIntPropInput((intProp) => {
                             return {
                               ...intProp,
-                              percentageRoyalties: [],
+                              percentageRoyalties: toNullable(value),
                             };
                           });
-                          return;
-                        }
-
-                        const value =
-                          Number(inputValue) >= MIN_ROYALTY_PERCENTAGE
-                            ? BigInt(
-                                Math.min(
-                                  Number(inputValue),
-                                  MAX_ROYALTY_PERCENTAGE,
-                                ),
-                              )
-                            : undefined;
-                        setIntPropInput((intProp) => {
-                          return {
-                            ...intProp,
-                            percentageRoyalties: toNullable(value),
-                          };
-                        });
-                      }}
-                      max={MAX_ROYALTY_PERCENTAGE}
-                      min={0}
-                      type="number"
-                      className={`w-[60px] rounded-xl bg-background px-[10px] py-[5px] text-base text-black dark:bg-white/10 dark:text-white ${!royaltySwitch ? "cursor-not-allowed opacity-50" : ""}`}
-                      disabled={!royaltySwitch}
-                    />
+                        }}
+                        max={MAX_ROYALTY_PERCENTAGE}
+                        min={0}
+                        type="number"
+                        className={`w-16 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-base text-black dark:border-gray-600 dark:bg-gray-700 dark:text-white ${!royaltySwitch ? "cursor-not-allowed bg-gray-100 dark:bg-gray-800" : ""}`}
+                        disabled={!royaltySwitch}
+                      />
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">%</span>
+                    </div>
                   </div>
                 </div>
+                {!royaltySwitch && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Enable to set royalty percentage for secondary sales
+                  </p>
+                )}
               </div>
-              <div className="flex w-full flex-col gap-[30px] lg:flex-row">
-                <div className="flex w-full flex-col items-center justify-between gap-[30px] md:flex-row lg:w-6/12">
-                  <div className="flex w-full flex-row items-center justify-between md:w-6/12">
-                    <p className="text-base font-semibold text-black dark:text-white">
-                      Publishing
-                    </p>
+              {/* Publishing Section */}
+              <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
                     <div
                       onClick={() => {
                         setIntPropInput((intProp) => {
@@ -762,22 +764,29 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         });
                         setPublishSwitch(!publishSwitch);
                       }}
-                      className="relative h-[32px] w-[52px] cursor-pointer rounded-full bg-[#D0BCFF] px-[4px] py-[2px]"
+                      className={`relative h-6 w-11 cursor-pointer rounded-full transition-colors duration-200 ${publishSwitch ? 'bg-gradient-to-r from-primary to-secondary' : 'bg-gray-300 dark:bg-gray-600'}`}
                     >
                       <div
-                        className={`absolute bottom-1/2 left-[4px] flex h-[24px] w-[24px] translate-y-1/2 items-center justify-center rounded-full bg-gradient-to-t from-primary to-secondary text-white ${publishSwitch ? "translate-x-[85%]" : ""}`}
+                        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${publishSwitch ? 'translate-x-5' : 'translate-x-0.5'}`}
                       >
-                        {publishSwitch && <TbCheck size={16} />}
+                        {publishSwitch && (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <TbCheck size={12} className="text-primary" />
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                  <div className="ml-auto flex w-full flex-row items-center justify-between md:w-6/12">
                     <p className="text-base font-semibold text-black dark:text-white">
-                      Country
+                      Publishing Details
                     </p>
-                    <div
-                      className={`w-fit ${!publishSwitch ? "pointer-events-none opacity-50" : ""}`}
-                    >
+                  </div>
+                </div>
+                <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${!publishSwitch ? 'opacity-30' : ''}`}>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Country
+                    </label>
+                    <div className={`${!publishSwitch ? "pointer-events-none" : ""}`}>
                       <CountrySelect
                         value={fromNullable(intPropInput.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode}
                         onChange={(countryCode) =>
@@ -795,17 +804,14 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                             };
                           })
                         }
+                        className={`${!publishSwitch ? "bg-gray-100 dark:bg-gray-800" : ""}`}
                       />
                     </div>
                   </div>
-                </div>
-                <div className="flex w-full flex-row items-center justify-between gap-[30px] lg:w-6/12 lg:justify-center">
-                  <p className="text-base font-semibold text-black dark:text-white">
-                    Date
-                  </p>
-                  <div
-                    className={`relative max-w-[140px] rounded-lg bg-background px-4 py-1 dark:bg-white/10 ${!publishSwitch ? "pointer-events-none opacity-50" : ""}`}
-                  >
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Publication Date
+                    </label>
                     <DatePicker
                       selected={
                         intPropInput.publishing?.[0]?.date
@@ -829,20 +835,23 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                         }
                       }}
                       dateFormat="yyyy-MM-dd" // Matches native <input type="date">
-                      className="relative bg-transparent text-base text-black dark:text-white"
+                      className={`flex rounded-lg w-full border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 ${!publishSwitch ? "pointer-events-none bg-gray-100 dark:bg-gray-800" : ""}`}
                       calendarClassName="custom-calendar"
-                      popperClassName="z-50 absolute right-[-220%] top-0"
+                      popperClassName="z-50"
+                      popperPlacement="bottom-start"
                       placeholderText="YYYY-MM-DD"
                       disabled={!publishSwitch}
                     />
-                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black dark:text-gray-400">
-                      <TbCalendarEventFilled size={22} />
-                    </div>
                   </div>
                 </div>
+                {!publishSwitch && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Enable to add publication details for your intellectual property
+                  </p>
+                )}
+              </div>
               </div>
             </div>
-          </div>
         )}
         {step === 2 && (
           <div className="flex w-full grow flex-col items-center gap-[30px] sm:flex-grow-0">
