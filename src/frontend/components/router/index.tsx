@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/dashboard";
-import NewIPButton from "../pages/new-ip";
+import NewIP from "../pages/new-ip";
 import Profile from "../pages/profile";
 import Bips from "../pages/bips";
 import Login from "../pages/login";
@@ -48,7 +48,7 @@ const Router = () => {
         path={"/new"}
         element={
           <PrivateRoute
-            element={<NewIPButton principal={identity?.getPrincipal()} />}
+            element={<NewIP principal={identity?.getPrincipal()} />}
           />
         }
       />
