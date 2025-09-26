@@ -6,7 +6,7 @@ import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
 
 import SpinnerSvg from "../../../assets/spinner.svg";
-import ReactCountryDropdown from "react-country-dropdown";
+import CountrySelect from "../../common/CountrySelect";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DEFAULT_COUNTRY_CODE } from "../../constants";
 import FileUploader from "../../common/FileUploader";
@@ -169,11 +169,11 @@ const Profile = () => {
 
             {/* Input or Dropdown */}
             {field.name === "countryCode" ? (
-              <ReactCountryDropdown
-                defaultCountry={userArgs.countryCode}
-                onSelect={(val) => {
-                  setUserArgs({ ...userArgs, countryCode: val.code });
-                  handleBlur("countryCode", val.code);
+              <CountrySelect
+                value={userArgs.countryCode}
+                onChange={(countryCode) => {
+                  setUserArgs({ ...userArgs, countryCode });
+                  handleBlur("countryCode", countryCode);
                 }}
               />
             ) : field.name !== "imageUri" ? (

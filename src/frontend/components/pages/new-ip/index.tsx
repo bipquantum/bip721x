@@ -16,7 +16,7 @@ import {
   TbCalendarEventFilled,
   TbCheck,
 } from "react-icons/tb";
-import ReactCountryDropdown from "react-country-dropdown";
+import CountrySelect from "../../common/CountrySelect";
 import { toast } from "react-toastify";
 
 import {
@@ -778,9 +778,9 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                     <div
                       className={`w-fit ${!publishSwitch ? "pointer-events-none opacity-50" : ""}`}
                     >
-                      <ReactCountryDropdown
-                        defaultCountry={DEFAULT_PUBLISHING.countryCode}
-                        onSelect={(val) =>
+                      <CountrySelect
+                        value={fromNullable(intPropInput.publishing)?.countryCode ?? DEFAULT_PUBLISHING.countryCode}
+                        onChange={(countryCode) =>
                           setIntPropInput((intProp) => {
                             return {
                               ...intProp,
@@ -789,7 +789,7 @@ const NewIPButton: React.FC<NewIPButtonProps> = ({ principal }) => {
                                   date:
                                     fromNullable(intProp.publishing)?.date ??
                                     DEFAULT_PUBLISHING.date,
-                                  countryCode: val.code,
+                                  countryCode,
                                 },
                               ],
                             };
