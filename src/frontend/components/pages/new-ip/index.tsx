@@ -8,7 +8,7 @@ import { IntPropInput } from "../../../../declarations/backend/backend.did";
 import { dateToTime } from "../../../utils/conversions";
 import SuperJSON from "superjson";
 import { LegalDeclaration } from "./LegalDeclaration";
-import { validateIpDateUri, validateIpDescription, validateIpTitle } from "../../../utils/validation";
+import { validateIpDataUri, validateIpDescription, validateIpTitle } from "../../../utils/validation";
 import NewIpInputs from "./NewIpInputs";
 import ValidateAuthor from "./ValidateAuthor";
 import IpCreated from "./IpCreated";
@@ -113,7 +113,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
             onClick={() => {
               let error =
                 validateIpTitle(intPropInput) ||
-                validateIpDateUri(intPropInput) ||
+                validateIpDataUri(intPropInput) ||
                 validateIpDescription(intPropInput);
               if (error !== undefined) {
                 toast.warn("Invalid BIP: fix required fields");

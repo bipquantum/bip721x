@@ -27,11 +27,8 @@ import {
 } from "../../constants";
 import FileUploader from "../../common/FileUploader";
 import { fromNullable, toNullable } from "@dfinity/utils";
-import { MiddlewareReturn } from "@floating-ui/core";
-import { MiddlewareState } from "@floating-ui/dom";
-import FieldValidator from "./FieldValidator";
 import { getCustomStyles } from "../../../utils/selectStyles";
-import { validateIpDateUri, validateIpDescription, validateIpTitle } from "../../../utils/validation";
+import { validateIpDataUri, validateIpDescription, validateIpTitle } from "../../../utils/validation";
 
 
 interface NewIpInputsProps {
@@ -66,7 +63,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
         <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
           <div className="flex flex-col gap-2">
             <label className="text-base font-semibold text-black dark:text-white">
-              Title<span className="text-red-500">*</span>
+              Title{<span className="text-red-500">{validateIpTitle(intPropInput) ? "*" : ""}</span>}
             </label>
             <div className="relative">
               <input
@@ -81,10 +78,13 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                 }}
                 required
                 placeholder="Enter a title for your intellectual property."
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-black placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                className={`w-full rounded-lg border px-4 py-3 text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:placeholder-gray-400 border-gray-300 bg-white text-black focus:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white`}
               />
-              <div className="mt-1 text-right text-xs text-gray-500">
-                {intPropInput.title.length}/{BIP_TITLE_MAX_LENGTH}
+              <div className="mt-1 flex justify-between text-xs">
+                <span className="text-red-500 font-medium">{validateIpTitle(intPropInput)}</span>
+                <span className={intPropInput.title.length > BIP_TITLE_MAX_LENGTH * 0.9 ? 'text-orange-500 font-medium' : 'text-gray-500'}>
+                  {intPropInput.title.length}/{BIP_TITLE_MAX_LENGTH}
+                </span>
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
         <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
           <div className="flex flex-col gap-2">
             <label className="text-base font-semibold text-black dark:text-white">
-              Description<span className="text-red-500">*</span>
+              Description{<span className="text-red-500">{validateIpDescription(intPropInput) ? "*" : ""}</span>}
             </label>
             <div className="relative">
               <textarea
@@ -109,11 +109,11 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                 required
                 placeholder="Provide a detailed description of your intellectual property. Include key features, innovations, and potential applications."
                 rows={6}
-                className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-black placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                className={`w-full resize-none rounded-lg border px-4 py-3 text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 dark:placeholder-gray-400 border-gray-300 bg-white text-black focus:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white`}
               />
-              <div className="mt-1 flex justify-between text-xs text-gray-500">
-                <span>Minimum 50 characters required</span>
-                <span className={intPropInput.description.length > BIP_DESCRIPTION_MAX_LENGTH * 0.9 ? 'text-orange-500 font-medium' : ''}>
+              <div className="mt-1 flex justify-between text-xs">
+                <span className="text-red-500 font-medium">{validateIpDescription(intPropInput)}</span>
+                <span className={intPropInput.description.length > BIP_DESCRIPTION_MAX_LENGTH * 0.9 ? 'text-orange-500 font-medium' : 'text-gray-500'}>
                   {intPropInput.description.length}/{BIP_DESCRIPTION_MAX_LENGTH}
                 </span>
               </div>
@@ -127,7 +127,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
           <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
             <div className="flex flex-col gap-2">
               <label className="text-base font-semibold text-black dark:text-white">
-                Cover Image<span className="text-red-500">*</span>
+                Cover Image{<span className="text-red-500">{validateIpDataUri(intPropInput) ? "*" : ""}</span>}
               </label>
               <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white p-4 text-base text-black transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
                 <span className="text-gray-400">
@@ -145,7 +145,12 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                   acceptedFiles="image/*,audio/*,application/pdf,text/*"
                 />
               </label>
-              {dataUri && (
+              {validateIpDataUri(intPropInput) && (
+                <p className="text-sm text-red-500 font-medium">
+                  {validateIpDataUri(intPropInput)}
+                </p>
+              )}
+              {!validateIpDataUri(intPropInput) && dataUri && (
                 <p className="text-sm text-green-600 dark:text-green-400">
                   ✓ File uploaded successfully
                 </p>
@@ -157,7 +162,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
           <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
             <div className="flex flex-col gap-2">
               <label className="text-base font-semibold text-black dark:text-white">
-                Date of Creation<span className="text-red-500">*</span>
+                Date of Creation
               </label>
               <DatePicker
                 selected={
@@ -190,7 +195,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
           <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
             <div className="flex flex-col gap-2">
               <label className="text-base font-semibold text-black dark:text-white">
-                Type of Intellectual Property<span className="text-red-500">*</span>
+                Type of Intellectual Property
               </label>
               <Select
                 value={
