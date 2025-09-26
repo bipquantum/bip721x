@@ -61,273 +61,207 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
           <div className="h-[4px] w-full rounded-full bg-[#C4C4C4]" />
         </div>
       </div>
-      <div className="flex w-full flex-col gap-[30px]">
-        <div className="flex w-full flex-col items-center gap-2">
-          <div
-            className={`${dataUri ? "w-fit" : "w-[360px]"} h-[180px] rounded-lg bg-gray-800 dark:bg-gray-200`}
-          >
-            {dataUri && (
-              <FilePreview
-                dataUri={dataUri}
-                className="h-[180px] w-auto rounded-lg"
+      <div className="flex w-full flex-col gap-[24px]">
+        {/* IP Title Section - First Priority */}
+        <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+          <div className="flex flex-col gap-2">
+            <label className="text-base font-semibold text-black dark:text-white">
+              Title<span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                maxLength={BIP_TITLE_MAX_LENGTH}
+                value={intPropInput.title}
+                onChange={(e) => {
+                  setIntPropInput({
+                    ...intPropInput,
+                    title: e.target.value,
+                  });
+                }}
+                required
+                placeholder="Enter a title for your intellectual property."
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-black placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               />
-            )}
+              <div className="mt-1 text-right text-xs text-gray-500">
+                {intPropInput.title.length}/{BIP_TITLE_MAX_LENGTH}
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex w-full flex-col gap-[30px] pr-2">
-          {/* Upload and calendar */}
-          <div className="flex w-full flex-col gap-[20px] sm:gap-[40px] lg:flex-row">
-            <div className="w-full lg:w-6/12">
-              <div className="relative flex w-full flex-col rounded-md border border-gray-400">
-                <p
-                  className={
-                    "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
-                  }
-                >
-                  <FieldValidator
-                    name={"IP File"}
-                    error={validateIpDateUri(intPropInput)}
-                  />
-                </p>
-                <label className="flex h-full w-full items-center justify-between p-4 text-base text-black dark:text-white">
-                  <p>Upload Image/ Video</p>
-                  <span className="ml-auto w-fit text-black dark:text-gray-400">
-                    <CiImageOn size={22} />
-                  </span>
-                  <FileUploader
-                    setDataUri={(dataUri) => {
-                      setIntPropInput({
-                        ...intPropInput,
-                        dataUri: dataUri || "",
-                      });
-                      setDataUri(dataUri ?? "");
-                    }}
-                    acceptedFiles="image/*,audio/*,application/pdf,text/*"
-                  />
-                </label>
-              </div>
-            </div>
-            <div className="w-full lg:w-6/12">
-              <div className="relative flex w-full flex-col rounded-md border border-gray-400 p-[13px]">
-                <p
-                  className={
-                    "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
-                  }
-                >
-                  <FieldValidator name={"Creation Date"} />
-                </p>
-                <DatePicker
-                  selected={
-                    typeof intPropInput.creationDate === "bigint"
-                      ? timeToDate(intPropInput.creationDate)
-                      : new Date()
-                  }
-                  onChange={(date) => {
-                    if (date) {
-                      setIntPropInput({
-                        ...intPropInput,
-                        creationDate: dateToTime(date),
-                      });
-                    }
-                  }}
-                  dateFormat="yyyy-MM-dd"
-                  className="w-full bg-transparent text-base text-black dark:text-white"
-                  calendarClassName="custom-calendar"
-                  popperClassName="z-50"
-                  popperModifiers={[
-                    {
-                      name: "preventOverflow",
-                      options: {
-                        boundariesElement: "viewport",
-                        padding: 8, // Keep some padding from the edge
-                      },
-                      fn: function (
-                        state: MiddlewareState,
-                      ): MiddlewareReturn | Promise<MiddlewareReturn> {
-                        throw new Error("Function not implemented.");
-                      },
-                    },
-                    {
-                      name: "flip",
-                      options: {
-                        fallbackPlacements: [
-                          "top",
-                          "bottom",
-                          "left",
-                          "right",
-                        ], // Flip to any side if needed
-                      },
-                      fn: function (
-                        state: MiddlewareState,
-                      ): MiddlewareReturn | Promise<MiddlewareReturn> {
-                        throw new Error("Function not implemented.");
-                      },
-                    },
-                    {
-                      name: "offset",
-                      options: {
-                        offset: [0, 8], // Small vertical offset from the input
-                      },
-                      fn: function (
-                        state: MiddlewareState,
-                      ): MiddlewareReturn | Promise<MiddlewareReturn> {
-                        throw new Error("Function not implemented.");
-                      },
-                    },
-                  ]}
-                />
+
+        {/* IP Description Section */}
+        <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+          <div className="flex flex-col gap-2">
+            <label className="text-base font-semibold text-black dark:text-white">
+              Description<span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <textarea
+                maxLength={BIP_DESCRIPTION_MAX_LENGTH}
+                value={intPropInput.description}
+                onChange={(e) => {
+                  setIntPropInput({
+                    ...intPropInput,
+                    description: e.target.value,
+                  });
+                }}
+                required
+                placeholder="Provide a detailed description of your intellectual property. Include key features, innovations, and potential applications."
+                rows={6}
+                className="w-full resize-none rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-black placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+              />
+              <div className="mt-1 flex justify-between text-xs text-gray-500">
+                <span>Minimum 50 characters required</span>
+                <span className={intPropInput.description.length > BIP_DESCRIPTION_MAX_LENGTH * 0.9 ? 'text-orange-500 font-medium' : ''}>
+                  {intPropInput.description.length}/{BIP_DESCRIPTION_MAX_LENGTH}
+                </span>
               </div>
             </div>
           </div>
-          {/* IP Title and Description */}
-          <div className="flex w-full flex-col gap-[20px] md:gap-[40px] lg:flex-row">
-            <div className="w-full lg:w-6/12">
-              <div className="relative flex w-full flex-col rounded-md border border-gray-400">
-                <p
-                  className={
-                    "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
-                  }
-                >
-                  <FieldValidator
-                    name={"Title of the IP"}
-                    error={validateIpTitle(intPropInput)}
-                  />
-                </p>
-                <input
-                  type="text"
-                  maxLength={BIP_TITLE_MAX_LENGTH}
-                  value={intPropInput.title}
-                  onChange={(e) => {
+        </div>
+
+        {/* File Upload and Creation Date */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Cover Image Section */}
+          <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+            <div className="flex flex-col gap-2">
+              <label className="text-base font-semibold text-black dark:text-white">
+                Cover Image<span className="text-red-500">*</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white p-4 text-base text-black transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <span className="text-gray-400">
+                  <CiImageOn size={22} />
+                </span>
+                <span>Choose file...</span>
+                <FileUploader
+                  setDataUri={(dataUri) => {
                     setIntPropInput({
                       ...intPropInput,
-                      title: e.target.value,
+                      dataUri: dataUri || "",
                     });
+                    setDataUri(dataUri ?? "");
                   }}
-                  required
-                  className="bg-transparent p-[15px] text-base text-black dark:text-white"
+                  acceptedFiles="image/*,audio/*,application/pdf,text/*"
                 />
-              </div>
-            </div>
-            <div className="w-full lg:w-6/12">
-              <div className="relative flex w-full flex-col rounded-md border border-gray-400">
-                <p
-                  className={
-                    "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
-                  }
-                >
-                  <FieldValidator
-                    name={"Description of the IP"}
-                    error={validateIpDescription(intPropInput)}
-                  />
+              </label>
+              {dataUri && (
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  ✓ File uploaded successfully
                 </p>
-                <textarea
-                  maxLength={BIP_DESCRIPTION_MAX_LENGTH}
-                  value={intPropInput.description}
-                  onChange={(e) => {
-                    setIntPropInput({
-                      ...intPropInput,
-                      description: e.target.value,
-                    });
-                  }}
-                  required
-                  className="h-[54px] bg-transparent px-[15px] pt-[16px] text-base text-black focus:outline-none dark:text-white"
-                />
-              </div>
+              )}
             </div>
           </div>
-          {/* dropdowns */}
-          <div className="flex w-full flex-col gap-[20px] md:gap-[40px] lg:flex-row">
-            <div className="w-full lg:w-6/12">
-              <div className="relative flex w-full flex-col rounded-md border border-gray-400">
-                <p
-                  className={
-                    "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
-                  }
-                >
-                  <FieldValidator name={"IP Type"} />
-                </p>
-                <Select
-                  value={
-                    IP_TYPE_OPTIONS.find(
-                      (option) =>
-                        option.value ===
-                        intPropTypeToIndex(
-                          intPropInput.intPropType,
-                        ).toString(),
-                    ) ||
-                    (() => {
-                      throw new Error(
-                        `Invalid intPropType: ${intPropInput.intPropType}`,
-                      );
-                    })()
-                  }
-                  onChange={(selectedOptions: SelectValue) =>
+
+          {/* Creation Date Section */}
+          <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+            <div className="flex flex-col gap-2">
+              <label className="text-base font-semibold text-black dark:text-white">
+                Date of Creation<span className="text-red-500">*</span>
+              </label>
+              <DatePicker
+                selected={
+                  typeof intPropInput.creationDate === "bigint"
+                    ? timeToDate(intPropInput.creationDate)
+                    : new Date()
+                }
+                onChange={(date) => {
+                  if (date) {
                     setIntPropInput({
                       ...intPropInput,
-                      intPropType: intPropTypeFromIndex(
-                        Number((selectedOptions as Option).value),
-                      ),
-                    })
+                      creationDate: dateToTime(date),
+                    });
                   }
-                  options={IP_TYPE_OPTIONS.filter(
-                    (type) =>
-                      type.value !==
+                }}
+                dateFormat="yyyy-MM-dd"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-black focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                calendarClassName="custom-calendar"
+                popperClassName="z-50"
+                popperPlacement="bottom-start"
+                placeholderText="Select creation date"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* IP Type and License */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* IP Type Section */}
+          <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+            <div className="flex flex-col gap-2">
+              <label className="text-base font-semibold text-black dark:text-white">
+                Type of Intellectual Property<span className="text-red-500">*</span>
+              </label>
+              <Select
+                value={
+                  IP_TYPE_OPTIONS.find(
+                    (option) =>
+                      option.value ===
                       intPropTypeToIndex(
                         intPropInput.intPropType,
                       ).toString(),
-                  )}
-                  styles={getCustomStyles(isDark)}
-                  placeholder="Select Type"
-                />
-              </div>
+                  ) ||
+                  (() => {
+                    throw new Error(
+                      `Invalid intPropType: ${intPropInput.intPropType}`,
+                    );
+                  })()
+                }
+                onChange={(selectedOptions: SelectValue) =>
+                  setIntPropInput({
+                    ...intPropInput,
+                    intPropType: intPropTypeFromIndex(
+                      Number((selectedOptions as Option).value),
+                    ),
+                  })
+                }
+                options={IP_TYPE_OPTIONS}
+                styles={getCustomStyles(isDark)}
+                placeholder="Select IP Type"
+              />
             </div>
-            <div className="w-full lg:w-6/12">
-              <div className="relative flex w-full flex-col rounded-md border border-gray-400">
-                <p
-                  className={
-                    "absolute left-4 top-0 -translate-y-1/2 bg-white px-2 text-sm text-gray-400 transition-all duration-200 ease-in dark:bg-[#2f2f2f]"
-                  }
-                >
-                  <FieldValidator name={"IP License"} />
-                </p>
-                <Select
-                  styles={getCustomStyles(isDark)}
-                  isMulti
-                  value={intPropInput.intPropLicenses.map(
-                    (license) =>
-                      IP_LICENSE_OPTIONS.find(
-                        (option) =>
-                          option.value ===
-                          intPropLicenseToIndex(license).toString(),
-                      ) ||
-                      (() => {
-                        throw new Error(
-                          `Invalid intPropLicense: ${license}`,
-                        );
-                      })(),
-                  )}
-                  onChange={(
-                    newValue: MultiValue<Option | Option[]>,
-                    actionMeta: ActionMeta<Option | Option[]>,
-                  ) => {
-                    const selectedOptions = newValue as Option[]; // Assuming multiple options
-                    setIntPropInput({
-                      ...intPropInput,
-                      intPropLicenses: selectedOptions.map((option) =>
-                        intPropLicenseFromIndex(Number(option.value)),
-                      ),
-                    });
-                  }}
-                  options={IP_LICENSE_OPTIONS}
-                  placeholder="Select options"
-                  // primaryColor="#ffffff"
-                />
-              </div>
+          </div>
+
+          {/* IP License Section */}
+          <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
+            <div className="flex flex-col gap-2">
+              <label className="text-base font-semibold text-black dark:text-white">
+                Intellectual Property License (Multiple Selection)
+              </label>
+              <Select
+                styles={getCustomStyles(isDark)}
+                isMulti
+                value={intPropInput.intPropLicenses.map(
+                  (license) =>
+                    IP_LICENSE_OPTIONS.find(
+                      (option) =>
+                        option.value ===
+                        intPropLicenseToIndex(license).toString(),
+                    ) ||
+                    (() => {
+                      throw new Error(
+                        `Invalid intPropLicense: ${license}`,
+                      );
+                    })(),
+                )}
+                onChange={(
+                  newValue: MultiValue<Option | Option[]>,
+                  actionMeta: ActionMeta<Option | Option[]>,
+                ) => {
+                  const selectedOptions = newValue as Option[];
+                  setIntPropInput({
+                    ...intPropInput,
+                    intPropLicenses: selectedOptions.map((option) =>
+                      intPropLicenseFromIndex(Number(option.value)),
+                    ),
+                  });
+                }}
+                options={IP_LICENSE_OPTIONS}
+                placeholder="Select license options"
+              />
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex w-full flex-col gap-[24px]">
         {/* Royalties Section */}
         <div className="flex w-full flex-col gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-700 dark:bg-gray-800/20">
           <div className="flex items-center justify-between">
@@ -350,7 +284,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                 Royalties
               </p>
             </div>
-            <div className={`flex items-center gap-2 transition-opacity duration-200 ${!royaltySwitch ? 'opacity-30' : ''}`}>
+            { royaltySwitch && <div className={`flex items-center gap-2 transition-opacity duration-200 ${!royaltySwitch ? 'opacity-30' : ''}`}>
               <div className="flex items-center gap-1">
                 <input
                   value={
@@ -398,7 +332,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                 />
                 <span className="text-sm font-medium text-gray-600 dark:text-gray-400">%</span>
               </div>
-            </div>
+            </div> }
           </div>
           {!royaltySwitch && (
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -439,7 +373,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
               </p>
             </div>
           </div>
-          <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${!publishSwitch ? 'opacity-30' : ''}`}>
+          { publishSwitch && <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${!publishSwitch ? 'opacity-30' : ''}`}>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Country
@@ -493,7 +427,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                   }
                 }}
                 dateFormat="yyyy-MM-dd" // Matches native <input type="date">
-                className={`flex rounded-lg w-full border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 ${!publishSwitch ? "pointer-events-none bg-gray-100 dark:bg-gray-800" : ""}`}
+                className={`flex rounded-lg w-full border border-gray-300 text-black dark:text-white bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 ${!publishSwitch ? "pointer-events-none bg-gray-100 dark:bg-gray-800" : ""}`}
                 calendarClassName="custom-calendar"
                 popperClassName="z-50"
                 popperPlacement="bottom-start"
@@ -501,7 +435,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                 disabled={!publishSwitch}
               />
             </div>
-          </div>
+          </div> }
           {!publishSwitch && (
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Enable to add publication details for your intellectual property
