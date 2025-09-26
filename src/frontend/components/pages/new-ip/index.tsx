@@ -103,81 +103,110 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
     save(intPropInput);
   }, [intPropInput]);
 
-  return (
-    <div
-      className={`relative flex w-full flex-grow justify-center sm:flex-grow-0 md:items-center`}
-    >
-      {step === 1 && (
-        <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
-          <button
-            onClick={() => {
-              let error =
-                validateIpTitle(intPropInput) ||
-                validateIpDataUri(intPropInput) ||
-                validateIpDescription(intPropInput);
-              if (error !== undefined) {
-                toast.warn("Invalid BIP: fix required fields");
-                return;
-              }
-              setStep(2);
-            }}
-            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
-          >
-            <TbArrowRight size={60} />
-          </button>
-        </div>
-      )}
-      {step === 2 && (
-        <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
-          <button
-            onClick={() => setStep(3)}
-            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
-          >
-            {loading ? (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent border-t-white dark:border-t-black"></div>
-            ) : (
-              <TbArrowRight size={60} />
-            )}
-          </button>
-        </div>
-      )}
-      {step === 3 && (
-        <div className="absolute right-[5%] top-1/2 z-10 -translate-y-1/2">
-          <button
-            onClick={() => {
-              if (!disclaimerAccepted) {
-                toast.warn("Please accept the legal declaration");
-                return;
-              }
-              createIntProp([intPropInput]);
-            }}
-            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
-          >
-            {loading ? (
-              <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-4 border-transparent border-t-white dark:border-t-black"></div>
-            ) : (
-              <TbArrowRight size={60} />
-            )}
-          </button>
-        </div>
-      )}
-      {step !== 1 && step !== 4 && (
-        <div className="absolute left-[5%] top-1/2 z-10 -translate-y-1/2">
-          <button
-            onClick={() => setStep(step - 1)}
-            className="flex size-[32px] items-center justify-center rounded-full bg-background-dark text-white dark:bg-white dark:text-black md:size-[54px] lg:size-[72px]"
-          >
-            <TbArrowLeft size={60} />
-          </button>
-        </div>
-      )}
+  const getStepInfo = () => {
+    switch (step) {
+      case 1:
+        return {
+          title: "Create new BIP",
+          canGoNext: !validateIpTitle(intPropInput) && !validateIpDataUri(intPropInput) && !validateIpDescription(intPropInput),
+          nextAction: () => setStep(2),
+          nextLabel: "Continue to Author Validation"
+        };
+      case 2:
+        return {
+          title: "Validate Author Details",
+          canGoNext: true,
+          nextAction: () => setStep(3),
+          nextLabel: "Continue to Legal Declaration"
+        };
+      case 3:
+        return {
+          title: "Legal Declaration",
+          canGoNext: disclaimerAccepted,
+          nextAction: () => createIntProp([intPropInput]),
+          nextLabel: "Create IP"
+        };
+      case 4:
+        return {
+          title: "IP Created Successfully",
+          canGoNext: false,
+          nextAction: () => {},
+          nextLabel: ""
+        };
+      default:
+        return {
+          title: "",
+          canGoNext: false,
+          nextAction: () => {},
+          nextLabel: ""
+        };
+    }
+  };
 
-      <div className="flex w-full flex-grow flex-col gap-[30px] overflow-y-auto bg-white px-[10px] py-[20px] backdrop-blur-[10px] dark:bg-white/10 sm:h-[80dvh] sm:flex-grow-0 sm:rounded-[10px] md:rounded-[40px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
-        {step === 1 && <NewIpInputs intPropInput={intPropInput} setIntPropInput={setIntPropInput} dataUri={dataUri} setDataUri={setDataUri} />}
-        {step === 2 && <ValidateAuthor principal={principal} />}
-        {step == 3 && <LegalDeclaration disclaimerAccepted={disclaimerAccepted} setDisclaimerAccepted={setDisclaimerAccepted}/>}
-        {step == 4 && ipId !== undefined && <IpCreated intPropInput={intPropInput} ipId={ipId} dataUri={dataUri}/>}
-      </div>
+  const stepInfo = getStepInfo();
+
+  return (
+    <div className="flex h-full w-full flex-col items-center bg-white dark:bg-white/10 backdrop-blur-[10px]">
+      {/* Main Content */}
+        <div className="flex w-full flex-grow flex-col overflow-y-auto px-[10px] py-[20px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
+          {step === 1 && <NewIpInputs intPropInput={intPropInput} setIntPropInput={setIntPropInput} dataUri={dataUri} setDataUri={setDataUri} />}
+          {step === 2 && <ValidateAuthor principal={principal} />}
+          {step == 3 && <LegalDeclaration disclaimerAccepted={disclaimerAccepted} setDisclaimerAccepted={setDisclaimerAccepted}/>}
+          {step == 4 && ipId !== undefined && <IpCreated intPropInput={intPropInput} ipId={ipId} dataUri={dataUri}/>}
+        </div>
+
+      {/* Sticky Navigation Footer */}
+      {step !== 4 && (
+        <div className="sticky bottom-0 z-20 border-t border-gray-200 bg-white/95 p-4 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95 w-full">
+          <div className="mx-auto flex max-w-4xl items-center justify-between">
+            {/* Back Button */}
+            {step > 1 ? (
+              <button
+                onClick={() => setStep(step - 1)}
+                className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                <TbArrowLeft size={16} />
+                Back
+              </button>
+            ) : (
+              <div></div>
+            )}
+
+            {/* Next Button */}
+            <button
+              onClick={() => {
+                if (!stepInfo.canGoNext) {
+                  if (step === 1) {
+                    toast.warn("Please complete all required fields");
+                  } else if (step === 3) {
+                    toast.warn("Please accept the legal declaration");
+                  }
+                  return;
+                }
+                stepInfo.nextAction();
+              }}
+              disabled={!stepInfo.canGoNext || loading}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                stepInfo.canGoNext && !loading
+                  ? "bg-gradient-to-r from-primary to-secondary text-white hover:from-primary/90 hover:to-secondary/90"
+                  : "cursor-not-allowed bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
+              }`}
+            >
+              {loading ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-transparent border-t-white"></div>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  {stepInfo.nextLabel}
+                  <TbArrowRight size={16} />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

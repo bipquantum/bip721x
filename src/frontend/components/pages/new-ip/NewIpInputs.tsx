@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Select, { ActionMeta, MultiValue } from "react-select";
 import { CiImageOn } from "react-icons/ci";
-import { TbCheck } from "react-icons/tb";
+import { TbCheck, TbCross } from "react-icons/tb";
 import CountrySelect from "../../common/CountrySelect";
 import { Option, SelectValue } from "react-tailwindcss-select/dist/components/type";
 import { IntPropInput } from "../../../../declarations/backend/backend.did";
@@ -29,6 +29,7 @@ import FileUploader from "../../common/FileUploader";
 import { fromNullable, toNullable } from "@dfinity/utils";
 import { getCustomStyles } from "../../../utils/selectStyles";
 import { validateIpDataUri, validateIpDescription, validateIpTitle } from "../../../utils/validation";
+import { MdCancel } from "react-icons/md";
 
 
 interface NewIpInputsProps {
@@ -147,12 +148,10 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                       });
                       setDataUri("");
                     }}
-                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600 transition-colors"
+                    className="absolute right-2 top-2"
                     title="Remove file"
                   >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <MdCancel size={24} color={`${isDark ? "white" : "black"}`} />
                   </button>
                 </div>
                 <div className="flex justify-center">
