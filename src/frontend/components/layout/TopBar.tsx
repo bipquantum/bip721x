@@ -64,7 +64,7 @@ const TopBar = () => {
             className={`h-full w-full`}
           />
         </Link>
-        <div className="flex min-w-0 flex-col items-start justify-center">
+        <div className="hidden min-w-0 flex-col items-start justify-center sm:flex">
           <p className="text-base font-bold md:text-xl">Hello,</p>
           <p className="w-full truncate text-sm md:text-base">
             {user === undefined ? NEW_USER_NICKNAME : user.nickName}
