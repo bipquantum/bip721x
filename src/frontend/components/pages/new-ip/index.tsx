@@ -146,18 +146,20 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   const stepInfo = getStepInfo();
 
   return (
-    <div className="flex h-full w-full flex-col items-center bg-white dark:bg-white/10 backdrop-blur-[10px]">
+    <div className="flex min-h-screen w-full flex-col">
       {/* Main Content */}
-        <div className="flex w-full flex-grow flex-col overflow-y-auto px-[10px] py-[20px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
+      <div className="flex flex-grow items-center justify-center bg-white dark:bg-white/10 backdrop-blur-[10px] overflow-hidden">
+        <div className="flex w-full h-full flex-col overflow-y-auto px-[10px] py-[20px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
           {step === 1 && <NewIpInputs intPropInput={intPropInput} setIntPropInput={setIntPropInput} dataUri={dataUri} setDataUri={setDataUri} />}
           {step === 2 && <ValidateAuthor principal={principal} />}
           {step == 3 && <LegalDeclaration disclaimerAccepted={disclaimerAccepted} setDisclaimerAccepted={setDisclaimerAccepted}/>}
           {step == 4 && ipId !== undefined && <IpCreated intPropInput={intPropInput} ipId={ipId} dataUri={dataUri}/>}
         </div>
+      </div>
 
       {/* Sticky Navigation Footer */}
       {step !== 4 && (
-        <div className="sticky bottom-0 z-20 border-t border-gray-200 bg-white/95 p-4 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95 w-full">
+        <div className="sticky bottom-0 z-20 bg-background dark:bg-background-dark p-4 backdrop-blur-sm w-full">
           <div className="mx-auto flex max-w-4xl items-center justify-between">
             {/* Back Button */}
             {step > 1 ? (
