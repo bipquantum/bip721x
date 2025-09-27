@@ -8,9 +8,9 @@ export const LegalDeclaration = ({
   disclaimerAccepted,
   setDisclaimerAccepted,
 }: LegalDeclarationProps) => {
-  
+
   return (
-    <div className="flex w-full grow flex-col items-center gap-[30px] sm:flex-grow-0">
+    <div className="flex flex-grow flex-col items-center w-full lg:w-10/12 xl:w-8/12 gap-[30px] sm:flex-grow-0">
       <div className="flex w-full flex-col items-center gap-[15px] sm:w-2/3">
         <p className="font-momentum text-lg font-extrabold uppercase text-black dark:text-white">
           Step 3 : Legal declaration

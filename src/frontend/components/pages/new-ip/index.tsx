@@ -109,21 +109,30 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
         return {
           title: "Create new BIP",
           canGoNext: !validateIpTitle(intPropInput) && !validateIpDataUri(intPropInput) && !validateIpDescription(intPropInput),
-          nextAction: () => setStep(2),
+          nextAction: () => {
+            scrollToTop();
+            setStep(2);
+          },
           nextLabel: "Continue to Author Validation"
         };
       case 2:
         return {
           title: "Validate Author Details",
           canGoNext: true,
-          nextAction: () => setStep(3),
+          nextAction: () => {
+            scrollToTop();
+            setStep(3);
+          },
           nextLabel: "Continue to Legal Declaration"
         };
       case 3:
         return {
           title: "Legal Declaration",
           canGoNext: disclaimerAccepted,
-          nextAction: () => createIntProp([intPropInput]),
+          nextAction: () => {
+            scrollToTop();
+            createIntProp([intPropInput]);
+          },
           nextLabel: "Create IP"
         };
       case 4:
@@ -145,11 +154,45 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
 
   const stepInfo = getStepInfo();
 
+  // Ref for the scrollable content area
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    if (contentRef.current) {
+      console.log('Scrolling content ref to top');
+      contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      console.log('Content ref not found, using window scroll');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  //  Precise Height Calculation
+  //
+  //  Mobile (default):
+  //
+  //  min-h-[calc(100vh-8rem)]
+  //  - 100vh: Full viewport height
+  //  - minus 4rem: Topbar height (min-h-16)
+  //  - minus 4rem: Mobile navbar height (h-16)
+  //  - = 100vh - 8rem
+  //
+  //  Small screens and up:
+  //
+  //  sm:min-h-[calc(100vh-9rem)]
+  //  - 100vh: Full viewport height
+  //  - minus 5rem: Topbar height (sm:min-h-20)
+  //  - = 100vh - 5rem
+
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-5rem)] w-full flex-col">
       {/* Main Content */}
-      <div className="flex flex-grow items-center justify-center bg-white dark:bg-white/10 backdrop-blur-[10px] overflow-hidden">
-        <div className="flex w-full h-full flex-col overflow-y-auto px-[10px] py-[20px] md:px-[30px] lg:w-10/12 lg:px-[60px] xl:w-8/12">
+      <div className="flex flex-grow bg-white dark:bg-white/10 backdrop-blur-[10px] overflow-hidden">
+        <div
+          ref={contentRef}
+          className="flex w-full flex-col overflow-y-auto py-[20px] mx-auto items-center px-[10px] md:px-[30px] lg:px-[60px]"
+        >
           {step === 1 && <NewIpInputs intPropInput={intPropInput} setIntPropInput={setIntPropInput} dataUri={dataUri} setDataUri={setDataUri} />}
           {step === 2 && <ValidateAuthor principal={principal} />}
           {step == 3 && <LegalDeclaration disclaimerAccepted={disclaimerAccepted} setDisclaimerAccepted={setDisclaimerAccepted}/>}
@@ -164,7 +207,10 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
             {/* Back Button */}
             {step > 1 ? (
               <button
-                onClick={() => setStep(step - 1)}
+                onClick={() => {
+                  scrollToTop();
+                  setStep(step - 1);
+                }}
                 className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <TbArrowLeft size={16} />
