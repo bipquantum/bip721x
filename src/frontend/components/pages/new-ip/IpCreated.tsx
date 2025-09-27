@@ -26,9 +26,9 @@ const IpCreated: React.FC<IpCreatedProps> = ({ intPropInput, ipId, dataUri }) =>
           <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
           <div className="h-[4px] w-full rounded-full bg-gradient-to-t from-primary to-secondary" />
         </div>
-        <div className="flex w-full flex-col items-center justify-center gap-[40px] pt-[20px]">
-          <div className="flex flex-col items-center justify-center rounded-[40px] border-y-[2.5px] border-white/40 bg-white/10 px-3 py-4">
-            <div className="flex h-[240px] w-[240px] items-center justify-center rounded-[40px] bg-background md:h-[280px] md:w-[280px]">
+        <div className="flex w-full flex-col items-center justify-center gap-[15px] pt-[10px] sm:gap-[25px] sm:pt-[15px]">
+          <div className="flex flex-col items-center justify-center rounded-[40px] border-y-[2.5px] border-white/40 bg-white/10 px-3 py-2 sm:py-3">
+            <div className="flex h-[140px] w-[140px] items-center justify-center rounded-[40px] bg-background sm:h-[180px] sm:w-[180px] md:h-[200px] md:w-[200px]">
               {dataUri && (
                 <FilePreview
                   className="h-full w-full rounded-[40px] object-contain"
@@ -36,13 +36,12 @@ const IpCreated: React.FC<IpCreatedProps> = ({ intPropInput, ipId, dataUri }) =>
                 />
               )}
             </div>
-            <p className="w-full py-[20px] text-center text-lg text-black dark:text-white md:text-2xl">
+            <p className="w-full py-[8px] text-center text-base text-black dark:text-white sm:py-[12px] sm:text-lg md:text-xl">
               {intPropInput.title}
             </p>
           </div>
-          <div className="flex flex-col items-center justify-center gap-[10px] text-center text-xl text-black dark:text-white md:text-3xl">
-            <p>Congratulations!</p>
-            <p>Your IP has been successfully created.</p>
+          <div className="flex flex-col items-center justify-center gap-[4px] text-center text-base text-black dark:text-white sm:gap-[8px] sm:text-lg md:text-xl">
+            <p>Congratulations! Your IP has been successfully created.</p>
           </div>
         </div>
         <div className="flex w-full flex-col gap-5 pt-[10px] md:w-fit md:flex-row">
@@ -50,7 +49,7 @@ const IpCreated: React.FC<IpCreatedProps> = ({ intPropInput, ipId, dataUri }) =>
             onClick={() => {
               navigate(`/bip/${ipId}`);
             }}
-            className="rounded-xl border-2 border-primary bg-transparent px-6 py-3 text-xl text-primary"
+            className="rounded-xl border-2 border-primary dark:border-white bg-transparent px-6 py-3 text-xl text-primary dark:text-white"
           >
             Manage IP
           </button>
