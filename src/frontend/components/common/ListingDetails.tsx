@@ -294,9 +294,9 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
       className="mx-auto h-8 w-8 animate-spin"
     />
   ) : (
-    <div className="flex grid w-full grid-cols-2 items-center justify-center space-x-2 px-2 text-black dark:text-white">
-      {e8sPrice !== undefined ? (
-        <div className="flex flex-col items-start gap-0.5">
+    <div className="flex flex-col w-full gap-2 px-2 text-black dark:text-white">
+      {e8sPrice !== undefined && (
+        <div className="flex flex-col items-end gap-0.5">
           <div className="flex flex-row items-center gap-1 text-base font-bold md:text-2xl">
             <span>
               <IoIosPricetags size={22} />
@@ -321,41 +321,41 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             ≈ {ckbtcLedger.formatAmountUsd(e8sPrice)}
           </span>
         </div>
-      ) : (
-        <div>{/*spacer */}</div>
       )}
 
-      {e8sPrice !== undefined && listingType === EListingType.BUY && (
-        <BuyButton
-          principal={principal}
-          intPropId={intPropId}
-          e8sPrice={e8sPrice}
-          onSuccess={() => {
-            onListingChange?.(EListingType.BUY);
-            refreshListingType();
-          }}
-        />
-      )}
+      <div className="flex w-full justify-end">
+        {e8sPrice !== undefined && listingType === EListingType.BUY && (
+          <BuyButton
+            principal={principal}
+            intPropId={intPropId}
+            e8sPrice={e8sPrice}
+            onSuccess={() => {
+              onListingChange?.(EListingType.BUY);
+              refreshListingType();
+            }}
+          />
+        )}
 
-      {listingType === EListingType.UNLIST && (
-        <UnlistButton
-          intPropId={intPropId}
-          onSuccess={() => {
-            onListingChange?.(EListingType.UNLIST);
-            refreshListingType();
-          }}
-        />
-      )}
+        {listingType === EListingType.UNLIST && (
+          <UnlistButton
+            intPropId={intPropId}
+            onSuccess={() => {
+              onListingChange?.(EListingType.UNLIST);
+              refreshListingType();
+            }}
+          />
+        )}
 
-      {listingType === EListingType.LIST && (
-        <ListButton
-          intPropId={intPropId}
-          onSuccess={() => {
-            onListingChange?.(EListingType.LIST);
-            refreshListingType();
-          }}
-        />
-      )}
+        {listingType === EListingType.LIST && (
+          <ListButton
+            intPropId={intPropId}
+            onSuccess={() => {
+              onListingChange?.(EListingType.LIST);
+              refreshListingType();
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };

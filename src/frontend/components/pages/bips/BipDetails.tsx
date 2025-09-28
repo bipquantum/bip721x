@@ -195,7 +195,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                               ? intProp.ok.V1.intPropLicenses
                                   .map(intPropLicenseToString)
                                   .join(", ")
-                              : "N/A"}
+                              : "None"}
                           </span>
                         </li>
                         <li className="grid grid-cols-2">
