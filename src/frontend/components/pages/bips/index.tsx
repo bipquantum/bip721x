@@ -51,12 +51,9 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
       />
       <div className="w-full px-4">
         <BipList
-          scrollableClassName="grid w-full flex-grow lg:grid-cols-2 xl:grid-cols-4 gap-[20px]"
           principal={principal}
           fetchBips={fetchBips}
           queryDirection={queryDirection}
-          isGrid={true}
-          triggered={false}
           hideUnlisted={true}
         />
       </div>

@@ -11,29 +11,18 @@ import { useAuth, useIdentity } from "@nfid/identitykit/react";
 
 interface BipsProps {
   principal: Principal;
-  scrollableClassName: string;
   fetchBips: (
     prev: bigint | undefined,
     direction: QueryDirection,
   ) => Promise<bigint[] | undefined>;
   queryDirection: EQueryDirection;
-  BipItemComponent?: React.ComponentType<{
-    intPropId: bigint;
-    principal: Principal;
-  }>;
-  isGrid?: boolean;
-  triggered?: boolean;
   hideUnlisted?: boolean;
 }
 
 const BipList: React.FC<BipsProps> = ({
   principal,
-  scrollableClassName,
   fetchBips,
-  isGrid,
   queryDirection,
-  BipItemComponent = BipItem,
-  triggered,
   hideUnlisted,
 }) => {
   const identity = useIdentity();
@@ -61,7 +50,7 @@ const BipList: React.FC<BipsProps> = ({
   // Load initial entries on component mount
   useEffect(() => {
     loadEntries();
-  }, [triggered, identity]);
+  }, [identity]);
 
   // TODO: the infinite scroll component does not get refreshed when the queryDirection changes
   useEffect(() => {
@@ -71,7 +60,7 @@ const BipList: React.FC<BipsProps> = ({
       await loadEntries(); // Wait for entries to load after reset
     };
     resetAndLoadEntries();
-  }, [queryDirection, triggered]);
+  }, [queryDirection]);
 
   const [sentryRef] = useInfiniteScroll({
     loading,
@@ -88,32 +77,20 @@ const BipList: React.FC<BipsProps> = ({
 
   return (
     <div className="w-full flex-grow" id="scrollableDiv">
-      {!isGrid ? (
-        <div className={scrollableClassName}>
-          {Array.from(entries).map((intPropId) => (
-            <BipItemComponent
-              principal={principal}
-              intPropId={intPropId}
-              key={intPropId}
-            />
-          ))}
-        </div>
-      ) : (
-        <div
-          className={
-            "grid w-full flex-grow items-center gap-[20px] md:grid-cols-2 xl:grid-cols-3"
-          }
-        >
-          {Array.from(entries).map((intPropId) => (
-            <BipItem
-              principal={principal}
-              intPropId={intPropId}
-              key={intPropId}
-              hideUnlisted={hideUnlisted}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        className={
+          "grid w-full flex-grow items-center gap-[20px] md:grid-cols-2 xl:grid-cols-3"
+        }
+      >
+        {Array.from(entries).map((intPropId) => (
+          <BipItem
+            principal={principal}
+            intPropId={intPropId}
+            key={intPropId}
+            hideUnlisted={hideUnlisted}
+          />
+        ))}
+      </div>
       {(loading || prev !== undefined) && <div ref={sentryRef}></div>}
     </div>
   );
