@@ -8,7 +8,7 @@ import { useIdentity } from "@nfid/identitykit/react";
 import { useActors } from "../../common/ActorsContext";
 
 import ProfileSvg from "../../../assets/profile.png";
-import ReactCountryDropdown from "react-country-dropdown";
+import CountrySelect from "../../common/CountrySelect";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DEFAULT_COUNTRY_CODE } from "../../constants";
 import FilePreview from "../../common/FilePreview";
@@ -136,11 +136,11 @@ const DetailsView = () => {
 
                 {/* Input or Dropdown */}
                 {field.name === "countryCode" ? (
-                  <ReactCountryDropdown
-                    defaultCountry={userArgs.countryCode}
-                    onSelect={(val) => {
-                      setUserArgs({ ...userArgs, countryCode: val.code });
-                      handleBlur("countryCode", val.code);
+                  <CountrySelect
+                    value={userArgs.countryCode}
+                    onChange={(countryCode) => {
+                      setUserArgs({ ...userArgs, countryCode });
+                      handleBlur("countryCode", countryCode);
                     }}
                   />
                 ) : field.name !== "imageUri" ? (

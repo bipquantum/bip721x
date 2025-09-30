@@ -9,7 +9,6 @@ import SpinnerSvg from "../../../assets/spinner.svg";
 import { toNullable } from "@dfinity/utils";
 import BipList from "../bips/BipList";
 import { useEffect, useState } from "react";
-import { IoGridOutline, IoListOutline } from "react-icons/io5";
 import { TbEye } from "react-icons/tb";
 import UserNickName from "../../common/UserNickname";
 import AiBot from "../../../assets/ai-bot.png";
@@ -121,8 +120,6 @@ interface WalletProps {
 const take: [] | [bigint] = [BigInt(5)];
 
 const Wallet = ({ principal }: WalletProps) => {
-  const [isGrid, setIsGrid] = useState(true);
-  const [triggered, setTriggered] = useState(true);
 
   if (principal === undefined) {
     console.error("Principal is undefined");
@@ -141,17 +138,6 @@ const Wallet = ({ principal }: WalletProps) => {
     });
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsGrid(window.innerWidth < 1024);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   return (
     <div className="flex h-full w-full flex-grow flex-col items-center text-black dark:text-white">
@@ -159,34 +145,12 @@ const Wallet = ({ principal }: WalletProps) => {
         <p className="font-momentum text-xl font-extrabold text-black dark:text-white">
           Your BIPs
         </p>
-        <div
-          onClick={() => {
-            setTriggered(!triggered);
-            setIsGrid(!isGrid);
-          }}
-          className="hidden w-fit flex-row items-center justify-between gap-2 rounded-2xl bg-black/10 px-2 py-[6px] text-white backdrop-blur-[10px] dark:bg-white/20 lg:flex"
-        >
-          <button
-            className={`rounded-lg p-2 ${isGrid ? "bg-white text-black" : ""}`}
-          >
-            <IoGridOutline size={28} />
-          </button>
-          <button
-            className={`rounded-lg p-2 ${!isGrid ? "bg-white text-black" : ""}`}
-          >
-            <IoListOutline size={28} />
-          </button>
-        </div>
       </div>
       <div className="h-full w-full flex-grow px-4 pb-2">
         <BipList
-          scrollableClassName={"flex flex-col h-full flex-grow w-full gap-2"}
           principal={principal}
           fetchBips={fetchBips}
           queryDirection={EQueryDirection.Forward}
-          isGrid={isGrid}
-          BipItemComponent={BIPDetails}
-          triggered={triggered}
         />
       </div>
     </div>

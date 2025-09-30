@@ -148,11 +148,14 @@ const BipItem: React.FC<BipItemProps> = ({
                         </span>
                       </p>
                       <p className="text-sm font-light text-neutral-400">
-                        License:{" "}
+                        Licenses:{" "}
                         <span className="text-sm font-light text-neutral-400">
-                          {intProp.ok.V1.intPropLicenses
-                            .map(intPropLicenseToString)
-                            .join(", ")}
+                          {intProp.ok.V1.intPropLicenses &&
+                          intProp.ok.V1.intPropLicenses.length > 0
+                            ? intProp.ok.V1.intPropLicenses
+                                .map(intPropLicenseToString)
+                                .join(", ")
+                            : "None"}
                         </span>
                       </p>
                     </div>

@@ -1,4 +1,5 @@
-import { ConnectWallet, ConnectWalletDropdownMenu, ConnectWalletDropdownMenuAddressItem, ConnectWalletDropdownMenuButton, ConnectWalletDropdownMenuDisconnectItem, ConnectWalletDropdownMenuItems, useSigner } from "@nfid/identitykit/react";
+import { ConnectWallet, useSigner } from "@nfid/identitykit/react";
+import { useState } from "react";
 
 // Utility function to truncate account address
 const truncateAccount = (account: string | undefined, startChars = 5, endChars = 5): string => {
@@ -22,7 +23,6 @@ interface CustomConnectedButtonProps {
 interface CustomMenuProps {
   connectedAccount?: string;
   icpBalance?: number;
-  disconnect: () => void;
   signerIcon?: string;
   signerLabel?: string;
 }
@@ -49,22 +49,39 @@ const CustomConnectedWalletButton = ({ connectedAccount, signerIcon, signerLabel
   )
 }
 
-const CustomDropdownMenu = ({ connectedAccount, disconnect, signerIcon, signerLabel }: CustomMenuProps) => {
+const CustomDropdownMenu = ({ connectedAccount, signerIcon, signerLabel }: CustomMenuProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (connectedAccount) {
+      try {
+        await navigator.clipboard.writeText(connectedAccount);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+      }
+    }
+  };
+
   return (
-    <ConnectWalletDropdownMenu>
-      <ConnectWalletDropdownMenuButton>
-        <div className="flex items-center justify-center gap-2 bg-primary/10 p-2 rounded-full">
-          {signerIcon && (
-            <img src={signerIcon} alt={signerLabel || 'Wallet'} className="h-6 w-6 rounded-full bg-secondary/10 p-1 flex-shrink-0" />
-          )}
-          <span className="text-center">{truncateAccount(connectedAccount)}</span>
+    <div
+      className="flex items-center justify-center gap-2 bg-primary/10 p-2 rounded-full cursor-pointer hover:bg-primary/20 transition-colors relative"
+      onClick={copyToClipboard}
+      title="Click to copy principal"
+    >
+      {signerIcon && (
+        <img src={signerIcon} alt={signerLabel || 'Wallet'} className="h-6 w-6 rounded-full bg-secondary/10 p-1 flex-shrink-0" />
+      )}
+      <span className="text-center">{truncateAccount(connectedAccount)}</span>
+      {copied && (
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-primary text-white text-xs px-2 py-1 rounded">
+          Copied!
         </div>
-      </ConnectWalletDropdownMenuButton>
-      <ConnectWalletDropdownMenuItems>
-        <ConnectWalletDropdownMenuDisconnectItem onClick={disconnect} />
-        <ConnectWalletDropdownMenuAddressItem value={connectedAccount || ''} />
-      </ConnectWalletDropdownMenuItems>
-    </ConnectWalletDropdownMenu>
+      )}
+    </div>
   )
 }
 
@@ -86,10 +103,10 @@ const WalletButton = () => {
         />
       )}
       dropdownMenuComponent={(props) => (
-        <CustomDropdownMenu 
-          {...props} 
-          signerIcon={signerIcon} 
-          signerLabel={signerLabel} 
+        <CustomDropdownMenu
+          {...props}
+          signerIcon={signerIcon}
+          signerLabel={signerLabel}
         />
       )}
     />

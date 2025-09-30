@@ -6,13 +6,13 @@ import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
 
 import SpinnerSvg from "../../../assets/spinner.svg";
-import ReactCountryDropdown from "react-country-dropdown";
+import CountrySelect from "../../common/CountrySelect";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DEFAULT_COUNTRY_CODE } from "../../constants";
 import FileUploader from "../../common/FileUploader";
 import FilePreview from "../../common/FilePreview";
 
-import { FiUserPlus } from "react-icons/fi";
+import { FiUserPlus, FiLogOut } from "react-icons/fi";
 import { useAuth } from "@nfid/identitykit/react";
 import WalletButton from "../../common/WalletButton";
 import { invalidateUserCache } from "../../common/UserImage";
@@ -39,7 +39,7 @@ const ProfileFields: {
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, disconnect } = useAuth();
   const [focusedFields, setFocusedFields] = useState<{
     [key: string]: boolean;
   }>({});
@@ -148,7 +148,16 @@ const Profile = () => {
               </div>
             )}
           </FileUploader>
-          <WalletButton/>
+          <div className="flex flex-row items-center gap-2 sm:gap-3">
+            <WalletButton/>
+            <button
+              className="flex items-center justify-center rounded-full p-3 text-black dark:text-white"
+              onClick={() => { disconnect(); navigate("/"); }}
+              title="Disconnect"
+            >
+              <FiLogOut size={20} color="currentColor"/>
+            </button>
+          </div>
         </div>
       </div>
       <div className="grid w-full grid-cols-1 gap-[30px] text-base md:grid-cols-2 lg:w-8/12">
@@ -169,11 +178,11 @@ const Profile = () => {
 
             {/* Input or Dropdown */}
             {field.name === "countryCode" ? (
-              <ReactCountryDropdown
-                defaultCountry={userArgs.countryCode}
-                onSelect={(val) => {
-                  setUserArgs({ ...userArgs, countryCode: val.code });
-                  handleBlur("countryCode", val.code);
+              <CountrySelect
+                value={userArgs.countryCode}
+                onChange={(countryCode) => {
+                  setUserArgs({ ...userArgs, countryCode });
+                  handleBlur("countryCode", countryCode);
                 }}
               />
             ) : field.name !== "imageUri" ? (
