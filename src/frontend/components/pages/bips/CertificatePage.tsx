@@ -91,7 +91,7 @@ const generatePdf = async (
     author_full_name: `${author.firstName} ${author.lastName}`,
     author_nickname: author.nickName,
     author_specialy: author.specialty,
-    author_country: getName(author.countryCode),
+    author_country: getName(author.countryCode) || "N/A",
     owner: owner?.toString() ?? "",
     royalties: fromNullable(intProp.percentageRoyalties)
       ? `${fromNullable(intProp.percentageRoyalties)}%`

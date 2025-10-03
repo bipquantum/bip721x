@@ -148,7 +148,6 @@ const Wallet = ({ principal }: WalletProps) => {
       </div>
       <div className="h-full w-full flex-grow px-4 pb-2">
         <BipList
-          principal={principal}
           fetchBips={fetchBips}
           queryDirection={EQueryDirection.Forward}
         />

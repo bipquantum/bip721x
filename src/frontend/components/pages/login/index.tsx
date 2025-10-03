@@ -4,14 +4,19 @@ import LogoDark from "../../../assets/logoDark.png";
 import LogoLight from "../../../assets/logoLight.png";
 import BipquantumBetaWhite from "../../../assets/bipquantum_beta_white.png";
 import BipquantumBetaBlack from "../../../assets/bipquantum_beta_black.png";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { ThemeContext } from "../../App";
 import { useAuth } from "@nfid/identitykit/react";
 import WalletButton from "../../common/WalletButton";
 
 const Login = () => {
   const { theme } = useContext(ThemeContext);
-  const { user } = useAuth();
+  const { user  } = useAuth();
+
+  useEffect(() => {
+    console.log("User changed:", user);
+    console.log("User principal:", user?.principal.toString());
+  }, [user]);
 
   if (user) return <Navigate to="/" />;
 
