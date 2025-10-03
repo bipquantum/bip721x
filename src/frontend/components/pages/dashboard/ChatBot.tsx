@@ -10,6 +10,7 @@ import { IoArrowUp } from "react-icons/io5";
 import AutoResizeTextarea, {
   AutoResizeTextareaHandle,
 } from "../../common/AutoResizeTextArea";
+import Modal from "../../common/Modal";
 
 interface ChatBotProps {
   principal: Principal | undefined;
@@ -31,6 +32,7 @@ const ChatBot = ({
 
   const [userInput, setUserInput] = useState("");
   const [isCalling, setIsCalling] = useState(false);
+  const [showDisabledModal, setShowDisabledModal] = useState(false);
 
   const submitUserInput = () => {
     inputRef.current?.clear();
@@ -71,7 +73,10 @@ const ChatBot = ({
       </div>
       <div className="flex w-full flex-col gap-2 px-2">
         <div className="relative flex w-full flex-row items-center gap-2">
-          <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
+          <div
+            className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px] cursor-pointer"
+            onClick={() => setShowDisabledModal(true)}
+          >
             <AutoResizeTextarea
               ref={inputRef}
               placeholder={"What do you want to protect?"}
@@ -94,7 +99,7 @@ const ChatBot = ({
             onClick={() => {
               if (userInput) submitUserInput();
             }}
-            disabled={isCalling}
+            disabled={true} // temporarily disabled
             className="flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200"
           >
             <IoArrowUp size={30} className="text-black" />
@@ -105,6 +110,15 @@ const ChatBot = ({
           ensure accuracy.
         </p>
       </div>
+      <Modal
+        isVisible={showDisabledModal}
+        onClose={() => setShowDisabledModal(false)}
+        title="AI paused - Oversubscribed"
+      >
+        <p className="text-black dark:text-white">
+          AI paused to expand capacity. Waitlist opens now. Plans roll out next. Freemium stays.
+        </p>
+      </Modal>
     </div>
   );
 };
