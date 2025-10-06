@@ -14,9 +14,11 @@ import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import { useAuth } from "@nfid/identitykit/react";
+import { useHotjarTracking } from "../hooks/useHotjarTracking";
 
 const Router = () => {
   const { user } = useAuth();
+  useHotjarTracking();
 
   return (
     <Routes>
