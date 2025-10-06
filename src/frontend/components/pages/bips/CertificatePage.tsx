@@ -178,12 +178,35 @@ const CertificatePage = () => {
       });
   }, [intPropId, intProp, author, owner]);
 
+  const handleDownload = () => {
+    if (pdfUrl && intPropId) {
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `certificate-${intPropId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gray-100 p-4 dark:bg-background-dark">
       {!pdfUrl ? (
         <img src={SpinnerSvg} alt="Loading certificate..." />
       ) : (
-        <iframe src={pdfUrl} width="100%" height="100%" />
+        <div className="relative h-[calc(100vh-2rem)] w-full max-w-4xl">
+          <iframe
+            src={pdfUrl}
+            className="h-full w-full rounded-lg border border-gray-300 bg-white shadow-lg dark:border-gray-700"
+            title="IP Certificate"
+          />
+          <button
+            onClick={handleDownload}
+            className="absolute bottom-4 right-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg hover:bg-blue-600 active:bg-blue-700 sm:hidden"
+          >
+            Download PDF
+          </button>
+        </div>
       )}
     </div>
   );
