@@ -26,6 +26,11 @@ module {
   public type Notifications     = Types.Current.Notifications;
   public type CkbtcRate         = Types.Current.CkbtcRate;
 
+  public type FullIntProp = {
+    intProp: VersionnedIntProp;
+    author: ?User;
+  };
+
   public type CreateUserArgs = {
     firstName: Text;
     lastName: Text;

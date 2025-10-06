@@ -25,7 +25,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   type Account               = Types.Account;
   type ChatHistory           = Types.ChatHistory;
   type IntPropInput          = Types.IntPropInput;
-  type VersionnedIntProp     = Types.VersionnedIntProp;
+  type FullIntProp           = Types.FullIntProp;
   type CreateIntPropResult   = Types.CreateIntPropResult;
   type QueryDirection        = Types.QueryDirection;
   type Notification          = Types.Notification;
@@ -137,7 +137,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().getListedIntProps({ prev; take; direction; });
   };
 
-  public composite query({caller}) func get_int_prop({token_id: Nat}) : async Result<VersionnedIntProp, Text> {
+  public composite query({caller}) func get_int_prop({token_id: Nat}) : async Result<FullIntProp, Text> {
     
     label check_authorized do {
       
@@ -161,7 +161,15 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     let metadata = await BIP721Ledger.icrc7_token_metadata([token_id]);
-    #ok(Conversions.metadataToIntProp(metadata[0])); // TODO sardariuss 2024-09-07: better error handling
+
+    // TODO sardariuss 2024-09-07: better error handling
+    let intProp = Conversions.metadataToIntProp(metadata[0]);
+    let author = switch(intProp){
+      case(#V1(ip)) { getController().getUser(ip.author); };
+    };
+
+    // Add the author information
+    #ok({ intProp; author; }); 
   };
 
   public composite query func owners_of({token_ids: [Nat]}) : async [?Principal] {

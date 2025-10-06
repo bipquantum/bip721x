@@ -53,7 +53,7 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
     <div className="grid grid-cols-2 justify-items-center gap-[10px] rounded-2xl bg-white px-2 py-2 dark:bg-white/10 lg:grid-cols-3 xl:grid-cols-6">
       <div className="col-span-1 h-[110px] w-[110px] overflow-hidden rounded-lg border-2 border-black/20 dark:border-white/20">
         <img
-          src={intProp.ok.V1.dataUri}
+          src={intProp.ok.intProp.V1.dataUri}
           className="h-full w-full items-center object-cover"
         />
       </div>
@@ -63,9 +63,9 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
         </div>
         <div className="w-fit">
           <div className="flex flex-col gap-3 text-black dark:text-white">
-            <p className="text-xl leading-none">{intProp.ok.V1.title}</p>
+            <p className="text-xl leading-none">{intProp.ok.intProp.V1.title}</p>
             <p className="text-xs">
-              by @ {<UserNickName principal={intProp.ok.V1.author} />}
+              by @ {<UserNickName principal={intProp.ok.intProp.V1.author} />}
             </p>
           </div>
         </div>
@@ -74,13 +74,13 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
         <p className="text-sm text-neutral-400">
           Type:{" "}
           <span className="text-sm text-neutral-400">
-            {intPropTypeToString(intProp.ok.V1.intPropType)}
+            {intPropTypeToString(intProp.ok.intProp.V1.intPropType)}
           </span>
         </p>
         <p className="text-sm text-neutral-400">
           Licenses:{" "}
           <span className="text-sm text-neutral-400">
-            {intProp.ok.V1.intPropLicenses
+            {intProp.ok.intProp.V1.intPropLicenses
               .map(intPropLicenseToString)
               .join(", ")}
           </span>

@@ -144,7 +144,7 @@ const CertificatePage = () => {
     args: intPropId ? [{ token_id: BigInt(intPropId) }] : undefined,
   });
 
-  const intProp = intPropResult && "ok" in intPropResult ? intPropResult.ok.V1 : undefined;
+  const intProp = intPropResult && "ok" in intPropResult ? intPropResult.ok.intProp.V1 : undefined;
 
   const { data: authorResult } = backendActor.useQueryCall({
     functionName: "get_user",
