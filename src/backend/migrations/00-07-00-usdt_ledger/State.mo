@@ -56,12 +56,14 @@ module {
     // Access current state
     let state = switch(migration_state) {
       case (#v0_6_0(state)) state;
-      case (_) Debug.trap("Unexpected migration state (v0_6_0 expected)") 
+      case (_) Debug.trap("Unexpected migration state (v0_6_0 expected)")
     };
 
+    // Get ckBTC USD price from previous state (e.g., 95000_00000000 for $95k BTC)
+    // This is stored as e8s USD value per 1 ckBTC
     let ckbtcE8sUsdRate = Nat64.toNat(state.ckbtcRate.usd_price);
 
-    #v0_7_0({ state with 
+    #v0_7_0({ state with
       e6sTransferFee = args.ckusdt_transfer_fee;
       ckusdtRate = {
         var usd_price = args.ckusdt_usd_price;
@@ -69,8 +71,17 @@ module {
       };
       intProps = {
         var index = state.intProps.index;
+        // Convert all listed prices from ckBTC e8s to ckUSDT e6s
+        // Formula: (btcE8sPrice * btcUsdRate_e8s) / 10^10 = usdtE6sPrice
+        // Breakdown:
+        //   - btcE8sPrice is BTC amount in e8s (BTC * 10^8)
+        //   - btcUsdRate_e8s is USD/BTC rate in e8s format (USD * 10^8)
+        //   - Multiplying gives: (BTC * 10^8) * (USD/BTC * 10^8) = USD * 10^16
+        //   - We want e6s (USD * 10^6), so divide by 10^10
+        // Example: If IP cost 0.001 BTC (100_000 e8s) and BTC=$95k (9_500_000_000_000):
+        //   → (100_000 * 9_500_000_000_000) / 10_000_000_000 = 95_000_000 e6s = $95 USDT ✓
         e6sUsdtPrices = Map.map<Nat, Nat, Nat>(state.intProps.e8sBtcPrices, Map.nhash, func(key: Nat, btcE8sIpPrice: Nat): Nat {
-          Int.abs(Float.toInt(Float.fromInt(btcE8sIpPrice * ckbtcE8sUsdRate * 100)));
+          Int.abs(Float.toInt(Float.fromInt(btcE8sIpPrice * ckbtcE8sUsdRate) / 10_000_000_000.0));
         });
       };
     });
@@ -80,12 +91,17 @@ module {
     // Access current state
     let state = switch (migration_state) {
       case (#v0_7_0(state)) state;
-      case (_) Debug.trap("Unexpected migration state (v0_7_0 expected)") 
+      case (_) Debug.trap("Unexpected migration state (v0_7_0 expected)")
     };
 
+    // Get ckUSDT USD price (should be ~1_000_000 for $1 USDT)
+    // This is stored as e6s USD value per 1 ckUSDT
     let ckusdtE6sUsdRate = Nat64.toNat(state.ckusdtRate.usd_price);
 
-    #v0_6_0({ state with 
+    // Get BTC/USD rate for downgrade conversion (from args)
+    let btcUsdRate = Nat64.toNat(args.ckbtc_usd_price);
+
+    #v0_6_0({ state with
       e8sTransferFee = args.ckbtc_transfer_fee;
       ckbtcRate = {
         var usd_price = args.ckbtc_usd_price;
@@ -93,8 +109,18 @@ module {
       };
       intProps = {
         var index = state.intProps.index;
+        // Convert all listed prices from ckUSDT e6s back to ckBTC e8s
+        // Formula: (usdtE6sPrice * 10^10) / btcUsdRate_e8s = btcE8sPrice
+        // Note: This requires knowing BTC/USD rate, which we get from args
+        // Breakdown:
+        //   - usdtE6sPrice is USD amount in e6s (USD * 10^6)
+        //   - Multiply by 10^10 to get USD * 10^16
+        //   - Divide by btcUsdRate_e8s (USD/BTC * 10^8) to get BTC * 10^8
+        // Example: If IP cost 95 USDT (95_000_000 e6s) and BTC=$95k (9_500_000_000_000):
+        //   → (95_000_000 * 10_000_000_000) / 9_500_000_000_000 = 100_000 e8s = 0.001 BTC ✓
+        // Note: This assumes ckUSDT ≈ $1, using btcUsdRate from args
         e8sBtcPrices = Map.map<Nat, Nat, Nat>(state.intProps.e6sUsdtPrices, Map.nhash, func(key: Nat, usdtE6sIpPrice: Nat): Nat {
-          Int.abs(Float.toInt(Float.fromInt(usdtE6sIpPrice * ckusdtE6sUsdRate / 100)));
+          Int.abs(Float.toInt(Float.fromInt(usdtE6sIpPrice) * 10_000_000_000.0 / Float.fromInt(btcUsdRate)));
         });
       };
     });

@@ -83,9 +83,9 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
 
   // Handle ckUSDT price data from backend
   useEffect(() => {
-    if (ckusdtPriceData && ledgerType === LedgerType.CK_USDT) {
-      // Convert from Nat64 (8 decimal places) to number
-      const priceNumber = Number(ckusdtPriceData.usd_price) / 100_000_000;
+    if (ckusdtPriceData && tokenDecimals && ledgerType === LedgerType.CK_USDT) {
+      // Convert from Nat64 eXs to number
+      const priceNumber = Number(ckusdtPriceData.usd_price) / (10 ** tokenDecimals);
       setPrice(priceNumber);
     } else if (ledgerType === LedgerType.BQC) {
       // For BQC, since the token is not listed yet, the price is undefined

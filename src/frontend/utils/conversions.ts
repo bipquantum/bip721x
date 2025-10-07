@@ -91,12 +91,22 @@ export function intPropLicenseFromIndex(license: number): IntPropLicense {
   }
 }
 
+/**
+ * Converts e6s (1/1,000,000 units) to decimal number.
+ * Used for ckUSDT which has 6 decimals.
+ * @param e6s - Amount in e6s (e.g. 1_000_000 = 1 ckUSDT)
+ */
 export const fromE6s = (e6s: bigint): number => {
-  return Number(e6s) / 100_000;
+  return Number(e6s) / 1_000_000;
 };
 
+/**
+ * Converts decimal number to e6s (1/1,000,000 units).
+ * Used for ckUSDT which has 6 decimals.
+ * @param token - Decimal amount (e.g. 1.5 = 1_500_000 e6s)
+ */
 export const toE6s = (token: number): bigint => {
-  return BigInt(token * 100_000);
+  return BigInt(Math.trunc(token * 1_000_000));
 };
 
 export const dateToTime = (date: Date): bigint => {
