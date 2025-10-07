@@ -28,7 +28,7 @@ module {
 
   public type FullIntProp = {
     intProp: VersionnedIntProp;
-    author: ?User;
+    author: ?Text;
   };
 
   public type CreateUserArgs = {

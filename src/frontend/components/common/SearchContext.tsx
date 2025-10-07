@@ -79,7 +79,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
               id,
               title: result.ok.intProp.V1.title,
               description: result.ok.intProp.V1.description,
-              author: result.ok.author?.[0]?.nickName ?? "",
+              author: result.ok.author?.[0] ?? "",
             };
             console.log(`[SearchContext] Fetched intProp ${id}:`, doc.title, "by", doc.author || "(no author)");
             return doc;

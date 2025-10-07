@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import BipItem from "./BipItem";
 
@@ -7,6 +7,7 @@ import useInfiniteScroll from "react-infinite-scroll-hook";
 import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
 import { useAuth } from "@nfid/identitykit/react";
+import { useActors } from "../../common/ActorsContext";
 
 interface BipsProps {
   fetchBips: (
@@ -23,14 +24,23 @@ const BipList: React.FC<BipsProps> = ({
   hideUnlisted,
 }) => {
   const { user } = useAuth();
+  const { unauthenticated, authenticated } = useActors();
   const [entries, setEntries] = useState<Set<bigint>>(new Set()); // Store fetched entries as a Set
   const [prev, setPrev] = useState<bigint | undefined>(undefined); // Keep track of previous entries
   const [loading, setLoading] = useState(false); // Loading state to prevent double fetch
+  const loadingRef = useRef(false); // Use ref to track loading without causing re-renders
+  const prevRef = useRef<bigint | undefined>(undefined); // Keep prev in ref for stable access
+
+  // Update prevRef when prev changes
+  useEffect(() => {
+    prevRef.current = prev;
+  }, [prev]);
 
   const loadEntries = async () => {
-    if (loading) return; // Ensure no double-fetch
+    if (loadingRef.current) return; // Ensure no double-fetch
+    loadingRef.current = true;
     setLoading(true);
-    const result = await fetchBips(prev, toQueryDirection(queryDirection));
+    const result = await fetchBips(prevRef.current, toQueryDirection(queryDirection));
     if (result && result.length > 0) {
       setEntries((prevEntries) => {
         const newEntries = new Set(prevEntries);
@@ -42,22 +52,40 @@ const BipList: React.FC<BipsProps> = ({
       setPrev(undefined);
     }
     setLoading(false);
+    loadingRef.current = false;
   };
 
-  // Load initial entries on component mount
+  // Load initial entries only when actors are ready
+  // This fixes the race condition on mainnet F5 refresh
   useEffect(() => {
+    // Wait for actors to be available before loading
+    if (!unauthenticated && !authenticated) {
+      console.log("[BipList] Waiting for actors to initialize...");
+      return;
+    }
+    console.log("[BipList] Actors ready, loading initial entries");
     loadEntries();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unauthenticated, authenticated]);
 
-  // TODO: the infinite scroll component does not get refreshed when the queryDirection changes
+  // Reset and reload when queryDirection changes
   useEffect(() => {
     const resetAndLoadEntries = async () => {
       setEntries(new Set());
       setPrev(undefined);
+      prevRef.current = undefined;
+      // Wait for actors to be ready before loading
+      if (!unauthenticated && !authenticated) {
+        console.log("[BipList] Waiting for actors before resetting...");
+        return;
+      }
+      // Small delay to ensure state updates complete
+      await new Promise(resolve => setTimeout(resolve, 0));
       await loadEntries(); // Wait for entries to load after reset
     };
     resetAndLoadEntries();
-  }, [queryDirection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryDirection, unauthenticated, authenticated]);
 
   const [sentryRef] = useInfiniteScroll({
     loading,

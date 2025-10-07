@@ -166,7 +166,12 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     // TODO sardariuss 2024-09-07: better error handling
     let intProp = Conversions.metadataToIntProp(metadata[0]);
     let author = switch(intProp){
-      case(#V1(ip)) { getController().getUser(ip.author); };
+      case(#V1(ip)) { 
+        switch(getController().getUser(ip.author)){
+          case(null) { null };
+          case(?user) { ?user.nickName; };
+        };
+      };
     };
 
     // Add the author information

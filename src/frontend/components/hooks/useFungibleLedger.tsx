@@ -54,7 +54,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     args: [],
   });
 
-  const { data: ckusdtPriceData } = backendActor.useQueryCall({
+  const { data: ckusdtPriceData, call: refreshCkusdtPrice } = backendActor.useQueryCall({
     functionName: "get_ckusdt_usd_price",
     args: [],
   });
@@ -96,6 +96,22 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
       setPrice(undefined);
     }
   }, [ckusdtPriceData, ledgerType]);
+
+  // Auto-refresh ckUSDT price every minute
+  useEffect(() => {
+    if (ledgerType !== LedgerType.CK_USDT || !refreshCkusdtPrice) {
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      console.log("[useFungibleLedger] Refreshing ckUSDT price...");
+      refreshCkusdtPrice([]);
+    }, 60_000); // 60 seconds = 1 minute
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [ledgerType, refreshCkusdtPrice]);
 
   const tokenDecimals = useMemo(() => getTokenDecimals(metadata), [metadata]);
   const tokenFee = useMemo(() => getTokenFee(metadata), [metadata]);
