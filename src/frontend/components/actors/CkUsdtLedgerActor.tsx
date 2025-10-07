@@ -1,27 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useActors } from '../common/ActorsContext';
 import { ActorMethod, ActorSubclass } from '@dfinity/agent';
-import { _SERVICE as CkBtcLedger } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { _SERVICE as CkUsdtLedger } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 
 // Type utilities to extract function signatures from ActorMethod
-type CkBtcLedgerMethods = keyof CkBtcLedger;
+type CkUsdtLedgerMethods = keyof CkUsdtLedger;
 type ExtractArgs<T> = T extends ActorMethod<infer P, any> ? P : never;
 type ExtractReturn<T> = T extends ActorMethod<any, infer R> ? R : never;
 
-interface UseQueryCallOptions<T extends CkBtcLedgerMethods> {
+interface UseQueryCallOptions<T extends CkUsdtLedgerMethods> {
   functionName: T;
-  args?: ExtractArgs<CkBtcLedger[T]>;
-  onSuccess?: (data: ExtractReturn<CkBtcLedger[T]>) => void;
+  args?: ExtractArgs<CkUsdtLedger[T]>;
+  onSuccess?: (data: ExtractReturn<CkUsdtLedger[T]>) => void;
   onError?: (error: any) => void;
 }
 
-const useQueryCall = <T extends CkBtcLedgerMethods>(options: UseQueryCallOptions<T>, actor: ActorSubclass<CkBtcLedger> | undefined) => {
+const useQueryCall = <T extends CkUsdtLedgerMethods>(options: UseQueryCallOptions<T>, actor: ActorSubclass<CkUsdtLedger> | undefined) => {
 
-  const [data, setData] = useState<ExtractReturn<CkBtcLedger[T]> | undefined>(undefined);
+  const [data, setData] = useState<ExtractReturn<CkUsdtLedger[T]> | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
 
-  const call = async (callArgs?: ExtractArgs<CkBtcLedger[T]>): Promise<ExtractReturn<CkBtcLedger[T]> | undefined> => {
+  const call = async (callArgs?: ExtractArgs<CkUsdtLedger[T]>): Promise<ExtractReturn<CkUsdtLedger[T]> | undefined> => {
 
     if (!actor) return undefined;
 
@@ -65,17 +65,17 @@ const useQueryCall = <T extends CkBtcLedgerMethods>(options: UseQueryCallOptions
   return { data, loading, error, call };
 };
 
-interface UseUpdateCallOptions<T extends CkBtcLedgerMethods> {
+interface UseUpdateCallOptions<T extends CkUsdtLedgerMethods> {
   functionName: T;
-  onSuccess?: (data: ExtractReturn<CkBtcLedger[T]>) => void;
+  onSuccess?: (data: ExtractReturn<CkUsdtLedger[T]>) => void;
   onError?: (error: any) => void;
 }
 
-const useUpdateCall = <T extends CkBtcLedgerMethods>(options: UseUpdateCallOptions<T>, actor: ActorSubclass<CkBtcLedger> | undefined) => {
+const useUpdateCall = <T extends CkUsdtLedgerMethods>(options: UseUpdateCallOptions<T>, actor: ActorSubclass<CkUsdtLedger> | undefined) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
 
-  const call = async (args: ExtractArgs<CkBtcLedger[T]> = [] as any): Promise<ExtractReturn<CkBtcLedger[T]> | undefined> => {
+  const call = async (args: ExtractArgs<CkUsdtLedger[T]> = [] as any): Promise<ExtractReturn<CkUsdtLedger[T]> | undefined> => {
 
     if (!actor) return undefined;
 
@@ -98,30 +98,30 @@ const useUpdateCall = <T extends CkBtcLedgerMethods>(options: UseUpdateCallOptio
   return { call, loading, error };
 };
 
-export type { CkBtcLedger };
+export type { CkUsdtLedger };
 
-const useUnauthQueryCall = <T extends CkBtcLedgerMethods>(options: UseQueryCallOptions<T>) => {
+const useUnauthQueryCall = <T extends CkUsdtLedgerMethods>(options: UseQueryCallOptions<T>) => {
   const { unauthenticated } = useActors();
-  return useQueryCall(options, unauthenticated?.ckbtcLedger);
+  return useQueryCall(options, unauthenticated?.ckusdtLedger);
 }
 
-const useAuthQueryCall = <T extends CkBtcLedgerMethods>(options: UseQueryCallOptions<T>) => {
+const useAuthQueryCall = <T extends CkUsdtLedgerMethods>(options: UseQueryCallOptions<T>) => {
   const { authenticated } = useActors();
-  return useQueryCall(options, authenticated?.ckbtcLedger);
+  return useQueryCall(options, authenticated?.ckusdtLedger);
 }
 
-const useUnauthUpdateCall = <T extends CkBtcLedgerMethods>(options: UseUpdateCallOptions<T>) => {
+const useUnauthUpdateCall = <T extends CkUsdtLedgerMethods>(options: UseUpdateCallOptions<T>) => {
   const { unauthenticated } = useActors();
-  return useUpdateCall(options, unauthenticated?.ckbtcLedger);
+  return useUpdateCall(options, unauthenticated?.ckusdtLedger);
 }
 
-const useAuthUpdateCall = <T extends CkBtcLedgerMethods>(options: UseUpdateCallOptions<T>) => {
+const useAuthUpdateCall = <T extends CkUsdtLedgerMethods>(options: UseUpdateCallOptions<T>) => {
   const { authenticated } = useActors();
-  return useUpdateCall(options, authenticated?.ckbtcLedger);
+  return useUpdateCall(options, authenticated?.ckusdtLedger);
 }
 
-// Compatibility layer that mimics the ic-reactor ckbtcLedgerActor API with full type safety
-export const ckbtcLedgerActor = {
+// Compatibility layer that mimics the ic-reactor ckusdtLedgerActor API with full type safety
+export const ckusdtLedgerActor = {
   unauthenticated: {
     useQueryCall: useUnauthQueryCall,
     useUpdateCall: useUnauthUpdateCall

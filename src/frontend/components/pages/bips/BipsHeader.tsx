@@ -1,5 +1,4 @@
 import { EQueryDirection } from "../../../utils/conversions";
-import SearchSvg from "../../../assets/search-button.svg";
 import SortUp from "../../../assets/sort-up.svg";
 import SortDown from "../../../assets/sort-down.svg";
 import SearchIPInput from "../../common/SearchIPInput";

@@ -1,7 +1,4 @@
-
-shared actor class ExchangeRate({ ckusdt_usd_price: Nat64; ckusdt_decimals: Nat32 }) {
-
-  // === Types from the XRC IDL ===
+module {
 
   public type AssetClass = {
     #Cryptocurrency;
@@ -59,32 +56,5 @@ shared actor class ExchangeRate({ ckusdt_usd_price: Nat64; ckusdt_decimals: Nat3
   public type GetExchangeRateResult = {
     #Ok : ExchangeRate;
     #Err : ExchangeRateError;
-  };
-
-  // === Mock Implementation ===
-
-  public query func get_exchange_rate(req : GetExchangeRateRequest) : async GetExchangeRateResult {
-    // Return a dummy success response
-    let rate : ExchangeRate = {
-      base_asset = req.base_asset;
-      quote_asset = req.quote_asset;
-      timestamp = switch (req.timestamp) {
-        case (?t) t;
-        case null 0;
-      };
-      // Use the injected ckUSDT/USD rate
-      rate = ckusdt_usd_price;
-      metadata = {
-        decimals = ckusdt_decimals;
-        base_asset_num_received_rates = 3;
-        base_asset_num_queried_sources = 3;
-        quote_asset_num_received_rates = 3;
-        quote_asset_num_queried_sources = 3;
-        standard_deviation = 0;
-        forex_timestamp = null;
-      };
-    };
-
-    return #Ok(rate);
   };
 };

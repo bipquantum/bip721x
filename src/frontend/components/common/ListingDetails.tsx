@@ -4,19 +4,19 @@ import Spinner from "../../assets/spinner.svg";
 import TokenAmountInput from "./TokenAmountInput";
 
 import { backendActor } from "../actors/BackendActor";
-import { fromE8s, toE8s } from "../../utils/conversions";
+import { fromE6s, toE6s } from "../../utils/conversions";
 
-const formatBtcAmount = (e8sAmount: bigint): string => {
-  const btcAmount = fromE8s(e8sAmount);
+const formatUsdtAmount = (e6sAmount: bigint): string => {
+  const usdtAmount = fromE6s(e6sAmount);
   
   // For amounts >= 0.01, show 2 decimals (standard)
-  if (btcAmount >= 0.01) {
-    return btcAmount.toFixed(2);
+  if (usdtAmount >= 0.01) {
+    return usdtAmount.toFixed(2);
   }
   
   // For smaller amounts, show up to 8 decimals but remove trailing zeros
   // This ensures we never show "0.00" when there's actual value
-  const formatted = btcAmount.toFixed(8);
+  const formatted = usdtAmount.toFixed(8);
   return formatted.replace(/\.?0+$/, '') || '0';
 };
 import VioletButton from "./VioletButton";
@@ -33,25 +33,25 @@ import { useFungibleLedgerContext } from "../contexts/FungibleLedgerContext";
 interface BuyButtonProps {
   principal: Principal | undefined;
   intPropId: bigint;
-  e8sPrice: bigint;
+  e6sPrice: bigint;
   onSuccess?: () => void;
 }
 
 const BuyButton: React.FC<BuyButtonProps> = ({
   principal,
   intPropId,
-  e8sPrice,
+  e6sPrice,
   onSuccess,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { ckbtcLedger } = useFungibleLedgerContext();
+  const { ckusdtLedger } = useFungibleLedgerContext();
 
   const { loading, call: buyIntProp } = useBuyIntProp({
     onSuccess: () => {
       setIsModalOpen(false);
       if (principal !== undefined) {
-        ckbtcLedger.refreshUserBalance();
+        ckusdtLedger.refreshUserBalance();
       }
       onSuccess?.();
     },
@@ -67,7 +67,7 @@ const BuyButton: React.FC<BuyButtonProps> = ({
           : setIsModalOpen(true);
       }}
     >
-      <p className="text-lg font-semibold">{`${e8sPrice === 0n ? "Free" : "Buy"}`}</p>
+      <p className="text-lg font-semibold">{`${e6sPrice === 0n ? "Free" : "Buy"}`}</p>
       <ModalPopup
         onConfirm={() => {
           buyIntProp(intPropId);
@@ -77,14 +77,14 @@ const BuyButton: React.FC<BuyButtonProps> = ({
         isLoading={loading}
       >
         <h2 className="text-xl font-bold text-black dark:text-white">
-          {e8sPrice === 0n ? (
+          {e6sPrice === 0n ? (
             <>Do you want to get this IP for free?</>
           ) : (
             <>
-              Do you want to buy this IP for {formatBtcAmount(e8sPrice)} ckBTC?
+              Do you want to buy this IP for {formatUsdtAmount(e6sPrice)} ckUSDT?
               <br />
               <span className="text-sm text-gray-500 dark:text-gray-400 font-normal">
-                (≈ {ckbtcLedger.formatAmountUsd(e8sPrice)})
+                (≈ {ckusdtLedger.formatAmountUsd(e6sPrice)})
               </span>
             </>
           )}
@@ -113,7 +113,7 @@ export const ListButton: React.FC<ListButtonProps> = ({
   const [sellPrice, setSellPrice] = useState<bigint>(0n);
   const [sellPriceString, setSellPriceString] = useState<string>("");
   const { refreshDocuments } = useSearch();
-  const { ckbtcLedger } = useFungibleLedgerContext();
+  const { ckusdtLedger } = useFungibleLedgerContext();
 
   const { loading, call: listIntProp } = useListIntProp({
     onSuccess: () => {
@@ -128,7 +128,7 @@ export const ListButton: React.FC<ListButtonProps> = ({
   const handlePriceChange = (value: string) => {
     setSellPriceString(value);
     const numericValue = parseFloat(value || "0");
-    setSellPrice(toE8s(numericValue));
+    setSellPrice(toE6s(numericValue));
   };
 
   return (
@@ -168,9 +168,9 @@ export const ListButton: React.FC<ListButtonProps> = ({
             value={sellPriceString}
             onChange={handlePriceChange}
             placeholder="0.00"
-            tokenSymbol="ckBTC"
+            tokenSymbol="ckUSDT"
             usdValue={sellPriceString ? 
-              `≈ ${ckbtcLedger.formatAmountUsd(ckbtcLedger.convertToFixedPoint(parseFloat(sellPriceString) || 0))}` :
+              `≈ ${ckusdtLedger.formatAmountUsd(ckusdtLedger.convertToFixedPoint(parseFloat(sellPriceString) || 0))}` :
               '≈ $0.00'
             }
           />
@@ -253,39 +253,39 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   onListingChange,
 }) => {
   const [listingType, setListingType] = useState<EListingType | null>(null);
-  const [e8sPrice, setE8sPrice] = useState<bigint | undefined>(undefined);
-  const { ckbtcLedger } = useFungibleLedgerContext();
+  const [e6sPrice, sete6sPrice] = useState<bigint | undefined>(undefined);
+  const { ckusdtLedger } = useFungibleLedgerContext();
 
-  const queryE8sPrice = backendActor.useQueryCall({
-    functionName: "get_e8s_price",
+  const querye6sPrice = backendActor.useQueryCall({
+    functionName: "get_e6s_price",
     args: [{ token_id: intPropId }],
   });
 
   const refreshListingType = () => {
     const isOwner = owner !== undefined && principal?.compareTo(owner) === "eq";
 
-    queryE8sPrice
+    querye6sPrice
       .call()
       .then((result) => {
         if (result && "ok" in result) {
           setListingType(isOwner ? EListingType.UNLIST : EListingType.BUY);
-          setE8sPrice(result.ok);
+          sete6sPrice(result.ok);
         } else {
           setListingType(isOwner ? EListingType.LIST : null);
-          setE8sPrice(undefined);
+          sete6sPrice(undefined);
         }
       })
       .catch((error) => {
-        console.error("Error fetching e8s price:", error);
+        console.error("Error fetching e6s price:", error);
         setListingType(null);
-        setE8sPrice(undefined);
+        sete6sPrice(undefined);
       });
   };
 
   // Determine the listing type based on the current logged-in principal, owner of the IP and the price
   useEffect(() => {
     refreshListingType();
-  }, [principal, owner, e8sPrice]);
+  }, [principal, owner, e6sPrice]);
 
   return listingType === null ? (
     <img
@@ -295,14 +295,14 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
     />
   ) : (
     <div className="flex flex-col w-full gap-2 px-2 text-black dark:text-white">
-      {e8sPrice !== undefined && (
+      {e6sPrice !== undefined && (
         <div className="flex flex-col items-end gap-0.5">
           <div className="flex flex-row items-center gap-1 text-base font-bold md:text-2xl">
             <span>
               <IoIosPricetags size={22} />
             </span>
             <span className="whitespace-nowrap">
-              {formatBtcAmount(e8sPrice)} ckBTC
+              {formatUsdtAmount(e6sPrice)} ckUSDT
             </span>
             {listingType === EListingType.UNLIST && (
               <ListButton
@@ -318,17 +318,17 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
             )}
           </div>
           <span className="text-sm text-gray-500 dark:text-gray-400 ml-6">
-            ≈ {ckbtcLedger.formatAmountUsd(e8sPrice)}
+            ≈ {ckusdtLedger.formatAmountUsd(e6sPrice)}
           </span>
         </div>
       )}
 
       <div className="flex w-full justify-end">
-        {e8sPrice !== undefined && listingType === EListingType.BUY && (
+        {e6sPrice !== undefined && listingType === EListingType.BUY && (
           <BuyButton
             principal={principal}
             intPropId={intPropId}
-            e8sPrice={e8sPrice}
+            e6sPrice={e6sPrice}
             onSuccess={() => {
               onListingChange?.(EListingType.BUY);
               refreshListingType();

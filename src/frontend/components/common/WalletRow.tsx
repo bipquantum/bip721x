@@ -21,10 +21,10 @@ const WalletRow: React.FC<WalletRowProps> = ({
 }) => {
   const [showSendModal, setShowSendModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
-  const { ckbtcLedger, bqcLedger } = useFungibleLedgerContext();
+  const { ckusdtLedger, bqcLedger } = useFungibleLedgerContext();
   
   // Select the appropriate ledger based on type
-  const ledger = ledgerType === LedgerType.CK_BTC ? ckbtcLedger : bqcLedger;
+  const ledger = ledgerType === LedgerType.CK_USDT ? ckusdtLedger : bqcLedger;
   
   const tokenSymbol = getTokenSymbol(ledger.metadata);
   const tokenLogo = getTokenLogo(ledger.metadata);

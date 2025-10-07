@@ -4,12 +4,13 @@ import Conversions    "intprop/Conversions";
 import ChatBot        "ChatBot";
 import ChatBotHistory "ChatBotHistory";
 import TradeManager   "TradeManager";
+import XRCTypes       "XRCTypes";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
 import BIP721Ledger  "canister:bip721_ledger";
 import BQCLedger     "canister:bqc_ledger";
-import CKBTCLedger   "canister:ckbtc_ledger";
+import ExchangeRate  "canister:exchange_rate";
 
 import Result        "mo:base/Result";
 import Principal     "mo:base/Principal";
@@ -30,7 +31,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   type QueryDirection        = Types.QueryDirection;
   type Notification          = Types.Notification;
   type NotificationType      = Types.NotificationType;
-  type SCkbtcRate            = Types.SCkbtcRate;
+  type SCkUsdtRate           = Types.SCkUsdtRate;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
 
   // STABLE MEMBER
@@ -54,7 +55,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_6_0(stableData)){
+      case(#v0_7_0(stableData)){
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
@@ -62,14 +63,14 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
           });
           tradeManager = TradeManager.TradeManager({
             stage_account = { owner = Principal.fromActor(this); subaccount = null; };
-            fee = stableData.e8sTransferFee;
+            fee = stableData.e6sTransferFee;
           });
           chatBot = ChatBot.ChatBot({
             chatbot_api_key = stableData.chatbot_api_key; 
           });
         });
       };
-      case(_) { Debug.trap("Unexpected state version: v0_6_0"); };
+      case(_) { Debug.trap("Unexpected state version: v0_7_0"); };
     };
     
     // Start the price update timer
@@ -121,8 +122,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     await getController().createIntProp({ args with author = caller; });
   };
 
-  public shared({caller}) func list_int_prop({ token_id: Nat; e8s_btc_price: Nat; }) : async Result<(), Text> {
-    await* getController().listIntProp({ caller; id = token_id; e8sBtcPrice = e8s_btc_price; });
+  public shared({caller}) func list_int_prop({ token_id: Nat; e6s_usdt_price: Nat; }) : async Result<(), Text> {
+    await* getController().listIntProp({ caller; id = token_id; e6sUsdtPrice = e6s_usdt_price; });
   };
 
   public shared({caller}) func unlist_int_prop({token_id: Nat;}) : async Result<(), Text> {
@@ -165,7 +166,12 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     // TODO sardariuss 2024-09-07: better error handling
     let intProp = Conversions.metadataToIntProp(metadata[0]);
     let author = switch(intProp){
-      case(#V1(ip)) { getController().getUser(ip.author); };
+      case(#V1(ip)) { 
+        switch(getController().getUser(ip.author)){
+          case(null) { null };
+          case(?user) { ?user.nickName; };
+        };
+      };
     };
 
     // Add the author information
@@ -182,8 +188,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().extractOwner(accounts);
   };
 
-  public query func get_e8s_price({token_id: Nat}) : async Result<Nat, Text> {
-    getController().getE8sPrice({ id = token_id });
+  public query func get_e6s_price({token_id: Nat}) : async Result<Nat, Text> {
+    getController().getE6sPrice({ id = token_id });
   };
 
   public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<(), Text> {
@@ -282,8 +288,17 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getController().markNotificationAsRead(caller, notificationId);
   };
 
-  public query func get_ckbtc_usd_price() : async SCkbtcRate {
-    getController().getCkbtcUsdPrice();
+  public query func get_ckusdt_usd_price() : async SCkUsdtRate {
+    getController().getCkUsdtUsdPrice();
+  };
+
+  public shared({caller}) func get_exchange_rate(req : XRCTypes.GetExchangeRateRequest) : async XRCTypes.GetExchangeRateResult {
+    // 5_000_000_000 cycles should be enough for one call
+    if (not Principal.equal(caller, admin)) {
+      Debug.trap("Only the admin can call this function");
+    };
+    Cycles.add<system>(5_000_000_000);
+    await ExchangeRate.get_exchange_rate(req);
   };
 
   func getController() : Controller.Controller {

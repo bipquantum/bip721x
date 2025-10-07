@@ -24,7 +24,12 @@ module {
   public type NotificationType  = Types.Current.NotificationType;
   public type NotificationState = Types.Current.NotificationState;
   public type Notifications     = Types.Current.Notifications;
-  public type CkbtcRate         = Types.Current.CkbtcRate;
+  public type CkUsdtRate        = Types.Current.CkUsdtRate;
+
+  public type FullIntProp = {
+    intProp: VersionnedIntProp;
+    author: ?Text;
+  };
 
   public type FullIntProp = {
     intProp: VersionnedIntProp;
@@ -46,8 +51,9 @@ module {
     map_distributed: [(Principal, Nat)];
   };
 
-  public type SCkbtcRate = {
+  public type SCkUsdtRate = {
     usd_price: Nat64;
+    decimals: Nat32;
     last_update: Int;
   };
 

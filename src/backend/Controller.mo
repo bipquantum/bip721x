@@ -45,8 +45,8 @@ module {
   type NotificationType    = Types.NotificationType;
   type NotificationState   = Types.NotificationState;
   type Notifications       = Types.Notifications;
-  type CkbtcRate           = Types.CkbtcRate;
-  type SCkbtcRate          = Types.SCkbtcRate;
+  type CkUsdtRate           = Types.CkUsdtRate;
+  type SCkUsdtRate          = Types.SCkUsdtRate;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -60,7 +60,7 @@ module {
     airdrop: Airdrop;
     chatBot: ChatBot.ChatBot;
     notifications: Notifications;
-    ckbtcRate: CkbtcRate;
+    ckusdtRate: CkUsdtRate;
   }) {
 
     var priceUpdateTimer : ?Timer.TimerId = null;
@@ -191,7 +191,7 @@ module {
     public func listIntProp({
       caller: Principal;
       id: Nat;
-      e8sBtcPrice: Nat;
+      e6sUsdtPrice: Nat;
     }) : async* Result<(), Text> {
       
       let #ok(owner) = await* findIntPropOwner(id) 
@@ -205,7 +205,7 @@ module {
         return #err("You cannot list a banned IP");
       };
 
-      Map.set(intProps.e8sBtcPrices, Map.nhash, id, e8sBtcPrice);
+      Map.set(intProps.e6sUsdtPrices, Map.nhash, id, e6sUsdtPrice);
       #ok;
     };
 
@@ -223,7 +223,7 @@ module {
         return #err("You cannot unlist an IP that you do not own");
       };
 
-      Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
+      Map.delete(intProps.e6sUsdtPrices, Map.nhash, id);
       #ok;
     };
 
@@ -237,7 +237,7 @@ module {
         case(#BACKWARD) { Map.keysFromDesc; };
       };
       let listed_ids = Buffer.Buffer<Nat>(0);
-      for (key in iter_keys(intProps.e8sBtcPrices, Map.nhash, prev)){
+      for (key in iter_keys(intProps.e6sUsdtPrices, Map.nhash, prev)){
         switch(take){
           case(null) {};
           case(?take) {
@@ -252,11 +252,11 @@ module {
     };
 
     public func isListedIntProp(id: Nat) : Bool {
-      Map.has(intProps.e8sBtcPrices, Map.nhash, id);
+      Map.has(intProps.e6sUsdtPrices, Map.nhash, id);
     };
 
-    public func getE8sPrice({id: Nat}) : Result<Nat, Text> {
-      switch(Map.get(intProps.e8sBtcPrices, Map.nhash, id)){
+    public func getE6sPrice({id: Nat}) : Result<Nat, Text> {
+      switch(Map.get(intProps.e6sUsdtPrices, Map.nhash, id)){
         case(null) { #err("IP is not listed"); };
         case(?price) { #ok(price); };
       };
@@ -268,7 +268,7 @@ module {
     }) : async* Result<(), Text> {
 
       // Verify the IP is listed
-      let e8s_price = switch(getE8sPrice({id})){
+      let e6s_price = switch(getE6sPrice({id})){
         case(#err(err)){ return #err(err); };
         case(#ok(price)){ price; };
       };
@@ -307,27 +307,27 @@ module {
         };
         royalties;
         token_id = id;
-        e8s_price = e8s_price;
+        e6s_price = e6s_price;
       });
 
       switch(trade){
         case(#err(err)){ #err(err); };
         case(#ok){
           // Remove the IP from the list of listed IPs
-          Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
+          Map.delete(intProps.e6sUsdtPrices, Map.nhash, id);
           
           // Create notification for seller about IP purchase
           createNotification(seller, #IP_PURCHASED({
             ipId = id;
             buyer = buyer;
-            price = e8s_price;
+            price = e6s_price;
           }));
 
           // Create notification for original creator about royalty if applicable
           switch (royalties) {
             case (?{receiver; percentage}) {
               if (receiver != seller) { // Only notify if creator is different from seller
-                let royaltyAmount = (e8s_price * percentage) / 100;
+                let royaltyAmount = (e6s_price * percentage) / 100;
                 if (royaltyAmount > 0) {
                   createNotification(receiver, #ROYALTY_RECEIVED({
                     ipId = id;
@@ -470,7 +470,7 @@ module {
       // Add it to the banned IPs
       Set.add(accessControl.bannedIps, Set.nhash, id);
       // Remove it from the marketplace if it is currently listed
-      Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
+      Map.delete(intProps.e6sUsdtPrices, Map.nhash, id);
       // Ban the author
       if (ban_author) {
         let author = switch(await* queryIntProp(id)){
@@ -531,7 +531,7 @@ module {
 
       // Remove them from the marketplace
       for (id in intPropIds.vals()){
-        Map.delete(intProps.e8sBtcPrices, Map.nhash, id);
+        Map.delete(intProps.e6sUsdtPrices, Map.nhash, id);
       };
 
       #ok;
@@ -661,12 +661,12 @@ module {
       priceUpdateTimer := ?Timer.recurringTimer<system>(
         #seconds(15 * 60), // 15 minutes in seconds
         func () : async () {
-          await updateCkBtcPrice();
+          await updateCkUsdtPrice();
         }
       );
     };
 
-    public func updateCkBtcPrice() : async () {
+    public func updateCkUsdtPrice() : async () {
       try {
 
         let cyclesToSend = 5_000_000_000; // 5B cycles upper bound
@@ -674,7 +674,7 @@ module {
         
         let result = await ExchangeRate.get_exchange_rate({
           base_asset = {
-            symbol = "ckBTC";
+            symbol = "ckUSDT";
             class_ = #Cryptocurrency;
           };
           quote_asset = {
@@ -686,22 +686,24 @@ module {
         
         switch (result) {
           case (#Ok(exchangeRate)) {
-            ckbtcRate.usd_price := exchangeRate.rate;
-            ckbtcRate.last_update := Time.now();
+            ckusdtRate.usd_price := exchangeRate.rate;
+            ckusdtRate.decimals := exchangeRate.metadata.decimals;
+            ckusdtRate.last_update := Nat64.toNat(exchangeRate.timestamp);
           };
           case (#Err(error)) {
-            Debug.print("Failed to fetch ckBTC price: " # debug_show(error));
+            Debug.print("Failed to fetch ckUSDT price: " # debug_show(error));
           };
         };
       } catch (error) {
-        Debug.print("Error fetching ckBTC price: " # debug_show(Error.message(error)));
+        Debug.print("Error fetching ckUSDT price: " # debug_show(Error.message(error)));
       };
     };
 
-    public func getCkbtcUsdPrice() : SCkbtcRate {
+    public func getCkUsdtUsdPrice() : SCkUsdtRate {
       {
-        usd_price = ckbtcRate.usd_price;
-        last_update = ckbtcRate.last_update;
+        usd_price = ckusdtRate.usd_price;
+        decimals = ckusdtRate.decimals;
+        last_update = ckusdtRate.last_update;
       };
     };
 

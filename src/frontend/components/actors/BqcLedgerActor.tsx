@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useActors } from '../common/ActorsContext';
 import { ActorMethod, ActorSubclass } from '@dfinity/agent';
-import { _SERVICE as BqcLedger } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { _SERVICE as BqcLedger } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 
 // Type utilities to extract function signatures from ActorMethod
 type BqcLedgerMethods = keyof BqcLedger;

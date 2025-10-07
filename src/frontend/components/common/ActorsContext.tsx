@@ -4,12 +4,12 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from "
 
 import { idlFactory as backendIdlFactory,      canisterId as backendId      } from "../../../declarations/backend/index";
 import { idlFactory as bqcLedgerIdlFactory,    canisterId as bqcLedgerId    } from "../../../declarations/bqc_ledger/index";
-import { idlFactory as ckbtcLedgerIdlFactory,  canisterId as ckbtcLedgerId  } from "../../../declarations/ckbtc_ledger/index";
+import { idlFactory as ckusdtLedgerIdlFactory,  canisterId as ckusdtLedgerId  } from "../../../declarations/ckusdt_ledger/index";
 import { idlFactory as bip721LedgerIdlFactory, canisterId as bip721LedgerId } from "../../../declarations/bip721_ledger/index";
 import { idlFactory as faucetIdlFactory,       canisterId as faucetId   } from "../../../declarations/faucet/index";
 import { _SERVICE as BackendService      } from "../../../declarations/backend/backend.did";
 import { _SERVICE as BqcLedgerService    } from "../../../declarations/bqc_ledger/bqc_ledger.did";
-import { _SERVICE as CkBtcLedgerService  } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { _SERVICE as CkUsdtLedgerService  } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 import { _SERVICE as Bip721LedgerService } from "../../../declarations/bip721_ledger/bip721_ledger.did";
 import { _SERVICE as Faucet              } from "../../../declarations/faucet/faucet.did";
 
@@ -27,10 +27,10 @@ const createBqcLedgerActor = (agent: Agent) => {
   });
 }
 
-const createCkBtcLedgerActor = (agent: Agent) => {
-  return Actor.createActor<CkBtcLedgerService>(ckbtcLedgerIdlFactory, {
+const createCkUsdtLedgerActor = (agent: Agent) => {
+  return Actor.createActor<CkUsdtLedgerService>(ckusdtLedgerIdlFactory, {
     agent,
-    canisterId: ckbtcLedgerId,
+    canisterId: ckusdtLedgerId,
   });
 }
 
@@ -52,14 +52,14 @@ interface ActorsContextType {
   unauthenticated?: {
     backend: ActorSubclass<BackendService>;
     bqcLedger: ActorSubclass<BqcLedgerService>;
-    ckbtcLedger: ActorSubclass<CkBtcLedgerService>;
+    ckusdtLedger: ActorSubclass<CkUsdtLedgerService>;
     bip721Ledger: ActorSubclass<Bip721LedgerService>;
     faucet: ActorSubclass<Faucet>;
   };
   authenticated?: {
     backend: ActorSubclass<BackendService>;
     bqcLedger: ActorSubclass<BqcLedgerService>;
-    ckbtcLedger: ActorSubclass<CkBtcLedgerService>;
+    ckusdtLedger: ActorSubclass<CkUsdtLedgerService>;
     bip721Ledger: ActorSubclass<Bip721LedgerService>;
     faucet: ActorSubclass<Faucet>;
   };
@@ -134,7 +134,7 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ? {
           backend: createBackendActor(unauthenticatedAgent),
           bqcLedger: createBqcLedgerActor(unauthenticatedAgent),
-          ckbtcLedger: createCkBtcLedgerActor(unauthenticatedAgent),
+          ckusdtLedger: createCkUsdtLedgerActor(unauthenticatedAgent),
           bip721Ledger: createBip721LedgerActor(unauthenticatedAgent),
           faucet: createFaucetActor(unauthenticatedAgent),
         }
@@ -144,7 +144,7 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ? {
           backend: createBackendActor(authenticatedAgent),
           bqcLedger: createBqcLedgerActor(authenticatedAgent),
-          ckbtcLedger: createCkBtcLedgerActor(authenticatedAgent),
+          ckusdtLedger: createCkUsdtLedgerActor(authenticatedAgent),
           bip721Ledger: createBip721LedgerActor(authenticatedAgent),
           faucet: createFaucetActor(authenticatedAgent),
         }
