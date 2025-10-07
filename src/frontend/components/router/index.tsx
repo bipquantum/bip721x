@@ -13,11 +13,12 @@ import WhoAreYou from "../pages/poll";
 import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
-import DetailsView from "../pages/profile/DetailsView";
-import { useIdentity } from "@nfid/identitykit/react";
+import { useAuth } from "@nfid/identitykit/react";
+import { useHotjarTracking } from "../hooks/useHotjarTracking";
 
 const Router = () => {
-  const identity = useIdentity();
+  const { user } = useAuth();
+  useHotjarTracking();
 
   return (
     <Routes>
@@ -35,20 +36,20 @@ const Router = () => {
         element={
           <PrivateRoute
             element={
-              <WithHistoryWrapper principal={identity?.getPrincipal()!} />
+              <WithHistoryWrapper principal={user?.principal} />
             }
           />
         }
       />
       <Route
         path={"/marketplace"}
-        element={<Bips principal={identity?.getPrincipal()!} />}
+        element={<Bips />}
       />
       <Route
         path={"/new"}
         element={
           <PrivateRoute
-            element={<NewIP principal={identity?.getPrincipal()} />}
+            element={<NewIP principal={user?.principal} />}
           />
         }
       />
@@ -64,15 +65,14 @@ const Router = () => {
         path={"/bips"}
         element={
           <PrivateRoute
-            element={<Wallet principal={identity?.getPrincipal()} />}
+            element={<Wallet principal={user?.principal} />}
           />
         }
       />
       <Route
         path={"/bip/:ipId"}
-        element={<BipDetails principal={identity?.getPrincipal()} />}
+        element={<BipDetails principal={user?.principal} />}
       />
-      <Route path={"/view"} element={<DetailsView />} />
       <Route path={"/login"} element={<Login />} />
       <Route path="/bip/:intPropId/certificate" element={<CertificatePage />} />
     </Routes>

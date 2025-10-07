@@ -40,7 +40,7 @@ const BipItem: React.FC<BipItemProps> = ({
   });
 
   const authorPrincipal =
-    intProp && !("err" in intProp) ? intProp.ok.V1.author : null;
+    intProp && !("err" in intProp) ? intProp.ok.intProp.V1.author : null;
   const { data: author } = backendActor.useQueryCall({
     functionName: "get_user",
     args: [authorPrincipal ?? Principal.anonymous()],
@@ -91,9 +91,9 @@ const BipItem: React.FC<BipItemProps> = ({
               to={`/bip/${intPropId}`}
               className="relative w-full rounded-lg"
             >
-              {intProp.ok.V1.dataUri ? (
+              {intProp.ok.intProp.V1.dataUri ? (
                 <FilePreview
-                  dataUri={intProp.ok.V1.dataUri}
+                  dataUri={intProp.ok.intProp.V1.dataUri}
                   className="flex h-[260px] w-full flex-col items-center justify-center rounded-2xl object-cover"
                 />
               ) : (
@@ -126,11 +126,11 @@ const BipItem: React.FC<BipItemProps> = ({
             <div className="flex h-full flex-col justify-between pt-3">
               <div className="flex flex-col items-start justify-between gap-2 md:flex-row md:gap-0">
                 <div className={`flex w-full flex-row gap-2`}>
-                  <UserImage principal={intProp.ok.V1.author} />
+                  <UserImage principal={intProp.ok.intProp.V1.author} />
                   <div className="flex w-fit flex-col">
                     <div className="pb-1">
                       <p className="break-all text-2xl leading-none text-black dark:text-white">
-                        {intProp.ok.V1.title}
+                        {intProp.ok.intProp.V1.title}
                       </p>
                       <p className="text-xs text-black dark:text-white items-baseline">
                         By @
@@ -144,15 +144,15 @@ const BipItem: React.FC<BipItemProps> = ({
                       <p className="text-sm font-light text-neutral-400">
                         Type:{" "}
                         <span className="text-sm font-light text-neutral-400">
-                          {intPropTypeToString(intProp.ok.V1.intPropType)}
+                          {intPropTypeToString(intProp.ok.intProp.V1.intPropType)}
                         </span>
                       </p>
                       <p className="text-sm font-light text-neutral-400">
                         Licenses:{" "}
                         <span className="text-sm font-light text-neutral-400">
-                          {intProp.ok.V1.intPropLicenses &&
-                          intProp.ok.V1.intPropLicenses.length > 0
-                            ? intProp.ok.V1.intPropLicenses
+                          {intProp.ok.intProp.V1.intPropLicenses &&
+                          intProp.ok.intProp.V1.intPropLicenses.length > 0
+                            ? intProp.ok.intProp.V1.intPropLicenses
                                 .map(intPropLicenseToString)
                                 .join(", ")
                             : "None"}

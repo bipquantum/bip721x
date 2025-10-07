@@ -5,6 +5,8 @@ import { backendActor } from "../actors/BackendActor";
 
 // @ts-ignore
 import { getName } from "country-list";
+import { useMemo } from "react";
+import { fromNullableExt } from "../../utils/conversions";
 
 type UserDetailsArgs = {
   principal: Principal;
@@ -15,6 +17,10 @@ const UserDetails = ({ principal }: UserDetailsArgs) => {
     functionName: "get_user",
     args: [principal],
   });
+
+  const countryCode = useMemo(() => {
+    return fromNullableExt(author)?.countryCode;
+  }, [author]);
 
   return (
     <div className="relative w-full overflow-x-auto">
@@ -59,7 +65,7 @@ const UserDetails = ({ principal }: UserDetailsArgs) => {
               Country
             </th>
             <td className="text-right font-semibold">
-              {getName(fromNullable(author)?.countryCode)}
+              {countryCode ? getName(countryCode) : 'N/A'}
             </td>
           </tr>
         </table>

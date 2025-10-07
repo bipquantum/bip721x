@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 
 import { useChatHistory } from "../../layout/ChatHistoryContext";
-import { useAuth, useIdentity } from "@nfid/identitykit/react";
+import { useAuth } from "@nfid/identitykit/react";
 
 const Main = () => {
 

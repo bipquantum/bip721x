@@ -391,7 +391,10 @@ shared(_init_msg) actor class BIP721Ledger({deployer: Principal}) = this {
     //todo: figure this out
     return [
       {name = "ICRC-7"; url = "https://github.com/dfinity/ICRC/ICRCs/ICRC-7"},
-      {name = "ICRC-37"; url = "https://github.com/dfinity/ICRC/ICRCs/ICRC-37"}];
+      {name = "ICRC-37"; url = "https://github.com/dfinity/ICRC/ICRCs/ICRC-37"},
+      {name = "ICRC-10"; url = "https://github.com/dfinity/ICRC/blob/main/ICRCs/ICRC-10/ICRC-10.md"},
+      {name = "ICRC-28"; url = "https://github.com/dfinity/wg-identity-authentication/blob/main/topics/icrc_28_trusted_origins.md"}
+    ];
   };
 
 
@@ -519,6 +522,23 @@ shared(_init_msg) actor class BIP721Ledger({deployer: Principal}) = this {
       
     };
   };
-  
+
+  public type Icrc28TrustedOriginsResponse = {
+    trusted_origins: [Text];
+  };
+
+  public func icrc28_trusted_origins() : async Icrc28TrustedOriginsResponse {
+    let trusted_origins = [
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp0.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.raw.icp0.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.ic0.app",
+      "https://czzq6-byaaa-aaaap-akilq-cai.raw.ic0.app",
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp0.icp-api.io",
+      "https://czzq6-byaaa-aaaap-akilq-cai.icp-api.io",
+      "https://www.dapp.bipquantum.com",
+      "https://dapp.bipquantum.com"
+    ];
+    return { trusted_origins; };
+  };
 
 };

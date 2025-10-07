@@ -100,17 +100,17 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                 <div className="flex w-full flex-col items-center gap-[18px] lg:w-3/12">
                   <div className="h-auto w-full p-2">
                     <div className="mx-auto w-full rounded-[32px] shadow-[0px_0px_40px_-20px] shadow-primary md:w-fit">
-                      {intProp.ok.V1.dataUri && (
+                      {intProp.ok.intProp.V1.dataUri && (
                         <FilePreview
                           className="rounded-[32px]"
-                          dataUri={intProp.ok.V1.dataUri}
+                          dataUri={intProp.ok.intProp.V1.dataUri}
                         />
                       )}
                     </div>
                   </div>
                   <div className="flex w-3/4 flex-col items-center gap-[20px]">
                     <div className="flex w-full flex-col items-center text-center text-xl">
-                      {intProp.ok.V1.title}
+                      {intProp.ok.intProp.V1.title}
                       {isBanned ? (
                         <div className="text-base text-red-500">
                           This IP has been banned ❌
@@ -130,9 +130,9 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                 <div className="rounded-0 w-full flex-grow flex-col space-y-3 bg-secondary/10 p-2 px-2 py-4 dark:bg-white/10 sm:rounded-[20px] sm:p-6 md:p-6">
                   <div className="flex flex-col gap-[20px] rounded-[20px] px-[15px] py-[10px]">
                     <div className="flex flex-row items-center gap-[15px]">
-                      <UserImage principal={intProp.ok.V1.author} />
+                      <UserImage principal={intProp.ok.intProp.V1.author} />
                       <div className="flex flex-row items-center gap-1">
-                        <UserNickName principal={intProp.ok.V1.author} />
+                        <UserNickName principal={intProp.ok.intProp.V1.author} />
                         <span>
                           <HiCheckBadge
                             size={24}
@@ -184,15 +184,15 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                         <li className="grid grid-cols-2">
                           IP Type:{" "}
                           <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
-                            {intPropTypeToString(intProp.ok.V1.intPropType)}
+                            {intPropTypeToString(intProp.ok.intProp.V1.intPropType)}
                           </span>
                         </li>
                         <li className="grid grid-cols-2">
                           Licenses:{" "}
                           <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
-                            {intProp.ok.V1.intPropLicenses &&
-                            intProp.ok.V1.intPropLicenses.length > 0
-                              ? intProp.ok.V1.intPropLicenses
+                            {intProp.ok.intProp.V1.intPropLicenses &&
+                            intProp.ok.intProp.V1.intPropLicenses.length > 0
+                              ? intProp.ok.intProp.V1.intPropLicenses
                                   .map(intPropLicenseToString)
                                   .join(", ")
                               : "None"}
@@ -202,16 +202,16 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                           Royalties:{" "}
                           <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
                             {extractRoyalties(
-                              intProp.ok.V1.percentageRoyalties,
+                              intProp.ok.intProp.V1.percentageRoyalties,
                             )}
                           </span>
                         </li>
                         <li className="grid grid-cols-2">
                           Creation Date:{" "}
                           <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
-                            {intProp.ok.V1.creationDate
+                            {intProp.ok.intProp.V1.creationDate
                               ? formatDate(
-                                  timeToDate(intProp.ok.V1.creationDate),
+                                  timeToDate(intProp.ok.intProp.V1.creationDate),
                                 )
                               : "N/A"}
                           </span>
@@ -219,10 +219,10 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                         <li className="grid grid-cols-2">
                           Publication:{" "}
                           <span className="text-right font-semibold text-gray-700 dark:text-gray-100">
-                            {intProp.ok.V1.publishing
+                            {intProp.ok.intProp.V1.publishing
                               ? (() => {
                                   const pub = fromNullable(
-                                    intProp.ok.V1.publishing,
+                                    intProp.ok.intProp.V1.publishing,
                                   );
                                   if (!pub) return "N/A";
                                   const country = getName(pub.countryCode);
@@ -243,7 +243,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                         )}
                         <BanAuthor
                           principal={principal}
-                          author={intProp.ok.V1.author}
+                          author={intProp.ok.intProp.V1.author}
                         />
                         <BanIntProp
                           principal={principal}
@@ -261,7 +261,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                     {/* Put a horizontal light bar to separate the rest */}
                     <hr className="my-2 border-t border-gray-200 dark:border-gray-700" />
                     <span className="block whitespace-pre-line break-words text-justify text-base text-sm font-normal leading-[1.5em]">
-                      {intProp.ok.V1.description}
+                      {intProp.ok.intProp.V1.description}
                     </span>
                   </div>
                 </div>

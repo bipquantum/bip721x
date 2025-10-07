@@ -9,11 +9,7 @@ import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection } from "../../../utils/conversions";
 import { BIP_ITEMS_PER_QUERY } from "../../constants";
 
-interface BipsProps {
-  principal: Principal; // TODO: it does not need to be optional, apparently principal is always defined but anonymous if not logged in
-}
-
-const Bips: React.FC<BipsProps> = ({ principal }) => {
+const Bips: React.FC = () => {
   const [queryDirection, setQueryDirection] = useState<EQueryDirection>(
     EQueryDirection.Forward,
   );
@@ -51,7 +47,6 @@ const Bips: React.FC<BipsProps> = ({ principal }) => {
       />
       <div className="w-full px-4">
         <BipList
-          principal={principal}
           fetchBips={fetchBips}
           queryDirection={queryDirection}
           hideUnlisted={true}

@@ -8,7 +8,7 @@ import NavBar from "./layout/NavBar";
 import "react-toastify/dist/ReactToastify.css";
 import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
-import AirdropBanner, { AirdropBannerProvider } from "./common/AirdropBanner";
+import CookieBanner, { CookieBannerProvider } from "./common/CookieBanner";
 import TopBar from "./layout/TopBar";
 import ChatHistory from "./layout/ChatHistory";
 import { SearchProvider } from "./common/SearchContext";
@@ -114,15 +114,15 @@ function App() {
           >
             <ActorsProvider>
               <ChatHistoryProvider>
-                <AirdropBannerProvider>
+                <CookieBannerProvider>
                   <SearchProvider>
                     <NotificationProvider>
                       <FungibleLedgerProvider>
-                        <AppContent />  
+                        <AppContent />
                       </FungibleLedgerProvider>
                     </NotificationProvider>
                   </SearchProvider>
-                </AirdropBannerProvider>
+                </CookieBannerProvider>
               </ChatHistoryProvider>
             </ActorsProvider>
           </IdentityKitProvider>
@@ -148,7 +148,7 @@ function AppContent() {
   return (
     <>
       <ToastContainer />
-      <AirdropBanner />
+      <CookieBanner />
       {/* Main Layout Container */}
       <div className="flex w-full flex-grow flex-col bg-background pl-0 dark:bg-background-dark sm:ml-20 sm:flex-grow-0 sm:flex-row">
         {!(pathname.includes("login") || pathname.includes("certificate")) && (

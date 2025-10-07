@@ -21,11 +21,15 @@ type Document = {
   id: number; // Used number instead of bigint for JSON stringification
   title: string;
   description: string;
+  author: string;
 };
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 const REFRESH_INTERVAL = 10000; // 10 seconds
+const STORAGE_VERSION = 2;
+const STORAGE_KEY = "miniSearchDocuments";
+const VERSION_KEY = "miniSearchVersion";
 
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -34,10 +38,22 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   
   const [documents, setDocuments] = useState<Document[]>(() => {
     try {
-      const raw = localStorage.getItem("miniSearchDocuments");
-      return raw ? JSON.parse(raw) : [];
+      const version = localStorage.getItem(VERSION_KEY);
+      console.log("[SearchContext] Current storage version:", version, "Expected:", STORAGE_VERSION);
+
+      if (version !== String(STORAGE_VERSION)) {
+        console.log("[SearchContext] Version mismatch - clearing old data and migrating to version", STORAGE_VERSION);
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.setItem(VERSION_KEY, String(STORAGE_VERSION));
+        return [];
+      }
+
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const docs = raw ? JSON.parse(raw) : [];
+      console.log("[SearchContext] Loaded", docs.length, "documents from localStorage");
+      return docs;
     } catch (err) {
-      console.warn("Failed to parse cached documents", err);
+      console.error("[SearchContext] Failed to parse cached documents:", err);
       return [];
     }
   });
@@ -47,31 +63,52 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   const [intPropIds, setIntPropIds] = useState<bigint[]>([]);
 
   const fetchIntProps = async (ids: number[]): Promise<Document[]> => {
-    if (!unauthenticated) return [];
-    
+    if (!unauthenticated) {
+      console.warn("[SearchContext] Cannot fetch intProps - unauthenticated actor not available");
+      return [];
+    }
+
+    console.log("[SearchContext] Fetching", ids.length, "intProps:", ids);
+
     const results = await Promise.all(
       ids.map(async (id) => {
         try {
           const result = await unauthenticated.backend.get_int_prop({ token_id: BigInt(id) });
           if (result && "ok" in result) {
-            return {
+            const doc = {
               id,
-              title: result.ok.V1.title,
-              description: result.ok.V1.description,
+              title: result.ok.intProp.V1.title,
+              description: result.ok.intProp.V1.description,
+              author: result.ok.author?.[0]?.nickName ?? "",
             };
+            console.log(`[SearchContext] Fetched intProp ${id}:`, doc.title, "by", doc.author || "(no author)");
+            return doc;
+          } else {
+            console.warn(`[SearchContext] Failed to fetch intProp ${id}: result not ok`);
           }
         } catch (err) {
-          console.warn(`Failed to fetch intProp ${id}:`, err);
+          console.error(`[SearchContext] Error fetching intProp ${id}:`, err);
         }
         return null;
       }),
     );
-    return results.filter((r): r is Document => r !== null);
+
+    const validResults = results.filter((r): r is Document => r !== null);
+    console.log("[SearchContext] Successfully fetched", validResults.length, "out of", ids.length, "intProps");
+    return validResults;
   };
 
   const refreshDocuments = useCallback(async () => {
-    if (!unauthenticated || isRefreshing) return;
-    
+    if (!unauthenticated) {
+      console.log("[SearchContext] Cannot refresh - unauthenticated actor not available");
+      return;
+    }
+    if (isRefreshing) {
+      console.log("[SearchContext] Already refreshing, skipping");
+      return;
+    }
+
+    console.log("[SearchContext] Starting refresh of intProp IDs");
     setIsRefreshing(true);
     try {
       const result = await unauthenticated.backend.get_listed_int_props({
@@ -79,16 +116,17 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
         take: [100_000n],
         direction: toQueryDirection(EQueryDirection.Forward),
       });
-      
+
       // Ensure result is valid and convert bigints to numbers safely
       if (Array.isArray(result)) {
+        console.log("[SearchContext] Received", result.length, "intProp IDs from backend");
         setIntPropIds(result);
         setLastRefreshTime(Date.now());
       } else {
-        console.warn("Invalid result from get_listed_int_props:", result);
+        console.error("[SearchContext] Invalid result from get_listed_int_props:", result);
       }
     } catch (err) {
-      console.error("Failed to refresh int prop ids:", err);
+      console.error("[SearchContext] Failed to refresh int prop IDs:", err);
     } finally {
       setIsRefreshing(false);
     }
@@ -115,61 +153,83 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 
     if (missingIds.length > 0 || removedIds.length > 0) {
+      console.log("[SearchContext] Document sync needed - Missing:", missingIds.length, "Removed:", removedIds.length);
+      if (missingIds.length > 0) {
+        console.log("[SearchContext] Missing IDs:", missingIds);
+      }
+      if (removedIds.length > 0) {
+        console.log("[SearchContext] Removed IDs:", removedIds);
+      }
+
       (async () => {
         const newDocs = await fetchIntProps(missingIds);
         setDocuments((prevDocs) => {
           const keptDocs = prevDocs.filter(
             (doc) => !removedIds.includes(doc.id),
           );
-          
+
           // Ensure no duplicates by creating a Map and converting back to array
           const allDocs = [...keptDocs, ...newDocs];
           const docMap = new Map<number, Document>();
-          
+
           allDocs.forEach(doc => {
             if (doc && typeof doc.id === 'number') {
               docMap.set(doc.id, doc);
             }
           });
-          
-          return Array.from(docMap.values());
+
+          const finalDocs = Array.from(docMap.values());
+          console.log("[SearchContext] Documents updated - Total:", finalDocs.length);
+          return finalDocs;
         });
       })();
+    } else {
+      console.log("[SearchContext] Documents in sync - no updates needed");
     }
   }, [intPropIds]);
 
   useEffect(() => {
     try {
-      localStorage.setItem("miniSearchDocuments", JSON.stringify(documents));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
+      console.log("[SearchContext] Saved", documents.length, "documents to localStorage");
     } catch (err) {
-      console.warn("Failed to cache documents", err);
+      console.error("[SearchContext] Failed to cache documents to localStorage:", err);
     }
   }, [documents]);
 
   const options: Options<Document> = {
-    fields: ["title", "description"],
+    fields: ["title", "description", "author"],
     storeFields: ["title"],
     idField: "id",
   };
 
   const miniSearch = useMemo(() => {
+    console.log("[SearchContext] Rebuilding MiniSearch index with", documents.length, "documents");
     const search = new MiniSearch(options);
-    
+
     try {
       // Ensure documents have unique IDs before adding
-      const uniqueDocuments = documents.filter((doc, index, arr) => 
+      const uniqueDocuments = documents.filter((doc, index, arr) =>
         arr.findIndex(d => d.id === doc.id) === index
       );
-      
+
+      const duplicateCount = documents.length - uniqueDocuments.length;
+      if (duplicateCount > 0) {
+        console.warn("[SearchContext] Removed", duplicateCount, "duplicate documents");
+      }
+
       if (uniqueDocuments.length > 0) {
         search.addAll(uniqueDocuments);
+        console.log("[SearchContext] MiniSearch index built successfully with", uniqueDocuments.length, "documents");
+      } else {
+        console.log("[SearchContext] MiniSearch index is empty - no documents to index");
       }
     } catch (error) {
-      console.error("Error adding documents to MiniSearch:", error);
+      console.error("[SearchContext] Error adding documents to MiniSearch:", error);
       // Return an empty search instance if there's an error
       return new MiniSearch(options);
     }
-    
+
     return search;
   }, [documents, options]);
 

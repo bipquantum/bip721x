@@ -7,7 +7,7 @@ import {
 } from "react";
 import { useNotifications } from "../hooks/useNotifications";
 import { ProcessedNotification } from "../../types/notifications";
-import { useIdentity } from "@nfid/identitykit/react";
+import { useAuth } from "@nfid/identitykit/react";
 
 interface NotificationContextType {
   notifications: ProcessedNotification[];
@@ -27,11 +27,7 @@ interface NotificationProviderProps {
 export const NotificationProvider = ({
   children,
 }: NotificationProviderProps) => {
-  const identity = useIdentity();
-  const authenticated = useMemo(
-    () => identity !== undefined && !identity.getPrincipal().isAnonymous(),
-    [identity],
-  );
+  const { user } = useAuth();
   const {
     notifications,
     unreadCount,
@@ -42,7 +38,7 @@ export const NotificationProvider = ({
 
   // Poll for new notifications every 30 seconds when authenticated
   useEffect(() => {
-    if (!authenticated) return;
+    if (!user) return;
 
     const interval = setInterval(() => {
       refetchNotifications();
@@ -52,7 +48,7 @@ export const NotificationProvider = ({
     refetchNotifications();
 
     return () => clearInterval(interval);
-  }, [authenticated]);
+  }, [user]);
 
   const contextValue: NotificationContextType = {
     notifications,

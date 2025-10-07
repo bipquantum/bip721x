@@ -266,6 +266,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                 options={IP_TYPE_OPTIONS}
                 styles={getCustomStyles(isDark)}
                 placeholder="Select IP Type"
+                isSearchable={false}
               />
             </div>
           </div>
@@ -306,6 +307,7 @@ const NewIpInputs: React.FC<NewIpInputsProps> = ({ intPropInput, setIntPropInput
                 }}
                 options={IP_LICENSE_OPTIONS}
                 placeholder="Select license options"
+                isSearchable={false}
               />
             </div>
           </div>

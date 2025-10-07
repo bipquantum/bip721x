@@ -1,5 +1,5 @@
 import { Actor, ActorSubclass, Agent, HttpAgent }                         from "@dfinity/agent";
-import { useAgent }                                                       from "@nfid/identitykit/react";
+import { useAgent, useAuth }                                              from "@nfid/identitykit/react";
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { idlFactory as backendIdlFactory,      canisterId as backendId      } from "../../../declarations/backend/index";
@@ -92,9 +92,28 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [host]);
 
   // Authenticated agent
-  const authenticatedAgent = useAgent({ 
+  const authenticatedAgent = useAgent({
     host
   });
+
+  const { user, disconnect } = useAuth();
+
+  // Sync check: if user thinks they're logged in but agent is anonymous, force logout
+  useEffect(() => {
+    const checkIdentitySync = async () => {
+      if (user && authenticatedAgent) {
+        const identity = await authenticatedAgent.getPrincipal();
+        const isAnonymous = identity.isAnonymous();
+
+        if (isAnonymous && user.principal) {
+          console.warn("Auth state desync detected: user logged in but agent is anonymous. Forcing disconnect...");
+          await disconnect();
+        }
+      }
+    };
+
+    checkIdentitySync();
+  }, [user, authenticatedAgent, disconnect]);
 
   useEffect(() => {
     if (authenticatedAgent) {

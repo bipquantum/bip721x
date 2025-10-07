@@ -12,7 +12,7 @@ import ChatHistoryBar from "./ChatHistoryBar";
 import Modal from "../common/Modal";
 import NotificationBell from "../common/NotificationBell";
 import Wallet from "../common/Wallet";
-import { useAuth, useIdentity } from "@nfid/identitykit/react";
+import { useAuth } from "@nfid/identitykit/react";
 import BipquantumBetaWhite from "../../assets/bipquantum_beta_white.png";
 import BipquantumBetaBlack from "../../assets/bipquantum_beta_black.png";
 import { FiLogIn } from "react-icons/fi";
@@ -21,9 +21,8 @@ const TopBar = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   const location = useLocation();
   const { pathname } = location;
-  const { connect } = useAuth();
+  const { connect, user } = useAuth();
 
-  const identity = useIdentity();
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +35,7 @@ const TopBar = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading || !identity || identity.getPrincipal().isAnonymous()) {
+  if (isLoading || !user) {
     return (
       <header className="fixed left-0 right-0 top-0 z-40 flex min-h-16 space-x-2 w-full items-center justify-between overflow-visible bg-background px-3 text-white dark:bg-background-dark sm:relative sm:z-auto sm:min-h-20 sm:px-4">
         <Link to={"/login"}>
@@ -142,7 +141,7 @@ const TopBar = () => {
         </button>
         <Link to="/profile" className="h-10 w-10">
           <UserImage
-            principal={identity.getPrincipal()}
+            principal={user.principal}
             className="h-10 w-10 rounded-full border-2 border-gray-300 object-cover dark:border-gray-700"
           />
         </Link>
