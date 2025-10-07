@@ -687,7 +687,8 @@ module {
         switch (result) {
           case (#Ok(exchangeRate)) {
             ckusdtRate.usd_price := exchangeRate.rate;
-            ckusdtRate.last_update := Time.now();
+            ckusdtRate.decimals := exchangeRate.metadata.decimals;
+            ckusdtRate.last_update := Nat64.toNat(exchangeRate.timestamp);
           };
           case (#Err(error)) {
             Debug.print("Failed to fetch ckUSDT price: " # debug_show(error));
@@ -701,6 +702,7 @@ module {
     public func getCkUsdtUsdPrice() : SCkUsdtRate {
       {
         usd_price = ckusdtRate.usd_price;
+        decimals = ckusdtRate.decimals;
         last_update = ckusdtRate.last_update;
       };
     };

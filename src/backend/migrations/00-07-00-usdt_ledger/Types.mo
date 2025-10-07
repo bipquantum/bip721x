@@ -77,6 +77,7 @@ module {
 
   public type CkUsdtRate = {
     var usd_price: Nat64;
+    var decimals: Nat32;
     var last_update: Int;
   };
 
@@ -106,15 +107,21 @@ module {
     airdrop_per_user: Nat;
     admin: Principal;
     chatbot_api_key: Text;
-    ckusdt_usd_price: Nat64;
+    ckusdt_rate: {
+      usd_price: Nat64;
+      decimals: Nat32;
+    };
     ckusdt_transfer_fee: Nat;
   };
   public type UpgradeArgs = { 
-    ckusdt_usd_price: Nat64;
+    ckusdt_rate: {
+      usd_price: Nat64;
+      decimals: Nat32;
+    };
     ckusdt_transfer_fee: Nat;
   };
   public type DowngradeArgs = {
-    ckbtc_usd_price: Nat64;
+    ckbtc_usd_price_e8s: Nat64;
     ckbtc_transfer_fee: Nat;
   };
 

@@ -4,11 +4,13 @@ import Conversions    "intprop/Conversions";
 import ChatBot        "ChatBot";
 import ChatBotHistory "ChatBotHistory";
 import TradeManager   "TradeManager";
+import XRCTypes       "XRCTypes";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
 import BIP721Ledger  "canister:bip721_ledger";
 import BQCLedger     "canister:bqc_ledger";
+import ExchangeRate  "canister:exchange_rate";
 
 import Result        "mo:base/Result";
 import Principal     "mo:base/Principal";
@@ -283,6 +285,15 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public query func get_ckusdt_usd_price() : async SCkUsdtRate {
     getController().getCkUsdtUsdPrice();
+  };
+
+  public shared({caller}) func get_exchange_rate(req : XRCTypes.GetExchangeRateRequest) : async XRCTypes.GetExchangeRateResult {
+    // 5_000_000_000 cycles should be enough for one call
+    if (not Principal.equal(caller, admin)) {
+      Debug.trap("Only the admin can call this function");
+    };
+    Cycles.add<system>(5_000_000_000);
+    await ExchangeRate.get_exchange_rate(req);
   };
 
   func getController() : Controller.Controller {

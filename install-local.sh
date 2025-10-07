@@ -13,7 +13,10 @@ BQC_LEDGER_CANISTER=$(dfx canister id bqc_ledger)
 CKUSDT_LEDGER_CANISTER=$(dfx canister id ckusdt_ledger)
 
 BQC_LOGO=$(base64 -w 0 ./src/frontend/assets/logobqc.png)
-CKUSDT_USD_PRICE=1_000_000  # 1 ckUSDT = 1 USD (price in e6s)
+# Exchange rate for ckUSDT/USD with 9 decimals (typical format from exchange_rate canister)
+# 1_000_000_000 = 1.0 USD (with 9 decimals)
+CKUSDT_USD_PRICE=1_000_000_000
+CKUSDT_DECIMALS=9
 CKUSDT_TRANSFER_FEE=10_000  # 10,000 e6s = 0.01 ckUSDT
 
 # Deploy all independent canisters
@@ -82,9 +85,10 @@ dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
     service_fee = 10_000_000;
   }
 })" &
-# 1 ckUSDT = 1 USD
+# Exchange rate canister initialization
 dfx deploy exchange_rate --argument '( record {
   ckusdt_usd_price = '${CKUSDT_USD_PRICE}' : nat64;
+  ckusdt_decimals = '${CKUSDT_DECIMALS}' : nat32;
 })' &
 wait
 
@@ -109,11 +113,14 @@ dfx deps deploy internet_identity
 
 # Backend
 dfx deploy backend --argument 'variant {
-  init = record { 
+  init = record {
     airdrop_per_user = 100_000_000_000;
     admin = principal "'${DEPLOYER_PRINCIPAL}'";
     chatbot_api_key = "'${CHATBOT_API_KEY}'";
-    ckusdt_usd_price = '${CKUSDT_USD_PRICE}' : nat64;
+    ckusdt_rate = record {
+      usd_price = '${CKUSDT_USD_PRICE}' : nat64;
+      decimals = '${CKUSDT_DECIMALS}' : nat32;
+    };
     ckusdt_transfer_fee = '${CKUSDT_TRANSFER_FEE}' : nat;
   }
 }'

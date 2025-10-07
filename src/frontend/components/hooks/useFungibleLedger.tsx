@@ -83,9 +83,13 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
 
   // Handle ckUSDT price data from backend
   useEffect(() => {
-    if (ckusdtPriceData && tokenDecimals && ledgerType === LedgerType.CK_USDT) {
-      // Convert from Nat64 eXs to number
-      const priceNumber = Number(ckusdtPriceData.usd_price) / (10 ** tokenDecimals);
+    if (ckusdtPriceData && ledgerType === LedgerType.CK_USDT) {
+      // Convert exchange rate to number using its own decimals
+      // Note: Exchange rate decimals are different from token decimals
+      // E.g., rate = 1_001_001_001 with decimals = 9 means 1.001001001 USD per USDT
+      const priceData = ckusdtPriceData as { usd_price: bigint; decimals: number; last_update: bigint };
+      const exchangeRateDecimals = priceData.decimals;
+      const priceNumber = Number(priceData.usd_price) / (10 ** exchangeRateDecimals);
       setPrice(priceNumber);
     } else if (ledgerType === LedgerType.BQC) {
       // For BQC, since the token is not listed yet, the price is undefined
