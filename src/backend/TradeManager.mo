@@ -7,7 +7,7 @@ import Debug "mo:base/Debug";
 import ICRC7 "mo:icrc7-mo";
 
 import BIP721Ledger "canister:bip721_ledger";
-import ckBTCLedger "canister:ckbtc_ledger";
+import ckUSDTLedger "canister:ckusdt_ledger";
 
 module {
 
@@ -25,7 +25,7 @@ type TransferArgs = {
   buyer : Account;
   seller : Account;
   token_id : Nat;
-  e8s_price : Nat;
+  e6s_price : Nat;
 };
 
 type TradeArgs = TransferArgs and {
@@ -51,15 +51,15 @@ public class TradeManager({
 
   func stageTransfer(args : TransferArgs) : async* Result<(), Text> {
 
-    let { buyer : Account; seller : Account; token_id : Nat; e8s_price : Nat } = args;
+    let { buyer : Account; seller : Account; token_id : Nat; e6s_price : Nat } = args;
 
-    if (e8s_price > 0) {
+    if (e6s_price > 0) {
       // Transfer ICPs to the stage account
-      let icp_transfer = await ckBTCLedger.icrc2_transfer_from({
+      let icp_transfer = await ckUSDTLedger.icrc2_transfer_from({
         from = buyer;
         spender_subaccount = null;
         to = stage_account;
-        amount = e8s_price;
+        amount = e6s_price;
         fee = null;
         memo = null;
         created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
@@ -78,12 +78,12 @@ public class TradeManager({
     switch (ip_transfer) {
       case (#err(err)) {
         // Only reimburse if there was actually a payment
-        if (e8s_price > 0) {
+        if (e6s_price > 0) {
           // Reimburse the buyer if the transfer of the intellectual property failed
-          let icp_reimbursement = await ckBTCLedger.icrc1_transfer({
+          let icp_reimbursement = await ckUSDTLedger.icrc1_transfer({
             from_subaccount = stage_account.subaccount;
             to = buyer;
-            amount = e8s_price - fee;
+            amount = e6s_price - fee;
             fee = null;
             memo = null;
             created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
@@ -111,7 +111,7 @@ public class TradeManager({
       buyer : Account;
       seller : Account;
       token_id : Nat;
-      e8s_price : Nat;
+      e6s_price : Nat;
       royalties : ?Royalties;
     } = args;
 
@@ -126,11 +126,11 @@ public class TradeManager({
     };
 
     // Skip payment logic if it's free
-    if (e8s_price == 0) {
+    if (e6s_price == 0) {
       return;
     };
 
-    var seller_amount = e8s_price;
+    var seller_amount = e6s_price;
 
     switch (royalties) {
       case (null) {};
@@ -142,7 +142,7 @@ public class TradeManager({
           // Only transfer royalties if amount is greater than fee
           if (royalties_amount > fee) {
             // Transfer ICPs to the receiver of the royalties
-            let royalties_transfer = await ckBTCLedger.icrc1_transfer({
+            let royalties_transfer = await ckUSDTLedger.icrc1_transfer({
               from_subaccount = stage_account.subaccount;
               to = { owner = receiver; subaccount = null };
               amount = royalties_amount - fee;
@@ -168,7 +168,7 @@ public class TradeManager({
     // Only transfer to seller if amount is greater than fee
     if (seller_amount > fee) {
       // Transfer the ICPs to the seller
-      let icp_transfer = await ckBTCLedger.icrc1_transfer({
+      let icp_transfer = await ckUSDTLedger.icrc1_transfer({
         from_subaccount = stage_account.subaccount;
         to = seller;
         amount = seller_amount - fee;

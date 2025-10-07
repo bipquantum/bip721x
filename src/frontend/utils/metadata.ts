@@ -1,4 +1,4 @@
-import { MetadataValue } from "../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { MetadataValue } from "../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 
 export const getTokenLogo = (metadata: Array<[string, MetadataValue]> | undefined) : string | undefined => {
   if (!metadata) {

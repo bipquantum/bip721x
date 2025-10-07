@@ -5,7 +5,7 @@ import { useFungibleLedgerContext } from "../contexts/FungibleLedgerContext";
 import TokenBalanceCard from "./TokenBalanceCard";
 import TokenAmountInput from "./TokenAmountInput";
 import { Principal } from "@dfinity/principal";
-import { Account } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { Account } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 
 interface SendModalProps {
   isOpen: boolean;
@@ -25,8 +25,8 @@ const SendModal: React.FC<SendModalProps> = ({ isOpen, onClose, tokenSymbol, led
     setAmount(value);
   };
   
-  const { ckbtcLedger, bqcLedger } = useFungibleLedgerContext();
-  const ledger = ledgerType === LedgerType.CK_BTC ? ckbtcLedger : bqcLedger;
+  const { ckusdtLedger, bqcLedger } = useFungibleLedgerContext();
+  const ledger = ledgerType === LedgerType.CK_USDT ? ckusdtLedger : bqcLedger;
 
   const parseRecipientAddress = (addressString: string): Account | null => {
     try {

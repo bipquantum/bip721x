@@ -10,10 +10,11 @@ dfx canister create --all
 BACKEND_CANISTER=$(dfx canister id backend)
 FAUCET_CANISTER=$(dfx canister id faucet)
 BQC_LEDGER_CANISTER=$(dfx canister id bqc_ledger)
-CKBTC_LEDGER_CANISTER=$(dfx canister id ckbtc_ledger)
+CKUSDT_LEDGER_CANISTER=$(dfx canister id ckusdt_ledger)
 
 BQC_LOGO=$(base64 -w 0 ./src/frontend/assets/logobqc.png)
-CKBTC_USD_PRICE=11_236_300_000_000  # 1 ckBTC = 108,332 USD (price in e8s)
+CKUSDT_USD_PRICE=1_000_000  # 1 ckUSDT = 1 USD (price in e6s)
+CKUSDT_TRANSFER_FEE=10_000  # 10,000 e6s = 0.01 ckUSDT
 
 # Deploy all independent canisters
 
@@ -27,15 +28,15 @@ dfx deploy bqc_ledger --argument 'record {
   };
   logo = opt "data:image/png;base64,'${BQC_LOGO}'";
 }' & 
-dfx deploy ckbtc_ledger --argument '(
+dfx deploy ckusdt_ledger --argument '(
   variant {
     Init = record {
-      decimals = opt (8 : nat8);
-      token_symbol = "ckBTC";
-      token_name = "ckBTC";
+      decimals = opt (6 : nat8);
+      token_symbol = "ckUSDT";
+      token_name = "ckUSDT";
       max_memo_length = null;
       feature_flags = null;
-      transfer_fee = 10 : nat;
+      transfer_fee = '${CKUSDT_TRANSFER_FEE}' : nat;
       metadata = (
         vec {
           record {
@@ -70,7 +71,7 @@ dfx deploy ckbtc_ledger --argument '(
 dfx deploy faucet --argument '( record {
   canister_ids = record {
     bqc_ledger = principal "'${BQC_LEDGER_CANISTER}'";
-    ckbtc_ledger = principal "'${CKBTC_LEDGER_CANISTER}'";
+    ckusdt_ledger = principal "'${CKUSDT_LEDGER_CANISTER}'";
   };
 })' & 
 dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
@@ -81,9 +82,9 @@ dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
     service_fee = 10_000_000;
   }
 })" &
-# 1 ckBTC = 108,332 USD (price in e8s)
+# 1 ckUSDT = 1 USD
 dfx deploy exchange_rate --argument '( record {
-  ckbtc_usd_price = '${CKBTC_USD_PRICE}' : nat64;
+  ckusdt_usd_price = '${CKUSDT_USD_PRICE}' : nat64;
 })' &
 wait
 
@@ -109,11 +110,11 @@ dfx deps deploy internet_identity
 # Backend
 dfx deploy backend --argument 'variant {
   init = record { 
-    e8sTransferFee = 10;
     airdrop_per_user = 100_000_000_000;
     admin = principal "'${DEPLOYER_PRINCIPAL}'";
     chatbot_api_key = "'${CHATBOT_API_KEY}'";
-    ckbtc_usd_price = '${CKBTC_USD_PRICE}' : nat64;
+    ckusdt_usd_price = '${CKUSDT_USD_PRICE}' : nat64;
+    ckusdt_transfer_fee = '${CKUSDT_TRANSFER_FEE}' : nat;
   }
 }'
 dfx canister call backend init_controller

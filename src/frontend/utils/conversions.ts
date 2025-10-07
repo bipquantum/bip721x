@@ -91,12 +91,12 @@ export function intPropLicenseFromIndex(license: number): IntPropLicense {
   }
 }
 
-export const fromE8s = (e8s: bigint): number => {
-  return Number(e8s) / 100_000_000;
+export const fromE6s = (e6s: bigint): number => {
+  return Number(e6s) / 100_000;
 };
 
-export const toE8s = (icp: number): bigint => {
-  return BigInt(icp * 100_000_000);
+export const toE6s = (token: number): bigint => {
+  return BigInt(token * 100_000);
 };
 
 export const dateToTime = (date: Date): bigint => {

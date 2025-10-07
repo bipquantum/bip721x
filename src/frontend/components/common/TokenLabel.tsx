@@ -1,5 +1,5 @@
 import { MdOpenInNew } from "react-icons/md";
-import { MetadataValue } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { MetadataValue } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 import { getTokenLogo, getTokenName, getTokenSymbol } from "../../utils/metadata";
 import { Link } from "react-router-dom";
 

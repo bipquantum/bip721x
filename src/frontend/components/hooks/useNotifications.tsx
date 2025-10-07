@@ -31,7 +31,7 @@ export const useNotifications = () => {
           id,
           type: "IP_PURCHASED" as const,
           title: "IP Sold!",
-          message: `Your IP #${data.ipId} was purchased for ${Number(data.price) / 100000000} ckBTC`,
+          message: `Your IP #${data.ipId} was purchased for ${Number(data.price) / 100000000} ckUSDT`,
           timestamp,
           isRead,
           data: {
@@ -46,7 +46,7 @@ export const useNotifications = () => {
           id,
           type: "ROYALTY_RECEIVED" as const,
           title: "Royalty Received!",
-          message: `You received ${Number(data.amount) / 100000000} ckBTC royalty from IP #${data.ipId}`,
+          message: `You received ${Number(data.amount) / 100000000} ckUSDT royalty from IP #${data.ipId}`,
           timestamp,
           isRead,
           data: {

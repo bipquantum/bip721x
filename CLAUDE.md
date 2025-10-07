@@ -49,7 +49,7 @@ npm run tw:generate  # Generate Tailwind CSS with watch mode
 - **backend**: Main business logic canister (Motoko)
 - **bip721_ledger**: ICRC-7 NFT ledger for IP tokens (Motoko)
 - **bqc_ledger**: BQC token ledger for marketplace currency (Motoko)
-- **ckbtc_ledger**: chain-key BTC ledger on the internet computer (Rust)
+- **ckusdt_ledger**: chain-key USDT ledger on the internet computer (Rust)
 - **idempotent_proxy_canister**: Rust-based proxy for external API calls (Rust)
 - **frontend**: React/TypeScript frontend assets
 - **internet_identity**: External identity provider (pulled canister)

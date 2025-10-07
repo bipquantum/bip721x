@@ -1,5 +1,5 @@
 
-shared actor class ExchangeRate({ ckbtc_usd_price: Nat64 }) {
+shared actor class ExchangeRate({ ckusdt_usd_price: Nat64 }) {
 
   // === Types from the XRC IDL ===
 
@@ -72,8 +72,8 @@ shared actor class ExchangeRate({ ckbtc_usd_price: Nat64 }) {
         case (?t) t;
         case null 0;
       };
-      // Use the injected ckBTC/USD rate
-      rate = ckbtc_usd_price;
+      // Use the injected ckUSDT/USD rate
+      rate = ckusdt_usd_price;
       metadata = {
         decimals = 8;
         base_asset_num_received_rates = 3;

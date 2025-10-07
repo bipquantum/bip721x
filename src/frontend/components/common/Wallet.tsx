@@ -112,10 +112,10 @@ const Wallet = ({ isOpen, onClose }: WalletProps) => {
         {/* Content */}
         <div className="flex flex-col gap-4 p-4">
           <WalletRow 
-            ledgerType={LedgerType.CK_BTC}
-            showActions={activeCard === LedgerType.CK_BTC}
+            ledgerType={LedgerType.CK_USDT}
+            showActions={activeCard === LedgerType.CK_USDT}
             onCardClick={handleCardClick}
-            isActive={activeCard === null || activeCard === LedgerType.CK_BTC}
+            isActive={activeCard === null || activeCard === LedgerType.CK_USDT}
           />
           <WalletRow 
             ledgerType={LedgerType.BQC}

@@ -4,8 +4,8 @@ import { Principal } from "@dfinity/principal";
 import { canisterId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
-import { ckbtcLedgerActor } from "../actors/CkBtcLedgerActor";
-import { ApproveArgs } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { ckusdtLedgerActor } from "../actors/CkUsdtLedgerActor";
+import { ApproveArgs } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 
 interface BuyIntPropArgs {
   onSuccess?: () => void;
@@ -13,7 +13,7 @@ interface BuyIntPropArgs {
 }
 
 export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
-  const { call: approveCkBtcTransfer } = ckbtcLedgerActor.authenticated.useUpdateCall({
+  const { call: approveCkUsdtTransfer } = ckusdtLedgerActor.authenticated.useUpdateCall({
     functionName: "icrc2_approve",
   });
 
@@ -21,8 +21,8 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
     functionName: "buy_int_prop",
   });
 
-  const { call: getE8sPrice } = backendActor.useQueryCall({
-    functionName: "get_e8s_price",
+  const { call: getE6sPrice } = backendActor.useQueryCall({
+    functionName: "get_e6s_price",
   });
 
   const [loading, setLoading] = useState(false);
@@ -30,20 +30,20 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
   const call = async (intPropId: bigint) => {
     setLoading(true);
 
-    const e8sPrice = await getE8sPrice([{ token_id: intPropId }]);
+    const e6sPrice = await getE6sPrice([{ token_id: intPropId }]);
 
-    if (!e8sPrice || "err" in e8sPrice) {
-      toast.warn("Failed to get e8s price");
-      console.error(e8sPrice?.err ?? "No result");
+    if (!e6sPrice || "err" in e6sPrice) {
+      toast.warn("Failed to get e6s price");
+      console.error(e6sPrice?.err ?? "No result");
       onError?.();
       return;
     }
 
     try {
-      // Approve the BTC transfer if the price is greater than 0
-      if (e8sPrice.ok > 0n) {
+      // Approve the USDT transfer if the price is greater than 0
+      if (e6sPrice.ok > 0n) {
         const args: ApproveArgs = {
-          amount: e8sPrice.ok + 10_000n,
+          amount: e6sPrice.ok + 10_000n,
           memo: [],
           from_subaccount: [],
           created_at_time: [dateToTime(new Date())],
@@ -56,10 +56,10 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
           expected_allowance: [],
         };
 
-        const approvalResult = await approveCkBtcTransfer([args]);
+        const approvalResult = await approveCkUsdtTransfer([args]);
 
         if (!approvalResult || "Err" in approvalResult) {
-          toast.warn("Failed to approve BTC transfer");
+          toast.warn("Failed to approve USDT transfer");
           console.error(approvalResult?.Err ?? "No result");
           onError?.();
           return;

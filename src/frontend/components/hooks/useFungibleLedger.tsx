@@ -1,16 +1,16 @@
-import { CkBtcLedger, ckbtcLedgerActor } from "../actors/CkBtcLedgerActor";
+import { ckusdtLedgerActor } from "../actors/CkUsdtLedgerActor";
 import { bqcLedgerActor } from "../actors/BqcLedgerActor";
 import { backendActor } from "../actors/BackendActor";
 import { faucetActor } from "../actors/FaucetActor";
 import { fromFixedPoint, toFixedPoint } from "../../utils/conversions";
 import { getTokenDecimals, getTokenFee } from "../../utils/metadata";
 import { useEffect, useMemo, useState } from "react";
-import { Account, MetadataValue, TransferResult } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
+import { Account, MetadataValue, TransferResult } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 import { useAuth } from "@nfid/identitykit/react";
 import { toNullable } from "@dfinity/utils";
 
 export enum LedgerType {
-  CK_BTC = 'ckBTC',
+  CK_USDT = 'ckUSDT',
   BQC = 'BQC',
 }
 
@@ -35,7 +35,7 @@ export interface FungibleLedger {
 
 export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
 
-  const actor = ledgerType === LedgerType.CK_BTC ? ckbtcLedgerActor : bqcLedgerActor;
+  const actor = ledgerType === LedgerType.CK_USDT ? ckusdtLedgerActor : bqcLedgerActor;
 
   const { user } = useAuth();
 
@@ -54,8 +54,8 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     args: [],
   });
 
-  const { data: ckbtcPriceData } = backendActor.useQueryCall({
-    functionName: "get_ckbtc_usd_price",
+  const { data: ckusdtPriceData } = backendActor.useQueryCall({
+    functionName: "get_ckusdt_usd_price",
     args: [],
   });
 
@@ -81,17 +81,17 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
 
   const [price, setPrice] = useState<number | undefined>(undefined);
 
-  // Handle ckBTC price data from backend
+  // Handle ckUSDT price data from backend
   useEffect(() => {
-    if (ckbtcPriceData && ledgerType === LedgerType.CK_BTC) {
+    if (ckusdtPriceData && ledgerType === LedgerType.CK_USDT) {
       // Convert from Nat64 (8 decimal places) to number
-      const priceNumber = Number(ckbtcPriceData.usd_price) / 100_000_000;
+      const priceNumber = Number(ckusdtPriceData.usd_price) / 100_000_000;
       setPrice(priceNumber);
     } else if (ledgerType === LedgerType.BQC) {
       // For BQC, since the token is not listed yet, the price is undefined
       setPrice(undefined);
     }
-  }, [ckbtcPriceData, ledgerType]);
+  }, [ckusdtPriceData, ledgerType]);
 
   const tokenDecimals = useMemo(() => getTokenDecimals(metadata), [metadata]);
   const tokenFee = useMemo(() => getTokenFee(metadata), [metadata]);
@@ -103,7 +103,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     return new Intl.NumberFormat("en-US", {
       notation,
       minimumFractionDigits: 0,
-      maximumFractionDigits: ledgerType === LedgerType.CK_BTC ? 2 : tokenDecimals,
+      maximumFractionDigits: ledgerType === LedgerType.CK_USDT ? 2 : tokenDecimals,
     }).format(fromFixedPoint(amount, tokenDecimals));
   };
 
@@ -181,7 +181,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
   }, [account]);
 
   const { call: mintToken, loading: mintLoading } = faucetActor.useUpdateCall({
-    functionName: ledgerType === LedgerType.CK_BTC ? 'mint_btc' : 'mint_bqc',
+    functionName: ledgerType === LedgerType.CK_USDT ? 'mint_usdt' : 'mint_bqc',
   });
 
   const mint = async(amount: number) => {

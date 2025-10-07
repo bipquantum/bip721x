@@ -2,18 +2,18 @@ import { createContext, useContext, ReactNode } from "react";
 import { useFungibleLedger, LedgerType, FungibleLedger } from "../hooks/useFungibleLedger";
 
 interface FungibleLedgerContextType {
-  ckbtcLedger: FungibleLedger;
+  ckusdtLedger: FungibleLedger;
   bqcLedger: FungibleLedger;
 }
 
 const FungibleLedgerContext = createContext<FungibleLedgerContextType | undefined>(undefined);
 
 export const FungibleLedgerProvider = ({ children }: { children: ReactNode }) => {
-  const ckbtcLedger = useFungibleLedger(LedgerType.CK_BTC);
+  const ckusdtLedger = useFungibleLedger(LedgerType.CK_USDT);
   const bqcLedger = useFungibleLedger(LedgerType.BQC);
 
   return (
-    <FungibleLedgerContext.Provider value={{ ckbtcLedger, bqcLedger }}>
+    <FungibleLedgerContext.Provider value={{ ckusdtLedger, bqcLedger }}>
       {children}
     </FungibleLedgerContext.Provider>
   );
