@@ -4,19 +4,35 @@ import Cycles          "mo:base/ExperimentalCycles";
 import Text            "mo:base/Text";
 import Iter            "mo:base/Iter";
 
+import Types           "Types";
+
 module {
 
-  public type HttpResponse = IdempotentProxy.HttpResponse;
+  let CHAT_MODEL = "gpt-4o";
+  let CHAT_INSTRUCTIONS = "You are an assistant designed to help the user answer questions on intellectual property (IP). Your are embedded in the BIPQuantum website, which is a platform that delivers digital certificate that leverages blockchain technology to provide secure and immutable proof of ownership and authenticity for intellectual properties. You will answer technical questions on IP and guide the user through the process of creating a new IP certificate. You won't answer questions that e not related to IP, blockchain, or the BIPQuantum platform.";
+
+  type ChatHistory = Types.ChatHistory;
 
   public class ChatBot({
     chatbot_api_key: Text;
   }) {
 
-    public func get_completion(question: Text) : async* ?Text {
+    public func get_completion(question: Text, history: ChatHistory) : async* ?Text {
 
       // Build the JSON request body manually
-      let escapedQuestion = escapeJSON(question);
-      let requestBodyText = "{\"model\":\"gpt-4o\",\"messages\":[{\"role\":\"system\",\"content\":\"You are an assistant designed to help the user answer questions on intellectual property (IP). Your are embedded in the BIPQuantum website, which is a platform that delivers digital certificate that leverages blockchain technology to provide secure and immutable proof of ownership and authenticity for intellectual properties. You will answer technical questions on IP and guide the user through the process of creating a new IP certificate. You won't answer questions that e not related to IP, blockchain, or the BIPQuantum platform.\"},{\"role\":\"user\",\"content\":\"" # escapedQuestion # "\"}]}";
+      let requestBodyText = "{
+        \"model\":\"" # escapeJSON(CHAT_MODEL) # "\",
+        \"messages\":[
+          {
+            \"role\":\"system\",
+            \"content\":\"" # escapeJSON(CHAT_INSTRUCTIONS) # "\"
+          },
+          {
+            \"role\":\"user\",
+            \"content\":\"" # escapeJSON(question) # "\"
+          }
+        ]
+      }";
 
       Cycles.add<system>(1_000_000_000); // TODO: sardariuss 2024-09-26: Find out precise cycles cost
 

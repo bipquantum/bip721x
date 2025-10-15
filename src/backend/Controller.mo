@@ -604,8 +604,14 @@ module {
       Set.toArray(accessControl.moderators);
     };
 
-    public func chatbot_completion(question: Text) : async* ?Text {
-      await* chatBot.get_completion(question);
+    public func chatbot_completion({caller: Principal; question: Text; id: Text; }) : async* ?Text {
+      // Find the chat history to ensure the user has access
+      let history = switch(chatBotHistory.getChatHistory({caller; id})){
+        case(#err(_)){ return []; };
+        case(#ok(history)){ history; };
+      };
+
+      await* chatBot.get_completion(question, history);
     };
 
     // ================================ NOTIFICATIONS ================================
