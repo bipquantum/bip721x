@@ -200,8 +200,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     Cycles.balance();
   };
 
-  public shared func chatbot_completion({body: Blob}) : async ChatBot.HttpResponse {
-    await* getController().chatbot_completion({body});
+  public shared({caller}) func chatbot_completion({question: Text}) : async ?Text {
+    await* getController().chatbot_completion(question);
   };
 
   public query({caller}) func is_airdrop_available() : async Bool {

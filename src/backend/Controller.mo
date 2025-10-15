@@ -604,8 +604,8 @@ module {
       Set.toArray(accessControl.moderators);
     };
 
-    public func chatbot_completion({body: Blob}) : async* ChatBot.HttpResponse {
-      await* chatBot.get_completion(body);
+    public func chatbot_completion(question: Text) : async* ?Text {
+      await* chatBot.get_completion(question);
     };
 
     // ================================ NOTIFICATIONS ================================
