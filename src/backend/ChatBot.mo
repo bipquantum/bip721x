@@ -4,22 +4,36 @@ import Cycles          "mo:base/ExperimentalCycles";
 import Text            "mo:base/Text";
 import Iter            "mo:base/Iter";
 import Debug           "mo:base/Debug";
+import Map             "mo:map/Map";
+import Nat             "mo:base/Nat";
+import Result          "mo:base/Result";
 
 import Types           "Types";
+import RateLimiter     "RateLimiter";
 
 module {
 
   let CHAT_MODEL = "gpt-4o";
   let CHAT_INSTRUCTIONS = "You are an assistant designed to help the user answer questions on intellectual property (IP). Your are embedded in the BIPQuantum website, which is a platform that delivers digital certificate that leverages blockchain technology to provide secure and immutable proof of ownership and authenticity for intellectual properties. You will answer technical questions on IP and guide the user through the process of creating a new IP certificate. You won't answer questions that e not related to IP, blockchain, or the BIPQuantum platform.";
   let MAX_HISTORY_MESSAGES = 10; // Maximum number of history messages to include
+  let ESTIMATED_TOKENS_PER_REQUEST = 1000; // Conservative estimate for rate limiting check
 
   type ChatHistory = Types.ChatHistory;
+  type Result<Ok, Err> = Result.Result<Ok, Err>;
 
   public class ChatBot({
     chatbot_api_key: Text;
+    usageByUser: Map.Map<Principal, Types.UserUsage>;
   }) {
 
-    public func get_completion(question: Text, aiPrompts: Text) : async* ?Text {
+    let rateLimiter = RateLimiter.RateLimiter({ usageByUser });
+
+    public func get_completion(caller: Principal, question: Text, aiPrompts: Text) : async* Result<Text, Text> {
+
+      // Check rate limit before making the request (without consuming)
+      if (not rateLimiter.check(caller, ESTIMATED_TOKENS_PER_REQUEST)) {
+        return #err("Rate limit exceeded. Please try again later or upgrade your plan.");
+      };
 
       // Build messages array with system prompt and history
       var messagesJson = "[{\"role\":\"system\",\"content\":\"" # escapeJSON(CHAT_INSTRUCTIONS) # "\"}";
@@ -32,8 +46,6 @@ module {
 
       // Build the JSON request body manually
       let requestBodyText = "{\"model\":\"" # escapeJSON(CHAT_MODEL) # "\",\"messages\":" # messagesJson # "}";
-
-      Debug.print("Request Body: " # requestBodyText);
 
       Cycles.add<system>(1_000_000_000); // TODO: sardariuss 2024-09-26: Find out precise cycles cost
 
@@ -51,10 +63,25 @@ module {
       });
 
       // Decode the response
-      let ?responseText = Text.decodeUtf8(response.body) else return null;
+      let ?responseText = Text.decodeUtf8(response.body) else return #err("Failed to decode API response");
 
       // Extract content from the JSON response
-      extractContentFromOpenAIResponse(responseText);
+      let ?content = extractContentFromOpenAIResponse(responseText) else return #err("Failed to extract content from API response");
+
+      // Extract total_tokens from usage field and consume the actual usage
+      let tokens = switch (extractTotalTokens(responseText)) {
+        case (?actual_tokens) {
+          actual_tokens;
+        };
+        case null {
+          Debug.print("Warning: Could not extract total_tokens from response, consuming estimated amount");
+          // Fallback to estimated tokens if we can't extract the actual count
+          ESTIMATED_TOKENS_PER_REQUEST;
+        };
+      };
+      rateLimiter.consume(caller, tokens);
+
+      #ok(content);
     };
 
     // Build history messages JSON from aiPrompts string
@@ -337,6 +364,67 @@ module {
     };
 
     null;
+  };
+
+  // Extract total_tokens from OpenAI response
+  // Looks for the pattern: "usage":{"...","total_tokens":123}
+  private func extractTotalTokens(json: Text) : ?Nat {
+    // First find "usage" field
+    let ?usagePos = textIndexOf(json, "\"usage\"") else {
+      Debug.print("Could not find 'usage' field in response");
+      return null;
+    };
+
+    // Then find "total_tokens" after the usage field
+    let afterUsage = textSubstring(json, usagePos, json.size());
+    let ?tokensPos = textIndexOf(afterUsage, "\"total_tokens\"") else {
+      Debug.print("Could not find 'total_tokens' field after usage");
+      return null;
+    };
+
+    // Find the colon after "total_tokens"
+    let afterTokens = textSubstring(afterUsage, tokensPos + 14, afterUsage.size()); // 14 = length of "total_tokens"
+    let ?colonPos = textIndexOf(afterTokens, ":") else {
+      Debug.print("Could not find colon after total_tokens");
+      return null;
+    };
+
+    // Skip whitespace and extract the number
+    let afterColon = textSubstring(afterTokens, colonPos + 1, afterTokens.size());
+    let chars = Iter.toArray(afterColon.chars());
+
+    // Skip whitespace
+    var start = 0;
+    while (start < chars.size() and (chars[start] == ' ' or chars[start] == '\t' or chars[start] == '\n' or chars[start] == '\r')) {
+      start += 1;
+    };
+
+    if (start >= chars.size()) {
+      Debug.print("No content after whitespace");
+      return null;
+    };
+
+    // Extract the number until we hit a non-digit
+    var numText = "";
+    var i = start;
+    while (i < chars.size()) {
+      let c = chars[i];
+      if (c >= '0' and c <= '9') {
+        numText #= Text.fromChar(c);
+        i += 1;
+      } else {
+        // Stop at first non-digit
+        i := chars.size(); // break
+      };
+    };
+
+    if (numText == "") {
+      Debug.print("Number text is empty");
+      return null;
+    };
+
+    // Convert text to Nat
+    Nat.fromText(numText);
   };
 
 }

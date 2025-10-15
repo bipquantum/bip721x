@@ -6,7 +6,6 @@ import { AnyEventObject } from "xstate";
 import { useMachine } from "@xstate/react";
 import { machine } from "./botStateMachine";
 import { AiPrompt, ChatAnswerState, ChatElem, createChatElem } from "./types";
-import { fromNullable } from "@dfinity/utils";
 
 type CustomStateInfo = {
   description: string;
@@ -152,7 +151,14 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
 
     await getResponse([{question, id: chatId }])
       .then((res) => {
-        let response: string = fromNullable(res) || "Sorry, I am experiencing techical issues. Please try again later.";
+        let response: string;
+        if (res && "ok" in res) {
+          response = String(res.ok);
+        } else if (res && "err" in res) {
+          response = `Error: ${String(res.err)}`;
+        } else {
+          response = "Sorry, I am experiencing technical issues. Please try again later.";
+        }
         setAIPrompts((old) => {
           const currentPrompts = old.get(promptIndex);
           if (!currentPrompts) {

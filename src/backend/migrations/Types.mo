@@ -5,12 +5,13 @@ import Migration040 "./00-04-00-chatgpt_key/Types";
 import Migration050 "./00-05-00-notifications/Types";
 import Migration060 "./00-06-00-ckbtc_rate/Types";
 import Migration070 "./00-07-00-usdt_ledger/Types";
+import Migration080 "./00-08-00-chat_limit/Types";
 
 module {
   // do not forget to change current migration when you add a new one
   // you should use this field to import types from you current migration anywhere in your project
   // instead of importing it from migration folder itself
-  public let Current = Migration070;
+  public let Current = Migration080;
   
   public type Args = Current.Args;
 
@@ -22,6 +23,7 @@ module {
     #v0_5_0: Migration050.State;
     #v0_6_0: Migration060.State;
     #v0_7_0: Migration070.State;
+    #v0_8_0: Migration080.State;
     // do not forget to add your new migration data types here
   };
 };

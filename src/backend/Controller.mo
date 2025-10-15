@@ -606,15 +606,15 @@ module {
       Set.toArray(accessControl.moderators);
     };
 
-    public func chatbot_completion({caller: Principal; question: Text; id: Text; }) : async* ?Text {
+    public func chatbot_completion({caller: Principal; question: Text; id: Text; }) : async* Result<Text, Text> {
       // Get or create the chat history
       let history = switch(chatBotHistory.getChatHistory({caller; id})){
-        case(#err(_)){ return null; };
+        case(#err(err)){ return #err(err); };
         case(#ok(history)){ history; };
       };
 
       // Get completion with history
-      await* chatBot.get_completion(question, history.aiPrompts);
+      await* chatBot.get_completion(caller, question, history.aiPrompts);
     };
 
     // ================================ NOTIFICATIONS ================================

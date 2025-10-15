@@ -55,7 +55,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_7_0(stableData)){
+      case(#v0_8_0(stableData)){
         _controller := ?Controller.Controller({
           stableData with
           chatBotHistory = ChatBotHistory.ChatBotHistory({
@@ -66,11 +66,12 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
             fee = stableData.e6sTransferFee;
           });
           chatBot = ChatBot.ChatBot({
-            chatbot_api_key = stableData.chatbot_api_key; 
+            chatbot_api_key = stableData.chatbot_api_key;
+            usageByUser = stableData.usageByUser;
           });
         });
       };
-      case(_) { Debug.trap("Unexpected state version: v0_7_0"); };
+      case(_) { Debug.trap("Unexpected state version: v0_8_0"); };
     };
     
     // Start the price update timer
@@ -200,7 +201,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     Cycles.balance();
   };
 
-  public shared({caller}) func chatbot_completion({question: Text; id: Text; }) : async ?Text {
+  public shared({caller}) func chatbot_completion({question: Text; id: Text; }) : async Result<Text, Text> {
     await* getController().chatbot_completion({caller; question; id; });
   };
 
