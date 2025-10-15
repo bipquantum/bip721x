@@ -26,7 +26,7 @@ const Modal = ({ isVisible, children, onClose, title }: Props) => {
 
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-50 text-black flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"
       onClick={handleOverlayClick}
       style={{ minHeight: '100dvh' }}
     >

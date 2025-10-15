@@ -150,7 +150,7 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     const innerIndex = aiPrompt.push({ question, answer: undefined });
     setAIPrompts((old) => new Map(old.set(promptIndex, aiPrompt)));
 
-    await getResponse([{question}])
+    await getResponse([{question, id: chatId }])
       .then((res) => {
         let response: string = fromNullable(res) || "Sorry, I am experiencing techical issues. Please try again later.";
         setAIPrompts((old) => {

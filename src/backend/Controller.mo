@@ -24,6 +24,8 @@ import Timer             "mo:base/Timer";
 import Cycles            "mo:base/ExperimentalCycles";
 import Debug             "mo:base/Debug";
 import Error             "mo:base/Error";
+import Iter              "mo:base/Iter";
+import Text              "mo:base/Text";
 
 module {
 
@@ -605,13 +607,14 @@ module {
     };
 
     public func chatbot_completion({caller: Principal; question: Text; id: Text; }) : async* ?Text {
-      // Find the chat history to ensure the user has access
+      // Get or create the chat history
       let history = switch(chatBotHistory.getChatHistory({caller; id})){
-        case(#err(_)){ return []; };
+        case(#err(_)){ return null; };
         case(#ok(history)){ history; };
       };
 
-      await* chatBot.get_completion(question, history);
+      // Get completion with history
+      await* chatBot.get_completion(question, history.aiPrompts);
     };
 
     // ================================ NOTIFICATIONS ================================
