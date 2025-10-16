@@ -24,7 +24,7 @@ interface UserImageProps {
 const UserImage = ({ principal, className }: UserImageProps) => {
   const [user, setUser] = useState<User | undefined>(undefined);
 
-  const { data: queriedUser, call: refetchUser } = backendActor.useQueryCall({
+  const { data: queriedUser, call: refetchUser } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",
     args: principal !== undefined ? [principal] : undefined,
   });

@@ -20,7 +20,7 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
 
-  const { call: fetchChatHistories } = backendActor.useQueryCall({
+  const { call: fetchChatHistories } = backendActor.authenticated.useQueryCall({
     functionName: "get_chat_histories",
     onSuccess: (data) => {
       if (data !== undefined) {
@@ -35,21 +35,21 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   });
 
-  const { call: deleteChatHistory } = backendActor.useUpdateCall({
+  const { call: deleteChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "delete_chat_history",
     onError: (error) => {
       console.error("Error deleting chat history:", error);
     },
   });
 
-  const { call: createChatHistory } = backendActor.useUpdateCall({
+  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "create_chat_history",
     onError: (error) => {
       console.error("Error creating chat history:", error);
     },
   });
 
-  const { call: renameChatHistory } = backendActor.useUpdateCall({
+  const { call: renameChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "rename_chat_history",
     onError: (error) => {
       console.error("Error renaming chat history:", error);

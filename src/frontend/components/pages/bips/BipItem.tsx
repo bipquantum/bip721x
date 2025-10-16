@@ -34,19 +34,19 @@ const BipItem: React.FC<BipItemProps> = ({
   const [deleted, setDeleted] = useState(false);
   const [unlisted, setUnlisted] = useState(false);
 
-  const { data: intProp } = backendActor.useQueryCall({
+  const { data: intProp } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
   });
 
   const authorPrincipal =
     intProp && !("err" in intProp) ? intProp.ok.intProp.V1.author : null;
-  const { data: author } = backendActor.useQueryCall({
+  const { data: author } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",
     args: [authorPrincipal ?? Principal.anonymous()],
   });
 
-  const {} = backendActor.useQueryCall({
+  const {} = backendActor.unauthenticated.useQueryCall({
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
     onSuccess(data) {

@@ -62,12 +62,12 @@ const Profile = () => {
   const [userArgs, setUserArgs] = useState<CreateUserArgs>(DEFAULT_ARGS);
   const [userKey, setUserKey] = useState<string>("");
 
-  const { data: queriedUser, call: queryUser } = backendActor.useQueryCall({
+  const { data: queriedUser, call: queryUser } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",
     args: [user.principal],
   });
 
-  const { call: updateUser } = backendActor.useUpdateCall({
+  const { call: updateUser } = backendActor.authenticated.useUpdateCall({
     functionName: "set_user",
   });
 

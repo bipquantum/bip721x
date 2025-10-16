@@ -74,16 +74,16 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     new Map(),
   );
 
-  const { call: updateChatHistory } = backendActor.useUpdateCall({
+  const { call: updateChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "update_chat_history",
   });
 
-  const { call: getChatHistory } = backendActor.useQueryCall({
+  const { call: getChatHistory } = backendActor.authenticated.useQueryCall({
     functionName: "get_chat_history",
     args: [{ id: chatId }],
   });
 
-  const { call: getResponse } = backendActor.useUpdateCall({
+  const { call: getResponse } = backendActor.authenticated.useUpdateCall({
     functionName: "chatbot_completion",
   });
 

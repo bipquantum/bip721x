@@ -17,11 +17,11 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
     functionName: "icrc2_approve",
   });
 
-  const { call: buyIntProp } = backendActor.useUpdateCall({
+  const { call: buyIntProp } = backendActor.authenticated.useUpdateCall({
     functionName: "buy_int_prop",
   });
 
-  const { call: getE6sPrice } = backendActor.useQueryCall({
+  const { call: getE6sPrice } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_e6s_price",
   });
 

@@ -9,29 +9,28 @@ interface BanIntPropProps {
 }
 
 const BanIntProp: React.FC<BanIntPropProps> = ({ principal, intPropId }) => {
-  const { data: admin } = backendActor.useQueryCall({
+  const { data: admin } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_admin",
     args: [],
   });
 
-  const { data: moderators } = backendActor.useQueryCall({
+  const { data: moderators } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_moderators",
     args: [],
   });
 
-  const { data: isBanned, call: getIsBanned } = backendActor.useQueryCall({
+  const { data: isBanned, call: getIsBanned } = backendActor.unauthenticated.useQueryCall({
     functionName: "is_banned_int_prop",
     args: [{ id: intPropId }],
   });
 
-  const { call: banIntProp, loading: banLoading } = backendActor.useUpdateCall({
+  const { call: banIntProp, loading: banLoading } = backendActor.authenticated.useUpdateCall({
     functionName: "ban_int_prop",
   });
 
-  const { call: unbanIntProp, loading: unbanLoading } =
-    backendActor.useUpdateCall({
-      functionName: "unban_int_prop",
-    });
+  const { call: unbanIntProp, loading: unbanLoading } = backendActor.authenticated.useUpdateCall({
+    functionName: "unban_int_prop",
+  });
 
   // Early return if data is not ready
   if (!principal || !admin || !moderators || isBanned === undefined)

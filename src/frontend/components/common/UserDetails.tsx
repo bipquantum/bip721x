@@ -13,7 +13,8 @@ type UserDetailsArgs = {
 };
 
 const UserDetails = ({ principal }: UserDetailsArgs) => {
-  const { data: author } = backendActor.useQueryCall({
+  
+  const { data: author } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",
     args: [principal],
   });

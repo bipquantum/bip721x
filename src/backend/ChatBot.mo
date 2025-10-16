@@ -47,6 +47,8 @@ module {
       // Build the JSON request body manually
       let requestBodyText = "{\"model\":\"" # escapeJSON(CHAT_MODEL) # "\",\"messages\":" # messagesJson # "}";
 
+      Debug.print("Request Body: " # requestBodyText);
+
       Cycles.add<system>(1_000_000_000); // TODO: sardariuss 2024-09-26: Find out precise cycles cost
 
       let response = await IdempotentProxy.proxy_http_request({
@@ -65,12 +67,15 @@ module {
       // Decode the response
       let ?responseText = Text.decodeUtf8(response.body) else return #err("Failed to decode API response");
 
+      Debug.print("Request response: " # responseText);
+
       // Extract content from the JSON response
       let ?content = extractContentFromOpenAIResponse(responseText) else return #err("Failed to extract content from API response");
 
       // Extract total_tokens from usage field and consume the actual usage
       let tokens = switch (extractTotalTokens(responseText)) {
         case (?actual_tokens) {
+          Debug.print("Successfully extracted " # debug_show(actual_tokens) # " tokens from response");
           actual_tokens;
         };
         case null {
@@ -370,24 +375,15 @@ module {
   // Looks for the pattern: "usage":{"...","total_tokens":123}
   private func extractTotalTokens(json: Text) : ?Nat {
     // First find "usage" field
-    let ?usagePos = textIndexOf(json, "\"usage\"") else {
-      Debug.print("Could not find 'usage' field in response");
-      return null;
-    };
+    let ?usagePos = textIndexOf(json, "\"usage\"") else return null;
 
     // Then find "total_tokens" after the usage field
     let afterUsage = textSubstring(json, usagePos, json.size());
-    let ?tokensPos = textIndexOf(afterUsage, "\"total_tokens\"") else {
-      Debug.print("Could not find 'total_tokens' field after usage");
-      return null;
-    };
+    let ?tokensPos = textIndexOf(afterUsage, "\"total_tokens\"") else return null;
 
     // Find the colon after "total_tokens"
     let afterTokens = textSubstring(afterUsage, tokensPos + 14, afterUsage.size()); // 14 = length of "total_tokens"
-    let ?colonPos = textIndexOf(afterTokens, ":") else {
-      Debug.print("Could not find colon after total_tokens");
-      return null;
-    };
+    let ?colonPos = textIndexOf(afterTokens, ":") else return null;
 
     // Skip whitespace and extract the number
     let afterColon = textSubstring(afterTokens, colonPos + 1, afterTokens.size());
@@ -399,10 +395,7 @@ module {
       start += 1;
     };
 
-    if (start >= chars.size()) {
-      Debug.print("No content after whitespace");
-      return null;
-    };
+    if (start >= chars.size()) return null;
 
     // Extract the number until we hit a non-digit
     var numText = "";
@@ -418,10 +411,7 @@ module {
       };
     };
 
-    if (numText == "") {
-      Debug.print("Number text is empty");
-      return null;
-    };
+    if (numText == "") return null;
 
     // Convert text to Nat
     Nat.fromText(numText);

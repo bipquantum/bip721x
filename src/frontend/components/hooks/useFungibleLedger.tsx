@@ -54,7 +54,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     args: [],
   });
 
-  const { data: ckusdtPriceData, call: refreshCkusdtPrice } = backendActor.useQueryCall({
+  const { data: ckusdtPriceData, call: refreshCkusdtPrice } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_ckusdt_usd_price",
     args: [],
   });
@@ -200,7 +200,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     refreshUserBalance();
   }, [account]);
 
-  const { call: mintToken, loading: mintLoading } = faucetActor.useUpdateCall({
+  const { call: mintToken, loading: mintLoading } = faucetActor.unauthenticated.useUpdateCall({
     functionName: ledgerType === LedgerType.CK_USDT ? 'mint_usdt' : 'mint_bqc',
   });
 

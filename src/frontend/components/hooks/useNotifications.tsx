@@ -7,13 +7,13 @@ export const useNotifications = () => {
 
   // Query user notifications
   const { data: rawNotifications, call: refetchNotifications } =
-    backendActor.useQueryCall({
+    backendActor.authenticated.useQueryCall({
       functionName: "get_user_notifications",
       args: [], // Empty args array to trigger the query
     });
 
   // Mark notification as read
-  const { call: markAsRead } = backendActor.useUpdateCall({
+  const { call: markAsRead } = backendActor.authenticated.useUpdateCall({
     functionName: "mark_notification_as_read",
   });
 

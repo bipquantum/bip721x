@@ -14,7 +14,7 @@ const Bips: React.FC = () => {
     EQueryDirection.Forward,
   );
 
-  const { call: getListedIntProps } = backendActor.useQueryCall({
+  const { call: getListedIntProps } = backendActor.authenticated.useQueryCall({
     functionName: "get_listed_int_props",
   });
 
