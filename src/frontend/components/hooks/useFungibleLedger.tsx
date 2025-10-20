@@ -4,7 +4,7 @@ import { backendActor } from "../actors/BackendActor";
 import { faucetActor } from "../actors/FaucetActor";
 import { fromFixedPoint, toFixedPoint } from "../../utils/conversions";
 import { getTokenDecimals, getTokenFee } from "../../utils/metadata";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Account, MetadataValue, TransferResult } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 import { useAuth } from "@nfid/identitykit/react";
 import { toNullable } from "@dfinity/utils";
@@ -175,29 +175,13 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     return amount - tokenFee; // Subtract the token fee from the amount
   };
 
-  const { call: icrc1BalanceOf } = actor.unauthenticated.useQueryCall({
+  const { data: userBalance, call: icrc1BalanceOf } = actor.unauthenticated.useQueryCall({
     functionName: 'icrc1_balance_of',
+    args: account ? [account] : undefined,
   });
 
-  const [userBalance, setUserBalance] = useState<bigint | undefined>(undefined);
-
-  const refreshUserBalance = () => {
-    console.log("Refreshing user balance for account:", account);
-    if (account) {
-      icrc1BalanceOf([account]).then(balance => {
-        console.log("Fetched user balance:", balance);
-        setUserBalance(balance);
-      }).catch(error => {
-        console.error("Error fetching user balance:", error);
-        setUserBalance(undefined);
-      });
-    } else {
-      setUserBalance(undefined);
-    }
-  }
-
-  useEffect(() => {
-    refreshUserBalance();
+  const refreshUserBalance = useCallback(() => {
+    icrc1BalanceOf(account ? [account] : undefined);
   }, [account]);
 
   const { call: mintToken, loading: mintLoading } = faucetActor.useUpdateCall({

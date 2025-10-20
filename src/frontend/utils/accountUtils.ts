@@ -69,3 +69,30 @@ export const getEncodedAccount = (account: Account): string => {
   };
   return encodeAccount(icrc_account);
 };
+
+export const accountToString = (account: Account | undefined): string => {
+  let str = "";
+  if (account !== undefined) {
+    str = account.owner.toString();
+    let subaccount = fromNullable(account.subaccount);
+    if (subaccount !== undefined) {
+      str += " " + uint8ArrayToHexString(subaccount);
+    }
+  }
+  return str;
+};
+
+export const truncateAccount = (accountStr: string) => {
+  // Truncate to show first 5 and last 3 characters
+  if (accountStr.length > 10) {
+    return accountStr.substring(0, 5) + "..." + accountStr.substring(accountStr.length - 3);
+  }
+  return accountStr;
+};
+
+export const toAccount = ({principal, subaccount}: {principal: Principal; subaccount?: any}): Account => {
+  return {
+    owner: principal,
+    subaccount: subaccount ? [subaccount.toUint8Array()] : [],
+  };
+};
