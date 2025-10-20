@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useMemo } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import DfinitySvg from "../assets/dfinity.svg";
@@ -71,6 +71,7 @@ function App() {
 
   const isLocal = process.env.DFX_NETWORK === "local";
   const backendId = process.env.CANISTER_ID_BACKEND;
+  const bip721LedgerId = process.env.CANISTER_ID_BIP721_LEDGER;
   const frontendId = process.env.CANISTER_ID_FRONTEND;
 
   // Local II configuration for local development
@@ -90,8 +91,19 @@ function App() {
 
   const signers = isLocal ? [localInternetIdentity] : [InternetIdentity, nfidw, Stoic];
 
+  const targets = useMemo(() => {
+    let ts = [];
+    if (backendId !== undefined) {
+      ts.push(backendId);
+    }
+    if (bip721LedgerId !== undefined) {
+      ts.push(bip721LedgerId);
+    }
+    return ts;
+  }, [backendId, bip721LedgerId]);
+
   const signerClientOptions = {
-    targets: backendId ? [backendId] : [],
+    targets,
     derivationOrigin: isLocal ? undefined: `https://${frontendId}.icp0.io`,
   };
 

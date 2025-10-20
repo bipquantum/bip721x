@@ -31,11 +31,6 @@ module {
     author: ?Text;
   };
 
-  public type FullIntProp = {
-    intProp: VersionnedIntProp;
-    author: ?User;
-  };
-
   public type CreateUserArgs = {
     firstName: Text;
     lastName: Text;
