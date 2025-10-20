@@ -2,9 +2,6 @@ import Map "mo:map/Map";
 import Set "mo:map/Set";
 import Debug "mo:base/Debug";
 import Time "mo:base/Time";
-import Int "mo:base/Int";
-import Float "mo:base/Float";
-import Nat64 "mo:base/Nat64";
 
 import V0_8_0 "./Types";
 import MigrationTypes "../Types";
@@ -19,6 +16,13 @@ module {
   type DowngradeArgs = V0_8_0.DowngradeArgs;
 
   public func init(args: InitArgs): MigrationTypes.State {
+    let plans = Map.new<Text, V0_8_0.Plan>();
+
+    // Populate plans from InitArgs
+    for (plan in args.subscriptions.plans.vals()) {
+      Map.set(plans, Map.thash, plan.id, plan);
+    };
+
     #v0_8_0({
       users = Map.new<Principal, V0_8_0.User>();
       airdrop = {
@@ -50,7 +54,15 @@ module {
         var decimals = args.ckusdt_rate.decimals;
         var last_update = Time.now();
       };
-        usageByUser = Map.new<Principal, V0_8_0.UserUsage>();
+      subscription_register = {
+        plans = {
+          plans;
+          var freePlanId = args.subscriptions.free_plan_id;
+        };
+        subscriptions = Map.new<Principal, V0_8_0.Subscription>();
+        var gracePeriodsDays = args.subscriptions.grace_period_days;
+        subaccount = args.subscriptions.subaccount;
+      };
     });
   };
 
@@ -61,12 +73,26 @@ module {
       case (_) Debug.trap("Unexpected migration state (v0_7_0 expected)")
     };
 
+    // Populate plans from UpgradeArgs
+    let plans = Map.new<Text, V0_8_0.Plan>();
+    for (plan in args.subscriptions.plans.vals()) {
+      Map.set(plans, Map.thash, plan.id, plan);
+    };
+
     #v0_8_0({ state with
-        usageByUser = Map.new<Principal, V0_8_0.UserUsage>();
+      subscription_register = {
+        plans = {
+          plans;
+          var freePlanId = args.subscriptions.free_plan_id;
+        };
+        var gracePeriodsDays = args.subscriptions.grace_period_days;
+        subscriptions = Map.new<Principal, V0_8_0.Subscription>();
+        subaccount = args.subscriptions.subaccount;
+      };
     });
   };
 
-  public func downgrade(migration_state: MigrationTypes.State, args: DowngradeArgs): MigrationTypes.State {
+  public func downgrade(migration_state: MigrationTypes.State, _args: DowngradeArgs): MigrationTypes.State {
     // Access current state
     let state = switch (migration_state) {
       case (#v0_8_0(state)) state;

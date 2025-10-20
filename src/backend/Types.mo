@@ -25,9 +25,11 @@ module {
   public type NotificationState = Types.Current.NotificationState;
   public type Notifications     = Types.Current.Notifications;
   public type CkUsdtRate        = Types.Current.CkUsdtRate;
-  public type Usage             = Types.Current.Usage;
-  public type UserUsage         = Types.Current.UserUsage;
   public type Plan              = Types.Current.Plan;
+  public type Plans             = Types.Current.Plans;
+  public type Subscription      = Types.Current.Subscription;
+  public type SubscriptionState = Types.Current.SubscriptionState;
+  public type SubscriptionRegister = Types.Current.SubscriptionRegister;
 
   public type FullIntProp = {
     intProp: VersionnedIntProp;

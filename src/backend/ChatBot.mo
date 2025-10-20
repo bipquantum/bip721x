@@ -23,15 +23,16 @@ module {
 
   public class ChatBot({
     chatbot_api_key: Text;
-    usageByUser: Map.Map<Principal, Types.UserUsage>;
+    subscription_register: Types.SubscriptionRegister;
+    backend_id: Principal;
   }) {
 
-    let rateLimiter = RateLimiter.RateLimiter({ usageByUser });
+    let rateLimiter = RateLimiter.RateLimiter({ register = subscription_register; backend_id; });
 
     public func get_completion(caller: Principal, question: Text, aiPrompts: Text) : async* Result<Text, Text> {
 
       // Check rate limit before making the request (without consuming)
-      if (not rateLimiter.check(caller, ESTIMATED_TOKENS_PER_REQUEST)) {
+      if (not rateLimiter.checkCredits(caller, ESTIMATED_TOKENS_PER_REQUEST)) {
         return #err("Rate limit exceeded. Please try again later or upgrade your plan.");
       };
 
@@ -84,14 +85,14 @@ module {
           ESTIMATED_TOKENS_PER_REQUEST;
         };
       };
-      rateLimiter.consume(caller, tokens);
+      rateLimiter.consumeCredits(caller, tokens);
 
       #ok(content);
     };
 
     // Build history messages JSON from aiPrompts string
     // Expected format: [[index, [{question: "q1", answer: "a1"}, ...]]]
-    private func buildHistoryMessages(aiPrompts: Text) : Text {
+    func buildHistoryMessages(aiPrompts: Text) : Text {
       if (aiPrompts == "" or aiPrompts == "[]") {
         return "";
       };
@@ -168,7 +169,7 @@ module {
     };
 
     // Find a pattern starting from position start
-    private func findPatternFrom(chars: [Char], start: Nat, pattern: Text) : ?Nat {
+    func findPatternFrom(chars: [Char], start: Nat, pattern: Text) : ?Nat {
       let patternChars = Iter.toArray(pattern.chars());
       var i = start;
       while (i <= chars.size() - patternChars.size()) {
@@ -190,7 +191,7 @@ module {
     };
 
     // Find the start of a JSON string value (after : and optional whitespace)
-    private func findValueStart(chars: [Char], fromPos: Nat) : ?Nat {
+    func findValueStart(chars: [Char], fromPos: Nat) : ?Nat {
       var i = fromPos;
       // Skip to colon
       while (i < chars.size() and chars[i] != ':') {
@@ -213,7 +214,7 @@ module {
     };
 
     // Find the end of a JSON string value (closing quote, accounting for escapes)
-    private func findStringEnd(chars: [Char], fromPos: Nat) : ?Nat {
+    func findStringEnd(chars: [Char], fromPos: Nat) : ?Nat {
       var i = fromPos;
       var escaped = false;
       while (i < chars.size()) {
@@ -230,7 +231,7 @@ module {
     };
 
     // Extract string from chars array
-    private func extractString(chars: [Char], start: Nat, end: Nat) : Text {
+    func extractString(chars: [Char], start: Nat, end: Nat) : Text {
       var result = "";
       var i = start;
       var escaped = false;
@@ -259,7 +260,7 @@ module {
   };
 
   // Simple JSON encoder - escapes special characters
-  private func escapeJSON(text: Text) : Text {
+  func escapeJSON(text: Text) : Text {
     var result = "";
     for (char in text.chars()) {
       result #= switch (char) {
@@ -275,7 +276,7 @@ module {
   };
 
   // Find pattern in text, returns index or null
-  private func textIndexOf(text: Text, pattern: Text) : ?Nat {
+  func textIndexOf(text: Text, pattern: Text) : ?Nat {
     let textChars = Iter.toArray(text.chars());
     let patternChars = Iter.toArray(pattern.chars());
 
@@ -303,7 +304,7 @@ module {
   };
 
   // Extract substring from text
-  private func textSubstring(text: Text, start: Nat, end: Nat) : Text {
+  func textSubstring(text: Text, start: Nat, end: Nat) : Text {
     let chars = Iter.toArray(text.chars());
     if (start >= chars.size()) return "";
     let endIdx = if (end > chars.size()) chars.size() else end;
@@ -318,7 +319,7 @@ module {
 
   // Simple JSON parser - extracts "content" from OpenAI response
   // Looks for the pattern: "content":"value"
-  private func extractContentFromOpenAIResponse(json: Text) : ?Text {
+  func extractContentFromOpenAIResponse(json: Text) : ?Text {
     // Find "content" field
     let ?contentPos = textIndexOf(json, "\"content\"") else return null;
 
@@ -373,7 +374,7 @@ module {
 
   // Extract total_tokens from OpenAI response
   // Looks for the pattern: "usage":{"...","total_tokens":123}
-  private func extractTotalTokens(json: Text) : ?Nat {
+  func extractTotalTokens(json: Text) : ?Nat {
     // First find "usage" field
     let ?usagePos = textIndexOf(json, "\"usage\"") else return null;
 

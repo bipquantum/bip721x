@@ -122,6 +122,29 @@ dfx deploy backend --argument 'variant {
       decimals = '${CKUSDT_DECIMALS}' : nat32;
     };
     ckusdt_transfer_fee = '${CKUSDT_TRANSFER_FEE}' : nat;
+    subscriptions = record {
+      plans = vec {
+        record {
+          id = "free";
+          name = "Free Always";
+          intervalCredits = 50_000 : nat;
+          renewalPriceUsdtE6s = 0 : nat;
+          renewalIntervalDays = 30 : nat;
+          durationDays = null;
+        };
+        record {
+          id = "premium_monthly";
+          name = "Premium Monthly";
+          intervalCredits = 2_000_000 : nat;
+          renewalPriceUsdtE6s = 9_990_000 : nat;
+          renewalIntervalDays = 30 : nat;
+          durationDays = opt (360 : nat);
+        };
+      };
+      free_plan_id = "free";
+      grace_period_days = 7 : nat;
+      subaccount = "subscriptions" : text;
+    };
   }
 }'
 dfx canister call backend init_controller

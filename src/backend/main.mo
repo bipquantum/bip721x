@@ -9,7 +9,6 @@ import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
 import BIP721Ledger  "canister:bip721_ledger";
-import BQCLedger     "canister:bqc_ledger";
 import ExchangeRate  "canister:exchange_rate";
 
 import Result        "mo:base/Result";
@@ -67,7 +66,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
           });
           chatBot = ChatBot.ChatBot({
             chatbot_api_key = stableData.chatbot_api_key;
-            usageByUser = stableData.usageByUser;
+            subscription_register = stableData.subscription_register;
+            backend_id = Principal.fromActor(this);
           });
         });
       };

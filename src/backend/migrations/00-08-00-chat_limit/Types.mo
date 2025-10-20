@@ -81,20 +81,40 @@ module {
     var last_update: Int;
   };
 
-   public type Usage = {
-    from: Nat;
-    tokens: Nat;
-  };
-
-  public type UserUsage = {
-    month: Usage;
-    minute: Usage;
-    plan: Plan;
-  };
-
   public type Plan = {
-    monthlyLimit: Nat;
-    burstLimit: Nat;
+    id: Text;
+    name: Text;
+    intervalCredits: Nat;
+    renewalPriceUsdtE6s: Nat;
+    renewalIntervalDays: Nat;
+    durationDays: ?Nat;
+  };
+
+  public type SubscriptionState = {
+    #Active;
+    #PastDue: Int;
+  };
+
+  public type Subscription = {
+    var availableCredits: Nat;
+    var totalCreditsUsed: Nat;
+    var planId: Text;
+    var state: SubscriptionState;
+    var startDate: Int;
+    var nextRenewalDate: Int;
+    var expiryDate: ?Int;
+  };
+
+  public type Plans = {
+    plans: Map.Map<Text, Plan>;
+    var freePlanId: Text; // ID of the default free plan
+  };
+
+  public type SubscriptionRegister = {
+    subscriptions: Map.Map<Principal, Subscription>;
+    plans: Plans;
+    var gracePeriodsDays: Nat;
+    subaccount: Text;
   };
 
   public type State = {
@@ -110,7 +130,7 @@ module {
     chatbot_api_key: Text;
     notifications: Notifications;
     ckusdtRate: CkUsdtRate;
-    usageByUser: Map.Map<Principal, UserUsage>;
+    subscription_register: SubscriptionRegister;
   };
 
   public type Args = {
@@ -120,7 +140,7 @@ module {
     #none;
   };
 
-  public type InitArgs = { 
+  public type InitArgs = {
     airdrop_per_user: Nat;
     admin: Principal;
     chatbot_api_key: Text;
@@ -129,8 +149,20 @@ module {
       decimals: Nat32;
     };
     ckusdt_transfer_fee: Nat;
+    subscriptions: {
+      plans: [Plan];
+      free_plan_id: Text;
+      grace_period_days: Nat;
+      subaccount: Text;
+    };
   };
-  public type UpgradeArgs = { 
+  public type UpgradeArgs = {
+    subscriptions: {
+      plans: [Plan];
+      free_plan_id: Text;
+      grace_period_days: Nat;
+      subaccount: Text;
+    };
   };
   public type DowngradeArgs = {
   };
