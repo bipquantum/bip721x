@@ -5,6 +5,7 @@ import Text "mo:base/Text";
 import Debug "mo:base/Debug";
 import Nat64 "mo:base/Nat64";
 import Int "mo:base/Int";
+import Iter "mo:base/Iter";
 import Result "mo:base/Result";
 
 import Types "Types";
@@ -50,10 +51,6 @@ module {
           case (#Ok(_)) {};
         };
       };
-      let expiryDate = switch(plan.durationDays) {
-        case (?days) { ?(now + daysToNs(days)) };
-        case (null) { null };
-      };
       let newSub: Subscription = {
         var availableCredits = plan.intervalCredits;
         var totalCreditsUsed = subscription.totalCreditsUsed;
@@ -61,7 +58,7 @@ module {
         var state = #Active;
         var startDate = now;
         var nextRenewalDate = now + daysToNs(plan.renewalIntervalDays);
-        var expiryDate = expiryDate;
+        var expiryDate = computeExpiryDate(now, plan);
       };
       Map.set(register.subscriptions, Map.phash, user, newSub);
       #ok;
@@ -97,7 +94,8 @@ module {
               let plan = getPlan(subscription.planId);
               // Renew subscription
               subscription.availableCredits := plan.intervalCredits;
-              subscription.nextRenewalDate := now + daysToNs(plan.renewalIntervalDays);
+              // Anchor to scheduled renewal date to prevent drift
+              subscription.nextRenewalDate := subscription.nextRenewalDate + daysToNs(plan.renewalIntervalDays);
               // Set to past due for simplicity (payment handling asynchronous)
               subscription.state := #PastDue(now);
             };
@@ -164,10 +162,6 @@ module {
         case (null) {
           let freePlan = getPlan(register.plans.freePlanId);
           let now = Time.now();
-          let expiryDate = switch(freePlan.durationDays) {
-            case (?days) { ?(now + daysToNs(days)) };
-            case (null) { null };
-          };
           let newSub: Subscription = {
             var availableCredits = freePlan.intervalCredits;
             var totalCreditsUsed = 0;
@@ -175,12 +169,16 @@ module {
             var state = #Active;
             var startDate = now;
             var nextRenewalDate = now + daysToNs(freePlan.renewalIntervalDays);
-            var expiryDate = expiryDate;
+            var expiryDate = null;
           };
           Map.set(register.subscriptions, Map.phash, user, newSub);
           newSub;
         };
       };
+    };
+
+    public func getPlans(): [Plan] {
+      Iter.toArray(Map.vals(register.plans.plans));
     };
 
     func getPlan(planId: Text): Plan {
@@ -196,6 +194,15 @@ module {
 
   func daysToNs(days: Int): Int {
     days * 24 * 60 * 60 * 1_000_000_000;
+  };
+
+  func computeExpiryDate(now: Int, plan: Plan): ?Int {
+    // Calculate expiry date based on number of intervals
+    // Subscription expires AFTER all renewal intervals complete
+    switch(plan.numberInterval) {
+      case (?interval) { ?(now + daysToNs(interval * plan.renewalIntervalDays)) };
+      case (null) { null };
+    };
   };
 
 };

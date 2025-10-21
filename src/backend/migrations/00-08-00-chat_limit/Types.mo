@@ -87,7 +87,7 @@ module {
     intervalCredits: Nat;
     renewalPriceUsdtE6s: Nat;
     renewalIntervalDays: Nat;
-    durationDays: ?Nat;
+    numberInterval: ?Nat;
   };
 
   public type SubscriptionState = {

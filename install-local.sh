@@ -130,7 +130,7 @@ dfx deploy backend --argument 'variant {
           intervalCredits = 50_000 : nat;
           renewalPriceUsdtE6s = 0 : nat;
           renewalIntervalDays = 30 : nat;
-          durationDays = null;
+          numberInterval = null;
         };
         record {
           id = "premium_monthly";
@@ -138,7 +138,7 @@ dfx deploy backend --argument 'variant {
           intervalCredits = 2_000_000 : nat;
           renewalPriceUsdtE6s = 9_990_000 : nat;
           renewalIntervalDays = 30 : nat;
-          durationDays = opt (360 : nat);
+          numberInterval = opt (12 : nat);
         };
       };
       free_plan_id = "free";
