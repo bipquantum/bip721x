@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { dateToTime } from "../../utils/conversions";
 import { Principal } from "@dfinity/principal";
 import { canisterId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
-import { ckusdtLedgerActor } from "../actors/CkUsdtLedgerActor";
-import { ApproveArgs } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 import { useFungibleLedgerContext } from "../contexts/FungibleLedgerContext";
 import { Account } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
 

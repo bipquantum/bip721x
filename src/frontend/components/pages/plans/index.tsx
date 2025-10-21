@@ -5,38 +5,38 @@ import SpinnerSvg from "../../../assets/spinner.svg";
 import { Plan, SSubscription } from "../../../../declarations/backend/backend.did";
 import { FiCheck } from "react-icons/fi";
 import Modal from "../../common/Modal";
+import { useSetSubscription } from "../../hooks/useSetSubscription";
+import { backendActor } from "../../actors/BackendActor";
 
 const Plans = () => {
+  
   const { authenticated } = useActors();
   const { user } = useAuth();
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [subscription, setSubscription] = useState<SSubscription | null>(null);
-  const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
+  const { call: updateSubscription, loading: settingSubscription } = useSetSubscription({
+    onSuccess: () => {
+      // Refresh subscription data
+      refreshSubscription();
+    },
+  });
+
+  const { data: plans, call: refreshPlans } = backendActor.unauthenticated.useQueryCall({
+    functionName: "get_plans",
+    args: [],
+  });
+
+  const { data: subscription, call: refreshSubscription } = backendActor.unauthenticated.useQueryCall({
+    functionName: "get_subscription",
+    args: [],
+  });
+
   useEffect(() => {
-    if (!authenticated) return;
-
-    const fetchData = async () => {
-      try {
-        // Fetch all available plans
-        const plansData = await authenticated.backend.get_plans();
-        setPlans(plansData);
-
-        // Fetch user's current subscription
-        const subData = await authenticated.backend.get_subscription();
-        setSubscription(subData);
-      } catch (error) {
-        console.error("Error fetching plans or subscription:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    refreshPlans();
+    refreshSubscription();
   }, [authenticated]);
 
-  if (loading) {
+  if (plans === undefined || subscription === undefined) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <img src={SpinnerSvg} alt="Loading..." className="h-12 w-12" />
@@ -275,18 +275,25 @@ const Plans = () => {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setSelectedPlan(null)}
-                className="flex-1 rounded-lg border-2 border-gray-300 bg-white py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                disabled={settingSubscription}
+                className="flex-1 rounded-lg border-2 border-gray-300 bg-white py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
-                  // TODO: Implement plan selection logic
-                  console.log("Selected plan:", selectedPlan);
+                  if (selectedPlan) {
+                    updateSubscription(selectedPlan.id);
+                  }
                 }}
-                className="flex-1 rounded-lg bg-primary py-2.5 font-semibold text-white transition-colors hover:bg-primary/90 dark:bg-secondary dark:hover:bg-secondary/90"
+                disabled={settingSubscription}
+                className="flex min-h-[42px] flex-1 items-center justify-center rounded-lg bg-primary py-2.5 font-semibold text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-secondary dark:hover:bg-secondary/90"
               >
-                Proceed
+                {settingSubscription ? (
+                  <img src={SpinnerSvg} alt="Loading..." className="h-6 w-6" />
+                ) : (
+                  "Proceed"
+                )}
               </button>
             </div>
           </div>

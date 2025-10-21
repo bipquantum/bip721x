@@ -7,6 +7,8 @@ import Nat64 "mo:base/Nat64";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import Result "mo:base/Result";
+import Blob "mo:base/Blob";
+import Array "mo:base/Array";
 
 import Types "Types";
 
@@ -25,7 +27,15 @@ module {
   }) {
 
     public func getSubscriptionSubaccount(): Blob {
-      Text.encodeUtf8(register.subaccount);
+      let textBytes = Blob.toArray(Text.encodeUtf8(register.subaccount));
+      let paddedBytes = Array.tabulate<Nat8>(32, func(i) {
+        if (i < textBytes.size()) {
+          textBytes[i]
+        } else {
+          0
+        }
+      });
+      Blob.fromArray(paddedBytes);
     };
 
     public func setSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
@@ -41,9 +51,9 @@ module {
       if (plan.renewalPriceUsdtE6s > 0) {
         // Pull first payment
         switch(await ckUSDTLedger.icrc2_transfer_from({
-          spender_subaccount = null;
+          spender_subaccount = ?getSubscriptionSubaccount();
           from = { owner = user; subaccount = null; };
-          to = { owner = backendId; subaccount = ?getSubscriptionSubaccount(); };
+          to = { owner = backendId; subaccount = null; };
           amount = plan.renewalPriceUsdtE6s;
           fee = null;
           memo = null;
@@ -128,9 +138,9 @@ module {
             let plan = getPlan(subscription.planId);
             // Pull payement
             switch(await ckUSDTLedger.icrc2_transfer_from({
-              spender_subaccount = null;
+              spender_subaccount = ?getSubscriptionSubaccount();
               from = { owner = user; subaccount = null; };
-              to = { owner = backendId; subaccount = ?getSubscriptionSubaccount(); };
+              to = { owner = backendId; subaccount = null; };
               amount = plan.renewalPriceUsdtE6s;
               fee = null;
               memo = null;
