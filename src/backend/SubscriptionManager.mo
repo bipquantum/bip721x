@@ -23,7 +23,7 @@ module {
     backendId: Principal;
   }) {
 
-    public func setPaidSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
+    public func setSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
 
       let subscription = getSubscription(user);
       if (subscription.planId == planId) {
@@ -32,19 +32,23 @@ module {
 
       let plan = getPlan(planId);
       let now = Time.now();
-      switch(await ckUSDTLedger.icrc2_transfer_from({
-        spender_subaccount = null;
-        from = { owner = user; subaccount = null; };
-        to = { owner = backendId; subaccount = ?Text.encodeUtf8(register.subaccount); };
-        amount = plan.renewalPriceUsdtE6s;
-        fee = null;
-        memo = null;
-        created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
-      })) {
-        case (#Err(err)) {
-          return #err("Payment failed: " # debug_show(err));
+
+      if (plan.renewalPriceUsdtE6s > 0) {
+        // Pull first payment
+        switch(await ckUSDTLedger.icrc2_transfer_from({
+          spender_subaccount = null;
+          from = { owner = user; subaccount = null; };
+          to = { owner = backendId; subaccount = ?Text.encodeUtf8(register.subaccount); };
+          amount = plan.renewalPriceUsdtE6s;
+          fee = null;
+          memo = null;
+          created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
+        })) {
+          case (#Err(err)) {
+            return #err("Payment failed: " # debug_show(err));
+          };
+          case (#Ok(_)) {};
         };
-        case (#Ok(_)) {};
       };
       let expiryDate = switch(plan.durationDays) {
         case (?days) { ?(now + daysToNs(days)) };

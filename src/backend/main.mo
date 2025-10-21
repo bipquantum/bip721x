@@ -5,6 +5,7 @@ import ChatBot        "ChatBot";
 import ChatBotHistory "ChatBotHistory";
 import TradeManager   "TradeManager";
 import XRCTypes       "XRCTypes";
+import Share          "Share";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
@@ -268,6 +269,14 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public shared({caller}) func mark_notification_as_read({ notificationId: Nat; }) : async() {
     getModel().controller.markNotificationAsRead(caller, notificationId);
+  };
+
+  public shared({caller}) func set_subscription(planId: Text) : async Result.Result<(), Text> {
+    await* getModel().subscriptionManager.setSubscription(caller, planId);
+  };
+
+  public query({caller}) func get_subscription() : async Types.SSubscription {
+    Share.subscription(getModel().subscriptionManager.getSubscription(caller));
   };
 
   public query func get_ckusdt_usd_price() : async SCkUsdtRate {

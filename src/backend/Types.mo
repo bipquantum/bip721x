@@ -9,28 +9,28 @@ module {
 
   type Result<Ok, Err> = Result.Result<Ok, Err>;
 
-  public let BIP721X_TAG        = IntPropTypes.BIP721X_TAG;
-  public type VersionnedIntProp = IntPropTypes.VersionnedIntProp;
-  public type IntPropInput      = IntPropTypes.IntPropInput;
-  public type IntProp           = IntPropTypes.IntProp;
+  public let BIP721X_TAG           = IntPropTypes.BIP721X_TAG;
+  public type VersionnedIntProp    = IntPropTypes.VersionnedIntProp;
+  public type IntPropInput         = IntPropTypes.IntPropInput;
+  public type IntProp              = IntPropTypes.IntProp;
 
-  public type IntPropRegister   = Types.Current.IntPropRegister;
-  public type User              = Types.Current.User;
-  public type ChatHistory       = Types.Current.ChatHistory;
-  public type ChatHistories     = Types.Current.ChatHistories;
-  public type Airdrop           = Types.Current.Airdrop;
-  public type AccessControl     = Types.Current.AccessControl;
-  public type Notification      = Types.Current.Notification;
-  public type NotificationType  = Types.Current.NotificationType;
-  public type NotificationState = Types.Current.NotificationState;
-  public type Notifications     = Types.Current.Notifications;
-  public type CkUsdtRate        = Types.Current.CkUsdtRate;
-  public type Plan              = Types.Current.Plan;
-  public type Plans             = Types.Current.Plans;
-  public type Subscription      = Types.Current.Subscription;
-  public type SubscriptionState = Types.Current.SubscriptionState;
+  public type IntPropRegister      = Types.Current.IntPropRegister;
+  public type User                 = Types.Current.User;
+  public type ChatHistory          = Types.Current.ChatHistory;
+  public type ChatHistories        = Types.Current.ChatHistories;
+  public type Airdrop              = Types.Current.Airdrop;
+  public type AccessControl        = Types.Current.AccessControl;
+  public type Notification         = Types.Current.Notification;
+  public type NotificationType     = Types.Current.NotificationType;
+  public type NotificationState    = Types.Current.NotificationState;
+  public type Notifications        = Types.Current.Notifications;
+  public type CkUsdtRate           = Types.Current.CkUsdtRate;
+  public type Plan                 = Types.Current.Plan;
+  public type Plans                = Types.Current.Plans;
+  public type Subscription         = Types.Current.Subscription;
+  public type SubscriptionState    = Types.Current.SubscriptionState;
   public type SubscriptionRegister = Types.Current.SubscriptionRegister;
-  public type State             = Types.Current.State;
+  public type State                = Types.Current.State;
 
   public type FullIntProp = {
     intProp: VersionnedIntProp;
@@ -50,6 +50,16 @@ module {
     allowed_per_user: Nat;
     total_distributed: Nat;
     map_distributed: [(Principal, Nat)];
+  };
+  
+  public type SSubscription = {
+    availableCredits: Nat;
+    totalCreditsUsed: Nat;
+    planId: Text;
+    state: SubscriptionState;
+    startDate: Int;
+    nextRenewalDate: Int;
+    expiryDate: ?Int;
   };
 
   public type SCkUsdtRate = {
