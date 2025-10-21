@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useActors } from "../../common/ActorsContext";
 import { useAuth } from "@nfid/identitykit/react";
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { Plan, SSubscription } from "../../../../declarations/backend/backend.did";
+import { Plan } from "../../../../declarations/backend/backend.did";
 import { FiCheck } from "react-icons/fi";
 import Modal from "../../common/Modal";
 import { useSetSubscription } from "../../hooks/useSetSubscription";
 import { backendActor } from "../../actors/BackendActor";
 
 const Plans = () => {
-  
+
   const { authenticated } = useActors();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   const { call: updateSubscription, loading: settingSubscription } = useSetSubscription({
     onSuccess: () => {
-      // Refresh subscription data
-      refreshSubscription();
+      setSelectedPlan(null);
+      // Navigate to profile subscription tab
+      navigate("/profile", { state: { tab: "subscription" } });
     },
   });
 
@@ -26,7 +29,7 @@ const Plans = () => {
     args: [],
   });
 
-  const { data: subscription, call: refreshSubscription } = backendActor.unauthenticated.useQueryCall({
+  const { data: subscription, call: refreshSubscription } = backendActor.authenticated.useQueryCall({
     functionName: "get_subscription",
     args: [],
   });

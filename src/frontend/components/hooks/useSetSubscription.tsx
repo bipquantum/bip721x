@@ -123,6 +123,7 @@ export const useSetSubscription = ({ onSuccess, onError }: SetSubscriptionArgs) 
       }
 
       if ("ok" in subscriptionResult) {
+        ckusdtLedger.refreshUserBalance();
         toast.success("Subscription updated successfully!");
         onSuccess?.();
       } else {

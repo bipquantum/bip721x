@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@nfid/identitykit/react";
+import { useLocation } from "react-router-dom";
 import ProfileTab from "./ProfileTab";
 import SubscriptionTab from "./SubscriptionTab";
 
@@ -10,7 +11,15 @@ enum Tab {
 
 const Profile = () => {
   const { user } = useAuth();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<Tab>(Tab.Profile);
+
+  // Check if we should open subscription tab from navigation state
+  useEffect(() => {
+    if (location.state?.tab === "subscription") {
+      setActiveTab(Tab.Subscription);
+    }
+  }, [location.state]);
 
   if (!user) {
     return <></>;

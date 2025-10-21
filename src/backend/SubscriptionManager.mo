@@ -3,6 +3,7 @@ import Principal "mo:base/Principal";
 import Map "mo:map/Map";
 import Text "mo:base/Text";
 import Debug "mo:base/Debug";
+import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
@@ -66,7 +67,7 @@ module {
         };
       };
       let newSub: Subscription = {
-        var availableCredits = plan.intervalCredits;
+        var availableCredits = Nat.max(subscription.availableCredits, plan.intervalCredits);
         var totalCreditsUsed = subscription.totalCreditsUsed;
         var planId = plan.id;
         var state = #Active;
