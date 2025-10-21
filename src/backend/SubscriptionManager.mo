@@ -18,9 +18,9 @@ module {
   type Subscription = Types.Subscription;
   type SubscriptionRegister = Types.SubscriptionRegister;
 
-  public class RateLimiter({
+  public class SubscriptionManager({
     register: SubscriptionRegister;
-    backend_id: Principal;
+    backendId: Principal;
   }) {
 
     public func setPaidSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
@@ -35,7 +35,7 @@ module {
       switch(await ckUSDTLedger.icrc2_transfer_from({
         spender_subaccount = null;
         from = { owner = user; subaccount = null; };
-        to = { owner = backend_id; subaccount = ?Text.encodeUtf8(register.subaccount); };
+        to = { owner = backendId; subaccount = ?Text.encodeUtf8(register.subaccount); };
         amount = plan.renewalPriceUsdtE6s;
         fee = null;
         memo = null;
@@ -64,7 +64,7 @@ module {
     };
 
     public func refreshSubscriptions() {
-      for (subscription in Map.vals(register.subscriptions)) {
+      label refreshLoop for (subscription in Map.vals(register.subscriptions)) {
         let now = Time.now();
         // Handle expired plans
         switch(subscription.expiryDate) {
@@ -78,8 +78,8 @@ module {
               subscription.state := #Active;
               subscription.startDate := now;
               subscription.expiryDate := null;
+              continue refreshLoop;
             };
-            return;
           };
           case (null) {};
         };
@@ -115,9 +115,6 @@ module {
     };
 
     public func pullPayments() : async* () {
-      // Placeholder for payment processing logic
-      // In a real implementation, this would interact with a payment gateway
-      // For now, we will assume all payments are successful and reactivate subscriptions
       for ((user, subscription) in Map.entries(register.subscriptions)) {
         switch(subscription.state) {
           case (#Active) {};
@@ -127,7 +124,7 @@ module {
             switch(await ckUSDTLedger.icrc2_transfer_from({
               spender_subaccount = null;
               from = { owner = user; subaccount = null; };
-              to = { owner = backend_id; subaccount = ?Text.encodeUtf8(register.subaccount); };
+              to = { owner = backendId; subaccount = ?Text.encodeUtf8(register.subaccount); };
               amount = plan.renewalPriceUsdtE6s;
               fee = null;
               memo = null;
@@ -157,7 +154,7 @@ module {
       subscription.totalCreditsUsed += credits;
     };
 
-    func getSubscription(user: Principal): Subscription {
+    public func getSubscription(user: Principal): Subscription {
       switch(Map.get(register.subscriptions, Map.phash, user)) {
         case (?sub) { sub };
         case (null) {

@@ -30,6 +30,7 @@ module {
   public type Subscription      = Types.Current.Subscription;
   public type SubscriptionState = Types.Current.SubscriptionState;
   public type SubscriptionRegister = Types.Current.SubscriptionRegister;
+  public type State             = Types.Current.State;
 
   public type FullIntProp = {
     intProp: VersionnedIntProp;

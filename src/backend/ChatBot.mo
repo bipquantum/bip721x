@@ -8,8 +8,8 @@ import Map             "mo:map/Map";
 import Nat             "mo:base/Nat";
 import Result          "mo:base/Result";
 
-import Types           "Types";
-import RateLimiter     "RateLimiter";
+import Types                 "Types";
+import SubscriptionManager   "SubscriptionManager";
 
 module {
 
@@ -23,16 +23,13 @@ module {
 
   public class ChatBot({
     chatbot_api_key: Text;
-    subscription_register: Types.SubscriptionRegister;
-    backend_id: Principal;
+    subscriptionManager: SubscriptionManager.SubscriptionManager;
   }) {
 
-    let rateLimiter = RateLimiter.RateLimiter({ register = subscription_register; backend_id; });
-
-    public func get_completion(caller: Principal, question: Text, aiPrompts: Text) : async* Result<Text, Text> {
+    public func getCompletion(caller: Principal, question: Text, aiPrompts: Text) : async* Result<Text, Text> {
 
       // Check rate limit before making the request (without consuming)
-      if (not rateLimiter.checkCredits(caller, ESTIMATED_TOKENS_PER_REQUEST)) {
+      if (not subscriptionManager.checkCredits(caller, ESTIMATED_TOKENS_PER_REQUEST)) {
         return #err("Rate limit exceeded. Please try again later or upgrade your plan.");
       };
 
@@ -85,7 +82,7 @@ module {
           ESTIMATED_TOKENS_PER_REQUEST;
         };
       };
-      rateLimiter.consumeCredits(caller, tokens);
+      subscriptionManager.consumeCredits(caller, tokens);
 
       #ok(content);
     };
