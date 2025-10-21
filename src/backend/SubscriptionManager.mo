@@ -24,6 +24,10 @@ module {
     backendId: Principal;
   }) {
 
+    public func getSubscriptionSubaccount(): Blob {
+      Text.encodeUtf8(register.subaccount);
+    };
+
     public func setSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
 
       let subscription = getSubscription(user);
@@ -39,7 +43,7 @@ module {
         switch(await ckUSDTLedger.icrc2_transfer_from({
           spender_subaccount = null;
           from = { owner = user; subaccount = null; };
-          to = { owner = backendId; subaccount = ?Text.encodeUtf8(register.subaccount); };
+          to = { owner = backendId; subaccount = ?getSubscriptionSubaccount(); };
           amount = plan.renewalPriceUsdtE6s;
           fee = null;
           memo = null;
@@ -126,7 +130,7 @@ module {
             switch(await ckUSDTLedger.icrc2_transfer_from({
               spender_subaccount = null;
               from = { owner = user; subaccount = null; };
-              to = { owner = backendId; subaccount = ?Text.encodeUtf8(register.subaccount); };
+              to = { owner = backendId; subaccount = ?getSubscriptionSubaccount(); };
               amount = plan.renewalPriceUsdtE6s;
               fee = null;
               memo = null;

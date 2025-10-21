@@ -283,6 +283,10 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     getModel().subscriptionManager.getPlans();
   };
 
+  public query func get_subscription_subaccount() : async Blob {
+    getModel().subscriptionManager.getSubscriptionSubaccount();
+  };
+
   public query func get_ckusdt_usd_price() : async SCkUsdtRate {
     getModel().controller.getCkUsdtUsdPrice();
   };

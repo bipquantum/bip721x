@@ -189,15 +189,15 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
         </Modal>
       </div>
       <button
-        className="flex h-[10dvh] w-full cursor-pointer items-center justify-center gap-4"
+        className="flex h-[10dvh] w-full cursor-pointer flex-row items-center justify-center gap-2 text-black dark:text-white"
         onClick={newChat}
       >
         <img
           src={AddPlusSvg}
-          className="h-5 cursor-pointer invert"
-          alt="Edit"
+          className="h-5 cursor-pointer dark:invert"
+          alt="Add new chat"
         />
-        Add new
+        <span>Add new</span>
       </button>
     </div>
   );

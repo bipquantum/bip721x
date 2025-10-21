@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { dateToTime } from "../../utils/conversions";
 import { Principal } from "@dfinity/principal";
 import { canisterId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
-import { ckusdtLedgerActor } from "../actors/CkUsdtLedgerActor";
-import { ApproveArgs } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
+import { useFungibleLedgerContext } from "../contexts/FungibleLedgerContext";
 
 interface BuyIntPropArgs {
   onSuccess?: () => void;
@@ -13,9 +11,8 @@ interface BuyIntPropArgs {
 }
 
 export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
-  const { call: approveCkUsdtTransfer } = ckusdtLedgerActor.authenticated.useUpdateCall({
-    functionName: "icrc2_approve",
-  });
+  
+  const { ckusdtLedger } = useFungibleLedgerContext();
 
   const { call: buyIntProp } = backendActor.authenticated.useUpdateCall({
     functionName: "buy_int_prop",
@@ -39,24 +36,26 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
       return;
     }
 
+    const tokenFee = ckusdtLedger.tokenFee;
+    if (tokenFee === undefined) {
+      toast.warn("Failed to get token fee");
+      console.error("Token fee is undefined");
+      onError?.();
+      setLoading(false);
+      return;
+    }
+
     try {
       // Approve the USDT transfer if the price is greater than 0
       if (e6sPrice.ok > 0n) {
-        const args: ApproveArgs = {
-          amount: e6sPrice.ok + 10_000n,
-          memo: [],
-          from_subaccount: [],
-          created_at_time: [dateToTime(new Date())],
-          spender: {
+        
+        const approvalResult = await ckusdtLedger.approveTokens(
+          e6sPrice.ok + tokenFee,
+          {
             owner: Principal.fromText(canisterId),
             subaccount: [],
-          },
-          expires_at: [],
-          fee: [],
-          expected_allowance: [],
-        };
-
-        const approvalResult = await approveCkUsdtTransfer([args]);
+          }
+        );
 
         if (!approvalResult || "Err" in approvalResult) {
           toast.warn("Failed to approve USDT transfer");
