@@ -34,7 +34,7 @@ const BipItem: React.FC<BipItemProps> = ({
   const [deleted, setDeleted] = useState(false);
   const [unlisted, setUnlisted] = useState(false);
 
-  const { data: intProp } = backendActor.unauthenticated.useQueryCall({
+  const { data: intProp } = backendActor.authenticated.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: intPropId }],
   });

@@ -25,11 +25,11 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
   const [deleted, setDeleted] = useState(false);
   const [intProp, setIntProp] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const { unauthenticated } = useActors();
+  const { authenticated } = useActors();
 
   useEffect(() => {
-    if (unauthenticated) {
-      unauthenticated.backend.get_int_prop({ token_id: intPropId })
+    if (authenticated) {
+      authenticated.backend.get_int_prop({ token_id: intPropId })
         .then((result) => {
           setIntProp(result);
           setLoading(false);
@@ -39,7 +39,7 @@ const BIPDetails: React.FC<BIPDetailsProps> = ({ intPropId, principal }) => {
           setLoading(false);
         });
     }
-  }, [unauthenticated, intPropId]);
+  }, [authenticated, intPropId]);
 
   if (loading || !intProp || "ok" in intProp === false) {
     return <img src={SpinnerSvg} alt="Loading..." />;

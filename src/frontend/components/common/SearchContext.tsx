@@ -34,7 +34,7 @@ const VERSION_KEY = "miniSearchVersion";
 export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { unauthenticated } = useActors();
+  const { authenticated, unauthenticated } = useActors();
   
   const [documents, setDocuments] = useState<Document[]>(() => {
     try {
@@ -63,8 +63,8 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   const [intPropIds, setIntPropIds] = useState<bigint[]>([]);
 
   const fetchIntProps = async (ids: number[]): Promise<Document[]> => {
-    if (!unauthenticated) {
-      console.warn("[SearchContext] Cannot fetch intProps - unauthenticated actor not available");
+    if (!authenticated) {
+      console.warn("[SearchContext] Cannot fetch intProps - authenticated actor not available");
       return [];
     }
 
@@ -73,7 +73,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
     const results = await Promise.all(
       ids.map(async (id) => {
         try {
-          const result = await unauthenticated.backend.get_int_prop({ token_id: BigInt(id) });
+          const result = await authenticated.backend.get_int_prop({ token_id: BigInt(id) });
           if (result && "ok" in result) {
             const doc = {
               id,

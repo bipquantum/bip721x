@@ -46,7 +46,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     args: [{ id: BigInt(intPropId) }],
   });
 
-  const { data: intProp } = backendActor.unauthenticated.useQueryCall({
+  const { data: intProp } = backendActor.authenticated.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: BigInt(intPropId) }],
   });
