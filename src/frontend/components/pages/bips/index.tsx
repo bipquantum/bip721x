@@ -1,5 +1,3 @@
-import { Principal } from "@dfinity/principal";
-
 import BipsHeader from "./BipsHeader";
 import BipList from "./BipList";
 import { backendActor } from "../../actors/BackendActor";
@@ -11,7 +9,7 @@ import { BIP_ITEMS_PER_QUERY } from "../../constants";
 
 const Bips: React.FC = () => {
   const [queryDirection, setQueryDirection] = useState<EQueryDirection>(
-    EQueryDirection.Forward,
+    EQueryDirection.Backward,
   );
 
   const { call: getListedIntProps } = backendActor.authenticated.useQueryCall({
