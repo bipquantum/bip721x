@@ -21,7 +21,7 @@ export const useUnlistIntProp = ({ onSuccess, onError }: UnlistIntPropArgs) => {
     functionName: "icrc37_is_approved",
   });
 
-  const { call: unlistIntProp } = backendActor.useUpdateCall({
+  const { call: unlistIntProp } = backendActor.authenticated.useUpdateCall({
     functionName: "unlist_int_prop",
   });
 

@@ -34,7 +34,7 @@ const Wallet = ({ isOpen, onClose }: WalletProps) => {
   const tokenSymbol = getTokenSymbol(bqcLedger.metadata);
 
   // Airdrop functionality
-  const { call: airdropUser, loading: airdropUserLoading } = backendActor.useUpdateCall({
+  const { call: airdropUser, loading: airdropUserLoading } = backendActor.authenticated.useUpdateCall({
     functionName: "airdrop_user",
   });
 
@@ -42,7 +42,7 @@ const Wallet = ({ isOpen, onClose }: WalletProps) => {
     data: isAirdropAvailable,
     call: checkAirdropAvailability,
     loading: isAirdropAvailableLoading,
-  } = backendActor.useQueryCall({
+  } = backendActor.authenticated.useQueryCall({
     functionName: "is_airdrop_available",
   });
 

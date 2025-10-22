@@ -39,10 +39,10 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   const [documents, setDocuments] = useState<Document[]>(() => {
     try {
       const version = localStorage.getItem(VERSION_KEY);
-      console.log("[SearchContext] Current storage version:", version, "Expected:", STORAGE_VERSION);
+      //console.log("[SearchContext] Current storage version:", version, "Expected:", STORAGE_VERSION);
 
       if (version !== String(STORAGE_VERSION)) {
-        console.log("[SearchContext] Version mismatch - clearing old data and migrating to version", STORAGE_VERSION);
+        //console.log("[SearchContext] Version mismatch - clearing old data and migrating to version", STORAGE_VERSION);
         localStorage.removeItem(STORAGE_KEY);
         localStorage.setItem(VERSION_KEY, String(STORAGE_VERSION));
         return [];
@@ -50,7 +50,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const raw = localStorage.getItem(STORAGE_KEY);
       const docs = raw ? JSON.parse(raw) : [];
-      console.log("[SearchContext] Loaded", docs.length, "documents from localStorage");
+      //console.log("[SearchContext] Loaded", docs.length, "documents from localStorage");
       return docs;
     } catch (err) {
       console.error("[SearchContext] Failed to parse cached documents:", err);
@@ -68,7 +68,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
       return [];
     }
 
-    console.log("[SearchContext] Fetching", ids.length, "intProps:", ids);
+    //console.log("[SearchContext] Fetching", ids.length, "intProps:", ids);
 
     const results = await Promise.all(
       ids.map(async (id) => {
@@ -94,21 +94,21 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 
     const validResults = results.filter((r): r is Document => r !== null);
-    console.log("[SearchContext] Successfully fetched", validResults.length, "out of", ids.length, "intProps");
+    //console.log("[SearchContext] Successfully fetched", validResults.length, "out of", ids.length, "intProps");
     return validResults;
   };
 
   const refreshDocuments = useCallback(async () => {
     if (!unauthenticated) {
-      console.log("[SearchContext] Cannot refresh - unauthenticated actor not available");
+      //console.log("[SearchContext] Cannot refresh - unauthenticated actor not available");
       return;
     }
     if (isRefreshing) {
-      console.log("[SearchContext] Already refreshing, skipping");
+      //console.log("[SearchContext] Already refreshing, skipping");
       return;
     }
 
-    console.log("[SearchContext] Starting refresh of intProp IDs");
+    //console.log("[SearchContext] Starting refresh of intProp IDs");
     setIsRefreshing(true);
     try {
       const result = await unauthenticated.backend.get_listed_int_props({
@@ -119,7 +119,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Ensure result is valid and convert bigints to numbers safely
       if (Array.isArray(result)) {
-        console.log("[SearchContext] Received", result.length, "intProp IDs from backend");
+        //console.log("[SearchContext] Received", result.length, "intProp IDs from backend");
         setIntPropIds(result);
         setLastRefreshTime(Date.now());
       } else {
@@ -153,12 +153,12 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 
     if (missingIds.length > 0 || removedIds.length > 0) {
-      console.log("[SearchContext] Document sync needed - Missing:", missingIds.length, "Removed:", removedIds.length);
+      //console.log("[SearchContext] Document sync needed - Missing:", missingIds.length, "Removed:", removedIds.length);
       if (missingIds.length > 0) {
-        console.log("[SearchContext] Missing IDs:", missingIds);
+        //console.log("[SearchContext] Missing IDs:", missingIds);
       }
       if (removedIds.length > 0) {
-        console.log("[SearchContext] Removed IDs:", removedIds);
+        //console.log("[SearchContext] Removed IDs:", removedIds);
       }
 
       (async () => {
@@ -179,19 +179,19 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
           });
 
           const finalDocs = Array.from(docMap.values());
-          console.log("[SearchContext] Documents updated - Total:", finalDocs.length);
+          //console.log("[SearchContext] Documents updated - Total:", finalDocs.length);
           return finalDocs;
         });
       })();
     } else {
-      console.log("[SearchContext] Documents in sync - no updates needed");
+      //console.log("[SearchContext] Documents in sync - no updates needed");
     }
   }, [intPropIds]);
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(documents));
-      console.log("[SearchContext] Saved", documents.length, "documents to localStorage");
+      //console.log("[SearchContext] Saved", documents.length, "documents to localStorage");
     } catch (err) {
       console.error("[SearchContext] Failed to cache documents to localStorage:", err);
     }
@@ -204,7 +204,7 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const miniSearch = useMemo(() => {
-    console.log("[SearchContext] Rebuilding MiniSearch index with", documents.length, "documents");
+    //console.log("[SearchContext] Rebuilding MiniSearch index with", documents.length, "documents");
     const search = new MiniSearch(options);
 
     try {
@@ -220,9 +220,9 @@ export const SearchProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (uniqueDocuments.length > 0) {
         search.addAll(uniqueDocuments);
-        console.log("[SearchContext] MiniSearch index built successfully with", uniqueDocuments.length, "documents");
+        //console.log("[SearchContext] MiniSearch index built successfully with", uniqueDocuments.length, "documents");
       } else {
-        console.log("[SearchContext] MiniSearch index is empty - no documents to index");
+        //console.log("[SearchContext] MiniSearch index is empty - no documents to index");
       }
     } catch (error) {
       console.error("[SearchContext] Error adding documents to MiniSearch:", error);

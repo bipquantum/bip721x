@@ -24,6 +24,8 @@ import Timer             "mo:base/Timer";
 import Cycles            "mo:base/ExperimentalCycles";
 import Debug             "mo:base/Debug";
 import Error             "mo:base/Error";
+import Iter              "mo:base/Iter";
+import Text              "mo:base/Text";
 
 module {
 
@@ -80,53 +82,6 @@ module {
 
     public func getUser(principal: Principal) : ?User {
       Map.get(users, Map.phash, principal)
-    };
-
-    public func getChatHistories({
-      caller: Principal;
-    }) : [ChatHistory] {
-      chatBotHistory.getChatHistories({caller});
-    };
-      
-    public func getChatHistory({
-      caller: Principal;
-      id: Text;
-    }) : Result<ChatHistory, Text> {
-      chatBotHistory.getChatHistory({caller; id});
-    };
-
-    public func createChatHistory({
-      caller: Principal;
-      id: Text;
-      version: Text;
-      date: Time;
-      name: Text;
-    }) : Result<(), Text> {
-      chatBotHistory.createChatHistory({caller; id; version; date; name;});
-    };
-
-    public func deleteChatHistory({
-      caller: Principal;
-      id: Text;
-    }) : Result<(), Text> {
-      chatBotHistory.deleteChatHistory({caller; id});
-    };
-
-    public func updateChatHistory({
-     caller: Principal;
-      id: Text;
-      events: Text;
-      aiPrompts: Text;
-    }) : Result<(), Text> {
-      chatBotHistory.updateChatHistory({caller; id; events; aiPrompts});
-    };
-
-    public func renameChatHistory({
-      caller: Principal;
-      id: Text;
-      name: Text;
-    }) : Result<(), Text> {
-      chatBotHistory.renameChatHistory({caller; id; name});
     };
 
     public func createIntProp(
@@ -604,8 +559,15 @@ module {
       Set.toArray(accessControl.moderators);
     };
 
-    public func chatbot_completion({body: Blob}) : async* ChatBot.HttpResponse {
-      await* chatBot.get_completion(body);
+    public func chatbotCompletion({caller: Principal; question: Text; id: Text; }) : async* Result<Text, Text> {
+      // Get or create the chat history
+      let history = switch(chatBotHistory.getChatHistory({caller; id})){
+        case(#err(err)){ return #err(err); };
+        case(#ok(history)){ history; };
+      };
+
+      // Get completion with history
+      await* chatBot.getCompletion(caller, question, history.aiPrompts);
     };
 
     // ================================ NOTIFICATIONS ================================

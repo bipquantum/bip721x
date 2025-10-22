@@ -18,7 +18,7 @@ const ValidateAuthor: React.FC<ValidateAuthorProps> = ({ principal }) => {
 
   const [user, setUser] = useState<User | undefined>(undefined);
 
-  const { call: queryUser } = backendActor.useQueryCall({
+  const { call: queryUser } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",
   });
 

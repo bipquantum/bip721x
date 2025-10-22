@@ -6,7 +6,6 @@ import { AnyEventObject } from "xstate";
 import { useMachine } from "@xstate/react";
 import { machine } from "./botStateMachine";
 import { AiPrompt, ChatAnswerState, ChatElem, createChatElem } from "./types";
-import { extractRequestResponse, formatRequestBody } from "./chatgpt";
 
 type CustomStateInfo = {
   description: string;
@@ -75,16 +74,16 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     new Map(),
   );
 
-  const { call: updateChatHistory } = backendActor.useUpdateCall({
+  const { call: updateChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "update_chat_history",
   });
 
-  const { call: getChatHistory } = backendActor.useQueryCall({
+  const { call: getChatHistory } = backendActor.authenticated.useQueryCall({
     functionName: "get_chat_history",
     args: [{ id: chatId }],
   });
 
-  const { call: getResponse } = backendActor.useUpdateCall({
+  const { call: getResponse } = backendActor.authenticated.useUpdateCall({
     functionName: "chatbot_completion",
   });
 
@@ -150,40 +149,36 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     const innerIndex = aiPrompt.push({ question, answer: undefined });
     setAIPrompts((old) => new Map(old.set(promptIndex, aiPrompt)));
 
-    await formatRequestBody(question, Array.from(aiPrompts.values()).flat())
-      .then((body) => {
-        getResponse([{ body }])
-          .then((res) => {
-            if (res === undefined || res.status < 200n || res.status >= 300n) {
-              throw new Error(`Unexpected response: ${JSON.stringify(res)}`);
-            }
-            let response: string =
-              (res && extractRequestResponse(res)) ??
-              "Sorry, I am experiencing techical issues. Please try again later.";
-            setAIPrompts((old) => {
-              const currentPrompts = old.get(promptIndex);
-              if (!currentPrompts) {
-                throw new Error("Expected updated prompts to exist");
-              }
-              currentPrompts[innerIndex - 1].answer = response;
-              const newPrompts = new Map(old);
-              newPrompts.set(promptIndex, currentPrompts);
-              updateChatHistory([
-                {
-                  id: chatId,
-                  events: JSON.stringify(eventHistory.current),
-                  aiPrompts: JSON.stringify(Array.from(newPrompts.entries())),
-                },
-              ]);
-              return newPrompts;
-            });
-          })
-          .catch((error) => {
-            console.error("Error getting response:", error);
-          });
+    await getResponse([{question, id: chatId }])
+      .then((res) => {
+        let response: string;
+        if (res && "ok" in res) {
+          response = String(res.ok);
+        } else if (res && "err" in res) {
+          response = `Error: ${String(res.err)}`;
+        } else {
+          response = "Sorry, I am experiencing technical issues. Please try again later.";
+        }
+        setAIPrompts((old) => {
+          const currentPrompts = old.get(promptIndex);
+          if (!currentPrompts) {
+            throw new Error("Expected updated prompts to exist");
+          }
+          currentPrompts[innerIndex - 1].answer = response;
+          const newPrompts = new Map(old);
+          newPrompts.set(promptIndex, currentPrompts);
+          updateChatHistory([
+            {
+              id: chatId,
+              events: JSON.stringify(eventHistory.current),
+              aiPrompts: JSON.stringify(Array.from(newPrompts.entries())),
+            },
+          ]);
+          return newPrompts;
+        });
       })
       .catch((error) => {
-        console.error("Error converting blob:", error);
+        console.error("Error getting response:", error);
       });
   };
 

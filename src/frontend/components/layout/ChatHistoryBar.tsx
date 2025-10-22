@@ -1,6 +1,4 @@
-import { useState } from "react";
-import EditSvg from "../../assets/edit.svg";
-import TrashSvg from "../../assets/trash.svg";
+import { useState, useEffect, useRef } from "react";
 import AddPlusSvg from "../../assets/add-plus.svg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
@@ -33,6 +31,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
   const navigate = useNavigate();
 
   const [settingOpen, setSettingOpen] = useState<string | undefined>();
+  const settingsRef = useRef<HTMLDivElement>(null);
 
   const { chatHistories, addChat, deleteChat, renameChat } = useChatHistory();
   const [actionCandidate, setActionCandidate] = useState<
@@ -70,6 +69,24 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
     }
     setSettingOpen(chatId);
   };
+
+  // Handle click outside to close settings dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setSettingOpen(undefined);
+      }
+    };
+
+    if (settingOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [settingOpen]);
+
   return (
     <div
       className={
@@ -80,15 +97,6 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
       <div className="h-[70dvh] w-full overflow-auto px-4 py-6">
         <div className="flex flex-row items-center justify-between">
           <p className="text-xl font-bold">Chat History</p>
-          <img
-            src={EditSvg}
-            className={`cursor-pointer invert ${isCurrentChat("") ? "h-6" : "h-5"}`}
-            alt="Edit"
-            onClick={(e) => {
-              setChatName("");
-              setActionCandidate({ chatId: "", action: ChatAction.RENAME });
-            }}
-          />
         </div>
         <div className="pt-4">
           {chatHistories.map((chat) => (
@@ -103,7 +111,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
               >
                 {chat.name}
               </Link>
-              <div className="relative flex h-fit w-fit items-center justify-center">
+              <div className="relative flex h-fit w-fit items-center justify-center" ref={settingOpen === chat.id ? settingsRef : null}>
                 <button onClick={(e) => handleSetting(chat.id)}>
                   <TbDots className="h-fit w-fit p-1" />
                 </button>
@@ -181,15 +189,15 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
         </Modal>
       </div>
       <button
-        className="flex h-[10dvh] w-full cursor-pointer items-center justify-center gap-4"
+        className="flex h-[10dvh] w-full cursor-pointer flex-row items-center justify-center gap-2 text-black dark:text-white"
         onClick={newChat}
       >
         <img
           src={AddPlusSvg}
-          className="h-5 cursor-pointer invert"
-          alt="Edit"
+          className="h-5 cursor-pointer dark:invert"
+          alt="Add new chat"
         />
-        Add new
+        <span>Add new</span>
       </button>
     </div>
   );

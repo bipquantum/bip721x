@@ -13,7 +13,9 @@ const ChatHistory = () => {
       pathname.includes("/new") ||
       pathname.includes("/poll") ||
       pathname.includes("/view") ||
-      pathname.includes("/login")
+      pathname.includes("/login") ||
+      pathname.includes("/certificate") ||
+      pathname.includes("/plans")
     );
   };
   return (

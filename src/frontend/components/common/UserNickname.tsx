@@ -8,7 +8,8 @@ type UserNickNameArgs = {
 };
 
 const UserNickName = ({ principal }: UserNickNameArgs) => {
-  const { data: user } = backendActor.useQueryCall({
+ 
+  const { data: user } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",
     args: [principal],
   });

@@ -256,7 +256,7 @@ const ListingDetails: React.FC<ListingDetailsProps> = ({
   const [e6sPrice, sete6sPrice] = useState<bigint | undefined>(undefined);
   const { ckusdtLedger } = useFungibleLedgerContext();
 
-  const querye6sPrice = backendActor.useQueryCall({
+  const querye6sPrice = backendActor.unauthenticated.useQueryCall({
     functionName: "get_e6s_price",
     args: [{ token_id: intPropId }],
   });

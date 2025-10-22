@@ -2,12 +2,13 @@ import { ckusdtLedgerActor } from "../actors/CkUsdtLedgerActor";
 import { bqcLedgerActor } from "../actors/BqcLedgerActor";
 import { backendActor } from "../actors/BackendActor";
 import { faucetActor } from "../actors/FaucetActor";
-import { fromFixedPoint, toFixedPoint } from "../../utils/conversions";
+import { dateToTime, fromFixedPoint, toFixedPoint } from "../../utils/conversions";
 import { getTokenDecimals, getTokenFee } from "../../utils/metadata";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Account, MetadataValue, TransferResult } from "../../../declarations/ckusdt_ledger/ckusdt_ledger.did";
 import { useAuth } from "@nfid/identitykit/react";
 import { toNullable } from "@dfinity/utils";
+import { ApproveResult } from "../../../declarations/ckbtc_ledger/ckbtc_ledger.did";
 
 export enum LedgerType {
   CK_USDT = 'ckUSDT',
@@ -26,7 +27,9 @@ export interface FungibleLedger {
   convertToFixedPoint: (amount: number | undefined) => bigint | undefined;
   convertToFloatingPoint: (amountFixedPoint: bigint | number | undefined) => number | undefined;
   transferTokens: (amount: bigint, to: Account) => Promise<TransferResult | undefined>;
+  approveTokens: (amount: bigint, spender: Account) => Promise<ApproveResult | undefined>;
   subtractFee?: (amount: bigint) => bigint;
+  tokenFee?: bigint;
   userBalance: bigint | undefined;
   refreshUserBalance: () => void;
   mint: (amount: number) => Promise<boolean>;
@@ -54,7 +57,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     args: [],
   });
 
-  const { data: ckusdtPriceData, call: refreshCkusdtPrice } = backendActor.useQueryCall({
+  const { data: ckusdtPriceData, call: refreshCkusdtPrice } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_ckusdt_usd_price",
     args: [],
   });
@@ -77,6 +80,24 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
         to,
         amount
     }]);
+  };
+
+  const { call: approve } = actor.authenticated.useUpdateCall({
+    functionName: 'icrc2_approve',
+  });
+
+  const approveTokens = async(amount: bigint, spender: Account) => {
+    const result = await approve([{
+      fee: [],
+      from_subaccount: account?.subaccount || [],
+      memo: [],
+      created_at_time: [dateToTime(new Date())],
+      spender,
+      amount,
+      expires_at: [],
+      expected_allowance: [],
+    }]);
+    return result;
   };
 
   const [price, setPrice] = useState<number | undefined>(undefined);
@@ -184,7 +205,7 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     icrc1BalanceOf(account ? [account] : undefined);
   }, [account]);
 
-  const { call: mintToken, loading: mintLoading } = faucetActor.useUpdateCall({
+  const { call: mintToken, loading: mintLoading } = faucetActor.unauthenticated.useUpdateCall({
     functionName: ledgerType === LedgerType.CK_USDT ? 'mint_usdt' : 'mint_bqc',
   });
 
@@ -233,7 +254,9 @@ export const useFungibleLedger = (ledgerType: LedgerType) : FungibleLedger => {
     convertToFixedPoint,
     convertToFloatingPoint,
     transferTokens,
+    approveTokens,
     subtractFee,
+    tokenFee,
     userBalance,
     refreshUserBalance,
     mint,

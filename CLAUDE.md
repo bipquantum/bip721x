@@ -103,3 +103,64 @@ npm run tw:generate  # Generate Tailwind CSS with watch mode
 - Idempotent proxy cycle consumption optimization
 - ICRC-7/ICRC-37/ICRC-3 implementation code review
 - Frontend miscellaneous improvements
+
+## Code Readability Guidelines
+
+### Avoid Deep Nesting with Early Returns (Guard Clauses)
+
+**❌ AVOID: Deep nesting with nested switch/if statements**
+```motoko
+public func claim_rewards(account: Account) : async* ?Nat {
+    switch (Map.get(rewards, hash, account)) {
+        case (null) { null; };
+        case (?tracker) {
+            if (tracker.owed > 0) {
+                let result = await* transfer(tracker.owed, account);
+                switch (result) {
+                    case (#ok(tx_id)) { ?tracker.owed; };
+                    case (#err(_)) { null; };
+                };
+            } else {
+                null;
+            };
+        };
+    };
+}
+```
+
+**✅ DO: Use early returns (guard clauses) to reduce nesting**
+```motoko
+public func claim_rewards(account: Account) : async* ?Nat {
+    let tracker = switch (Map.get(rewards, hash, account)) {
+        case (null) { return null; };
+        case (?t) { t; };
+    };
+    
+    if (tracker.owed == 0) {
+        return null;
+    };
+    
+    let result = await* transfer(tracker.owed, account);
+    let tx_id = switch (result) {
+        case (#err(_)) { return null; };
+        case (#ok(id)) { id; };
+    };
+    
+    // Main logic here at consistent indentation
+    ?tracker.owed;
+}
+```
+
+**Pattern Benefits**:
+- **Readability**: Main logic flows at consistent indentation level
+- **Maintainability**: Error conditions are handled upfront and clearly
+- **Cognitive Load**: Reduces mental tracking of nested conditions
+- **Early Exit**: Handles edge cases immediately, keeping main logic clean
+
+**When to Apply**:
+- Functions with optional values that are required for the rest of the logic
+- Multiple validation checks that should fail fast
+- Error handling that doesn't need complex recovery logic
+- Any time nesting exceeds 2-3 levels
+
+This pattern is also known as "guard clauses" or "early return pattern" in software engineering.

@@ -1,47 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useActors } from '../common/ActorsContext';
 import { ActorMethod, ActorSubclass } from '@dfinity/agent';
-import { _SERVICE as Bip721Ledger } from "../../../declarations/bip721_ledger/bip721_ledger.did";
+import { BIP721Ledger } from "../../../declarations/bip721_ledger/bip721_ledger.did";
 
 // Type utilities to extract function signatures from ActorMethod
-type Bip721LedgerMethods = keyof Bip721Ledger;
+type BIP721LedgerMethods = keyof BIP721Ledger;
 type ExtractArgs<T> = T extends ActorMethod<infer P, any> ? P : never;
 type ExtractReturn<T> = T extends ActorMethod<any, infer R> ? R : never;
 
-interface UseQueryCallOptions<T extends Bip721LedgerMethods> {
+interface UseQueryCallOptions<T extends BIP721LedgerMethods> {
   functionName: T;
-  args?: ExtractArgs<Bip721Ledger[T]>;
-  onSuccess?: (data: ExtractReturn<Bip721Ledger[T]>) => void;
+  args?: ExtractArgs<BIP721Ledger[T]>;
+  onSuccess?: (data: ExtractReturn<BIP721Ledger[T]>) => void;
   onError?: (error: any) => void;
 }
 
-const useQueryCall = <T extends Bip721LedgerMethods>(options: UseQueryCallOptions<T>, actor: ActorSubclass<Bip721Ledger> | undefined) => {
-
-  const [data, setData] = useState<ExtractReturn<Bip721Ledger[T]> | undefined>(undefined);
+const useQueryCall = <T extends BIP721LedgerMethods>(options: UseQueryCallOptions<T>, actor: ActorSubclass<BIP721Ledger> | undefined) => {
+  
+  const [data, setData] = useState<ExtractReturn<BIP721Ledger[T]> | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
 
-  const call = async (callArgs?: ExtractArgs<Bip721Ledger[T]>): Promise<ExtractReturn<Bip721Ledger[T]> | undefined> => {
+  const call = useCallback(
+    async (callArgs?: ExtractArgs<BIP721Ledger[T]>): Promise<ExtractReturn<BIP721Ledger[T]> | undefined> => {
+      if (!actor) return undefined;
 
-    if (!actor) return undefined;
-
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const args = callArgs || options.args || [];
-      const result = await (actor as any)[options.functionName](...args);
-      setData(result);
-      options.onSuccess?.(result);
-      return result;
-    } catch (err) {
-      setError(err);
-      options.onError?.(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const args = callArgs || options.args || [];
+        const result = await (actor as any)[options.functionName](...args);
+        setData(result);
+        options.onSuccess?.(result);
+        return result;
+      } catch (err) {
+        setError(err);
+        options.onError?.(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [actor, options.functionName, options.args, options.onSuccess, options.onError]
+  );
 
   // Helper function to safely serialize args including BigInt
   const serializeArgs = (args: any) => {
@@ -59,63 +61,69 @@ const useQueryCall = <T extends Bip721LedgerMethods>(options: UseQueryCallOption
   useEffect(() => {
     if (options.args !== undefined) {
       call();
+    } else {
+      // Reset data if no args
+      setData(undefined);
     }
   }, [actor, options.functionName, serializeArgs(options.args)]);
 
   return { data, loading, error, call };
 };
 
-interface UseUpdateCallOptions<T extends Bip721LedgerMethods> {
+interface UseUpdateCallOptions<T extends BIP721LedgerMethods> {
   functionName: T;
-  onSuccess?: (data: ExtractReturn<Bip721Ledger[T]>) => void;
+  onSuccess?: (data: ExtractReturn<BIP721Ledger[T]>) => void;
   onError?: (error: any) => void;
 }
 
-const useUpdateCall = <T extends Bip721LedgerMethods>(options: UseUpdateCallOptions<T>, actor: ActorSubclass<Bip721Ledger> | undefined) => {
+export const useUpdateCall = <T extends BIP721LedgerMethods>(options: UseUpdateCallOptions<T>, actor: ActorSubclass<BIP721Ledger> | undefined) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
 
-  const call = async (args: ExtractArgs<Bip721Ledger[T]> = [] as any): Promise<ExtractReturn<Bip721Ledger[T]> | undefined> => {
+  const call = useCallback(
+    async (args: ExtractArgs<BIP721Ledger[T]> = [] as any): Promise<ExtractReturn<BIP721Ledger[T]> | undefined> => {
 
-    if (!actor) return undefined;
+      if(!actor) return undefined;
 
-    setLoading(true);
-    setError(null);
+      setLoading(true);
+      setError(null);
     
-    try {
-      const result = await (actor as any)[options.functionName](...args);
-      options.onSuccess?.(result);
-      return result;
-    } catch (err) {
-      setError(err);
-      options.onError?.(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        const result = await (actor as any)[options.functionName](...args);
+        options.onSuccess?.(result);
+        return result;
+      } catch (err) {
+        setError(err);
+        options.onError?.(err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [actor, options.functionName, options.onSuccess, options.onError]
+  );
 
   return { call, loading, error };
 };
 
-export type { Bip721Ledger };
+export type { BIP721Ledger };
 
-const useUnauthQueryCall = <T extends Bip721LedgerMethods>(options: UseQueryCallOptions<T>) => {
+const useUnauthQueryCall = <T extends BIP721LedgerMethods>(options: UseQueryCallOptions<T>) => {
   const { unauthenticated } = useActors();
   return useQueryCall(options, unauthenticated?.bip721Ledger as any);
 }
 
-const useAuthQueryCall = <T extends Bip721LedgerMethods>(options: UseQueryCallOptions<T>) => {
+const useAuthQueryCall = <T extends BIP721LedgerMethods>(options: UseQueryCallOptions<T>) => {
   const { authenticated } = useActors();
   return useQueryCall(options, authenticated?.bip721Ledger as any);
 }
 
-const useUnauthUpdateCall = <T extends Bip721LedgerMethods>(options: UseUpdateCallOptions<T>) => {
+const useUnauthUpdateCall = <T extends BIP721LedgerMethods>(options: UseUpdateCallOptions<T>) => {
   const { unauthenticated } = useActors();
-  return useUpdateCall(options, unauthenticated?.bip721Ledger as any);
+      return useUpdateCall(options, unauthenticated?.bip721Ledger as any);
 }
 
-const useAuthUpdateCall = <T extends Bip721LedgerMethods>(options: UseUpdateCallOptions<T>) => {
+const useAuthUpdateCall = <T extends BIP721LedgerMethods>(options: UseUpdateCallOptions<T>) => {
   const { authenticated } = useActors();
   return useUpdateCall(options, authenticated?.bip721Ledger as any);
 }

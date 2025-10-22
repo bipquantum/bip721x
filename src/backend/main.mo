@@ -1,15 +1,15 @@
 import Types          "Types";
-import Controller     "Controller";
+import Model          "Model";
 import Conversions    "intprop/Conversions";
 import ChatBot        "ChatBot";
 import ChatBotHistory "ChatBotHistory";
 import TradeManager   "TradeManager";
 import XRCTypes       "XRCTypes";
+import Share          "Share";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
 import BIP721Ledger  "canister:bip721_ledger";
-import BQCLedger     "canister:bqc_ledger";
 import ExchangeRate  "canister:exchange_rate";
 
 import Result        "mo:base/Result";
@@ -39,95 +39,78 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   _state := Migrations.migrate(_state, args);
 
   // NON-STABLE MEMBER
-  var _controller : ?Controller.Controller = null;
+  var model : ?Model.Model = null;
 
   // Unfortunately the principal of the canister cannot be used at the construction of the actor
   // because of the compiler error "cannot use self before self has been defined".
-  // Therefore, one need to use an init method to initialize the controller.
-  public shared({caller}) func init_controller() : async Result<(), Text> {
+  // Therefore, one need to use an init method to initialize the model.
+  public shared({caller}) func init_model() : async Result<(), Text> {
 
     if (not Principal.equal(caller, admin)) {
-      return #err("Only the admin can initialize the controller");
+      return #err("Only the admin can initialize the model");
     };
 
-    if (Option.isSome(_controller)) {
-      return #err("The controller is already initialized");
+    if (Option.isSome(model)) {
+      return #err("The model is already initialized");
     };
 
     switch(_state){
-      case(#v0_7_0(stableData)){
-        _controller := ?Controller.Controller({
-          stableData with
-          chatBotHistory = ChatBotHistory.ChatBotHistory({
-            chatHistories = stableData.chatHistories;
-          });
-          tradeManager = TradeManager.TradeManager({
-            stage_account = { owner = Principal.fromActor(this); subaccount = null; };
-            fee = stableData.e6sTransferFee;
-          });
-          chatBot = ChatBot.ChatBot({
-            chatbot_api_key = stableData.chatbot_api_key; 
-          });
+      case(#v0_8_0(state)){
+        let builtModel = Model.build({
+          state;
+          backendId = Principal.fromActor(this);
         });
+        ignore builtModel.controller.startPriceUpdateTimer();
+        model := ?builtModel;
       };
-      case(_) { Debug.trap("Unexpected state version: v0_7_0"); };
-    };
-    
-    // Start the price update timer
-    switch(_controller) {
-      case(?controller) {
-        ignore controller.startPriceUpdateTimer();
-      };
-      case(null) {
-        Debug.trap("Controller is not initialized");
-      };
+      case(_) { Debug.trap("Unexpected state version: v0_8_0"); };
     };
     
     #ok;
   };
 
   public shared({caller}) func set_user(user: CreateUserArgs): async Result<(), Text> {
-    getController().setUser({ user with caller;} );
+    getModel().controller.setUser({ user with caller;} );
   };
 
   public query func get_user(principal: Principal): async ?User {
-    getController().getUser(principal);
+    getModel().controller.getUser(principal);
   };
 
   public query({caller}) func get_chat_histories() : async [ChatHistory] {
-    getController().getChatHistories({ caller; });
+    getModel().chatBotHistory.getChatHistories({ caller; });
   };
 
   public query({caller}) func get_chat_history({id: Text;}) : async Result<ChatHistory, Text> {
-    getController().getChatHistory({ caller; id; });
+    getModel().chatBotHistory.getChatHistory({ caller; id; });
   };
 
   public shared({caller}) func create_chat_history({id: Text; version: Text; name: Text;}) : async Result<(), Text> {
-    getController().createChatHistory({ caller; id; version; name; date = Time.now(); });
+    getModel().chatBotHistory.createChatHistory({ caller; id; version; name; date = Time.now(); });
   };
 
   public shared({caller}) func delete_chat_history({id: Text;}) : async Result<(), Text> {
-    getController().deleteChatHistory({ caller; id; });
+    getModel().chatBotHistory.deleteChatHistory({ caller; id; });
   };
 
   public shared({caller}) func update_chat_history({id: Text; events: Text; aiPrompts: Text}) : async Result<(), Text> {
-    getController().updateChatHistory({ caller; id; events; aiPrompts; });
+    getModel().chatBotHistory.updateChatHistory({ caller; id; events; aiPrompts; });
   };
 
   public shared({caller}) func rename_chat_history({id: Text; name: Text;}) : async Result<(), Text> {
-    getController().renameChatHistory({ caller; id; name; });
+    getModel().chatBotHistory.renameChatHistory({ caller; id; name; });
   };
 
   public shared({caller}) func create_int_prop(args: IntPropInput) : async CreateIntPropResult {
-    await getController().createIntProp({ args with author = caller; });
+    await getModel().controller.createIntProp({ args with author = caller; });
   };
 
   public shared({caller}) func list_int_prop({ token_id: Nat; e6s_usdt_price: Nat; }) : async Result<(), Text> {
-    await* getController().listIntProp({ caller; id = token_id; e6sUsdtPrice = e6s_usdt_price; });
+    await* getModel().controller.listIntProp({ caller; id = token_id; e6sUsdtPrice = e6s_usdt_price; });
   };
 
   public shared({caller}) func unlist_int_prop({token_id: Nat;}) : async Result<(), Text> {
-    await* getController().unlistIntProp({ caller; id = token_id; });
+    await* getModel().controller.unlistIntProp({ caller; id = token_id; });
   };
 
   public composite query func get_int_props_of({owner: Principal; prev: ?Nat; take: ?Nat;}) : async [Nat] {
@@ -135,7 +118,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public query func get_listed_int_props({prev: ?Nat; take: ?Nat; direction: QueryDirection}) : async [Nat] {
-    getController().getListedIntProps({ prev; take; direction; });
+    getModel().controller.getListedIntProps({ prev; take; direction; });
   };
 
   public composite query({caller}) func get_int_prop({token_id: Nat}) : async Result<FullIntProp, Text> {
@@ -144,7 +127,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
       
       // Check if the caller is the owner of the token
       let accounts = await BIP721Ledger.icrc7_owner_of([token_id]);
-      switch(getController().extractOwner(accounts)){
+      switch(getModel().controller.extractOwner(accounts)){
         case(null) {};
         case(?owner) {
           if (Principal.equal(owner, caller)) {
@@ -154,7 +137,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
       };
 
       // Check if the IP is listed
-      if (getController().isListedIntProp(token_id)){
+      if (getModel().controller.isListedIntProp(token_id)){
         break check_authorized;
       };
 
@@ -167,7 +150,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     let intProp = Conversions.metadataToIntProp(metadata[0]);
     let author = switch(intProp){
       case(#V1(ip)) { 
-        switch(getController().getUser(ip.author)){
+        switch(getModel().controller.getUser(ip.author)){
           case(null) { null };
           case(?user) { ?user.nickName; };
         };
@@ -180,116 +163,132 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
 
   public composite query func owners_of({token_ids: [Nat]}) : async [?Principal] {
     let accounts = await BIP721Ledger.icrc7_owner_of(token_ids);
-    getController().extractOwners(accounts);
+    getModel().controller.extractOwners(accounts);
   };
 
   public composite query func owner_of({token_id: Nat}) : async ?Principal {
     let accounts = await BIP721Ledger.icrc7_owner_of([token_id]);
-    getController().extractOwner(accounts);
+    getModel().controller.extractOwner(accounts);
   };
 
   public query func get_e6s_price({token_id: Nat}) : async Result<Nat, Text> {
-    getController().getE6sPrice({ id = token_id });
+    getModel().controller.getE6sPrice({ id = token_id });
   };
 
   public shared({caller}) func buy_int_prop({token_id: Nat}) : async Result<(), Text> {
-    await* getController().buyIntProp({ id = token_id; buyer = caller; });
+    await* getModel().controller.buyIntProp({ id = token_id; buyer = caller; });
   };
 
   public query func cycles_balance() : async Nat {
     Cycles.balance();
   };
 
-  public shared func chatbot_completion({body: Blob}) : async ChatBot.HttpResponse {
-    await* getController().chatbot_completion({body});
+  public shared({caller}) func chatbot_completion({question: Text; id: Text; }) : async Result<Text, Text> {
+    await* getModel().controller.chatbotCompletion({caller; question; id; });
   };
 
   public query({caller}) func is_airdrop_available() : async Bool {
-    getController().isAirdropAvailable(caller);
+    getModel().controller.isAirdropAvailable(caller);
   };
 
   public query func get_number_of_users() : async Nat {
-    getController().getNumberOfUsers();
+    getModel().controller.getNumberOfUsers();
   };
 
   public shared({caller}) func airdrop_user() : async Result<Nat, Text> {
-    await getController().airdropUser(caller);
+    await getModel().controller.airdropUser(caller);
   };
 
   public query func get_airdrop_info(): async Types.SAirdropInfo {
-    getController().getAirdropInfo();
+    getModel().controller.getAirdropInfo();
   };
 
   public shared({caller}) func set_airdrop_per_user({ amount : Nat; }) : async Result<(), Text> {
     if (caller != admin) {
       return #err("Only the admin can call this function!");
     };
-    getController().setAirdropPerUser({amount});
+    getModel().controller.setAirdropPerUser({amount});
     #ok;
   };
 
   public shared({caller}) func ban_int_prop({ id: Nat; ban_author: Bool;}) : async Result<(), Text> {
-    await* getController().banIntProp({ caller; id; ban_author; });
+    await* getModel().controller.banIntProp({ caller; id; ban_author; });
   };
 
   public shared({caller}) func unban_int_prop({ id: Nat; }) : async Result<(), Text> {
-    await* getController().unbanIntProp({ caller; id; });
+    await* getModel().controller.unbanIntProp({ caller; id; });
   };
 
   public query func is_banned_int_prop({ id: Nat; }) : async Bool {
-    getController().isBannedIntProp({ id; });
+    getModel().controller.isBannedIntProp({ id; });
   };
 
   public query func get_banned_int_props() : async [Nat] {
-    getController().getBannedIntProps();
+    getModel().controller.getBannedIntProps();
   };
 
   public shared({caller}) func ban_author({ author: Principal; }) : async Result<(), Text> {
-    await* getController().banAuthor({ caller; author; });
+    await* getModel().controller.banAuthor({ caller; author; });
   };
 
   public shared({caller}) func unban_author({ author: Principal; }) : async Result<(), Text> {
-    getController().unbanAuthor({ caller; author; });
+    getModel().controller.unbanAuthor({ caller; author; });
   };
 
   public query func is_banned_author({ author: Principal; }) : async Bool {
-    getController().isBannedAuthor({ author; });
+    getModel().controller.isBannedAuthor({ author; });
   };
 
   public query func get_banned_authors() : async [(Principal, User)] {
-    getController().getBannedAuthors();
+    getModel().controller.getBannedAuthors();
   };
 
   public query func get_admin() : async Principal {
-    getController().getAdmin();
+    getModel().controller.getAdmin();
   };
 
   public shared({caller}) func set_admin({ admin: Principal; }) : async Result<(), Text> {
-    getController().setAdmin({ caller; admin; });
+    getModel().controller.setAdmin({ caller; admin; });
   };
 
   public query func get_moderators() : async [Principal] {
-    getController().getModerators();
+    getModel().controller.getModerators();
   };
 
   public shared({caller}) func add_moderator({ moderator: Principal; }) : async Result<(), Text> {
-    getController().addModerator({ caller; moderator; });
+    getModel().controller.addModerator({ caller; moderator; });
   };
 
   public shared({caller}) func remove_moderator({ moderator: Principal; }) : async Result<(), Text> {
-    getController().removeModerator({ caller; moderator; });
+    getModel().controller.removeModerator({ caller; moderator; });
   };
 
   public query({caller}) func get_user_notifications() : async [Notification] {
-    getController().getUserNotifications(caller);
+    getModel().controller.getUserNotifications(caller);
   };
 
   public shared({caller}) func mark_notification_as_read({ notificationId: Nat; }) : async() {
-    getController().markNotificationAsRead(caller, notificationId);
+    getModel().controller.markNotificationAsRead(caller, notificationId);
+  };
+
+  public shared({caller}) func set_subscription(planId: Text) : async Result.Result<(), Text> {
+    await* getModel().subscriptionManager.setSubscription(caller, planId);
+  };
+
+  public query({caller}) func get_subscription() : async Types.SSubscription {
+    Share.subscription(getModel().subscriptionManager.getSubscription(caller));
+  };
+
+  public query func get_plans() : async [Types.Plan] {
+    getModel().subscriptionManager.getPlans();
+  };
+
+  public query func get_subscription_subaccount() : async Blob {
+    getModel().subscriptionManager.getSubscriptionSubaccount();
   };
 
   public query func get_ckusdt_usd_price() : async SCkUsdtRate {
-    getController().getCkUsdtUsdPrice();
+    getModel().controller.getCkUsdtUsdPrice();
   };
 
   public shared({caller}) func get_exchange_rate(req : XRCTypes.GetExchangeRateRequest) : async XRCTypes.GetExchangeRateResult {
@@ -301,9 +300,9 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     await ExchangeRate.get_exchange_rate(req);
   };
 
-  func getController() : Controller.Controller {
-    switch(_controller){
-      case (null) { Debug.trap("The controller is not initialized"); };
+  func getModel() : Model.Model {
+    switch(model){
+      case (null) { Debug.trap("The model is not initialized"); };
       case (?c) { c; };
     };
   };

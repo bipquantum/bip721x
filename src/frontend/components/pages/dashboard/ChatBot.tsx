@@ -75,7 +75,6 @@ const ChatBot = ({
         <div className="relative flex w-full flex-row items-center gap-2">
           <div
             className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px] cursor-pointer"
-            onClick={() => setShowDisabledModal(true)}
           >
             <AutoResizeTextarea
               ref={inputRef}
@@ -99,7 +98,6 @@ const ChatBot = ({
             onClick={() => {
               if (userInput) submitUserInput();
             }}
-            disabled={true} // temporarily disabled
             className="flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200"
           >
             <IoArrowUp size={30} className="text-black" />

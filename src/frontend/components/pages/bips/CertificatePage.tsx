@@ -139,21 +139,21 @@ const CertificatePage = () => {
   const { intPropId } = useParams();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  const { data: intPropResult } = backendActor.useQueryCall({
+  const { data: intPropResult } = backendActor.authenticated.useQueryCall({
     functionName: "get_int_prop",
     args: intPropId ? [{ token_id: BigInt(intPropId) }] : undefined,
   });
 
   const intProp = intPropResult && "ok" in intPropResult ? intPropResult.ok.intProp.V1 : undefined;
 
-  const { data: authorResult } = backendActor.useQueryCall({
+  const { data: authorResult } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",
     args: intProp ? [intProp.author] : undefined,
   });
 
   const author = authorResult ? fromNullable(authorResult) : undefined;
 
-  const { data: ownerResult } = backendActor.useQueryCall({
+  const { data: ownerResult } = backendActor.unauthenticated.useQueryCall({
     functionName: "owner_of",
     args: intPropId ? [{ token_id: BigInt(intPropId) }] : undefined,
   });

@@ -4,6 +4,7 @@ import BipsIcon from "../icons/BipsIcon";
 import DashIcon from "../icons/DashIcon";
 import MarketIcon from "../icons/MarketIcon";
 import NewIPIcon from "../icons/NewIPIcon";
+import PlansIcon from "../icons/PlansIcon";
 import SupportIcon from "../icons/SupportIcon";
 import { useAuth } from "@nfid/identitykit/react";
 
@@ -27,6 +28,11 @@ const NavBar = () => {
       icon: BipsIcon,
       label: "BIPs",
       link: "bips",
+    },
+    {
+      icon: PlansIcon,
+      label: "Plans",
+      link: "plans",
     },
     {
       icon: MarketIcon,

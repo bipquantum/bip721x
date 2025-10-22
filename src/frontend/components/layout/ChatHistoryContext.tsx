@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "@nfid/identitykit/react";
 import { backendActor } from "../actors/BackendActor";
 import { ChatHistory } from "../../../declarations/backend/backend.did";
 import { machine } from "../pages/dashboard/botStateMachine";
@@ -19,8 +20,9 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
+  const { user } = useAuth();
 
-  const { call: fetchChatHistories } = backendActor.useQueryCall({
+  const { call: fetchChatHistories } = backendActor.authenticated.useQueryCall({
     functionName: "get_chat_histories",
     onSuccess: (data) => {
       if (data !== undefined) {
@@ -35,21 +37,33 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   });
 
-  const { call: deleteChatHistory } = backendActor.useUpdateCall({
+  // Fetch chat histories when user changes (login/logout/switch user)
+  useEffect(() => {
+    if (user) {
+      console.log("User changed, fetching chat histories for:", user.principal);
+      fetchChatHistories();
+    } else {
+      // Clear chat histories when user logs out
+      console.log("User logged out, clearing chat histories");
+      setChatHistories([]);
+    }
+  }, [user]);
+
+  const { call: deleteChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "delete_chat_history",
     onError: (error) => {
       console.error("Error deleting chat history:", error);
     },
   });
 
-  const { call: createChatHistory } = backendActor.useUpdateCall({
+  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "create_chat_history",
     onError: (error) => {
       console.error("Error creating chat history:", error);
     },
   });
 
-  const { call: renameChatHistory } = backendActor.useUpdateCall({
+  const { call: renameChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "rename_chat_history",
     onError: (error) => {
       console.error("Error renaming chat history:", error);

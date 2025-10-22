@@ -41,17 +41,17 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     window.open(certUrl, "_blank");
   };
 
-  const { data: isBanned } = backendActor.useQueryCall({
+  const { data: isBanned } = backendActor.unauthenticated.useQueryCall({
     functionName: "is_banned_int_prop",
     args: [{ id: BigInt(intPropId) }],
   });
 
-  const { data: intProp } = backendActor.useQueryCall({
+  const { data: intProp } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_int_prop",
     args: [{ token_id: BigInt(intPropId) }],
   });
 
-  backendActor.useQueryCall({
+  backendActor.unauthenticated.useQueryCall({
     functionName: "owner_of",
     args: [{ token_id: BigInt(intPropId) }],
     onSuccess(data) {

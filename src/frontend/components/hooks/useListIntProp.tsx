@@ -21,7 +21,7 @@ export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
     functionName: "icrc37_is_approved",
   });
 
-  const { call: listIntProp } = backendActor.useUpdateCall({
+  const { call: listIntProp } = backendActor.authenticated.useUpdateCall({
     functionName: "list_int_prop",
   });
 

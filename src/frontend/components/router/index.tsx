@@ -13,6 +13,7 @@ import WhoAreYou from "../pages/poll";
 import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
+import Plans from "../pages/plans";
 import { useAuth } from "@nfid/identitykit/react";
 import { useHotjarTracking } from "../hooks/useHotjarTracking";
 
@@ -60,6 +61,10 @@ const Router = () => {
       <Route
         path={"/profile"}
         element={<PrivateRoute element={<Profile />} />}
+      />
+      <Route
+        path={"/plans"}
+        element={<PrivateRoute element={<Plans />} />}
       />
       <Route
         path={"/bips"}

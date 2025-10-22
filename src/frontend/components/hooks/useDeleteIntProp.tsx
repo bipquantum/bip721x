@@ -10,7 +10,8 @@ interface DeleteIntPropArgs {
 }
 
 export const useDeleteIntProp = ({ onSuccess, onError }: DeleteIntPropArgs) => {
-  const { call: unlistIntProp } = backendActor.useUpdateCall({
+
+  const { call: unlistIntProp } = backendActor.authenticated.useUpdateCall({
     functionName: "unlist_int_prop",
   });
   const { call: burn } = bip721LedgerActor.authenticated.useUpdateCall({

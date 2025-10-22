@@ -63,7 +63,7 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
   // @todo: should use actual dataUri returned by query
   const [dataUri, setDataUri] = useState<string>(loadIntPropInput().dataUri);
 
-  const { call: createIntProp, loading } = backendActor.useUpdateCall({
+  const { call: createIntProp, loading } = backendActor.authenticated.useUpdateCall({
     functionName: "create_int_prop",
     onSuccess: (data) => {
       if (data === undefined) {
