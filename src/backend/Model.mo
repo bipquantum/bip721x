@@ -35,6 +35,7 @@ module {
             chatbot_api_key = state.chatbot_api_key;
             subscriptionManager;
           });
+          subscriptionManager;
         });
         
         {

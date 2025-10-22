@@ -112,7 +112,10 @@ module {
               // Anchor to scheduled renewal date to prevent drift
               subscription.nextRenewalDate := subscription.nextRenewalDate + daysToNs(plan.renewalIntervalDays);
               // Set to past due for simplicity (payment handling asynchronous)
-              subscription.state := #PastDue(now);
+              if (plan.id != register.plans.freePlanId) {
+                // Only set to past due if not on free plan
+                subscription.state := #PastDue(now);
+              };
             };
           };
           case (#PastDue(dueDate)) {
@@ -132,11 +135,16 @@ module {
     };
 
     public func pullPayments() : async* () {
-      for ((user, subscription) in Map.entries(register.subscriptions)) {
+      label subscriptionLoop for ((user, subscription) in Map.entries(register.subscriptions)) {
         switch(subscription.state) {
           case (#Active) {};
           case (#PastDue(_)) {
             let plan = getPlan(subscription.planId);
+            // Free plan, no payment needed
+            if (plan.id == register.plans.freePlanId) {
+              subscription.state := #Active;
+              continue subscriptionLoop;
+            };
             // Pull payement
             switch(await ckUSDTLedger.icrc2_transfer_from({
               spender_subaccount = ?getSubscriptionSubaccount();

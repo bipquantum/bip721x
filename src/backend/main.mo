@@ -60,7 +60,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
           state;
           backendId = Principal.fromActor(this);
         });
-        ignore builtModel.controller.startPriceUpdateTimer();
+        ignore builtModel.controller.startTimer();
         model := ?builtModel;
       };
       case(_) { Debug.trap("Unexpected state version: v0_8_0"); };

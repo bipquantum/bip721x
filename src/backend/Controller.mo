@@ -1,8 +1,9 @@
-import Types             "Types";
-import Conversions       "intprop/Conversions";
-import TradeManager      "TradeManager";
-import ChatBotHistory    "ChatBotHistory";
-import ChatBot           "ChatBot";
+import Types               "Types";
+import Conversions         "intprop/Conversions";
+import TradeManager        "TradeManager";
+import ChatBotHistory      "ChatBotHistory";
+import ChatBot             "ChatBot";
+import SubscriptionManager "SubscriptionManager";
 
 import BIP721Ledger      "canister:bip721_ledger";
 import BQCLedger         "canister:bqc_ledger";
@@ -47,8 +48,8 @@ module {
   type NotificationType    = Types.NotificationType;
   type NotificationState   = Types.NotificationState;
   type Notifications       = Types.Notifications;
-  type CkUsdtRate           = Types.CkUsdtRate;
-  type SCkUsdtRate          = Types.SCkUsdtRate;
+  type CkUsdtRate          = Types.CkUsdtRate;
+  type SCkUsdtRate         = Types.SCkUsdtRate;
   type Time                = Int;
 
   type Account             = ICRC7.Account;
@@ -63,9 +64,10 @@ module {
     chatBot: ChatBot.ChatBot;
     notifications: Notifications;
     ckusdtRate: CkUsdtRate;
+    subscriptionManager: SubscriptionManager.SubscriptionManager;
   }) {
 
-    var priceUpdateTimer : ?Timer.TimerId = null;
+    var timer : ?Timer.TimerId = null;
 
     public func setUser(
       args: CreateUserArgs and {
@@ -616,14 +618,24 @@ module {
       Map.set(notifications.byPrincipal, Map.phash, user, updatedNotifications);
     };
 
-    public func startPriceUpdateTimer() : async () {
-      if (priceUpdateTimer != null) {
-        Debug.trap("Price update timer is already running");
+    public func startTimer() : async () {
+      if (timer != null) {
+        Debug.trap("Timer is already running");
       };
-      priceUpdateTimer := ?Timer.recurringTimer<system>(
-        #seconds(15 * 60), // 15 minutes in seconds
+      timer := ?Timer.recurringTimer<system>(
+        #seconds(15 * 60), // 15 minutes
         func () : async () {
-          await updateCkUsdtPrice();
+          try {
+            await updateCkUsdtPrice();
+          } catch (error) {
+            Debug.print("Error occurred in timer: " # debug_show(Error.message(error)));
+          };
+          try {
+            subscriptionManager.refreshSubscriptions();
+            await* subscriptionManager.pullPayments();
+          } catch (error) {
+            Debug.print("Error occurred in timer: " # debug_show(Error.message(error)));
+          }
         }
       );
     };
