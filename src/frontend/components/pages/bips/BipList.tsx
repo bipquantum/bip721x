@@ -8,6 +8,8 @@ import { QueryDirection } from "../../../../declarations/backend/backend.did";
 import { EQueryDirection, toQueryDirection } from "../../../utils/conversions";
 import { useAuth } from "@nfid/identitykit/react";
 import { useActors } from "../../common/ActorsContext";
+import PrivateBipItem from "./PrivateBipItem";
+import PublicBipItem from "./PublicBipItem";
 
 interface BipsProps {
   fetchBips: (
@@ -108,10 +110,14 @@ const BipList: React.FC<BipsProps> = ({
         }
       >
         {Array.from(entries).map((intPropId) => (
-          <BipItem
+          authenticated !== undefined ? <PrivateBipItem
             principal={user?.principal}
             intPropId={intPropId}
             key={intPropId}
+            hideUnlisted={hideUnlisted}
+          /> : <PublicBipItem
+            intPropId={intPropId}
+            principal={user?.principal}
             hideUnlisted={hideUnlisted}
           />
         ))}

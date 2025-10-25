@@ -13,7 +13,8 @@
     "prebuild": "dfx generate",
     "build": "vite build",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\"",
-    "tw:generate": " npx tailwindcss -i ./src/frontend/src/index.css -o ./src/frontend/src/output.css --watch"
+    "tw:generate": " npx tailwindcss -i ./src/frontend/src/index.css -o ./src/frontend/src/output.css --watch",
+    "csp:hashes": "node scripts/generate-csp-hashes.js"
   },
   "dependencies": {
     "@dfinity/agent": "^2.4.1",

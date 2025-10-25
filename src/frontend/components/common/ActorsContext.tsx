@@ -1,6 +1,6 @@
 import { Actor, ActorSubclass, Agent, HttpAgent }                         from "@dfinity/agent";
-import { useAgent, useAuth }                                              from "@nfid/identitykit/react";
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useAgent, useAuth, useSigner }                                   from "@nfid/identitykit/react";
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { idlFactory as backendIdlFactory,      canisterId as backendId      } from "../../../declarations/backend/index";
 import { idlFactory as bqcLedgerIdlFactory,    canisterId as bqcLedgerId    } from "../../../declarations/bqc_ledger/index";
@@ -97,6 +97,10 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   });
 
   const { user, disconnect } = useAuth();
+  const signer = useSigner();
+
+  // Track login state for Mixpanel
+  const hasTrackedLoginRef = useRef(false);
 
   // Sync check: if user thinks they're logged in but agent is anonymous, force logout
   useEffect(() => {
@@ -114,6 +118,42 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     checkIdentitySync();
   }, [user, authenticatedAgent, disconnect]);
+
+  // Mixpanel tracking for user login
+  useEffect(() => {
+    console.log("Checking Mixpanel login tracking conditions...", { user, signer, hasTrackedLogin: hasTrackedLoginRef.current });
+    if (user && signer && window.mixpanel && !hasTrackedLoginRef.current) {
+      // User is logged in, track the login event
+      const authMethod = signer.label || 'Unknown';
+      const principal = user.principal;
+
+      // Identify the user by their principal
+      window.mixpanel.identify(principal.toText());
+
+      // Track the login event with authentication method
+      window.mixpanel.track('User Login', {
+        auth_method: authMethod,
+        principal: principal,
+        timestamp: new Date().toISOString()
+      });
+
+      // Set user properties
+      window.mixpanel.people.set({
+        principal: principal,
+        last_login: new Date().toISOString(),
+        auth_method: authMethod
+      });
+
+      console.log(`Mixpanel: Tracked login for principal ${principal} using ${authMethod}`);
+      hasTrackedLoginRef.current = true;
+    } else if (!user && hasTrackedLoginRef.current) {
+      // User logged out, reset the tracking flag
+      hasTrackedLoginRef.current = false;
+      if (window.mixpanel) {
+        window.mixpanel.reset();
+      }
+    }
+  }, [user, signer]);
 
   useEffect(() => {
     if (authenticatedAgent) {
