@@ -13,6 +13,7 @@ import { FiUserPlus, FiLogOut } from "react-icons/fi";
 import { useAuth } from "@nfid/identitykit/react";
 import WalletButton from "../../common/WalletButton";
 import { invalidateUserCache } from "../../common/UserImage";
+import { useMixpanelTracking } from "../../hooks/useMixpanelTracking";
 
 const DEFAULT_ARGS = {
   firstName: "",
@@ -37,6 +38,7 @@ const ProfileFields: {
 const ProfileTab = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user, disconnect } = useAuth();
+  const { trackProfileCreated, trackProfileUpdated } = useMixpanelTracking();
   const [focusedFields, setFocusedFields] = useState<{
     [key: string]: boolean;
   }>({});
@@ -105,10 +107,30 @@ const ProfileTab = () => {
 
   const onUpdateBtnClicked = async () => {
     setIsLoading(true);
+    const isNewUser = !fromNullable(queriedUser || []);
+
     await updateUser([userArgs]);
     await queryUser();
 
     invalidateUserCache();
+
+    // Track profile creation or update
+    if (user) {
+      const trackingData = {
+        firstName: userArgs.firstName,
+        lastName: userArgs.lastName,
+        nickName: userArgs.nickName,
+        specialty: userArgs.specialty,
+        countryCode: userArgs.countryCode,
+        hasImage: !!userArgs.imageUri,
+      };
+
+      if (isNewUser) {
+        trackProfileCreated(user.principal, trackingData);
+      } else {
+        trackProfileUpdated(user.principal, trackingData);
+      }
+    }
 
     toast.success("User information added/updated!");
     setIsLoading(false);

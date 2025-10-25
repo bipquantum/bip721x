@@ -121,7 +121,6 @@ export const ActorsProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Mixpanel tracking for user login
   useEffect(() => {
-    console.log("Checking Mixpanel login tracking conditions...", { user, signer, hasTrackedLogin: hasTrackedLoginRef.current });
     if (user && signer && window.mixpanel && !hasTrackedLoginRef.current) {
       // User is logged in, track the login event
       const authMethod = signer.label || 'Unknown';

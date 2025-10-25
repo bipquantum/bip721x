@@ -6,6 +6,7 @@ import { Principal } from "@dfinity/principal";
 import { canisterId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
+import { useMixpanelTracking } from "./useMixpanelTracking";
 
 interface UnlistIntPropArgs {
   onSuccess?: () => void;
@@ -13,6 +14,8 @@ interface UnlistIntPropArgs {
 }
 
 export const useUnlistIntProp = ({ onSuccess, onError }: UnlistIntPropArgs) => {
+  const { trackIPUnlisted } = useMixpanelTracking();
+
   const { call: revokeBip721Transfer } = bip721LedgerActor.authenticated.useUpdateCall({
     functionName: "icrc37_revoke_token_approvals",
   });
@@ -75,6 +78,9 @@ export const useUnlistIntProp = ({ onSuccess, onError }: UnlistIntPropArgs) => {
         console.error(unlistResult?.err ?? "No result");
         onError?.();
       } else {
+        // Track IP unlisting
+        trackIPUnlisted(intPropId.toString());
+
         toast.success("Success");
         onSuccess?.();
       }

@@ -6,6 +6,7 @@ import { Principal } from "@dfinity/principal";
 import { canisterId as backendId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
+import { useMixpanelTracking } from "./useMixpanelTracking";
 
 interface ListIntPropArgs {
   onSuccess?: () => void;
@@ -13,6 +14,8 @@ interface ListIntPropArgs {
 }
 
 export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
+  const { trackIPListed } = useMixpanelTracking();
+
   const { call: approveBip721Transfer } = bip721LedgerActor.authenticated.useUpdateCall({
     functionName: "icrc37_approve_tokens",
   });
@@ -82,6 +85,12 @@ export const useListIntProp = ({ onSuccess, onError }: ListIntPropArgs) => {
         console.error(listResult?.err ?? "No result");
         onError?.();
       } else {
+        // Track IP listing
+        trackIPListed({
+          tokenId: intPropId.toString(),
+          priceE6s: sellPrice.toString(),
+        });
+
         toast.success("Success");
         onSuccess?.();
       }

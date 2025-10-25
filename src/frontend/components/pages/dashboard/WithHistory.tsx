@@ -6,6 +6,7 @@ import { AnyEventObject } from "xstate";
 import { useMachine } from "@xstate/react";
 import { machine } from "./botStateMachine";
 import { AiPrompt, ChatAnswerState, ChatElem, createChatElem } from "./types";
+import { useMixpanelTracking } from "../../hooks/useMixpanelTracking";
 
 type CustomStateInfo = {
   description: string;
@@ -37,6 +38,7 @@ interface WithHistoryProps {
 }
 
 const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
+  const { trackChatMessageSent } = useMixpanelTracking();
   const refId = useRef<string>(chatId);
   const eventHistory = useRef<string[]>([]);
   const chats = useRef<ChatElem[]>([]);
@@ -148,6 +150,13 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     var aiPrompt = aiPrompts.get(promptIndex) || [];
     const innerIndex = aiPrompt.push({ question, answer: undefined });
     setAIPrompts((old) => new Map(old.set(promptIndex, aiPrompt)));
+
+    // Track chat message sent
+    trackChatMessageSent({
+      messageLength: question.length,
+      chatHistoryId: chatId,
+      isNewChat: eventHistory.current.length === 0 && promptIndex === 0,
+    });
 
     await getResponse([{question, id: chatId }])
       .then((res) => {

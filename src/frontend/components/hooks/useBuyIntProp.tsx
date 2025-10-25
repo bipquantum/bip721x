@@ -4,6 +4,7 @@ import { canisterId } from "../../../declarations/backend";
 import { backendActor } from "../actors/BackendActor";
 import { toast } from "react-toastify";
 import { useFungibleLedgerContext } from "../contexts/FungibleLedgerContext";
+import { useMixpanelTracking } from "./useMixpanelTracking";
 
 interface BuyIntPropArgs {
   onSuccess?: () => void;
@@ -11,7 +12,7 @@ interface BuyIntPropArgs {
 }
 
 export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
-  
+  const { trackIPPurchased } = useMixpanelTracking();
   const { ckusdtLedger } = useFungibleLedgerContext();
 
   const { call: buyIntProp } = backendActor.authenticated.useUpdateCall({
@@ -74,6 +75,12 @@ export const useBuyIntProp = ({ onSuccess, onError }: BuyIntPropArgs) => {
       }
 
       if ("ok" in buyResult) {
+        // Track IP purchase
+        trackIPPurchased({
+          tokenId: intPropId.toString(),
+          priceE6s: e6sPrice.ok.toString(),
+        });
+
         toast.success("Success");
         onSuccess?.();
       } else {

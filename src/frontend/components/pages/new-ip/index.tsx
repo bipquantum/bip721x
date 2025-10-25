@@ -12,6 +12,7 @@ import { validateIpDataUri, validateIpDescription, validateIpTitle } from "../..
 import NewIpInputs from "./NewIpInputs";
 import ValidateAuthor from "./ValidateAuthor";
 import IpCreated from "./IpCreated";
+import { useMixpanelTracking } from "../../hooks/useMixpanelTracking";
 
 
 interface NewIPProps {
@@ -19,6 +20,7 @@ interface NewIPProps {
 }
 
 const NewIP: React.FC<NewIPProps> = ({ principal }) => {
+  const { trackIPCreated } = useMixpanelTracking();
 
   const EMPTY_INT_PROP: IntPropInput = {
     dataUri: "",
@@ -87,7 +89,18 @@ const NewIP: React.FC<NewIPProps> = ({ principal }) => {
         toast.error("Failed to create new IP: " + errorMsg);
         console.error("error", data);
       } else {
-        setIpId(data["ok"]);
+        const tokenId = data["ok"];
+        setIpId(tokenId);
+
+        // Track IP creation
+        const ipType = Object.keys(intPropInput.intPropType)[0];
+        trackIPCreated({
+          tokenId: tokenId.toString(),
+          title: intPropInput.title,
+          type: ipType,
+          hasRoyalties: intPropInput.percentageRoyalties.length > 0,
+        });
+
         clear(); // Clear the form data after successful creation
         setStep(4);
       }
