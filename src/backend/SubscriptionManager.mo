@@ -79,6 +79,34 @@ module {
       #ok;
     };
 
+    // Activate subscription via Stripe payment (no ckUSDT transfer)
+    public func activateStripeSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
+
+      let subscription = getSubscription(user);
+      if (subscription.planId == planId) {
+        return #err("User already on this plan");
+      };
+
+      let plan = getPlan(planId);
+      let now = Time.now();
+
+      // No payment pull needed - payment already processed by Stripe
+      let newSub: Subscription = {
+        var availableCredits = Nat.max(subscription.availableCredits, plan.intervalCredits);
+        var totalCreditsUsed = subscription.totalCreditsUsed;
+        var planId = plan.id;
+        var state = #Active;
+        var startDate = now;
+        var nextRenewalDate = now + daysToNs(plan.renewalIntervalDays);
+        var expiryDate = computeExpiryDate(now, plan);
+      };
+      Map.set(register.subscriptions, Map.phash, user, newSub);
+
+      Debug.print("Activated Stripe subscription for user: " # debug_show(user) # ", plan: " # planId);
+
+      #ok;
+    };
+
     public func refreshSubscriptions() {
       label refreshLoop for (subscription in Map.vals(register.subscriptions)) {
         let now = Time.now();

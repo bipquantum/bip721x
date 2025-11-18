@@ -8,6 +8,9 @@ import { FiCheck } from "react-icons/fi";
 import Modal from "../../common/Modal";
 import { useSetSubscription } from "../../hooks/useSetSubscription";
 import { backendActor } from "../../actors/BackendActor";
+import { getStripeCheckoutUrl } from "../../../constants/stripe";
+
+type PaymentMethod = "ckusdt" | "stripe";
 
 const Plans = () => {
 
@@ -15,6 +18,7 @@ const Plans = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>("ckusdt");
 
   const { call: updateSubscription, loading: settingSubscription } = useSetSubscription({
     onSuccess: () => {
@@ -184,7 +188,10 @@ const Plans = () => {
       {/* Plan Selection Modal */}
       <Modal
         isVisible={selectedPlan !== null}
-        onClose={() => setSelectedPlan(null)}
+        onClose={() => {
+          setSelectedPlan(null);
+          setSelectedPaymentMethod("ckusdt"); // Reset to default
+        }}
         title="Confirm Plan Selection"
       >
         {selectedPlan && (
@@ -240,6 +247,86 @@ const Plans = () => {
               </div>
             </div>
 
+            {/* Payment Method Selection - Only show for paid plans */}
+            {selectedPlan.renewalPriceUsdtE6s > 0n && (
+              <div>
+                <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Choose Payment Method:
+                </p>
+                <div className="space-y-3">
+                  {/* ckUSDT Option */}
+                  <button
+                    onClick={() => setSelectedPaymentMethod("ckusdt")}
+                    className={`w-full rounded-lg border-2 p-4 text-left transition-all ${
+                      selectedPaymentMethod === "ckusdt"
+                        ? "border-primary bg-primary/10 dark:border-secondary dark:bg-secondary/10"
+                        : "border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5">
+                        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                          selectedPaymentMethod === "ckusdt"
+                            ? "border-primary dark:border-secondary"
+                            : "border-gray-400 dark:border-gray-500"
+                        }`}>
+                          {selectedPaymentMethod === "ckusdt" && (
+                            <div className="h-3 w-3 rounded-full bg-primary dark:bg-secondary" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-2xl">💎</span>
+                          <span className="font-semibold text-black dark:text-white">
+                            ckUSDT (Crypto)
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Direct blockchain payment • No processing fees
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Stripe Option */}
+                  <button
+                    onClick={() => setSelectedPaymentMethod("stripe")}
+                    className={`w-full rounded-lg border-2 p-4 text-left transition-all ${
+                      selectedPaymentMethod === "stripe"
+                        ? "border-primary bg-primary/10 dark:border-secondary dark:bg-secondary/10"
+                        : "border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5">
+                        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                          selectedPaymentMethod === "stripe"
+                            ? "border-primary dark:border-secondary"
+                            : "border-gray-400 dark:border-gray-500"
+                        }`}>
+                          {selectedPaymentMethod === "stripe" && (
+                            <div className="h-3 w-3 rounded-full bg-primary dark:bg-secondary" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-2xl">💳</span>
+                          <span className="font-semibold text-black dark:text-white">
+                            Credit/Debit Card
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Powered by Stripe • Instant payment
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Expiration Date */}
             {selectedPlan.numberInterval.length > 0 && (
               <div className="rounded-lg bg-gray-100 p-4 dark:bg-gray-700">
@@ -277,7 +364,10 @@ const Plans = () => {
             {/* Action Buttons */}
             <div className="flex gap-3 pt-2">
               <button
-                onClick={() => setSelectedPlan(null)}
+                onClick={() => {
+                  setSelectedPlan(null);
+                  setSelectedPaymentMethod("ckusdt"); // Reset to default
+                }}
                 disabled={settingSubscription}
                 className="flex-1 rounded-lg border-2 border-gray-300 bg-white py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
@@ -285,8 +375,25 @@ const Plans = () => {
               </button>
               <button
                 onClick={() => {
-                  if (selectedPlan) {
-                    updateSubscription(selectedPlan.id);
+                  if (selectedPlan && user) {
+                    if (selectedPaymentMethod === "ckusdt") {
+                      // Current flow: direct subscription update with ckUSDT
+                      updateSubscription(selectedPlan.id);
+                    } else {
+                      // Stripe flow: redirect to Stripe Checkout
+                      const checkoutUrl = getStripeCheckoutUrl(
+                        selectedPlan.id,
+                        user.principal.toString()
+                      );
+
+                      if (checkoutUrl === "#") {
+                        alert(`Stripe payment link not configured for plan: ${selectedPlan.name}`);
+                        return;
+                      }
+
+                      // Redirect to Stripe Checkout
+                      window.location.href = checkoutUrl;
+                    }
                   }
                 }}
                 disabled={settingSubscription}
@@ -294,8 +401,10 @@ const Plans = () => {
               >
                 {settingSubscription ? (
                   <img src={SpinnerSvg} alt="Loading..." className="h-6 w-6" />
+                ) : selectedPaymentMethod === "stripe" ? (
+                  "Proceed to Stripe"
                 ) : (
-                  "Proceed"
+                  "Proceed with ckUSDT"
                 )}
               </button>
             </div>
