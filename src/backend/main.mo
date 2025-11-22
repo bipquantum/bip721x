@@ -369,7 +369,11 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public func http_request_update(req: HttpRequest) : async HttpResponse {
-    await Stripe.handleWebhook(req, getModel().subscriptionManager);
+    let model = getModel();
+    await Stripe.handleWebhook(req, {
+      secretKey = model.stripeSecretKey;
+      subscriptionManager = model.subscriptionManager;
+    });
   };
 
 };

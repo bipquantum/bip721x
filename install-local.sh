@@ -112,6 +112,9 @@ dfx deps init
 dfx deps deploy internet_identity
 
 # Backend
+STRIPE_SECRET_KEY="sk_test_51SUiIVEq6YsoiR2BKN5V88opI4i8dySeKzBYcoq312Bgw67IVcsE7UYMJohCMSuivhiEy9fMqnGrcgkCDe8bpCsf00V0SqIbvK"
+STRIPE_PREMIUM_MONTHLY_LINK="plink_1SUqfIEq6YsoiR2BzqKaTpQB"
+
 dfx deploy backend --argument 'variant {
   init = record {
     airdrop_per_user = 100_000_000_000;
@@ -131,6 +134,7 @@ dfx deploy backend --argument 'variant {
           renewalPriceUsdtE6s = 0 : nat;
           renewalIntervalDays = 30 : nat;
           numberInterval = null;
+          stripePaymentLink = null;
         };
         record {
           id = "premium_monthly";
@@ -139,12 +143,14 @@ dfx deploy backend --argument 'variant {
           renewalPriceUsdtE6s = 9_990_000 : nat;
           renewalIntervalDays = 30 : nat;
           numberInterval = opt (12 : nat);
+          stripePaymentLink = opt "'${STRIPE_PREMIUM_MONTHLY_LINK}'";
         };
       };
       free_plan_id = "free";
       grace_period_days = 7 : nat;
       subaccount = "subscriptions" : text;
     };
+    stripe_secret_key = "'${STRIPE_SECRET_KEY}'";
   }
 }'
 dfx canister call backend init_model

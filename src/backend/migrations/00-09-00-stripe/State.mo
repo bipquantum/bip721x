@@ -63,17 +63,63 @@ module {
         var gracePeriodsDays = args.subscriptions.grace_period_days;
         subaccount = args.subscriptions.subaccount;
       };
+      stripe_secret_key = args.stripe_secret_key;
     });
   };
 
-  public func upgrade(migration_state: MigrationTypes.State, _args: UpgradeArgs): MigrationTypes.State {
-    // Access current state
+  public func upgrade(migration_state: MigrationTypes.State, args: UpgradeArgs): MigrationTypes.State {
+    // Access previous state
     let state = switch(migration_state) {
       case (#v0_8_0(state)) state;
       case (_) Debug.trap("Unexpected migration state (v0_8_0 expected)")
     };
 
-    #v0_9_0(state);
+    // Migrate plans: add stripePaymentLink field
+    let newPlans = Map.new<Text, V0_9_0.Plan>();
+    for ((id, plan) in Map.entries(state.subscription_register.plans.plans)) {
+      // Find the stripe payment link for this plan
+      var stripePaymentLink: ?Text = null;
+      for (mapping in args.stripe_payment_links.vals()) {
+        if (mapping.planId == id) {
+          stripePaymentLink := ?mapping.stripePaymentLink;
+        };
+      };
+      // Require payment link for paid plans only
+      if (plan.renewalPriceUsdtE6s > 0 and stripePaymentLink == null) {
+        Debug.trap("Missing stripe payment link for paid plan: " # id);
+      };
+      Map.set(newPlans, Map.thash, id, {
+        id = plan.id;
+        name = plan.name;
+        intervalCredits = plan.intervalCredits;
+        renewalPriceUsdtE6s = plan.renewalPriceUsdtE6s;
+        renewalIntervalDays = plan.renewalIntervalDays;
+        numberInterval = plan.numberInterval;
+        stripePaymentLink;
+      });
+    };
+
+    #v0_9_0({
+      users = state.users;
+      airdrop = state.airdrop;
+      intProps = state.intProps;
+      chatHistories = state.chatHistories;
+      e6sTransferFee = state.e6sTransferFee;
+      accessControl = state.accessControl;
+      chatbot_api_key = state.chatbot_api_key;
+      notifications = state.notifications;
+      ckusdtRate = state.ckusdtRate;
+      subscription_register = {
+        subscriptions = state.subscription_register.subscriptions;
+        plans = {
+          plans = newPlans;
+          var freePlanId = state.subscription_register.plans.freePlanId;
+        };
+        var gracePeriodsDays = state.subscription_register.gracePeriodsDays;
+        subaccount = state.subscription_register.subaccount;
+      };
+      stripe_secret_key = args.stripe_secret_key;
+    });
   };
 
   public func downgrade(migration_state: MigrationTypes.State, _args: DowngradeArgs): MigrationTypes.State {
@@ -83,7 +129,46 @@ module {
       case (_) Debug.trap("Unexpected migration state (v0_9_0 expected)")
     };
 
-    #v0_8_0(state);
+    // Migrate plans back: remove stripePaymentLink field
+    let oldPlans = Map.new<Text, {
+      id: Text;
+      name: Text;
+      intervalCredits: Nat;
+      renewalPriceUsdtE6s: Nat;
+      renewalIntervalDays: Nat;
+      numberInterval: ?Nat;
+    }>();
+    for ((id, plan) in Map.entries(state.subscription_register.plans.plans)) {
+      Map.set(oldPlans, Map.thash, id, {
+        id = plan.id;
+        name = plan.name;
+        intervalCredits = plan.intervalCredits;
+        renewalPriceUsdtE6s = plan.renewalPriceUsdtE6s;
+        renewalIntervalDays = plan.renewalIntervalDays;
+        numberInterval = plan.numberInterval;
+      });
+    };
+
+    #v0_8_0({
+      users = state.users;
+      airdrop = state.airdrop;
+      intProps = state.intProps;
+      chatHistories = state.chatHistories;
+      e6sTransferFee = state.e6sTransferFee;
+      accessControl = state.accessControl;
+      chatbot_api_key = state.chatbot_api_key;
+      notifications = state.notifications;
+      ckusdtRate = state.ckusdtRate;
+      subscription_register = {
+        subscriptions = state.subscription_register.subscriptions;
+        plans = {
+          plans = oldPlans;
+          var freePlanId = state.subscription_register.plans.freePlanId;
+        };
+        var gracePeriodsDays = state.subscription_register.gracePeriodsDays;
+        subaccount = state.subscription_register.subaccount;
+      };
+    });
   };
 
 };

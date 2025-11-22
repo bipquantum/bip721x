@@ -88,6 +88,7 @@ module {
     renewalPriceUsdtE6s: Nat;
     renewalIntervalDays: Nat;
     numberInterval: ?Nat;
+    stripePaymentLink: ?Text; // null for free plans
   };
 
   public type SubscriptionState = {
@@ -131,6 +132,7 @@ module {
     notifications: Notifications;
     ckusdtRate: CkUsdtRate;
     subscription_register: SubscriptionRegister;
+    stripe_secret_key: Text;
   };
 
   public type Args = {
@@ -138,6 +140,11 @@ module {
     #upgrade: UpgradeArgs;
     #downgrade: DowngradeArgs;
     #none;
+  };
+
+  public type StripePaymentLinkMapping = {
+    planId: Text;
+    stripePaymentLink: Text;
   };
 
   public type InitArgs = {
@@ -155,15 +162,14 @@ module {
       grace_period_days: Nat;
       subaccount: Text;
     };
+    stripe_secret_key: Text;
   };
+
   public type UpgradeArgs = {
-    subscriptions: {
-      plans: [Plan];
-      free_plan_id: Text;
-      grace_period_days: Nat;
-      subaccount: Text;
-    };
+    stripe_secret_key: Text;
+    stripe_payment_links: [StripePaymentLinkMapping];
   };
+
   public type DowngradeArgs = {
   };
 

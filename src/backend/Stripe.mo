@@ -17,18 +17,9 @@ module {
   public type HttpRequest = Types.HttpRequest;
   public type HttpResponse = Types.HttpResponse;
 
-  // TODO: Replace with your actual Stripe secret key
-  let STRIPE_SECRET_KEY = "sk_test_51SUiIVEq6YsoiR2BKN5V88opI4i8dySeKzBYcoq312Bgw67IVcsE7UYMJohCMSuivhiEy9fMqnGrcgkCDe8bpCsf00V0SqIbvK"; // HARDCODED FOR NOW
-
-  // Map Stripe Payment Link IDs to Plan IDs
-  // TODO: Update these with your actual Payment Link IDs from Stripe
-  func mapPaymentLinkToPlanId(paymentLinkId: Text) : ?Text {
-    switch (paymentLinkId) {
-      case "plink_1SUqfIEq6YsoiR2BzqKaTpQB" { ?"premium_monthly" };
-      // Add more mappings here as you create more payment links
-      // case "plink_xxxxx" { ?"pro_yearly" };
-      case _ { null };
-    };
+  public type StripeConfig = {
+    secretKey: Text;
+    subscriptionManager: SubscriptionManager.SubscriptionManager;
   };
 
   // Check if request should be upgraded for webhook handling
@@ -37,7 +28,7 @@ module {
   };
 
   // Handle webhook POST request (called from http_request_update)
-  public func handleWebhook(req: HttpRequest, subscriptionManager: SubscriptionManager.SubscriptionManager) : async HttpResponse {
+  public func handleWebhook(req: HttpRequest, config: StripeConfig) : async HttpResponse {
     // Only handle POST to /stripe-webhook
     if (req.method != "POST" or (req.url != "/stripe-webhook" and req.url != "/stripe-webhook/")) {
       return {
@@ -65,7 +56,7 @@ module {
     Debug.print("Extracted event ID: " # eventId);
 
     // Verify the event by fetching it from Stripe
-    switch (await verifyStripeEvent(eventId)) {
+    switch (await verifyStripeEvent(eventId, config.secretKey)) {
       case (#err(msg)) {
         Debug.print("Event verification failed: " # msg);
         return errorResponse("Event verification failed");
@@ -74,7 +65,7 @@ module {
         Debug.print("Event verified successfully");
 
         // Process the event based on type
-        switch (await processStripeEvent(eventData, subscriptionManager)) {
+        switch (await processStripeEvent(eventData, config.subscriptionManager)) {
           case (#err(msg)) {
             Debug.print("Event processing failed: " # msg);
             return errorResponse("Event processing failed");
@@ -127,7 +118,7 @@ module {
   };
 
   // Helper: Verify event with Stripe API
-  func verifyStripeEvent(eventId: Text) : async Result.Result<Text, Text> {
+  func verifyStripeEvent(eventId: Text, secretKey: Text) : async Result.Result<Text, Text> {
     Cycles.add<system>(1_000_000_000);
 
     let response = await IdempotentProxy.proxy_http_request({
@@ -139,7 +130,7 @@ module {
       headers = [
         { name = "idempotency-key"; value = "idempotency_key_001"       },
         { name = "content-type"   ; value = "application/json"          },
-        { name = "Authorization"; value = "Bearer " # STRIPE_SECRET_KEY },
+        { name = "Authorization"; value = "Bearer " # secretKey },
       ];
     });
 
@@ -165,64 +156,64 @@ module {
 
     Debug.print("Processing event type: " # eventType);
 
-    if (eventType == "checkout.session.completed") {
-      // Extract session data
-      // Stripe event structure: {"data":{"object":{"client_reference_id":"...","metadata":{"plan_id":"..."}}}}
-      let ?clientReferenceId = extractJsonField(eventData, "client_reference_id") else {
-        return #err("Missing client_reference_id");
-      };
-
-      // Try to get plan_id from metadata first (won't work with Payment Links)
-      let planIdOpt = extractJsonField(eventData, "plan_id");
-
-      let metadataPlanId = switch (planIdOpt) {
-        case (?planId) { planId };
-        case null {
-          // Stripe Payment Links don't support metadata on checkout sessions
-          // So we map payment_link ID to plan_id instead
-          Debug.print("metadata.plan_id not found (expected for Payment Links)");
-
-          // Get payment_link field
-          let ?paymentLink = extractJsonField(eventData, "payment_link") else {
-            return #err("Missing payment_link field in checkout session");
-          };
-
-          Debug.print("Payment link ID: " # paymentLink);
-
-          // Map payment link to plan ID
-          let ?mappedPlanId = mapPaymentLinkToPlanId(paymentLink) else {
-            Debug.print("Error: Payment link not mapped to any plan");
-            Debug.print("Add mapping in Stripe.mo mapPaymentLinkToPlanId()");
-            return #err("Unknown payment link: " # paymentLink);
-          };
-
-          Debug.print("Mapped to plan ID: " # mappedPlanId);
-          mappedPlanId
-        };
-      };
-
-      Debug.print("Client reference ID: " # clientReferenceId);
-      Debug.print("Plan ID: " # metadataPlanId);
-
-      // Convert client_reference_id to Principal
-      let userPrincipal = Principal.fromText(clientReferenceId);
-
-      // Activate subscription
-      switch (await* subscriptionManager.activateStripeSubscription(userPrincipal, metadataPlanId)) {
-        case (#err(msg)) {
-          Debug.print("Failed to activate subscription: " # msg);
-          return #err("Subscription activation failed: " # msg);
-        };
-        case (#ok()) {
-          Debug.print("Successfully activated subscription");
-        };
-      };
-
-      #ok();
-    } else {
+    if (eventType != "checkout.session.completed") {
       Debug.print("Ignoring event type: " # eventType);
-      #ok();
+      return #ok();
     };
+
+    // Extract session data
+    // Stripe event structure: {"data":{"object":{"client_reference_id":"...","metadata":{"plan_id":"..."}}}}
+    let ?clientReferenceId = extractJsonField(eventData, "client_reference_id") else {
+      return #err("Missing client_reference_id");
+    };
+
+    // Try to get plan_id from metadata first (won't work with Payment Links)
+    let planIdOpt = extractJsonField(eventData, "plan_id");
+
+    let planId = switch (planIdOpt) {
+      case (?id) { id };
+      case null {
+        // Stripe Payment Links don't support metadata on checkout sessions
+        // So we look up the plan by payment_link ID from our registered plans
+        Debug.print("metadata.plan_id not found (expected for Payment Links)");
+
+        // Get payment_link field
+        let ?paymentLink = extractJsonField(eventData, "payment_link") else {
+          return #err("Missing payment_link field in checkout session");
+        };
+
+        Debug.print("Payment link ID: " # paymentLink);
+
+        // Look up plan by payment link from SubscriptionManager
+        let ?plan = subscriptionManager.getPlanByStripePaymentLink(paymentLink) else {
+          Debug.print("Error: Payment link not mapped to any plan");
+          Debug.print("Configure stripe_payment_links in upgrade args to map payment links to plans");
+          return #err("Unknown payment link: " # paymentLink);
+        };
+
+        Debug.print("Mapped to plan ID: " # plan.id);
+        plan.id
+      };
+    };
+
+    Debug.print("Client reference ID: " # clientReferenceId);
+    Debug.print("Plan ID: " # planId);
+
+    // Convert client_reference_id to Principal
+    let userPrincipal = Principal.fromText(clientReferenceId);
+
+    // Activate subscription
+    switch (await* subscriptionManager.activateStripeSubscription(userPrincipal, planId)) {
+      case (#err(msg)) {
+        Debug.print("Failed to activate subscription: " # msg);
+        return #err("Subscription activation failed: " # msg);
+      };
+      case (#ok()) {
+        Debug.print("Successfully activated subscription");
+      };
+    };
+
+    #ok();
   };
 
   // Helper: Extract field from JSON

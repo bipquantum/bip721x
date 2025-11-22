@@ -232,6 +232,20 @@ module {
       Iter.toArray(Map.vals(register.plans.plans));
     };
 
+    public func getPlanByStripePaymentLink(paymentLink: Text): ?Plan {
+      for (plan in Map.vals(register.plans.plans)) {
+        switch (plan.stripePaymentLink) {
+          case (?link) {
+            if (link == paymentLink) {
+              return ?plan;
+            };
+          };
+          case (null) {};
+        };
+      };
+      null;
+    };
+
     func getPlan(planId: Text): Plan {
       switch(Map.get(register.plans.plans, Map.thash, planId)) {
         case (?p) { p };
