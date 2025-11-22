@@ -199,11 +199,17 @@ module {
     Debug.print("Client reference ID: " # clientReferenceId);
     Debug.print("Plan ID: " # planId);
 
+    // Extract Stripe subscription ID from checkout session
+    let ?subscriptionId = extractJsonField(eventData, "subscription") else {
+      return #err("Missing subscription ID in checkout session");
+    };
+    Debug.print("Stripe subscription ID: " # subscriptionId);
+
     // Convert client_reference_id to Principal
     let userPrincipal = Principal.fromText(clientReferenceId);
 
     // Activate subscription
-    switch (await* subscriptionManager.activateStripeSubscription(userPrincipal, planId)) {
+    switch (await* subscriptionManager.setSubscription(userPrincipal, planId, #Stripe({subscriptionId}))) {
       case (#err(msg)) {
         Debug.print("Failed to activate subscription: " # msg);
         return #err("Subscription activation failed: " # msg);

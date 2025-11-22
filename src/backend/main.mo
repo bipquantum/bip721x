@@ -272,7 +272,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public shared({caller}) func set_subscription(planId: Text) : async Result.Result<(), Text> {
-    await* getModel().subscriptionManager.setSubscription(caller, planId);
+    // Public function assumes payment method is CK_USDT
+    await* getModel().subscriptionManager.setSubscription(caller, planId, #Ckusdt);
   };
 
   public query({caller}) func get_subscription() : async Types.SSubscription {

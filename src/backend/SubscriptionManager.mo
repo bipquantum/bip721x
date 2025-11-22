@@ -23,6 +23,7 @@ module {
   type RenewalInterval = Types.RenewalInterval;
   type Subscription = Types.Subscription;
   type SubscriptionRegister = Types.SubscriptionRegister;
+  type PaymentMethod = Types.PaymentMethod;
 
   public class SubscriptionManager({
     register: SubscriptionRegister;
@@ -41,7 +42,7 @@ module {
       Blob.fromArray(paddedBytes);
     };
 
-    public func setSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
+    public func setSubscription(user: Principal, planId: Text, payementMethod: PaymentMethod) : async* Result.Result<(), Text> {
 
       let subscription = getSubscription(user);
       if (subscription.planId == planId) {
@@ -51,21 +52,20 @@ module {
       let plan = getPlan(planId);
       let now = Time.now();
 
-      if (plan.renewalPriceUsdtE6s > 0) {
-        // Pull first payment
-        switch(await ckUSDTLedger.icrc2_transfer_from({
-          spender_subaccount = ?getSubscriptionSubaccount();
-          from = { owner = user; subaccount = null; };
-          to = { owner = backendId; subaccount = null; };
-          amount = plan.renewalPriceUsdtE6s;
-          fee = null;
-          memo = null;
-          created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
-        })) {
-          case (#Err(err)) {
-            return #err("Payment failed: " # debug_show(err));
+      let actualPayementMethod = do {
+
+        if (plan.renewalPriceUsdtE6s > 0) {
+          switch(await* pullPayment(subscription.paymentMethod, user, plan.renewalPriceUsdtE6s)) {
+            case (#ok){ 
+              payementMethod;
+            };
+            case (#err(err)) {
+              return #err("Initial payment failed: " # err);
+            };
           };
-          case (#Ok(_)) {};
+        } else {
+          // Free plan, no payment needed
+          #Ckusdt;
         };
       };
       let newSub: Subscription = {
@@ -76,36 +76,9 @@ module {
         var startDate = now;
         var nextRenewalDate = addInterval(now, plan.renewalInterval);
         var expiryDate = computeExpiryDate(now, plan);
+        var paymentMethod = actualPayementMethod;
       };
       Map.set(register.subscriptions, Map.phash, user, newSub);
-      #ok;
-    };
-
-    // Activate subscription via Stripe payment (no ckUSDT transfer)
-    public func activateStripeSubscription(user: Principal, planId: Text) : async* Result.Result<(), Text> {
-
-      let subscription = getSubscription(user);
-      if (subscription.planId == planId) {
-        return #err("User already on this plan");
-      };
-
-      let plan = getPlan(planId);
-      let now = Time.now();
-
-      // No payment pull needed - payment already processed by Stripe
-      let newSub: Subscription = {
-        var availableCredits = Nat.max(subscription.availableCredits, plan.intervalCredits);
-        var totalCreditsUsed = subscription.totalCreditsUsed;
-        var planId = plan.id;
-        var state = #Active;
-        var startDate = now;
-        var nextRenewalDate = addInterval(now, plan.renewalInterval);
-        var expiryDate = computeExpiryDate(now, plan);
-      };
-      Map.set(register.subscriptions, Map.phash, user, newSub);
-
-      Debug.print("Activated Stripe subscription for user: " # debug_show(user) # ", plan: " # planId);
-
       #ok;
     };
 
@@ -116,14 +89,8 @@ module {
         switch(subscription.expiryDate) {
           case (?expiry) {
             if (now >= expiry) {
-              let plan = getPlan(register.plans.freePlanId);
               // Reset to free plan
-              subscription.availableCredits := plan.intervalCredits;
-              subscription.nextRenewalDate := addInterval(now, plan.renewalInterval);
-              subscription.planId := register.plans.freePlanId;
-              subscription.state := #Active;
-              subscription.startDate := now;
-              subscription.expiryDate := null;
+              resetToFreePlan(subscription);
               continue refreshLoop;
             };
           };
@@ -132,6 +99,12 @@ module {
 
         // Handle subscription state
         switch(subscription.state) {
+          case (#PastDue(dueDate)) {
+            if (now >= dueDate + daysToNs(register.gracePeriodsDays)) {
+              // Downgrade to free plan after grace period
+              resetToFreePlan(subscription);
+            };
+          };
           case (#Active) {
             // Check for renewal
             if (now >= subscription.nextRenewalDate) {
@@ -148,50 +121,64 @@ module {
               };
             };
           };
-          case (#PastDue(dueDate)) {
-            if (now >= dueDate + daysToNs(register.gracePeriodsDays)) {
-              // Downgrade to free plan after grace period
-              let freePlan = getPlan(register.plans.freePlanId);
-              subscription.availableCredits := freePlan.intervalCredits;
-              subscription.nextRenewalDate := addInterval(now, freePlan.renewalInterval);
-              subscription.planId := register.plans.freePlanId;
-              subscription.state := #Active;
-              subscription.startDate := now;
-              subscription.expiryDate := null;
-            };
-          };
         };
       };
     };
 
     public func pullPayments() : async* () {
+      
       label subscriptionLoop for ((user, subscription) in Map.entries(register.subscriptions)) {
+
+        let plan = getPlan(subscription.planId);
+
         switch(subscription.state) {
-          case (#Active) {};
+          case (#Active) { 
+            continue subscriptionLoop;
+          };
           case (#PastDue(_)) {
-            let plan = getPlan(subscription.planId);
             // Free plan, no payment needed
             if (plan.id == register.plans.freePlanId) {
               subscription.state := #Active;
               continue subscriptionLoop;
             };
-            // Pull payement
-            switch(await ckUSDTLedger.icrc2_transfer_from({
-              spender_subaccount = ?getSubscriptionSubaccount();
-              from = { owner = user; subaccount = null; };
-              to = { owner = backendId; subaccount = null; };
-              amount = plan.renewalPriceUsdtE6s;
-              fee = null;
-              memo = null;
-              created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
-            })) {
-              case (#Err(_)) {};
-              case (#Ok(_)) {
-                // Payment succeeded, reactivate subscription
-                subscription.state := #Active;
-              };
-            };
           };
+        };
+
+        // Attempt to pull payment
+        switch(await* pullPayment(subscription.paymentMethod, user, plan.renewalPriceUsdtE6s)) {
+          case (#ok){ 
+            subscription.state := #Active;
+          };
+          case (#err(err)) {
+            // Payment failed - keep subscription past due
+            Debug.print("Payment failed for user: " # debug_show(user) # ", error: " # err);
+          };
+        };
+      };
+    };
+
+    func pullPayment(paymentMethod: PaymentMethod, user: Principal, amount: Nat) : async* Result.Result<(), Text> {
+      switch(paymentMethod) {
+        case (#Ckusdt) {
+          // Pull payement
+          switch(await ckUSDTLedger.icrc2_transfer_from({
+            spender_subaccount = ?getSubscriptionSubaccount();
+            from = { owner = user; subaccount = null; };
+            to = { owner = backendId; subaccount = null; };
+            amount = amount;
+            fee = null;
+            memo = null;
+            created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
+          })) {
+            case (#Err(err)) {
+              return #err("Payment failed: " # debug_show(err));
+            };
+            case (#Ok(_)) { #ok(()) };
+          };
+        };
+        case (#Stripe(subscriptionId)) {
+          // TODO: verify payment via Stripe API
+          #ok;
         };
       };
     };
@@ -223,6 +210,7 @@ module {
             var startDate = now;
             var nextRenewalDate = addInterval(now, freePlan.renewalInterval);
             var expiryDate = null;
+            var paymentMethod = #Ckusdt; // Free plan defaults to Ckusdt
           };
           Map.set(register.subscriptions, Map.phash, user, newSub);
           newSub;
@@ -255,6 +243,18 @@ module {
           Debug.trap("Plan not found");
         };
       };
+    };
+
+    func resetToFreePlan(subscription: Subscription) {
+      let freePlan = getPlan(register.plans.freePlanId);
+      let now = Time.now();
+      subscription.availableCredits := freePlan.intervalCredits;
+      subscription.nextRenewalDate := addInterval(now, freePlan.renewalInterval);
+      subscription.planId := register.plans.freePlanId;
+      subscription.state := #Active;
+      subscription.startDate := now;
+      subscription.expiryDate := null;
+      subscription.paymentMethod := #Ckusdt;
     };
 
   };

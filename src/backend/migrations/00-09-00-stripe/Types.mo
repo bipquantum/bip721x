@@ -101,6 +101,11 @@ module {
     #PastDue: Int;
   };
 
+  public type PaymentMethod = {
+    #Ckusdt;
+    #Stripe: { subscriptionId: Text };
+  };
+
   public type Subscription = {
     var availableCredits: Nat;
     var totalCreditsUsed: Nat;
@@ -109,6 +114,7 @@ module {
     var startDate: Int;
     var nextRenewalDate: Int;
     var expiryDate: ?Int;
+    var paymentMethod: PaymentMethod;
   };
 
   public type Plans = {

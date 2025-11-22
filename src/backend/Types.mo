@@ -30,6 +30,7 @@ module {
   public type Plans                = Types.Current.Plans;
   public type Subscription         = Types.Current.Subscription;
   public type SubscriptionState    = Types.Current.SubscriptionState;
+  public type PaymentMethod        = Types.Current.PaymentMethod;
   public type SubscriptionRegister = Types.Current.SubscriptionRegister;
   public type State                = Types.Current.State;
 
@@ -61,6 +62,7 @@ module {
     startDate: Int;
     nextRenewalDate: Int;
     expiryDate: ?Int;
+    paymentMethod: PaymentMethod;
   };
 
   public type SCkUsdtRate = {

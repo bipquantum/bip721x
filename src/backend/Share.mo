@@ -14,6 +14,7 @@ module {
             startDate = subscription.startDate;
             nextRenewalDate = subscription.nextRenewalDate;
             expiryDate = subscription.expiryDate;
+            paymentMethod = subscription.paymentMethod;
         };
     };
 }

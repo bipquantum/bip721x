@@ -117,6 +117,22 @@ module {
       });
     };
 
+    // Migrate subscriptions: add paymentMethod = #Ckusdt for all existing subscriptions
+    let newSubscriptions = Map.new<Principal, V0_9_0.Subscription>();
+    for ((principal, sub) in Map.entries(state.subscription_register.subscriptions)) {
+      let newSub: V0_9_0.Subscription = {
+        var availableCredits = sub.availableCredits;
+        var totalCreditsUsed = sub.totalCreditsUsed;
+        var planId = sub.planId;
+        var state = sub.state;
+        var startDate = sub.startDate;
+        var nextRenewalDate = sub.nextRenewalDate;
+        var expiryDate = sub.expiryDate;
+        var paymentMethod = #Ckusdt;
+      };
+      Map.set(newSubscriptions, Map.phash, principal, newSub);
+    };
+
     #v0_9_0({
       users = state.users;
       airdrop = state.airdrop;
@@ -128,7 +144,7 @@ module {
       notifications = state.notifications;
       ckusdtRate = state.ckusdtRate;
       subscription_register = {
-        subscriptions = state.subscription_register.subscriptions;
+        subscriptions = newSubscriptions;
         plans = {
           plans = newPlans;
           var freePlanId = state.subscription_register.plans.freePlanId;
@@ -167,6 +183,38 @@ module {
       });
     };
 
+    // Migrate subscriptions back: remove paymentMethod field
+    // Note: Stripe payment info is lost during downgrade (only ckUSDT existed in v0_8_0)
+    let oldSubscriptions = Map.new<Principal, {
+      var availableCredits: Nat;
+      var totalCreditsUsed: Nat;
+      var planId: Text;
+      var state: { #Active; #PastDue: Int };
+      var startDate: Int;
+      var nextRenewalDate: Int;
+      var expiryDate: ?Int;
+    }>();
+    for ((principal, sub) in Map.entries(state.subscription_register.subscriptions)) {
+      let oldSub: {
+        var availableCredits: Nat;
+        var totalCreditsUsed: Nat;
+        var planId: Text;
+        var state: { #Active; #PastDue: Int };
+        var startDate: Int;
+        var nextRenewalDate: Int;
+        var expiryDate: ?Int;
+      } = {
+        var availableCredits = sub.availableCredits;
+        var totalCreditsUsed = sub.totalCreditsUsed;
+        var planId = sub.planId;
+        var state = sub.state;
+        var startDate = sub.startDate;
+        var nextRenewalDate = sub.nextRenewalDate;
+        var expiryDate = sub.expiryDate;
+      };
+      Map.set(oldSubscriptions, Map.phash, principal, oldSub);
+    };
+
     #v0_8_0({
       users = state.users;
       airdrop = state.airdrop;
@@ -178,7 +226,7 @@ module {
       notifications = state.notifications;
       ckusdtRate = state.ckusdtRate;
       subscription_register = {
-        subscriptions = state.subscription_register.subscriptions;
+        subscriptions = oldSubscriptions;
         plans = {
           plans = oldPlans;
           var freePlanId = state.subscription_register.plans.freePlanId;

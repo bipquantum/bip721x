@@ -132,7 +132,7 @@ dfx deploy backend --argument 'variant {
           name = "Free Always";
           intervalCredits = 10_000 : nat;
           renewalPriceUsdtE6s = 0 : nat;
-          renewalIntervalDays = 30 : nat;
+          renewalInterval = variant { Months = 1 : nat };
           numberInterval = null;
           stripePaymentLink = null;
         };
@@ -141,7 +141,7 @@ dfx deploy backend --argument 'variant {
           name = "Premium Monthly";
           intervalCredits = 2_000_000 : nat;
           renewalPriceUsdtE6s = 9_990_000 : nat;
-          renewalIntervalDays = 30 : nat;
+          renewalInterval = variant { Months = 1 : nat };
           numberInterval = opt (12 : nat);
           stripePaymentLink = opt "'${STRIPE_PREMIUM_MONTHLY_LINK}'";
         };
