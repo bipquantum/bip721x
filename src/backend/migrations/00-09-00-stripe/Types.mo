@@ -81,12 +81,17 @@ module {
     var last_update: Int;
   };
 
+  public type RenewalInterval = {
+    #Days: Nat;
+    #Months: Nat;
+  };
+
   public type Plan = {
     id: Text;
     name: Text;
     intervalCredits: Nat;
     renewalPriceUsdtE6s: Nat;
-    renewalIntervalDays: Nat;
+    renewalInterval: RenewalInterval;
     numberInterval: ?Nat;
     stripePaymentLink: ?Text; // null for free plans
   };

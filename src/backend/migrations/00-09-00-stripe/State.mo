@@ -67,6 +67,24 @@ module {
     });
   };
 
+  // Convert renewalIntervalDays to RenewalInterval
+  // If divisible by 30, treat as months; otherwise, treat as days
+  func migrateRenewalInterval(days: Nat): V0_9_0.RenewalInterval {
+    if (days % 30 == 0) {
+      #Months(days / 30);
+    } else {
+      #Days(days);
+    };
+  };
+
+  // Convert RenewalInterval back to days for downgrade
+  func renewalIntervalToDays(interval: V0_9_0.RenewalInterval): Nat {
+    switch (interval) {
+      case (#Days(d)) { d };
+      case (#Months(m)) { m * 30 };
+    };
+  };
+
   public func upgrade(migration_state: MigrationTypes.State, args: UpgradeArgs): MigrationTypes.State {
     // Access previous state
     let state = switch(migration_state) {
@@ -74,7 +92,7 @@ module {
       case (_) Debug.trap("Unexpected migration state (v0_8_0 expected)")
     };
 
-    // Migrate plans: add stripePaymentLink field
+    // Migrate plans: add stripePaymentLink and convert renewalIntervalDays to renewalInterval
     let newPlans = Map.new<Text, V0_9_0.Plan>();
     for ((id, plan) in Map.entries(state.subscription_register.plans.plans)) {
       // Find the stripe payment link for this plan
@@ -93,7 +111,7 @@ module {
         name = plan.name;
         intervalCredits = plan.intervalCredits;
         renewalPriceUsdtE6s = plan.renewalPriceUsdtE6s;
-        renewalIntervalDays = plan.renewalIntervalDays;
+        renewalInterval = migrateRenewalInterval(plan.renewalIntervalDays);
         numberInterval = plan.numberInterval;
         stripePaymentLink;
       });
@@ -129,7 +147,7 @@ module {
       case (_) Debug.trap("Unexpected migration state (v0_9_0 expected)")
     };
 
-    // Migrate plans back: remove stripePaymentLink field
+    // Migrate plans back: remove stripePaymentLink and convert renewalInterval to renewalIntervalDays
     let oldPlans = Map.new<Text, {
       id: Text;
       name: Text;
@@ -144,7 +162,7 @@ module {
         name = plan.name;
         intervalCredits = plan.intervalCredits;
         renewalPriceUsdtE6s = plan.renewalPriceUsdtE6s;
-        renewalIntervalDays = plan.renewalIntervalDays;
+        renewalIntervalDays = renewalIntervalToDays(plan.renewalInterval);
         numberInterval = plan.numberInterval;
       });
     };

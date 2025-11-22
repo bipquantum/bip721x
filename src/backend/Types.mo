@@ -25,6 +25,7 @@ module {
   public type NotificationState    = Types.Current.NotificationState;
   public type Notifications        = Types.Current.Notifications;
   public type CkUsdtRate           = Types.Current.CkUsdtRate;
+  public type RenewalInterval      = Types.Current.RenewalInterval;
   public type Plan                 = Types.Current.Plan;
   public type Plans                = Types.Current.Plans;
   public type Subscription         = Types.Current.Subscription;

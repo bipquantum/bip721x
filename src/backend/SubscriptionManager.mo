@@ -12,6 +12,7 @@ import Blob "mo:base/Blob";
 import Array "mo:base/Array";
 
 import Types "Types";
+import DateHelper "utils/DateHelper";
 
 import ckUSDTLedger "canister:ckusdt_ledger";
 
@@ -19,6 +20,7 @@ module {
 
   type Plan = Types.Plan;
   type Plans = Types.Plans;
+  type RenewalInterval = Types.RenewalInterval;
   type Subscription = Types.Subscription;
   type SubscriptionRegister = Types.SubscriptionRegister;
 
@@ -72,7 +74,7 @@ module {
         var planId = plan.id;
         var state = #Active;
         var startDate = now;
-        var nextRenewalDate = now + daysToNs(plan.renewalIntervalDays);
+        var nextRenewalDate = addInterval(now, plan.renewalInterval);
         var expiryDate = computeExpiryDate(now, plan);
       };
       Map.set(register.subscriptions, Map.phash, user, newSub);
@@ -97,7 +99,7 @@ module {
         var planId = plan.id;
         var state = #Active;
         var startDate = now;
-        var nextRenewalDate = now + daysToNs(plan.renewalIntervalDays);
+        var nextRenewalDate = addInterval(now, plan.renewalInterval);
         var expiryDate = computeExpiryDate(now, plan);
       };
       Map.set(register.subscriptions, Map.phash, user, newSub);
@@ -117,7 +119,7 @@ module {
               let plan = getPlan(register.plans.freePlanId);
               // Reset to free plan
               subscription.availableCredits := plan.intervalCredits;
-              subscription.nextRenewalDate := now + daysToNs(plan.renewalIntervalDays);
+              subscription.nextRenewalDate := addInterval(now, plan.renewalInterval);
               subscription.planId := register.plans.freePlanId;
               subscription.state := #Active;
               subscription.startDate := now;
@@ -138,7 +140,7 @@ module {
               // Renew subscription
               subscription.availableCredits := plan.intervalCredits;
               // Anchor to scheduled renewal date to prevent drift
-              subscription.nextRenewalDate := subscription.nextRenewalDate + daysToNs(plan.renewalIntervalDays);
+              subscription.nextRenewalDate := addInterval(subscription.nextRenewalDate, plan.renewalInterval);
               // Set to past due for simplicity (payment handling asynchronous)
               if (plan.id != register.plans.freePlanId) {
                 // Only set to past due if not on free plan
@@ -151,7 +153,7 @@ module {
               // Downgrade to free plan after grace period
               let freePlan = getPlan(register.plans.freePlanId);
               subscription.availableCredits := freePlan.intervalCredits;
-              subscription.nextRenewalDate := now + daysToNs(freePlan.renewalIntervalDays);
+              subscription.nextRenewalDate := addInterval(now, freePlan.renewalInterval);
               subscription.planId := register.plans.freePlanId;
               subscription.state := #Active;
               subscription.startDate := now;
@@ -219,7 +221,7 @@ module {
             var planId = freePlan.id;
             var state = #Active;
             var startDate = now;
-            var nextRenewalDate = now + daysToNs(freePlan.renewalIntervalDays);
+            var nextRenewalDate = addInterval(now, freePlan.renewalInterval);
             var expiryDate = null;
           };
           Map.set(register.subscriptions, Map.phash, user, newSub);
@@ -257,15 +259,51 @@ module {
 
   };
 
-  func daysToNs(days: Int): Int {
+  func daysToNs(days: Nat): Int {
     days * 24 * 60 * 60 * 1_000_000_000;
+  };
+
+  // Add renewal interval to a timestamp
+  func addInterval(timestamp: Int, interval: RenewalInterval): Int {
+    switch (interval) {
+      case (#Days(days)) {
+        switch (DateHelper.addDaysToTimestamp(timestamp, days)) {
+          case (#ok(result)) { result };
+          case (#err(e)) { Debug.trap("Failed to add days: " # e) };
+        };
+      };
+      case (#Months(months)) {
+        switch (DateHelper.addMonthsToTimestamp(timestamp, months)) {
+          case (#ok(result)) { result };
+          case (#err(e)) { Debug.trap("Failed to add months: " # e) };
+        };
+      };
+    };
+  };
+
+  // Add multiple intervals to a timestamp
+  func addIntervals(timestamp: Int, interval: RenewalInterval, count: Nat): Int {
+    switch (interval) {
+      case (#Days(days)) {
+        switch (DateHelper.addDaysToTimestamp(timestamp, days * count)) {
+          case (#ok(result)) { result };
+          case (#err(e)) { Debug.trap("Failed to add days: " # e) };
+        };
+      };
+      case (#Months(months)) {
+        switch (DateHelper.addMonthsToTimestamp(timestamp, months * count)) {
+          case (#ok(result)) { result };
+          case (#err(e)) { Debug.trap("Failed to add months: " # e) };
+        };
+      };
+    };
   };
 
   func computeExpiryDate(now: Int, plan: Plan): ?Int {
     // Calculate expiry date based on number of intervals
     // Subscription expires AFTER all renewal intervals complete
     switch(plan.numberInterval) {
-      case (?interval) { ?(now + daysToNs(interval * plan.renewalIntervalDays)) };
+      case (?count) { ?addIntervals(now, plan.renewalInterval, count) };
       case (null) { null };
     };
   };
