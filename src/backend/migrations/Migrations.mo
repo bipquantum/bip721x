@@ -1,4 +1,4 @@
-import V0_8_0         "./00-08-00-chat_limit/State";
+import V0_9_0         "./00-09-00-stripe/State";
 import MigrationTypes "Types";
 
 import Debug          "mo:base/Debug";
@@ -10,8 +10,8 @@ module {
   type Args  = MigrationTypes.Args;
   type State = MigrationTypes.State;
 
-  // do not forget to change current migration when you add a new one
-  let { init; upgrade; downgrade; } = V0_8_0;
+  // Do not forget to change current migration when you add a new one
+  let { init; upgrade; downgrade; } = V0_9_0;
 
   public func install(args: Args) : State {
     switch(args){
