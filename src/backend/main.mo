@@ -2,7 +2,6 @@ import Types          "Types";
 import Model          "Model";
 import XRCTypes       "XRCTypes";
 import Share          "Share";
-import Stripe         "Stripe";
 import Conversions    "intprop/Conversions";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
@@ -32,6 +31,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   type Notification          = Types.Notification;
   type NotificationType      = Types.NotificationType;
   type SCkUsdtRate           = Types.SCkUsdtRate;
+  type HttpRequest           = Types.HttpRequest;
+  type HttpResponse          = Types.HttpResponse;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
 
   // STABLE MEMBER
@@ -344,37 +345,12 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     return { trusted_origins; };
   };
 
-  // ===== HTTP Request Handling =====
-
-  public type HttpRequest = Stripe.HttpRequest;
-  public type HttpResponse = Stripe.HttpResponse;
-
   public query func http_request(req: HttpRequest) : async HttpResponse {
-    // Check if this is a Stripe webhook request that needs upgrade
-    if (Stripe.shouldUpgradeRequest(req)) {
-      return {
-        status_code = 200;
-        headers = [];
-        body = Blob.fromArray([]);
-        upgrade = ?true;
-      };
-    };
-
-    // Return 404 for other paths
-    return {
-      status_code = 404;
-      headers = [("content-type", "text/plain")];
-      body = Text.encodeUtf8("Not Found");
-      upgrade = null;
-    };
+    getModel().subscriptionManager.handleHttpRequest(req);
   };
 
   public func http_request_update(req: HttpRequest) : async HttpResponse {
-    let model = getModel();
-    await Stripe.handleWebhook(req, {
-      secretKey = model.stripeSecretKey;
-      subscriptionManager = model.subscriptionManager;
-    });
+    await getModel().subscriptionManager.handleStripeWebhook(req);
   };
 
 };

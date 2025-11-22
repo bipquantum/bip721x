@@ -13,6 +13,7 @@ import Array "mo:base/Array";
 
 import Types "Types";
 import DateHelper "utils/DateHelper";
+import Stripe "Stripe";
 
 import ckUSDTLedger "canister:ckusdt_ledger";
 
@@ -24,10 +25,13 @@ module {
   type Subscription = Types.Subscription;
   type SubscriptionRegister = Types.SubscriptionRegister;
   type PaymentMethod = Types.PaymentMethod;
+  type HttpRequest = Types.HttpRequest;
+  type HttpResponse = Types.HttpResponse;
 
   public class SubscriptionManager({
     register: SubscriptionRegister;
     backendId: Principal;
+    stripeSecretKey: Text;
   }) {
 
     public func getSubscriptionSubaccount(): Blob {
@@ -176,9 +180,12 @@ module {
             case (#Ok(_)) { #ok(()) };
           };
         };
-        case (#Stripe(subscriptionId)) {
-          // TODO: verify payment via Stripe API
-          #ok;
+        case (#Stripe({ subscriptionId })) {
+          // Verify payment via Stripe API
+          switch(await Stripe.verifySubscriptionPayment(subscriptionId, stripeSecretKey)) {
+            case (#ok) { #ok(()) };
+            case (#err(err)) { #err(err) };
+          };
         };
       };
     };
@@ -255,6 +262,130 @@ module {
       subscription.startDate := now;
       subscription.expiryDate := null;
       subscription.paymentMethod := #Ckusdt;
+    };
+
+    // ============ HTTP Request Handling ============
+
+    // Handle HTTP request (query phase) - returns upgrade response for webhooks, 404 otherwise
+    public func handleHttpRequest(req: HttpRequest) : HttpResponse {
+      if ((req.url == "/stripe-webhook" or req.url == "/stripe-webhook/") and req.method == "POST") {
+        return {
+          status_code = 200;
+          headers = [];
+          body = Blob.fromArray([]);
+          upgrade = ?true;
+        };
+      };
+      {
+        status_code = 404;
+        headers = [("content-type", "text/plain")];
+        body = Text.encodeUtf8("Not Found");
+        upgrade = null;
+      };
+    };
+
+    // Handle webhook POST request (called from http_request_update)
+    public func handleStripeWebhook(req: HttpRequest) : async HttpResponse {
+      // Only handle POST to /stripe-webhook
+      if (req.method != "POST" or (req.url != "/stripe-webhook" and req.url != "/stripe-webhook/")) {
+        return {
+          status_code = 404;
+          headers = [("content-type", "text/plain")];
+          body = Text.encodeUtf8("Not Found");
+          upgrade = null;
+        };
+      };
+
+      // Parse the webhook body
+      let ?bodyText = Text.decodeUtf8(req.body) else {
+        Debug.print("Failed to decode webhook body");
+        return errorResponse("Invalid webhook body");
+      };
+
+      Debug.print("Received Stripe webhook: " # bodyText);
+
+      // Extract event ID from the webhook body
+      let ?eventId = Stripe.extractEventId(bodyText) else {
+        Debug.print("Failed to extract event ID from webhook");
+        return errorResponse("Missing event ID");
+      };
+
+      Debug.print("Extracted event ID: " # eventId);
+
+      // Verify the event by fetching it from Stripe
+      switch (await Stripe.verifyStripeEvent(eventId, stripeSecretKey)) {
+        case (#err(msg)) {
+          Debug.print("Event verification failed: " # msg);
+          return errorResponse("Event verification failed");
+        };
+        case (#ok(eventData)) {
+          Debug.print("Event verified successfully");
+
+          // Process the event based on type
+          switch (await processStripeEvent(eventData)) {
+            case (#err(msg)) {
+              Debug.print("Event processing failed: " # msg);
+              return errorResponse("Event processing failed");
+            };
+            case (#ok()) {
+              Debug.print("Event processed successfully");
+              return {
+                status_code = 200;
+                headers = [("content-type", "application/json")];
+                body = Text.encodeUtf8("{\"received\":true}");
+                upgrade = null;
+              };
+            };
+          };
+        };
+      };
+    };
+
+    // Process verified Stripe event
+    func processStripeEvent(eventData: Text) : async Result.Result<(), Text> {
+      // Extract checkout info from event
+      let checkoutInfo = switch (Stripe.getCheckoutInfo(eventData)) {
+        case (#err(msg)) { return #err(msg) };
+        case (#ok(null)) { return #ok() };  // Not a checkout event, ignore
+        case (#ok(?info)) { info };
+      };
+
+      Debug.print("Processing checkout for user: " # checkoutInfo.clientReferenceId);
+
+      // Resolve plan ID from metadata or payment link
+      let planId = switch (checkoutInfo.planId) {
+        case (?id) { id };
+        case null {
+          let ?paymentLink = checkoutInfo.paymentLink else {
+            return #err("Missing both plan_id and payment_link");
+          };
+          let ?plan = getPlanByStripePaymentLink(paymentLink) else {
+            return #err("Unknown payment link: " # paymentLink);
+          };
+          plan.id;
+        };
+      };
+
+      Debug.print("Plan ID: " # planId # ", Subscription ID: " # checkoutInfo.subscriptionId);
+
+      // Activate subscription
+      let userPrincipal = Principal.fromText(checkoutInfo.clientReferenceId);
+      switch (await* setSubscription(userPrincipal, planId, #Stripe({ subscriptionId = checkoutInfo.subscriptionId }))) {
+        case (#err(msg)) { return #err("Subscription activation failed: " # msg) };
+        case (#ok()) { Debug.print("Successfully activated subscription") };
+      };
+
+      #ok();
+    };
+
+    // Helper: Error response
+    func errorResponse(msg: Text) : HttpResponse {
+      {
+        status_code = 400;
+        headers = [("content-type", "text/plain")];
+        body = Text.encodeUtf8(msg);
+        upgrade = null;
+      };
     };
 
   };

@@ -1,91 +1,162 @@
-import Types "Types";
-
 import Result "mo:base/Result";
 import Debug "mo:base/Debug";
 import Cycles "mo:base/ExperimentalCycles";
 import Text "mo:base/Text";
 import Iter "mo:base/Iter";
-import Principal "mo:base/Principal";
 
 import IdempotentProxy "canister:idempotent_proxy_canister";
 
-import SubscriptionManager "SubscriptionManager";
-
 module {
 
-  public type HeaderField = Types.HeaderField;
-  public type HttpRequest = Types.HttpRequest;
-  public type HttpResponse = Types.HttpResponse;
+  // Verify Stripe subscription status
+  // Returns #ok if subscription is active and paid, #err otherwise
+  public func verifySubscriptionPayment(subscriptionId: Text, secretKey: Text) : async Result.Result<(), Text> {
+    Cycles.add<system>(1_000_000_000);
 
-  public type StripeConfig = {
-    secretKey: Text;
-    subscriptionManager: SubscriptionManager.SubscriptionManager;
+    let response = await IdempotentProxy.proxy_http_request({
+      url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId;
+      method = #get;
+      max_response_bytes = null;
+      body = null;
+      transform = null;
+      headers = [
+        { name = "idempotency-key"; value = "idempotency_key_001" # subscriptionId },
+        { name = "content-type"   ; value = "application/json"                     },
+        { name = "Authorization"  ; value = "Bearer " # secretKey                  },
+      ];
+    });
+
+    let ?responseText = Text.decodeUtf8(response.body) else {
+      return #err("Failed to decode Stripe API response");
+    };
+
+    Debug.print("Stripe subscription check response: " # responseText);
+
+    // Check if response contains an error
+    switch (textIndexOf(responseText, "\"error\"")) {
+      case (?_) { return #err("Stripe API returned an error") };
+      case null {};
+    };
+
+    // Extract subscription status
+    let ?status = extractJsonField(responseText, "status") else {
+      return #err("Failed to extract subscription status");
+    };
+
+    Debug.print("Stripe subscription status: " # status);
+
+    // Check if subscription is active
+    if (status == "active") {
+      #ok;
+    } else {
+      #err("Subscription is not active: status = " # status);
+    };
   };
 
-  // Check if request should be upgraded for webhook handling
-  public func shouldUpgradeRequest(req: HttpRequest) : Bool {
-    (req.url == "/stripe-webhook" or req.url == "/stripe-webhook/") and req.method == "POST";
+  // Checkout session info extracted from Stripe event
+  public type CheckoutInfo = {
+    clientReferenceId: Text;  // User principal as text
+    subscriptionId: Text;     // Stripe subscription ID
+    planId: ?Text;            // Plan ID from metadata (if present)
+    paymentLink: ?Text;       // Payment link ID (if present, for lookup)
   };
 
-  // Handle webhook POST request (called from http_request_update)
-  public func handleWebhook(req: HttpRequest, config: StripeConfig) : async HttpResponse {
-    // Only handle POST to /stripe-webhook
-    if (req.method != "POST" or (req.url != "/stripe-webhook" and req.url != "/stripe-webhook/")) {
-      return {
-        status_code = 404;
-        headers = [("content-type", "text/plain")];
-        body = Text.encodeUtf8("Not Found");
-        upgrade = null;
-      };
+  // Parse checkout.session.completed event and extract relevant info
+  // Returns null if event type is not checkout.session.completed
+  public func getCheckoutInfo(eventData: Text) : Result.Result<?CheckoutInfo, Text> {
+    // Check event type
+    let ?eventType = extractJsonField(eventData, "type") else {
+      return #err("Failed to extract event type");
     };
 
-    // Parse the webhook body
-    let ?bodyText = Text.decodeUtf8(req.body) else {
-      Debug.print("Failed to decode webhook body");
-      return errorResponse("Invalid webhook body");
+    if (eventType != "checkout.session.completed") {
+      return #ok(null); // Not a checkout event, ignore
     };
 
-    Debug.print("Received Stripe webhook: " # bodyText);
-
-    // Extract event ID from the webhook body
-    let ?eventId = extractEventId(bodyText) else {
-      Debug.print("Failed to extract event ID from webhook");
-      return errorResponse("Missing event ID");
+    // Extract required fields
+    let ?clientReferenceId = extractJsonField(eventData, "client_reference_id") else {
+      return #err("Missing client_reference_id");
     };
 
-    Debug.print("Extracted event ID: " # eventId);
+    let ?subscriptionId = extractJsonField(eventData, "subscription") else {
+      return #err("Missing subscription ID in checkout session");
+    };
 
-    // Verify the event by fetching it from Stripe
-    switch (await verifyStripeEvent(eventId, config.secretKey)) {
-      case (#err(msg)) {
-        Debug.print("Event verification failed: " # msg);
-        return errorResponse("Event verification failed");
-      };
-      case (#ok(eventData)) {
-        Debug.print("Event verified successfully");
+    // Extract optional fields
+    let planId = extractJsonField(eventData, "plan_id");
+    let paymentLink = extractJsonField(eventData, "payment_link");
 
-        // Process the event based on type
-        switch (await processStripeEvent(eventData, config.subscriptionManager)) {
-          case (#err(msg)) {
-            Debug.print("Event processing failed: " # msg);
-            return errorResponse("Event processing failed");
-          };
-          case (#ok()) {
-            Debug.print("Event processed successfully");
-            return {
-              status_code = 200;
-              headers = [("content-type", "application/json")];
-              body = Text.encodeUtf8("{\"received\":true}");
-              upgrade = null;
-            };
-          };
+    #ok(?{
+      clientReferenceId;
+      subscriptionId;
+      planId;
+      paymentLink;
+    });
+  };
+
+  // Verify event with Stripe API - returns the full event data if valid
+  public func verifyStripeEvent(eventId: Text, secretKey: Text) : async Result.Result<Text, Text> {
+    Cycles.add<system>(1_000_000_000);
+
+    let response = await IdempotentProxy.proxy_http_request({
+      url = "https://api.stripe.com/v1/events/" # eventId;
+      method = #get;
+      max_response_bytes = null;
+      body = null;
+      transform = null;
+      headers = [
+        { name = "idempotency-key"; value = "idempotency_key_001"  },
+        { name = "content-type"   ; value = "application/json"    },
+        { name = "Authorization"  ; value = "Bearer " # secretKey },
+      ];
+    });
+
+    let ?responseText = Text.decodeUtf8(response.body) else {
+      return #err("Failed to decode Stripe API response");
+    };
+
+    Debug.print("Stripe API response: " # responseText);
+
+    // Check if response contains an error
+    switch (textIndexOf(responseText, "\"error\"")) {
+      case (?_) { #err("Stripe API returned an error") };
+      case null { #ok(responseText) };
+    };
+  };
+
+  // Public helper: Extract field from JSON
+  public func extractJsonField(json: Text, field: Text) : ?Text {
+    let pattern = "\"" # field # "\"";
+    let ?fieldPos = textIndexOf(json, pattern) else return null;
+    let afterField = textSubstring(json, fieldPos + pattern.size(), json.size());
+    let ?colonPos = textIndexOf(afterField, ":") else return null;
+    let afterColon = textSubstring(afterField, colonPos + 1, afterField.size());
+
+    let chars = Iter.toArray(afterColon.chars());
+    var startPos : ?Nat = null;
+    label findQuote for (i in Iter.range(0, chars.size() - 1)) {
+      if (chars[i] != ' ' and chars[i] != '\t' and chars[i] != '\n' and chars[i] != '\r') {
+        if (chars[i] == '\"') {
+          startPos := ?(i + 1);
         };
+        break findQuote;
       };
     };
+
+    let ?start = startPos else return null;
+
+    var result = "";
+    var i = start;
+    while (i < chars.size() and chars[i] != '\"') {
+      result #= Text.fromChar(chars[i]);
+      i += 1;
+    };
+
+    if (result == "") { null } else { ?result };
   };
 
-  // Helper: Extract event ID from webhook JSON
-  func extractEventId(json: Text) : ?Text {
+  // Public helper: Extract event ID from webhook JSON
+  public func extractEventId(json: Text) : ?Text {
     // Look for "id":"evt_xxxxx"
     let ?idPos = textIndexOf(json, "\"id\"") else return null;
     let afterId = textSubstring(json, idPos + 4, json.size());
@@ -117,153 +188,7 @@ module {
     if (result == "") { null } else { ?result };
   };
 
-  // Helper: Verify event with Stripe API
-  func verifyStripeEvent(eventId: Text, secretKey: Text) : async Result.Result<Text, Text> {
-    Cycles.add<system>(1_000_000_000);
-
-    let response = await IdempotentProxy.proxy_http_request({
-      url = "https://api.stripe.com/v1/events/" # eventId;
-      method = #get;
-      max_response_bytes = null;
-      body = null;
-      transform = null;
-      headers = [
-        { name = "idempotency-key"; value = "idempotency_key_001"       },
-        { name = "content-type"   ; value = "application/json"          },
-        { name = "Authorization"; value = "Bearer " # secretKey },
-      ];
-    });
-
-    let ?responseText = Text.decodeUtf8(response.body) else {
-      return #err("Failed to decode Stripe API response");
-    };
-
-    Debug.print("Stripe API response: " # responseText);
-
-    // Check if response contains an error
-    switch (textIndexOf(responseText, "\"error\"")) {
-      case (?_) { #err("Stripe API returned an error") };
-      case null { #ok(responseText) };
-    };
-  };
-
-  // Helper: Process verified Stripe event
-  func processStripeEvent(eventData: Text, subscriptionManager: SubscriptionManager.SubscriptionManager) : async Result.Result<(), Text> {
-    // Check event type
-    let ?eventType = extractJsonField(eventData, "type") else {
-      return #err("Failed to extract event type");
-    };
-
-    Debug.print("Processing event type: " # eventType);
-
-    if (eventType != "checkout.session.completed") {
-      Debug.print("Ignoring event type: " # eventType);
-      return #ok();
-    };
-
-    // Extract session data
-    // Stripe event structure: {"data":{"object":{"client_reference_id":"...","metadata":{"plan_id":"..."}}}}
-    let ?clientReferenceId = extractJsonField(eventData, "client_reference_id") else {
-      return #err("Missing client_reference_id");
-    };
-
-    // Try to get plan_id from metadata first (won't work with Payment Links)
-    let planIdOpt = extractJsonField(eventData, "plan_id");
-
-    let planId = switch (planIdOpt) {
-      case (?id) { id };
-      case null {
-        // Stripe Payment Links don't support metadata on checkout sessions
-        // So we look up the plan by payment_link ID from our registered plans
-        Debug.print("metadata.plan_id not found (expected for Payment Links)");
-
-        // Get payment_link field
-        let ?paymentLink = extractJsonField(eventData, "payment_link") else {
-          return #err("Missing payment_link field in checkout session");
-        };
-
-        Debug.print("Payment link ID: " # paymentLink);
-
-        // Look up plan by payment link from SubscriptionManager
-        let ?plan = subscriptionManager.getPlanByStripePaymentLink(paymentLink) else {
-          Debug.print("Error: Payment link not mapped to any plan");
-          Debug.print("Configure stripe_payment_links in upgrade args to map payment links to plans");
-          return #err("Unknown payment link: " # paymentLink);
-        };
-
-        Debug.print("Mapped to plan ID: " # plan.id);
-        plan.id
-      };
-    };
-
-    Debug.print("Client reference ID: " # clientReferenceId);
-    Debug.print("Plan ID: " # planId);
-
-    // Extract Stripe subscription ID from checkout session
-    let ?subscriptionId = extractJsonField(eventData, "subscription") else {
-      return #err("Missing subscription ID in checkout session");
-    };
-    Debug.print("Stripe subscription ID: " # subscriptionId);
-
-    // Convert client_reference_id to Principal
-    let userPrincipal = Principal.fromText(clientReferenceId);
-
-    // Activate subscription
-    switch (await* subscriptionManager.setSubscription(userPrincipal, planId, #Stripe({subscriptionId}))) {
-      case (#err(msg)) {
-        Debug.print("Failed to activate subscription: " # msg);
-        return #err("Subscription activation failed: " # msg);
-      };
-      case (#ok()) {
-        Debug.print("Successfully activated subscription");
-      };
-    };
-
-    #ok();
-  };
-
-  // Helper: Extract field from JSON
-  func extractJsonField(json: Text, field: Text) : ?Text {
-    let pattern = "\"" # field # "\"";
-    let ?fieldPos = textIndexOf(json, pattern) else return null;
-    let afterField = textSubstring(json, fieldPos + pattern.size(), json.size());
-    let ?colonPos = textIndexOf(afterField, ":") else return null;
-    let afterColon = textSubstring(afterField, colonPos + 1, afterField.size());
-
-    let chars = Iter.toArray(afterColon.chars());
-    var startPos : ?Nat = null;
-    label findQuote2 for (i in Iter.range(0, chars.size() - 1)) {
-      if (chars[i] != ' ' and chars[i] != '\t' and chars[i] != '\n' and chars[i] != '\r') {
-        if (chars[i] == '\"') {
-          startPos := ?(i + 1);
-        };
-        break findQuote2;
-      };
-    };
-
-    let ?start = startPos else return null;
-
-    var result = "";
-    var i = start;
-    while (i < chars.size() and chars[i] != '\"') {
-      result #= Text.fromChar(chars[i]);
-      i += 1;
-    };
-
-    if (result == "") { null } else { ?result };
-  };
-
-  // Helper: Error response
-  func errorResponse(msg: Text) : HttpResponse {
-    {
-      status_code = 400;
-      headers = [("content-type", "text/plain")];
-      body = Text.encodeUtf8(msg);
-      upgrade = null;
-    };
-  };
-
-  // Text utilities
+  // Text utilities (private)
   func textIndexOf(text: Text, pattern: Text) : ?Nat {
     let textChars = Iter.toArray(text.chars());
     let patternChars = Iter.toArray(pattern.chars());
