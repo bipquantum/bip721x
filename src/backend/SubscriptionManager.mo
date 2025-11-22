@@ -56,22 +56,35 @@ module {
       let plan = getPlan(planId);
       let now = Time.now();
 
-      let actualPayementMethod = do {
-
-        if (plan.renewalPriceUsdtE6s > 0) {
-          switch(await* pullPayment(subscription.paymentMethod, user, plan.renewalPriceUsdtE6s)) {
-            case (#ok){ 
-              payementMethod;
-            };
+      // Cancel previous Stripe subscription if switching away from it
+      switch (subscription.paymentMethod) {
+        case (#Stripe({ subscriptionId })) {
+          Debug.print("Cancelling previous Stripe subscription: " # subscriptionId);
+          switch (await Stripe.cancelSubscription(subscriptionId, stripeSecretKey)) {
             case (#err(err)) {
-              return #err("Initial payment failed: " # err);
+              Debug.print("Warning: Failed to cancel Stripe subscription: " # err);
+              // Continue anyway - user wants to switch plans
             };
+            case (#ok) {
+              Debug.print("Successfully cancelled Stripe subscription");
+            };
+          };
+        };
+        case (#Ckusdt) {};
+      };
+
+      let actualPayementMethod = do {
+        if (plan.renewalPriceUsdtE6s > 0) {
+          switch (await* pullPayment(payementMethod, user, plan.renewalPriceUsdtE6s)) {
+            case (#ok) { payementMethod };
+            case (#err(err)) { return #err("Initial payment failed: " # err) };
           };
         } else {
           // Free plan, no payment needed
           #Ckusdt;
         };
       };
+
       let newSub: Subscription = {
         var availableCredits = Nat.max(subscription.availableCredits, plan.intervalCredits);
         var totalCreditsUsed = subscription.totalCreditsUsed;
@@ -161,35 +174,6 @@ module {
       };
     };
 
-    func pullPayment(paymentMethod: PaymentMethod, user: Principal, amount: Nat) : async* Result.Result<(), Text> {
-      switch(paymentMethod) {
-        case (#Ckusdt) {
-          // Pull payement
-          switch(await ckUSDTLedger.icrc2_transfer_from({
-            spender_subaccount = ?getSubscriptionSubaccount();
-            from = { owner = user; subaccount = null; };
-            to = { owner = backendId; subaccount = null; };
-            amount = amount;
-            fee = null;
-            memo = null;
-            created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
-          })) {
-            case (#Err(err)) {
-              return #err("Payment failed: " # debug_show(err));
-            };
-            case (#Ok(_)) { #ok(()) };
-          };
-        };
-        case (#Stripe({ subscriptionId })) {
-          // Verify payment via Stripe API
-          switch(await Stripe.verifySubscriptionPayment(subscriptionId, stripeSecretKey)) {
-            case (#ok) { #ok(()) };
-            case (#err(err)) { #err(err) };
-          };
-        };
-      };
-    };
-
     // Check if user has enough quota without consuming credits
     public func checkCredits(user: Principal, credits: Nat): Bool {
       let subscription = getSubscription(user);
@@ -241,6 +225,35 @@ module {
         };
       };
       null;
+    };
+
+    func pullPayment(paymentMethod: PaymentMethod, user: Principal, amount: Nat) : async* Result.Result<(), Text> {
+      switch(paymentMethod) {
+        case (#Ckusdt) {
+          // Pull payement
+          switch(await ckUSDTLedger.icrc2_transfer_from({
+            spender_subaccount = ?getSubscriptionSubaccount();
+            from = { owner = user; subaccount = null; };
+            to = { owner = backendId; subaccount = null; };
+            amount = amount;
+            fee = null;
+            memo = null;
+            created_at_time = ?Nat64.fromNat(Int.abs(Time.now()));
+          })) {
+            case (#Err(err)) {
+              return #err("Payment failed: " # debug_show(err));
+            };
+            case (#Ok(_)) { #ok(()) };
+          };
+        };
+        case (#Stripe({ subscriptionId })) {
+          // Verify payment via Stripe API
+          switch(await Stripe.verifySubscriptionPayment(subscriptionId, stripeSecretKey)) {
+            case (#ok) { #ok(()) };
+            case (#err(err)) { #err(err) };
+          };
+        };
+      };
     };
 
     func getPlan(planId: Text): Plan {

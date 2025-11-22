@@ -53,6 +53,37 @@ module {
     };
   };
 
+  // Cancel a Stripe subscription immediately
+  public func cancelSubscription(subscriptionId: Text, secretKey: Text) : async Result.Result<(), Text> {
+    Cycles.add<system>(1_000_000_000);
+
+    // Use POST to /v1/subscriptions/{id}/cancel endpoint
+    let response = await IdempotentProxy.proxy_http_request({
+      url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId # "/cancel";
+      method = #post;
+      max_response_bytes = null;
+      body = null;
+      transform = null;
+      headers = [
+        { name = "idempotency-key"; value = "cancel_sub_" # subscriptionId },
+        { name = "content-type"   ; value = "application/x-www-form-urlencoded" },
+        { name = "Authorization"  ; value = "Bearer " # secretKey               },
+      ];
+    });
+
+    let ?responseText = Text.decodeUtf8(response.body) else {
+      return #err("Failed to decode Stripe API response");
+    };
+
+    Debug.print("Stripe cancel subscription response: " # responseText);
+
+    // Check if response contains an error
+    switch (textIndexOf(responseText, "\"error\"")) {
+      case (?_) { #err("Stripe API returned an error: " # responseText) };
+      case null { #ok };
+    };
+  };
+
   // Checkout session info extracted from Stripe event
   public type CheckoutInfo = {
     clientReferenceId: Text;  // User principal as text
