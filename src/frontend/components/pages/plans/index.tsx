@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useActors } from "../../common/ActorsContext";
 import { useAuth } from "@nfid/identitykit/react";
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { Plan } from "../../../../declarations/backend/backend.did";
+import { Plan, RenewalInterval } from "../../../../declarations/backend/backend.did";
 import { FiCheck } from "react-icons/fi";
 import Modal from "../../common/Modal";
 import { useSetSubscription } from "../../hooks/useSetSubscription";
@@ -68,19 +68,34 @@ const Plans = () => {
     return price === 0 ? "Free" : `$${price.toFixed(2)}`;
   };
 
-  const formatInterval = (days: bigint): string => {
-    const numDays = Number(days);
-    if (numDays === 30) return "month";
-    if (numDays === 365) return "year";
-    return `${numDays} days`;
+  const formatInterval = (interval: RenewalInterval): string => {
+    if ("Days" in interval) {
+      const numDays = Number(interval.Days);
+      if (numDays === 30) return "month";
+      if (numDays === 365) return "year";
+      return `${numDays} days`;
+    } else {
+      const numMonths = Number(interval.Months);
+      if (numMonths === 1) return "month";
+      if (numMonths === 12) return "year";
+      return `${numMonths} months`;
+    }
   };
 
-  const formatDuration = (numberInterval: [] | [bigint], intervalDays: bigint): string => {
+  const getIntervalDays = (interval: RenewalInterval): number => {
+    if ("Days" in interval) {
+      return Number(interval.Days);
+    } else {
+      return Number(interval.Months) * 30; // Approximate months as 30 days
+    }
+  };
+
+  const formatDuration = (numberInterval: [] | [bigint], interval: RenewalInterval): string => {
     if (numberInterval.length === 0) {
       return "Forever";
     }
     const intervals = Number(numberInterval[0]);
-    const days = Number(intervalDays);
+    const days = getIntervalDays(interval);
     const totalDays = intervals * days;
 
     if (totalDays >= 365) {
@@ -137,7 +152,7 @@ const Plans = () => {
                 </span>
                 {plan.renewalPriceUsdtE6s > 0n && (
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
-                    / {formatInterval(plan.renewalIntervalDays)}
+                    / {formatInterval(plan.renewalInterval)}
                   </span>
                 )}
               </div>
@@ -147,14 +162,14 @@ const Plans = () => {
                 <div className="mb-3 flex items-center gap-2">
                   <FiCheck className="text-green-500" size={20} />
                   <span className="text-gray-700 dark:text-gray-300">
-                    {formatCredits(plan.intervalCredits)} credits per {formatInterval(plan.renewalIntervalDays)}
+                    {formatCredits(plan.intervalCredits)} credits per {formatInterval(plan.renewalInterval)}
                   </span>
                 </div>
 
                 <div className="mb-3 flex items-center gap-2">
                   <FiCheck className="text-green-500" size={20} />
                   <span className="text-gray-700 dark:text-gray-300">
-                    Duration: {formatDuration(plan.numberInterval, plan.renewalIntervalDays)}
+                    Duration: {formatDuration(plan.numberInterval, plan.renewalInterval)}
                   </span>
                 </div>
 
@@ -162,7 +177,7 @@ const Plans = () => {
                   <div className="mb-3 flex items-center gap-2">
                     <FiCheck className="text-green-500" size={20} />
                     <span className="text-gray-700 dark:text-gray-300">
-                      Renews every {formatInterval(plan.renewalIntervalDays)}
+                      Renews every {formatInterval(plan.renewalInterval)}
                     </span>
                   </div>
                 )}
@@ -212,7 +227,7 @@ const Plans = () => {
                 {formatPrice(selectedPlan.renewalPriceUsdtE6s)}
                 {selectedPlan.renewalPriceUsdtE6s > 0n && (
                   <span className="ml-2 text-lg text-gray-600 dark:text-gray-400">
-                    / {formatInterval(selectedPlan.renewalIntervalDays)}
+                    / {formatInterval(selectedPlan.renewalInterval)}
                   </span>
                 )}
               </p>
@@ -227,20 +242,20 @@ const Plans = () => {
                 <div className="flex items-center gap-2">
                   <FiCheck className="text-green-500" size={18} />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {formatCredits(selectedPlan.intervalCredits)} credits per {formatInterval(selectedPlan.renewalIntervalDays)}
+                    {formatCredits(selectedPlan.intervalCredits)} credits per {formatInterval(selectedPlan.renewalInterval)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FiCheck className="text-green-500" size={18} />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    Duration: {formatDuration(selectedPlan.numberInterval, selectedPlan.renewalIntervalDays)}
+                    Duration: {formatDuration(selectedPlan.numberInterval, selectedPlan.renewalInterval)}
                   </span>
                 </div>
                 {selectedPlan.renewalPriceUsdtE6s > 0n && (
                   <div className="flex items-center gap-2">
                     <FiCheck className="text-green-500" size={18} />
                     <span className="text-sm text-gray-700 dark:text-gray-300">
-                      Renews every {formatInterval(selectedPlan.renewalIntervalDays)}
+                      Renews every {formatInterval(selectedPlan.renewalInterval)}
                     </span>
                   </div>
                 )}
@@ -337,7 +352,7 @@ const Plans = () => {
                   {(() => {
                     const now = Date.now();
                     const intervals = Number(selectedPlan.numberInterval[0]);
-                    const days = Number(selectedPlan.renewalIntervalDays);
+                    const days = getIntervalDays(selectedPlan.renewalInterval);
                     const expiryDate = new Date(now + intervals * days * 24 * 60 * 60 * 1000);
                     return expiryDate.toLocaleDateString("en-US", {
                       year: "numeric",
@@ -401,6 +416,8 @@ const Plans = () => {
               >
                 {settingSubscription ? (
                   <img src={SpinnerSvg} alt="Loading..." className="h-6 w-6" />
+                ) : selectedPlan.renewalPriceUsdtE6s === 0n ? (
+                  "Proceed"
                 ) : selectedPaymentMethod === "stripe" ? (
                   "Proceed to Stripe"
                 ) : (

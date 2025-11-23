@@ -1,4 +1,4 @@
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 
 import LogoDark from "../../../assets/logoDark.png";
 import LogoLight from "../../../assets/logoLight.png";
@@ -12,13 +12,18 @@ import WalletButton from "../../common/WalletButton";
 const Login = () => {
   const { theme } = useContext(ThemeContext);
   const { user  } = useAuth();
+  const location = useLocation();
+
+  // Get return URL from state (set by PrivateRoute when redirecting unauthenticated users)
+  const returnUrl = (location.state as { returnUrl?: string })?.returnUrl || "/";
 
   useEffect(() => {
     console.log("User changed:", user);
     console.log("User principal:", user?.principal.toString());
   }, [user]);
 
-  if (user) return <Navigate to="/" />;
+  // Redirect to return URL after login (preserves query params like ?tab=subscription)
+  if (user) return <Navigate to={returnUrl} />;
 
   return (
     <div className="flex w-full flex-grow flex-col items-center justify-center overflow-auto bg-background px-4 dark:bg-background-dark">

@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@nfid/identitykit/react";
 
@@ -8,6 +8,7 @@ type PrivateRouteProps = {
 
 function PrivateRoute({ element }: PrivateRouteProps) {
   const { user } = useAuth();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +24,9 @@ function PrivateRoute({ element }: PrivateRouteProps) {
   }
 
   if (!user) {
-    return <Navigate to="/login" />;
+    // Preserve the original URL (including query params) so we can redirect back after login
+    const returnUrl = location.pathname + location.search;
+    return <Navigate to="/login" state={{ returnUrl }} />;
   }
 
   return <>{element}</>;

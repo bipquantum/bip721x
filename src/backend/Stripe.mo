@@ -46,24 +46,27 @@ module {
 
     Debug.print("Stripe subscription status: " # status);
 
-    // Check if subscription is active
-    if (status == "active") {
+    // Check if subscription is in a valid paid state
+    // - active: Currently active and paid
+    // - trialing: In trial period (still valid)
+    if (status == "active" or status == "trialing") {
       #ok;
     } else {
       #err("Subscription is not active: status = " # status);
     };
   };
 
-  // Cancel a Stripe subscription immediately
+  // Cancel a Stripe subscription at the end of the current billing period
   public func cancelSubscription(subscriptionId: Text, secretKey: Text) : async Result.Result<(), Text> {
     Cycles.add<system>(1_000_000_000);
 
-    // Use POST to /v1/subscriptions/{id}/cancel endpoint
+    // Use POST to /v1/subscriptions/{id} with cancel_at_period_end=true
+    let body = "cancel_at_period_end=true";
     let response = await IdempotentProxy.proxy_http_request({
-      url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId # "/cancel";
+      url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId;
       method = #post;
       max_response_bytes = null;
-      body = null;
+      body = ?Text.encodeUtf8(body);
       transform = null;
       headers = [
         { name = "idempotency-key"; value = "idempotency_key_001"               },
@@ -129,8 +132,8 @@ module {
   // Parse checkout.session.completed event and extract relevant info
   // Returns null if event type is not checkout.session.completed
   public func getCheckoutInfo(eventData: Text) : Result.Result<?CheckoutInfo, Text> {
-    // Check event type
-    let ?eventType = extractJsonField(eventData, "type") else {
+    // Check event type - use extractEventType to get root-level type
+    let ?eventType = extractEventType(eventData) else {
       return #err("Failed to extract event type");
     };
 
@@ -190,34 +193,74 @@ module {
   };
 
   // Public helper: Extract field from JSON
+  // Searches for "field": pattern to ensure we match field names, not values
   public func extractJsonField(json: Text, field: Text) : ?Text {
+    // Search for "field" followed by optional whitespace and colon
     let pattern = "\"" # field # "\"";
-    let ?fieldPos = textIndexOf(json, pattern) else return null;
-    let afterField = textSubstring(json, fieldPos + pattern.size(), json.size());
-    let ?colonPos = textIndexOf(afterField, ":") else return null;
-    let afterColon = textSubstring(afterField, colonPos + 1, afterField.size());
+    let jsonChars = Iter.toArray(json.chars());
+    let patternChars = Iter.toArray(pattern.chars());
 
-    let chars = Iter.toArray(afterColon.chars());
-    var startPos : ?Nat = null;
-    label findQuote for (i in Iter.range(0, chars.size() - 1)) {
-      if (chars[i] != ' ' and chars[i] != '\t' and chars[i] != '\n' and chars[i] != '\r') {
-        if (chars[i] == '\"') {
-          startPos := ?(i + 1);
+    if (patternChars.size() == 0 or patternChars.size() > jsonChars.size()) {
+      return null;
+    };
+
+    // Find pattern where it's followed by : (field name, not value)
+    var searchPos = 0;
+    label searchLoop while (searchPos <= jsonChars.size() - patternChars.size()) {
+      // Check if pattern matches at this position
+      var match = true;
+      var j = 0;
+      while (j < patternChars.size()) {
+        if (jsonChars[searchPos + j] != patternChars[j]) {
+          match := false;
+          j := patternChars.size();
         };
-        break findQuote;
+        j += 1;
       };
+
+      if (match) {
+        // Found the pattern, now check if followed by : (with optional whitespace)
+        var checkPos = searchPos + patternChars.size();
+        // Skip whitespace
+        while (checkPos < jsonChars.size() and (jsonChars[checkPos] == ' ' or jsonChars[checkPos] == '\t' or jsonChars[checkPos] == '\n' or jsonChars[checkPos] == '\r')) {
+          checkPos += 1;
+        };
+        // Check for colon
+        if (checkPos < jsonChars.size() and jsonChars[checkPos] == ':') {
+          // This is a field name, extract the value
+          let afterColon = textSubstring(json, checkPos + 1, json.size());
+          let chars = Iter.toArray(afterColon.chars());
+          var startPos : ?Nat = null;
+          label findQuote for (i in Iter.range(0, chars.size() - 1)) {
+            if (chars[i] != ' ' and chars[i] != '\t' and chars[i] != '\n' and chars[i] != '\r') {
+              if (chars[i] == '\"') {
+                startPos := ?(i + 1);
+              };
+              break findQuote;
+            };
+          };
+
+          let ?start = startPos else {
+            // Not a string value, continue searching
+            searchPos += 1;
+            continue searchLoop;
+          };
+
+          var result = "";
+          var i = start;
+          while (i < chars.size() and chars[i] != '\"') {
+            result #= Text.fromChar(chars[i]);
+            i += 1;
+          };
+
+          if (result != "") {
+            return ?result;
+          };
+        };
+      };
+      searchPos += 1;
     };
-
-    let ?start = startPos else return null;
-
-    var result = "";
-    var i = start;
-    while (i < chars.size() and chars[i] != '\"') {
-      result #= Text.fromChar(chars[i]);
-      i += 1;
-    };
-
-    if (result == "") { null } else { ?result };
+    null;
   };
 
   // Public helper: Extract event ID from webhook JSON
@@ -243,6 +286,38 @@ module {
     let ?start = startPos else return null;
 
     // Extract until closing quote
+    var result = "";
+    var i = start;
+    while (i < chars.size() and chars[i] != '\"') {
+      result #= Text.fromChar(chars[i]);
+      i += 1;
+    };
+
+    if (result == "") { null } else { ?result };
+  };
+
+  // Extract the root-level event type from Stripe webhook JSON
+  // The root "type" field is the last occurrence in the JSON
+  public func extractEventType(json: Text) : ?Text {
+    let pattern = "\"type\"";
+    let ?lastPos = textLastIndexOf(json, pattern) else return null;
+    let afterField = textSubstring(json, lastPos + pattern.size(), json.size());
+    let ?colonPos = textIndexOf(afterField, ":") else return null;
+    let afterColon = textSubstring(afterField, colonPos + 1, afterField.size());
+
+    let chars = Iter.toArray(afterColon.chars());
+    var startPos : ?Nat = null;
+    label findQuote for (i in Iter.range(0, chars.size() - 1)) {
+      if (chars[i] != ' ' and chars[i] != '\t' and chars[i] != '\n' and chars[i] != '\r') {
+        if (chars[i] == '\"') {
+          startPos := ?(i + 1);
+        };
+        break findQuote;
+      };
+    };
+
+    let ?start = startPos else return null;
+
     var result = "";
     var i = start;
     while (i < chars.size() and chars[i] != '\"') {
@@ -279,6 +354,35 @@ module {
       i += 1;
     };
     null;
+  };
+
+  // Find the last occurrence of a pattern in text
+  func textLastIndexOf(text: Text, pattern: Text) : ?Nat {
+    let textChars = Iter.toArray(text.chars());
+    let patternChars = Iter.toArray(pattern.chars());
+
+    if (patternChars.size() == 0 or patternChars.size() > textChars.size()) {
+      return null;
+    };
+
+    var lastMatch : ?Nat = null;
+    var i = 0;
+    while (i <= textChars.size() - patternChars.size()) {
+      var match = true;
+      var j = 0;
+      while (j < patternChars.size()) {
+        if (textChars[i + j] != patternChars[j]) {
+          match := false;
+          j := patternChars.size();
+        };
+        j += 1;
+      };
+      if (match) {
+        lastMatch := ?i;
+      };
+      i += 1;
+    };
+    lastMatch;
   };
 
   func textSubstring(text: Text, start: Nat, end: Nat) : Text {

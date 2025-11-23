@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useActors } from "../../common/ActorsContext";
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { Plan, SSubscription } from "../../../../declarations/backend/backend.did";
+import { Plan, SSubscription, RenewalInterval } from "../../../../declarations/backend/backend.did";
 import { FiCheck, FiArrowRight } from "react-icons/fi";
 
 const SubscriptionTab = () => {
@@ -60,11 +60,26 @@ const SubscriptionTab = () => {
     return price === 0 ? "Free" : `$${price.toFixed(2)}`;
   };
 
-  const formatInterval = (days: bigint): string => {
-    const numDays = Number(days);
-    if (numDays === 30) return "month";
-    if (numDays === 365) return "year";
-    return `${numDays} days`;
+  const formatInterval = (interval: RenewalInterval): string => {
+    if ("Days" in interval) {
+      const numDays = Number(interval.Days);
+      if (numDays === 30) return "month";
+      if (numDays === 365) return "year";
+      return `${numDays} days`;
+    } else {
+      const numMonths = Number(interval.Months);
+      if (numMonths === 1) return "month";
+      if (numMonths === 12) return "year";
+      return `${numMonths} months`;
+    }
+  };
+
+  const getIntervalDays = (interval: RenewalInterval): number => {
+    if ("Days" in interval) {
+      return Number(interval.Days);
+    } else {
+      return Number(interval.Months) * 30; // Approximate months as 30 days
+    }
   };
 
   const formatDate = (timestamp: bigint): string => {
@@ -76,12 +91,12 @@ const SubscriptionTab = () => {
     });
   };
 
-  const formatDuration = (numberInterval: [] | [bigint], intervalDays: bigint): string => {
+  const formatDuration = (numberInterval: [] | [bigint], interval: RenewalInterval): string => {
     if (numberInterval.length === 0) {
       return "Never expires";
     }
     const intervals = Number(numberInterval[0]);
-    const days = Number(intervalDays);
+    const days = getIntervalDays(interval);
     const totalDays = intervals * days;
 
     if (totalDays >= 365) {
@@ -93,7 +108,8 @@ const SubscriptionTab = () => {
     return `${totalDays} days`;
   };
 
-  const creditsPercentage = Number(subscription.availableCredits) / Number(currentPlan.intervalCredits) * 100;
+  // Cap at 100% - user may have more credits than current plan provides (e.g., after downgrade)
+  const creditsPercentage = Math.min(100, Number(subscription.availableCredits) / Number(currentPlan.intervalCredits) * 100);
   const isActive = "Active" in subscription.state;
 
   return (
@@ -121,7 +137,7 @@ const SubscriptionTab = () => {
           </span>
           {currentPlan.renewalPriceUsdtE6s > 0n && (
             <span className="ml-2 text-lg text-gray-600 dark:text-gray-400">
-              / {formatInterval(currentPlan.renewalIntervalDays)}
+              / {formatInterval(currentPlan.renewalInterval)}
             </span>
           )}
         </div>
@@ -130,14 +146,14 @@ const SubscriptionTab = () => {
           <div className="flex items-center gap-2">
             <FiCheck className="text-green-500" size={16} />
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              {formatCredits(currentPlan.intervalCredits)} credits per {formatInterval(currentPlan.renewalIntervalDays)}
+              {formatCredits(currentPlan.intervalCredits)} credits per {formatInterval(currentPlan.renewalInterval)}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             <FiCheck className="text-green-500" size={16} />
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              Duration: {formatDuration(currentPlan.numberInterval, currentPlan.renewalIntervalDays)}
+              Duration: {formatDuration(currentPlan.numberInterval, currentPlan.renewalInterval)}
             </span>
           </div>
 
@@ -199,10 +215,10 @@ const SubscriptionTab = () => {
               Used This Period
             </p>
             <p className="mb-3 text-3xl font-bold text-black dark:text-white">
-              {formatCredits(currentPlan.intervalCredits - subscription.availableCredits)}
+              {formatCredits(BigInt(Math.max(0, Number(currentPlan.intervalCredits) - Number(subscription.availableCredits))))}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {((Number(currentPlan.intervalCredits - subscription.availableCredits) / Number(currentPlan.intervalCredits)) * 100).toFixed(1)}% used
+              {Math.max(0, (Number(currentPlan.intervalCredits) - Number(subscription.availableCredits)) / Number(currentPlan.intervalCredits) * 100).toFixed(1)}% used
             </p>
           </div>
 

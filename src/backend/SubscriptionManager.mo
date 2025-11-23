@@ -75,9 +75,19 @@ module {
 
       let actualPayementMethod = do {
         if (plan.renewalPriceUsdtE6s > 0) {
-          switch (await* pullPayment(payementMethod, user, plan.renewalPriceUsdtE6s)) {
-            case (#ok) { payementMethod };
-            case (#err(err)) { return #err("Initial payment failed: " # err) };
+          switch (payementMethod) {
+            case (#Stripe(_)) {
+              // For Stripe, the webhook confirms payment - no need to verify again
+              // The checkout.session.completed event means payment was successful
+              payementMethod;
+            };
+            case (#Ckusdt) {
+              // For ckUSDT, pull payment from user's wallet
+              switch (await* pullPayment(payementMethod, user, plan.renewalPriceUsdtE6s)) {
+                case (#ok) { payementMethod };
+                case (#err(err)) { return #err("Initial payment failed: " # err) };
+              };
+            };
           };
         } else {
           // Free plan, no payment needed
