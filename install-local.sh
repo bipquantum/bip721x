@@ -112,7 +112,6 @@ dfx deps init
 dfx deps deploy internet_identity
 
 # Backend
-STRIPE_SECRET_KEY="sk_test_51SUiIVEq6YsoiR2BKN5V88opI4i8dySeKzBYcoq312Bgw67IVcsE7UYMJohCMSuivhiEy9fMqnGrcgkCDe8bpCsf00V0SqIbvK"
 STRIPE_PREMIUM_MONTHLY_LINK="plink_1SUqfIEq6YsoiR2BzqKaTpQB"
 
 dfx deploy backend --argument 'variant {
