@@ -85,6 +85,27 @@ module {
         };
       };
 
+      let expiryDate = computeExpiryDate(now, plan);
+
+      // If Stripe subscription with an expiry date, set cancel_at in Stripe
+      switch (actualPayementMethod, expiryDate) {
+        case (#Stripe({ subscriptionId }), ?expiry) {
+          // Convert nanoseconds to seconds for Stripe
+          let cancelAtSeconds = expiry / 1_000_000_000;
+          Debug.print("Setting Stripe cancel_at to: " # Int.toText(cancelAtSeconds));
+          switch (await Stripe.setCancelAt(subscriptionId, cancelAtSeconds, stripeSecretKey)) {
+            case (#err(err)) {
+              Debug.print("Warning: Failed to set cancel_at: " # err);
+              // Continue anyway - subscription is still valid
+            };
+            case (#ok) {
+              Debug.print("Successfully set Stripe cancel_at");
+            };
+          };
+        };
+        case (_, _) {};
+      };
+
       let newSub: Subscription = {
         var availableCredits = Nat.max(subscription.availableCredits, plan.intervalCredits);
         var totalCreditsUsed = subscription.totalCreditsUsed;
@@ -92,7 +113,7 @@ module {
         var state = #Active;
         var startDate = now;
         var nextRenewalDate = addInterval(now, plan.renewalInterval);
-        var expiryDate = computeExpiryDate(now, plan);
+        var expiryDate = expiryDate;
         var paymentMethod = actualPayementMethod;
       };
       Map.set(register.subscriptions, Map.phash, user, newSub);

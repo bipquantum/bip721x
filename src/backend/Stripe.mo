@@ -3,6 +3,7 @@ import Debug "mo:base/Debug";
 import Cycles "mo:base/ExperimentalCycles";
 import Text "mo:base/Text";
 import Iter "mo:base/Iter";
+import Int "mo:base/Int";
 
 import IdempotentProxy "canister:idempotent_proxy_canister";
 
@@ -20,9 +21,9 @@ module {
       body = null;
       transform = null;
       headers = [
-        { name = "idempotency-key"; value = "idempotency_key_001" # subscriptionId },
-        { name = "content-type"   ; value = "application/json"                     },
-        { name = "Authorization"  ; value = "Bearer " # secretKey                  },
+        { name = "idempotency-key"; value = "idempotency_key_001"  },
+        { name = "content-type"   ; value = "application/json"     },
+        { name = "Authorization"  ; value = "Bearer " # secretKey  },
       ];
     });
 
@@ -65,7 +66,7 @@ module {
       body = null;
       transform = null;
       headers = [
-        { name = "idempotency-key"; value = "cancel_sub_" # subscriptionId },
+        { name = "idempotency-key"; value = "idempotency_key_001"               },
         { name = "content-type"   ; value = "application/x-www-form-urlencoded" },
         { name = "Authorization"  ; value = "Bearer " # secretKey               },
       ];
@@ -76,6 +77,39 @@ module {
     };
 
     Debug.print("Stripe cancel subscription response: " # responseText);
+
+    // Check if response contains an error
+    switch (textIndexOf(responseText, "\"error\"")) {
+      case (?_) { #err("Stripe API returned an error: " # responseText) };
+      case null { #ok };
+    };
+  };
+
+  // Set a scheduled cancellation date on a Stripe subscription
+  // cancelAt is a Unix timestamp in seconds
+  public func setCancelAt(subscriptionId: Text, cancelAtSeconds: Int, secretKey: Text) : async Result.Result<(), Text> {
+    Cycles.add<system>(1_000_000_000);
+
+    // POST to /v1/subscriptions/{id} with cancel_at parameter
+    let body = "cancel_at=" # Int.toText(cancelAtSeconds);
+    let response = await IdempotentProxy.proxy_http_request({
+      url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId;
+      method = #post;
+      max_response_bytes = null;
+      body = ?Text.encodeUtf8(body);
+      transform = null;
+      headers = [
+        { name = "idempotency-key"; value = "idempotency_key_001"               },
+        { name = "content-type"   ; value = "application/x-www-form-urlencoded" },
+        { name = "Authorization"  ; value = "Bearer " # secretKey               },
+      ];
+    });
+
+    let ?responseText = Text.decodeUtf8(response.body) else {
+      return #err("Failed to decode Stripe API response");
+    };
+
+    Debug.print("Stripe set cancel_at response: " # responseText);
 
     // Check if response contains an error
     switch (textIndexOf(responseText, "\"error\"")) {
@@ -136,7 +170,7 @@ module {
       body = null;
       transform = null;
       headers = [
-        { name = "idempotency-key"; value = "idempotency_key_001"  },
+        { name = "idempotency-key"; value = "idempotency_key_001" },
         { name = "content-type"   ; value = "application/json"    },
         { name = "Authorization"  ; value = "Bearer " # secretKey },
       ];
