@@ -151,10 +151,12 @@ The plan IDs must match exactly what's defined in your backend plans.
 2. **Choose payment method**: Modal shows ckUSDT vs Stripe options
 3. **Stripe redirect**: If Stripe selected, user redirected to Stripe Checkout
 4. **User completes payment**: On Stripe's hosted checkout page
-5. **Webhook received**: Stripe sends webhook to your canister
-6. **Event verification**: Canister calls Stripe API to verify event is legitimate
-7. **Subscription activation**: Canister calls `setStripeSubscription()`
-8. **User redirected back**: Returns to `/profile?tab=subscription&payment=success`
+5. **User redirected back**: Returns to `/profile?tab=subscription&payment=success`
+6. **Payment verification UI**: Frontend shows "Verifying your payment..." banner and polls backend
+7. **Webhook received**: Stripe sends webhook to your canister (typically within 5-10 seconds)
+8. **Event verification**: Canister calls Stripe API to verify event is legitimate
+9. **Subscription activation**: Canister calls `setStripeSubscription()`
+10. **UI updates**: Frontend detects subscription change and shows success state
 
 ### Security
 

@@ -52,15 +52,47 @@ dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal 
 
 dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})' --ic
 
-dfx deploy backend --ic --argument 'variant {
-  init = record { 
-    e8sTransferFee = 10;
+# Backend
+STRIPE_PREMIUM_MONTHLY_LINK="plink_1SXSclFdNkpYWKD6M7LBCrGb"
+
+dfx deploy backend --argument 'variant {
+  init = record {
     airdrop_per_user = 100_000_000_000;
     admin = principal "'${DEPLOYER_PRINCIPAL}'";
     chatbot_api_key = "'${CHATBOT_API_KEY}'";
+    ckusdt_rate = record {
+      usd_price = '${CKUSDT_USD_PRICE}' : nat64;
+      decimals = '${CKUSDT_DECIMALS}' : nat32;
+    };
+    ckusdt_transfer_fee = '${CKUSDT_TRANSFER_FEE}' : nat;
+    subscriptions = record {
+      plans = vec {
+        record {
+          id = "free";
+          name = "Free Always";
+          intervalCredits = 10_000 : nat;
+          renewalPriceUsdtE6s = 0 : nat;
+          renewalInterval = variant { Months = 1 : nat };
+          numberInterval = null;
+          stripePaymentLink = null;
+        };
+        record {
+          id = "premium_monthly";
+          name = "Premium Monthly";
+          intervalCredits = 2_000_000 : nat;
+          renewalPriceUsdtE6s = 9_990_000 : nat;
+          renewalInterval = variant { Months = 1 : nat };
+          numberInterval = opt (12 : nat);
+          stripePaymentLink = opt "'${STRIPE_PREMIUM_MONTHLY_LINK}'";
+        };
+      };
+      free_plan_id = "free";
+      grace_period_days = 7 : nat;
+      subaccount = "subscriptions" : text;
+    };
+    stripe_secret_key = "'${STRIPE_LIVE_SECRET_KEY}'";
   }
-}'
-
-dfx canister call backend init_controller --ic
+}' --ic
+dfx canister call backend init_model --ic
 
 dfx deploy frontend --ic

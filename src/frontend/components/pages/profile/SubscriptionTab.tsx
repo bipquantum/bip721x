@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useActors } from "../../common/ActorsContext";
 import SpinnerSvg from "../../../assets/spinner.svg";
 import { Plan, SSubscription, RenewalInterval } from "../../../../declarations/backend/backend.did";
@@ -8,32 +8,80 @@ import { FiCheck, FiArrowRight } from "react-icons/fi";
 const SubscriptionTab = () => {
   const { authenticated } = useActors();
   const navigate = useNavigate();
+  const location = useLocation();
   const [subscription, setSubscription] = useState<SSubscription | null>(null);
   const [currentPlan, setCurrentPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+
+  const fetchData = async () => {
+    if (!authenticated) return null;
+
+    try {
+      const subData = await authenticated.backend.get_subscription();
+      setSubscription(subData);
+
+      const plansData = await authenticated.backend.get_plans();
+      const plan = plansData.find((p) => p.id === subData.planId);
+      if (plan) {
+        setCurrentPlan(plan);
+      }
+
+      return subData;
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     if (!authenticated) return;
 
-    const fetchData = async () => {
-      try {
-        const subData = await authenticated.backend.get_subscription();
-        setSubscription(subData);
-
-        const plansData = await authenticated.backend.get_plans();
-        const plan = plansData.find((p) => p.id === subData.planId);
-        if (plan) {
-          setCurrentPlan(plan);
-        }
-      } catch (error) {
-        console.error("Error fetching subscription:", error);
-      } finally {
-        setLoading(false);
-      }
+    const loadData = async () => {
+      await fetchData();
+      setLoading(false);
     };
 
-    fetchData();
+    loadData();
   }, [authenticated]);
+
+  // Handle payment verification polling
+  useEffect(() => {
+    if (!authenticated || loading) return;
+
+    const searchParams = new URLSearchParams(location.search);
+    const paymentSuccess = searchParams.get('payment') === 'success';
+
+    if (paymentSuccess && subscription?.planId === 'free') {
+      setIsVerifyingPayment(true);
+
+      let pollCount = 0;
+      const maxPolls = 15; // Poll for up to 30 seconds (15 * 2s)
+
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+
+        const updatedSub = await fetchData();
+
+        if (updatedSub && updatedSub.planId !== 'free') {
+          // Payment verified! Subscription updated
+          clearInterval(pollInterval);
+          setIsVerifyingPayment(false);
+
+          // Clean URL (remove payment=success param)
+          window.history.replaceState({}, '', '/profile?tab=subscription');
+        } else if (pollCount >= maxPolls) {
+          // Timeout after max polls
+          clearInterval(pollInterval);
+          setIsVerifyingPayment(false);
+          console.warn('Payment verification timeout - subscription may still be processing');
+        }
+      }, 2000);
+
+      // Cleanup on unmount
+      return () => clearInterval(pollInterval);
+    }
+  }, [authenticated, loading, subscription?.planId, location.search]);
 
   if (loading) {
     return (
@@ -114,6 +162,23 @@ const SubscriptionTab = () => {
 
   return (
     <div className="flex w-full flex-col items-center space-y-6">
+      {/* Payment Verification Banner */}
+      {isVerifyingPayment && (
+        <div className="w-full max-w-4xl rounded-lg border-2 border-blue-500 bg-blue-50 p-4 dark:bg-blue-900/20">
+          <div className="flex items-center gap-3">
+            <img src={SpinnerSvg} alt="Verifying..." className="h-6 w-6" />
+            <div>
+              <p className="font-bold text-blue-900 dark:text-blue-100">
+                Verifying your payment...
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Please wait while we activate your subscription. This usually takes a few seconds.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Current Plan Card */}
       <div className="w-full max-w-4xl rounded-2xl border-2 border-primary bg-primary/5 p-5 shadow-lg dark:border-secondary dark:bg-secondary/5">
         <div className="mb-3 flex items-center justify-between">
