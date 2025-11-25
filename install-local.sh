@@ -149,7 +149,7 @@ dfx deploy backend --argument 'variant {
       grace_period_days = 7 : nat;
       subaccount = "subscriptions" : text;
     };
-    stripe_secret_key = "'${STRIPE_SECRET_KEY}'";
+    stripe_secret_key = "'${STRIPE_TEST_SECRET_KEY}'";
   }
 }'
 dfx canister call backend init_model
