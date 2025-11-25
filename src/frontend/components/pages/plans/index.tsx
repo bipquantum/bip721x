@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useActors } from "../../common/ActorsContext";
 import { useAuth } from "@nfid/identitykit/react";
 import SpinnerSvg from "../../../assets/spinner.svg";
-import { Plan } from "../../../../declarations/backend/backend.did";
+import { Plan, RenewalInterval } from "../../../../declarations/backend/backend.did";
 import { FiCheck } from "react-icons/fi";
 import Modal from "../../common/Modal";
 import { useSetSubscription } from "../../hooks/useSetSubscription";
 import { backendActor } from "../../actors/BackendActor";
+import { getStripeCheckoutUrl } from "../../../constants/stripe";
+
+type PaymentMethod = "ckusdt" | "stripe";
 
 const Plans = () => {
 
@@ -15,6 +18,7 @@ const Plans = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>("ckusdt");
 
   const { call: updateSubscription, loading: settingSubscription } = useSetSubscription({
     onSuccess: () => {
@@ -64,19 +68,34 @@ const Plans = () => {
     return price === 0 ? "Free" : `$${price.toFixed(2)}`;
   };
 
-  const formatInterval = (days: bigint): string => {
-    const numDays = Number(days);
-    if (numDays === 30) return "month";
-    if (numDays === 365) return "year";
-    return `${numDays} days`;
+  const formatInterval = (interval: RenewalInterval): string => {
+    if ("Days" in interval) {
+      const numDays = Number(interval.Days);
+      if (numDays === 30) return "month";
+      if (numDays === 365) return "year";
+      return `${numDays} days`;
+    } else {
+      const numMonths = Number(interval.Months);
+      if (numMonths === 1) return "month";
+      if (numMonths === 12) return "year";
+      return `${numMonths} months`;
+    }
   };
 
-  const formatDuration = (numberInterval: [] | [bigint], intervalDays: bigint): string => {
+  const getIntervalDays = (interval: RenewalInterval): number => {
+    if ("Days" in interval) {
+      return Number(interval.Days);
+    } else {
+      return Number(interval.Months) * 30; // Approximate months as 30 days
+    }
+  };
+
+  const formatDuration = (numberInterval: [] | [bigint], interval: RenewalInterval): string => {
     if (numberInterval.length === 0) {
       return "Forever";
     }
     const intervals = Number(numberInterval[0]);
-    const days = Number(intervalDays);
+    const days = getIntervalDays(interval);
     const totalDays = intervals * days;
 
     if (totalDays >= 365) {
@@ -133,7 +152,7 @@ const Plans = () => {
                 </span>
                 {plan.renewalPriceUsdtE6s > 0n && (
                   <span className="ml-2 text-gray-600 dark:text-gray-400">
-                    / {formatInterval(plan.renewalIntervalDays)}
+                    / {formatInterval(plan.renewalInterval)}
                   </span>
                 )}
               </div>
@@ -143,14 +162,14 @@ const Plans = () => {
                 <div className="mb-3 flex items-center gap-2">
                   <FiCheck className="text-green-500" size={20} />
                   <span className="text-gray-700 dark:text-gray-300">
-                    {formatCredits(plan.intervalCredits)} credits per {formatInterval(plan.renewalIntervalDays)}
+                    {formatCredits(plan.intervalCredits)} credits per {formatInterval(plan.renewalInterval)}
                   </span>
                 </div>
 
                 <div className="mb-3 flex items-center gap-2">
                   <FiCheck className="text-green-500" size={20} />
                   <span className="text-gray-700 dark:text-gray-300">
-                    Duration: {formatDuration(plan.numberInterval, plan.renewalIntervalDays)}
+                    Duration: {formatDuration(plan.numberInterval, plan.renewalInterval)}
                   </span>
                 </div>
 
@@ -158,7 +177,7 @@ const Plans = () => {
                   <div className="mb-3 flex items-center gap-2">
                     <FiCheck className="text-green-500" size={20} />
                     <span className="text-gray-700 dark:text-gray-300">
-                      Renews every {formatInterval(plan.renewalIntervalDays)}
+                      Renews every {formatInterval(plan.renewalInterval)}
                     </span>
                   </div>
                 )}
@@ -184,7 +203,10 @@ const Plans = () => {
       {/* Plan Selection Modal */}
       <Modal
         isVisible={selectedPlan !== null}
-        onClose={() => setSelectedPlan(null)}
+        onClose={() => {
+          setSelectedPlan(null);
+          setSelectedPaymentMethod("ckusdt"); // Reset to default
+        }}
         title="Confirm Plan Selection"
       >
         {selectedPlan && (
@@ -205,7 +227,7 @@ const Plans = () => {
                 {formatPrice(selectedPlan.renewalPriceUsdtE6s)}
                 {selectedPlan.renewalPriceUsdtE6s > 0n && (
                   <span className="ml-2 text-lg text-gray-600 dark:text-gray-400">
-                    / {formatInterval(selectedPlan.renewalIntervalDays)}
+                    / {formatInterval(selectedPlan.renewalInterval)}
                   </span>
                 )}
               </p>
@@ -220,25 +242,105 @@ const Plans = () => {
                 <div className="flex items-center gap-2">
                   <FiCheck className="text-green-500" size={18} />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {formatCredits(selectedPlan.intervalCredits)} credits per {formatInterval(selectedPlan.renewalIntervalDays)}
+                    {formatCredits(selectedPlan.intervalCredits)} credits per {formatInterval(selectedPlan.renewalInterval)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <FiCheck className="text-green-500" size={18} />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
-                    Duration: {formatDuration(selectedPlan.numberInterval, selectedPlan.renewalIntervalDays)}
+                    Duration: {formatDuration(selectedPlan.numberInterval, selectedPlan.renewalInterval)}
                   </span>
                 </div>
                 {selectedPlan.renewalPriceUsdtE6s > 0n && (
                   <div className="flex items-center gap-2">
                     <FiCheck className="text-green-500" size={18} />
                     <span className="text-sm text-gray-700 dark:text-gray-300">
-                      Renews every {formatInterval(selectedPlan.renewalIntervalDays)}
+                      Renews every {formatInterval(selectedPlan.renewalInterval)}
                     </span>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Payment Method Selection - Only show for paid plans */}
+            {selectedPlan.renewalPriceUsdtE6s > 0n && (
+              <div>
+                <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Choose Payment Method:
+                </p>
+                <div className="space-y-3">
+                  {/* ckUSDT Option */}
+                  <button
+                    onClick={() => setSelectedPaymentMethod("ckusdt")}
+                    className={`w-full rounded-lg border-2 p-4 text-left transition-all ${
+                      selectedPaymentMethod === "ckusdt"
+                        ? "border-primary bg-primary/10 dark:border-secondary dark:bg-secondary/10"
+                        : "border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5">
+                        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                          selectedPaymentMethod === "ckusdt"
+                            ? "border-primary dark:border-secondary"
+                            : "border-gray-400 dark:border-gray-500"
+                        }`}>
+                          {selectedPaymentMethod === "ckusdt" && (
+                            <div className="h-3 w-3 rounded-full bg-primary dark:bg-secondary" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-2xl">💎</span>
+                          <span className="font-semibold text-black dark:text-white">
+                            ckUSDT (Crypto)
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Direct blockchain payment • No processing fees
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Stripe Option */}
+                  <button
+                    onClick={() => setSelectedPaymentMethod("stripe")}
+                    className={`w-full rounded-lg border-2 p-4 text-left transition-all ${
+                      selectedPaymentMethod === "stripe"
+                        ? "border-primary bg-primary/10 dark:border-secondary dark:bg-secondary/10"
+                        : "border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5">
+                        <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                          selectedPaymentMethod === "stripe"
+                            ? "border-primary dark:border-secondary"
+                            : "border-gray-400 dark:border-gray-500"
+                        }`}>
+                          {selectedPaymentMethod === "stripe" && (
+                            <div className="h-3 w-3 rounded-full bg-primary dark:bg-secondary" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-2xl">💳</span>
+                          <span className="font-semibold text-black dark:text-white">
+                            Credit/Debit Card
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Powered by Stripe • Instant payment
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Expiration Date */}
             {selectedPlan.numberInterval.length > 0 && (
@@ -250,7 +352,7 @@ const Plans = () => {
                   {(() => {
                     const now = Date.now();
                     const intervals = Number(selectedPlan.numberInterval[0]);
-                    const days = Number(selectedPlan.renewalIntervalDays);
+                    const days = getIntervalDays(selectedPlan.renewalInterval);
                     const expiryDate = new Date(now + intervals * days * 24 * 60 * 60 * 1000);
                     return expiryDate.toLocaleDateString("en-US", {
                       year: "numeric",
@@ -277,7 +379,10 @@ const Plans = () => {
             {/* Action Buttons */}
             <div className="flex gap-3 pt-2">
               <button
-                onClick={() => setSelectedPlan(null)}
+                onClick={() => {
+                  setSelectedPlan(null);
+                  setSelectedPaymentMethod("ckusdt"); // Reset to default
+                }}
                 disabled={settingSubscription}
                 className="flex-1 rounded-lg border-2 border-gray-300 bg-white py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
@@ -285,8 +390,25 @@ const Plans = () => {
               </button>
               <button
                 onClick={() => {
-                  if (selectedPlan) {
-                    updateSubscription(selectedPlan.id);
+                  if (selectedPlan && user) {
+                    if (selectedPaymentMethod === "ckusdt") {
+                      // Current flow: direct subscription update with ckUSDT
+                      updateSubscription(selectedPlan.id);
+                    } else {
+                      // Stripe flow: redirect to Stripe Checkout
+                      const checkoutUrl = getStripeCheckoutUrl(
+                        selectedPlan.id,
+                        user.principal.toString()
+                      );
+
+                      if (checkoutUrl === "#") {
+                        alert(`Stripe payment link not configured for plan: ${selectedPlan.name}`);
+                        return;
+                      }
+
+                      // Redirect to Stripe Checkout
+                      window.location.href = checkoutUrl;
+                    }
                   }
                 }}
                 disabled={settingSubscription}
@@ -294,8 +416,12 @@ const Plans = () => {
               >
                 {settingSubscription ? (
                   <img src={SpinnerSvg} alt="Loading..." className="h-6 w-6" />
-                ) : (
+                ) : selectedPlan.renewalPriceUsdtE6s === 0n ? (
                   "Proceed"
+                ) : selectedPaymentMethod === "stripe" ? (
+                  "Proceed to Stripe"
+                ) : (
+                  "Proceed with ckUSDT"
                 )}
               </button>
             </div>

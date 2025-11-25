@@ -14,15 +14,17 @@ module {
         controller: Controller.Controller;
         chatBotHistory: ChatBotHistory.ChatBotHistory;
         subscriptionManager: SubscriptionManager.SubscriptionManager;
+        stripeSecretKey: Text;
     };
 
     public func build({ state: State; backendId: Principal; }) : Model {
         let chatBotHistory = ChatBotHistory.ChatBotHistory({
           chatHistories = state.chatHistories;
         });
-        let subscriptionManager = SubscriptionManager.SubscriptionManager({ 
+        let subscriptionManager = SubscriptionManager.SubscriptionManager({
           register = state.subscription_register;
           backendId;
+          stripeSecretKey = state.stripe_secret_key;
         });
         let controller = Controller.Controller({
           state with
@@ -42,6 +44,7 @@ module {
           controller;
           chatBotHistory;
           subscriptionManager;
+          stripeSecretKey = state.stripe_secret_key;
         };
     };
 };

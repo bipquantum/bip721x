@@ -25,10 +25,12 @@ module {
   public type NotificationState    = Types.Current.NotificationState;
   public type Notifications        = Types.Current.Notifications;
   public type CkUsdtRate           = Types.Current.CkUsdtRate;
+  public type RenewalInterval      = Types.Current.RenewalInterval;
   public type Plan                 = Types.Current.Plan;
   public type Plans                = Types.Current.Plans;
   public type Subscription         = Types.Current.Subscription;
   public type SubscriptionState    = Types.Current.SubscriptionState;
+  public type PaymentMethod        = Types.Current.PaymentMethod;
   public type SubscriptionRegister = Types.Current.SubscriptionRegister;
   public type State                = Types.Current.State;
 
@@ -60,6 +62,7 @@ module {
     startDate: Int;
     nextRenewalDate: Int;
     expiryDate: ?Int;
+    paymentMethod: PaymentMethod;
   };
 
   public type SCkUsdtRate = {
@@ -90,6 +93,23 @@ module {
   public type QueryDirection = {
     #FORWARD;
     #BACKWARD;
+  };
+
+  // HTTP types (used by Stripe webhook handling)
+  public type HeaderField = (Text, Text);
+
+  public type HttpRequest = {
+    method: Text;
+    url: Text;
+    headers: [HeaderField];
+    body: Blob;
+  };
+
+  public type HttpResponse = {
+    status_code: Nat16;
+    headers: [HeaderField];
+    body: Blob;
+    upgrade: ?Bool;
   };
 
 };

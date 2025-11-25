@@ -70,28 +70,27 @@ export const useSetSubscription = ({ onSuccess, onError }: SetSubscriptionArgs) 
         return;
       }
 
-      const tokenFee = ckusdtLedger.tokenFee;
-      if (tokenFee === undefined) {
-        toast.warn("Failed to get token fee");
-        console.error("Token fee is undefined");
-        onError?.();
-        setLoading(false);
-        return;
-      }
+      // Only approve tokens for paid plans
+      if (selectedPlan.renewalPriceUsdtE6s > 0n) {
+        const tokenFee = ckusdtLedger.tokenFee;
+        if (tokenFee === undefined) {
+          toast.warn("Failed to get token fee");
+          console.error("Token fee is undefined");
+          onError?.();
+          setLoading(false);
+          return;
+        }
 
-      // Calculate total amount needed for the plan's duration
-      let totalAmount: bigint;
-      if (selectedPlan.numberInterval.length > 0) {
-        // Plan has a limited duration
-        const intervals = Number(selectedPlan.numberInterval[0]);
-        totalAmount = (selectedPlan.renewalPriceUsdtE6s + tokenFee) * BigInt(intervals);
-      } else {
-        // Plan never expires, approve for 1 interval
-        totalAmount = selectedPlan.renewalPriceUsdtE6s + tokenFee;
-      }
-
-      // Approve the USDT transfer if the price is greater than 0
-      if (totalAmount > 0n) {
+        // Calculate total amount needed for the plan's duration
+        let totalAmount: bigint;
+        if (selectedPlan.numberInterval.length > 0) {
+          // Plan has a limited duration
+          const intervals = Number(selectedPlan.numberInterval[0]);
+          totalAmount = (selectedPlan.renewalPriceUsdtE6s + tokenFee) * BigInt(intervals);
+        } else {
+          // Plan never expires, approve for 1 interval
+          totalAmount = selectedPlan.renewalPriceUsdtE6s + tokenFee;
+        }
 
         const spender : Account = {
           owner: Principal.fromText(canisterId),

@@ -112,6 +112,8 @@ dfx deps init
 dfx deps deploy internet_identity
 
 # Backend
+STRIPE_PREMIUM_MONTHLY_LINK="plink_1SUqfIEq6YsoiR2BzqKaTpQB"
+
 dfx deploy backend --argument 'variant {
   init = record {
     airdrop_per_user = 100_000_000_000;
@@ -129,22 +131,25 @@ dfx deploy backend --argument 'variant {
           name = "Free Always";
           intervalCredits = 10_000 : nat;
           renewalPriceUsdtE6s = 0 : nat;
-          renewalIntervalDays = 30 : nat;
+          renewalInterval = variant { Months = 1 : nat };
           numberInterval = null;
+          stripePaymentLink = null;
         };
         record {
           id = "premium_monthly";
           name = "Premium Monthly";
           intervalCredits = 2_000_000 : nat;
           renewalPriceUsdtE6s = 9_990_000 : nat;
-          renewalIntervalDays = 30 : nat;
+          renewalInterval = variant { Months = 1 : nat };
           numberInterval = opt (12 : nat);
+          stripePaymentLink = opt "'${STRIPE_PREMIUM_MONTHLY_LINK}'";
         };
       };
       free_plan_id = "free";
       grace_period_days = 7 : nat;
       subaccount = "subscriptions" : text;
     };
+    stripe_secret_key = "'${STRIPE_TEST_SECRET_KEY}'";
   }
 }'
 dfx canister call backend init_model

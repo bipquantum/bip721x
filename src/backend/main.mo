@@ -1,11 +1,8 @@
 import Types          "Types";
 import Model          "Model";
-import Conversions    "intprop/Conversions";
-import ChatBot        "ChatBot";
-import ChatBotHistory "ChatBotHistory";
-import TradeManager   "TradeManager";
 import XRCTypes       "XRCTypes";
 import Share          "Share";
+import Conversions    "intprop/Conversions";
 import MigrationTypes "migrations/Types";
 import Migrations     "migrations/Migrations";
 
@@ -18,6 +15,8 @@ import Debug         "mo:base/Debug";
 import Option        "mo:base/Option";
 import Cycles        "mo:base/ExperimentalCycles";
 import Time          "mo:base/Time";
+import Blob          "mo:base/Blob";
+import Text          "mo:base/Text";
 
 shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = this {
 
@@ -32,6 +31,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   type Notification          = Types.Notification;
   type NotificationType      = Types.NotificationType;
   type SCkUsdtRate           = Types.SCkUsdtRate;
+  type HttpRequest           = Types.HttpRequest;
+  type HttpResponse          = Types.HttpResponse;
   type Result<Ok, Err>       = Result.Result<Ok, Err>;
 
   // STABLE MEMBER
@@ -55,7 +56,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     };
 
     switch(_state){
-      case(#v0_8_0(state)){
+      case(#v0_9_0(state)){
         let builtModel = Model.build({
           state;
           backendId = Principal.fromActor(this);
@@ -63,7 +64,7 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
         ignore builtModel.controller.startTimer();
         model := ?builtModel;
       };
-      case(_) { Debug.trap("Unexpected state version: v0_8_0"); };
+      case(_) { Debug.trap("Unexpected state version: v0_9_0"); };
     };
     
     #ok;
@@ -272,7 +273,8 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
   };
 
   public shared({caller}) func set_subscription(planId: Text) : async Result.Result<(), Text> {
-    await* getModel().subscriptionManager.setSubscription(caller, planId);
+    // Public function assumes payment method is CK_USDT
+    await* getModel().subscriptionManager.setSubscription(caller, planId, #Ckusdt);
   };
 
   public query({caller}) func get_subscription() : async Types.SSubscription {
@@ -342,5 +344,13 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     ];
     return { trusted_origins; };
   };
-  
+
+  public query func http_request(req: HttpRequest) : async HttpResponse {
+    getModel().subscriptionManager.handleHttpRequest(req);
+  };
+
+  public func http_request_update(req: HttpRequest) : async HttpResponse {
+    await getModel().subscriptionManager.handleStripeWebhook(req);
+  };
+
 };

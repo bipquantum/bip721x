@@ -14,12 +14,25 @@ const Profile = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<Tab>(Tab.Profile);
 
-  // Check if we should open subscription tab from navigation state
+  // Check if we should open subscription tab from navigation state or query params
   useEffect(() => {
+    // Check location state (from navigate())
     if (location.state?.tab === "subscription") {
       setActiveTab(Tab.Subscription);
     }
-  }, [location.state]);
+
+    // Check query parameters (from Stripe redirect)
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get("tab") === "subscription") {
+      setActiveTab(Tab.Subscription);
+    }
+
+    // Optional: Show success message if coming from Stripe
+    if (searchParams.get("payment") === "success") {
+      // You could show a toast notification here
+      console.log("Payment successful! Subscription will be activated via webhook.");
+    }
+  }, [location.state, location.search]);
 
   if (!user) {
     return <></>;
