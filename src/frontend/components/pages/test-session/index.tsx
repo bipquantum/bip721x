@@ -1,5 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useActors } from "../../common/ActorsContext";
+import { useAuth } from "@nfid/identitykit/react";
+import Markdown from "react-markdown";
+import UserImage from "../../common/UserImage";
+import CopyIcon from "../../common/CopyIcon";
+import AiBot from "../../../assets/ai-bot.png";
+import SpinnerSvg from "../../../assets/spinner.svg";
+import { BiMicrophone } from "react-icons/bi";
+import { IoArrowUp } from "react-icons/io5";
+import AutoResizeTextarea, {
+  AutoResizeTextareaHandle,
+} from "../../common/AutoResizeTextArea";
 
 type ConnectionState =
   | { status: "idle" }
@@ -57,8 +68,22 @@ const TypewriterText = ({ text, isStreaming }: { text: string; isStreaming?: boo
   );
 };
 
+// Markdown components for consistent styling
+const MARKDOWN_COMPONENTS = {
+  h1: ({ node, ...props }: any) => (
+    <h1 className="text-xl font-bold sm:text-2xl" {...props} />
+  ),
+  h2: ({ node, ...props }: any) => (
+    <h2 className="text-lg font-semibold sm:text-xl" {...props} />
+  ),
+  h3: ({ node, ...props }: any) => (
+    <h3 className="text-md font-medium sm:text-lg" {...props} />
+  ),
+};
+
 const TestSession = () => {
   const { authenticated } = useActors();
+  const { user } = useAuth();
   const [connectionState, setConnectionState] = useState<ConnectionState>({ status: "idle" });
   const [logs, setLogs] = useState<string[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -67,6 +92,8 @@ const TestSession = () => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<AutoResizeTextareaHandle>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -120,11 +147,11 @@ const TestSession = () => {
     }
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
 
     sendTextMessage(inputMessage);
+    inputRef.current?.clear();
     setInputMessage("");
   };
 
@@ -618,66 +645,121 @@ const TestSession = () => {
           </h2>
 
           {/* Chat Messages */}
-          <div className="mb-4 h-96 overflow-y-auto rounded bg-gray-50 p-4 dark:bg-gray-900">
+          <div className="mb-4 h-96 overflow-y-auto rounded bg-gray-50 p-4 text-sm leading-normal dark:bg-gray-900 sm:text-lg sm:leading-relaxed">
             {chatMessages.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400">
                 Connect to start chatting with the AI...
               </p>
             ) : (
-              chatMessages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`mb-3 ${msg.role === "user" ? "text-right" : "text-left"}`}
-                >
-                  <div
-                    className={`inline-block max-w-[80%] rounded-lg px-4 py-2 text-sm ${
-                      msg.role === "user"
-                        ? "bg-primary text-white"
-                        : msg.role === "assistant"
-                        ? "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100"
-                        : "bg-yellow-100 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-100"
-                    }`}
-                  >
-                    {msg.role === "system" && (
-                      <span className="mr-2 font-semibold">System:</span>
-                    )}
-                    {msg.role === "assistant" && msg.isStreaming ? (
-                      <TypewriterText text={msg.content} isStreaming={msg.isStreaming} />
-                    ) : (
-                      msg.content
-                    )}
-                  </div>
-                  <div className="mt-1 text-xs text-gray-400">
-                    {msg.timestamp.toLocaleTimeString()}
-                  </div>
-                </div>
-              ))
+              chatMessages.map((msg, index) => {
+                if (msg.role === "system") {
+                  // System messages centered
+                  return (
+                    <div key={index} className="mb-3 flex justify-center">
+                      <div className="rounded-xl bg-yellow-100 px-3 py-2 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-100">
+                        <span className="font-semibold">System:</span> {msg.content}
+                      </div>
+                    </div>
+                  );
+                } else if (msg.role === "user") {
+                  // User messages - right aligned with user image and colored background
+                  return (
+                    <div key={index} className="mb-3 flex flex-row justify-end gap-2 py-2">
+                      <span className="flex flex-col px-5"></span>
+                      <div className="markdown-link flex items-center rounded-xl bg-gradient-to-t from-primary to-secondary px-3 py-0 text-white sm:px-4 sm:py-2">
+                        {msg.content}
+                      </div>
+                      <UserImage principal={user?.principal} />
+                    </div>
+                  );
+                } else {
+                  // Assistant messages - left aligned with AI image and light background
+                  return (
+                    <div key={index} className="mb-3 flex flex-row gap-2 py-2">
+                      <img src={AiBot} className="h-10 rounded-full" alt="AI" />
+                      <div className="markdown-link flex flex-col gap-3 rounded-xl bg-gray-200 px-3 py-2 text-gray-900 dark:bg-gray-700 dark:text-gray-100 sm:px-4 sm:py-2">
+                        {msg.isStreaming ? (
+                          <>
+                            <Markdown components={MARKDOWN_COMPONENTS}>
+                              {msg.content}
+                            </Markdown>
+                            <img
+                              src={SpinnerSvg}
+                              className="h-5 w-5 self-end dark:invert"
+                              alt="Typing..."
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Markdown components={MARKDOWN_COMPONENTS}>
+                              {msg.content}
+                            </Markdown>
+                            <div
+                              className="mb-2 mt-1 h-5 w-5 cursor-pointer self-end sm:mb-1 sm:mt-0 sm:h-6 sm:w-6"
+                              onClick={() => navigator.clipboard.writeText(msg.content)}
+                            >
+                              <CopyIcon className="text-gray-700 dark:text-white hover:text-black" />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      <span className="flex flex-col px-5"></span>
+                    </div>
+                  );
+                }
+              })
             )}
             <div ref={chatEndRef} />
           </div>
 
           {/* Chat Input */}
-          <form onSubmit={handleSendMessage} className="flex gap-2">
-            <input
-              type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              disabled={connectionState.status !== "connected"}
-              placeholder={
-                connectionState.status === "connected"
-                  ? "Type a message..."
-                  : "Connect to start chatting..."
-              }
-              className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
-            />
-            <button
-              type="submit"
-              disabled={connectionState.status !== "connected" || !inputMessage.trim()}
-              className="rounded-lg bg-gradient-to-t from-primary to-secondary px-6 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Send
-            </button>
-          </form>
+          <div className="flex w-full flex-col gap-2">
+            <div className="relative flex w-full flex-row items-center gap-2">
+              <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
+                <AutoResizeTextarea
+                  ref={inputRef}
+                  placeholder={
+                    connectionState.status === "connected"
+                      ? "What do you want to protect?"
+                      : "Connect to start chatting..."
+                  }
+                  onChange={(value) => {
+                    if (bottomRef.current) {
+                      bottomRef.current.scrollIntoView({ behavior: "instant" });
+                    }
+                    setInputMessage(value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (inputMessage.trim()) {
+                        handleSendMessage();
+                      }
+                    }
+                  }}
+                  disabled={connectionState.status !== "connected"}
+                />
+              </div>
+              <div className="group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 px-1 text-black">
+                <BiMicrophone size={35} color="gray" />
+                <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex">
+                  Disabled (text-only mode)
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  if (inputMessage) handleSendMessage();
+                }}
+                disabled={connectionState.status !== "connected" || !inputMessage.trim()}
+                className="flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 disabled:opacity-50"
+              >
+                <IoArrowUp size={30} className="text-black" />
+              </button>
+            </div>
+            <p ref={bottomRef} className="text-sm text-gray-500">
+              BIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.
+            </p>
+          </div>
         </div>
 
         {/* Logs */}

@@ -1,10 +1,8 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 
 import { AiPrompt, ChatElem } from "./types";
 import ChatBox from "./ChatBox";
 import { Principal } from "@dfinity/principal";
-import { AnyEventObject } from "xstate";
-import { AUTOMATIC_CHATBOT_TRANSITION } from "../../constants";
 import { BiMicrophone } from "react-icons/bi";
 import { IoArrowUp } from "react-icons/io5";
 import AutoResizeTextarea, {
@@ -15,7 +13,6 @@ import Modal from "../../common/Modal";
 interface ChatBotProps {
   principal: Principal | undefined;
   chats: ChatElem[];
-  sendEvent: (event: AnyEventObject) => void;
   aiPrompts: Map<number, AiPrompt[]>;
   askAI: (question: string) => Promise<void>;
 }
@@ -23,7 +20,6 @@ interface ChatBotProps {
 const ChatBot = ({
   principal,
   chats,
-  sendEvent,
   aiPrompts,
   askAI,
 }: ChatBotProps) => {
@@ -45,19 +41,6 @@ const ChatBot = ({
     }
   };
 
-  useEffect(() => {
-    // TODO: fix very ugly way to automatically transition to the next chat
-    if (Array.isArray(chats) && chats.length > 0) {
-      const lastChat = chats[chats.length - 1]?.answers;
-      if (Array.isArray(lastChat) && lastChat.length > 0) {
-        const answer = lastChat[0];
-        if (answer?.text === AUTOMATIC_CHATBOT_TRANSITION) {
-          sendEvent({ type: answer.text });
-        }
-      }
-    }
-  }, [chats]);
-
   return (
     <div className="relative flex w-full flex-grow flex-col justify-between overflow-y-auto">
       <div>
@@ -66,7 +49,6 @@ const ChatBot = ({
         </p>
         <ChatBox
           chats={chats}
-          sendEvent={sendEvent}
           aiPrompts={aiPrompts}
           principal={principal}
         />

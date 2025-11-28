@@ -224,7 +224,6 @@ const WithHistory: React.FC<WithHistoryProps> = ({ principal, chatId }) => {
     <ChatBot
       principal={principal}
       chats={chats.current}
-      sendEvent={sendEvent}
       aiPrompts={aiPrompts}
       askAI={askAI}
     />
