@@ -12,7 +12,50 @@ interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
   timestamp: Date;
+  isStreaming?: boolean;
 }
+
+// Component for gradual text reveal
+const TypewriterText = ({ text, isStreaming }: { text: string; isStreaming?: boolean }) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const displayedLengthRef = useRef(0);
+
+  useEffect(() => {
+    // If not streaming anymore, show all remaining text immediately
+    if (!isStreaming && displayedText !== text) {
+      setDisplayedText(text);
+      displayedLengthRef.current = text.length;
+      return;
+    }
+
+    // If streaming and we have more text to display
+    if (isStreaming && displayedLengthRef.current < text.length) {
+      const timer = setTimeout(() => {
+        displayedLengthRef.current += 1;
+        setDisplayedText(text.slice(0, displayedLengthRef.current));
+      }, 15); // 15ms per character
+
+      return () => clearTimeout(timer);
+    }
+  }, [text, displayedText, isStreaming]);
+
+  // Reset when we get a completely new message (text becomes shorter)
+  useEffect(() => {
+    if (text.length < displayedLengthRef.current) {
+      setDisplayedText("");
+      displayedLengthRef.current = 0;
+    }
+  }, [text.length]);
+
+  return (
+    <>
+      {displayedText}
+      {isStreaming && displayedLengthRef.current < text.length && (
+        <span className="ml-1 inline-block h-4 w-1 animate-pulse bg-current"></span>
+      )}
+    </>
+  );
+};
 
 const TestSession = () => {
   const { authenticated } = useActors();
@@ -299,14 +342,15 @@ const TestSession = () => {
                     // Append to existing message
                     return [
                       ...prev.slice(0, -1),
-                      { ...lastMsg, content: lastMsg.content + deltaText }
+                      { ...lastMsg, content: lastMsg.content + deltaText, isStreaming: true }
                     ];
                   } else {
                     // Create new message
                     return [...prev, {
                       role: "assistant",
                       content: deltaText,
-                      timestamp: new Date()
+                      timestamp: new Date(),
+                      isStreaming: true
                     }];
                   }
                 });
@@ -321,11 +365,17 @@ const TestSession = () => {
                 setChatMessages(prev => {
                   const lastMsg = prev[prev.length - 1];
                   if (lastMsg && lastMsg.role === "assistant") {
-                    // Replace with final text if it's different
+                    // Replace with final text and mark as not streaming
                     if (lastMsg.content !== data.text) {
                       return [
                         ...prev.slice(0, -1),
-                        { ...lastMsg, content: data.text }
+                        { ...lastMsg, content: data.text, isStreaming: false }
+                      ];
+                    } else {
+                      // Same content, just mark as done streaming
+                      return [
+                        ...prev.slice(0, -1),
+                        { ...lastMsg, isStreaming: false }
                       ];
                     }
                   }
@@ -591,7 +641,11 @@ const TestSession = () => {
                     {msg.role === "system" && (
                       <span className="mr-2 font-semibold">System:</span>
                     )}
-                    {msg.content}
+                    {msg.role === "assistant" && msg.isStreaming ? (
+                      <TypewriterText text={msg.content} isStreaming={msg.isStreaming} />
+                    ) : (
+                      msg.content
+                    )}
                   </div>
                   <div className="mt-1 text-xs text-gray-400">
                     {msg.timestamp.toLocaleTimeString()}
