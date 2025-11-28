@@ -114,15 +114,22 @@ const TestSession = () => {
         }
       };
 
-      // Add local audio track for microphone input
-      addLog("🎤 Requesting microphone access...");
-      const ms = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-      addLog("✓ Microphone access granted");
-
-      pc.addTrack(ms.getTracks()[0]);
-      addLog("✓ Local audio track added to peer connection");
+      // For text-only mode, we still need a media track for WebRTC
+      // Create a silent audio track instead of requesting microphone
+      addLog("🔇 Creating silent audio track (text-only mode)...");
+      try {
+        const ms = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        addLog("✓ Microphone access granted (will be muted for text-only)");
+        pc.addTrack(ms.getTracks()[0]);
+        // Mute the track since we're in text-only mode
+        ms.getTracks()[0].enabled = false;
+        addLog("✓ Audio track added (muted for text-only mode)");
+      } catch (error: any) {
+        addLog(`⚠️ Could not get microphone: ${error.message}`);
+        addLog("ℹ️ Continuing without audio track...");
+      }
 
       // Set up data channel for sending and receiving events
       const dc = pc.createDataChannel("oai-events");
@@ -131,7 +138,22 @@ const TestSession = () => {
 
       dc.onopen = () => {
         addLog("✓ Data channel opened");
-        addChatMessage("system", "Connection established. You can now start chatting!");
+
+        // Configure session for text-only mode
+        // Note: Only include fields that should be updated, not the full session config
+        const sessionConfig = {
+          type: "session.update",
+          session: {
+            type: "realtime",
+            model: "gpt-realtime",
+            output_modalities: ["text"],
+            instructions: "You are an assistant designed to help the user answer questions on intellectual property (IP). Your are embedded in the BIPQuantum website, which is a platform that delivers digital certificate that leverages blockchain technology to provide secure and immutable proof of ownership and authenticity for intellectual properties. You will answer technical questions on IP and guide the user through the process of creating a new IP certificate. You won't answer questions that are not related to IP, blockchain, or the BIPQuantum platform.",
+          }
+        };
+
+        dc.send(JSON.stringify(sessionConfig));
+        addLog("📤 Sent session.update (text-only mode)");
+        addChatMessage("system", "Connection established. Text-only mode configured. You can now start chatting!");
       };
 
       dc.onclose = () => {
@@ -146,6 +168,11 @@ const TestSession = () => {
         try {
           const data = JSON.parse(event.data);
           addLog(`📩 Received event: ${data.type}`);
+
+          // Debug: Log the full event data for text responses
+          if (data.type?.includes('text') || data.type?.includes('content')) {
+            console.log('Text event data:', JSON.stringify(data, null, 2));
+          }
 
           // Handle different event types
           switch (data.type) {
@@ -195,6 +222,114 @@ const TestSession = () => {
                       timestamp: new Date()
                     }];
                   }
+                });
+              }
+              break;
+
+            // Handle response.output_item.done which contains the final text
+            case "response.output_item.done":
+              if (data.item?.content) {
+                const textContent = data.item.content.find((c: any) => c.type === 'text');
+                if (textContent?.text) {
+                  addLog(`✓ Output item text: "${textContent.text.substring(0, 50)}${textContent.text.length > 50 ? '...' : ''}"`);
+                  addChatMessage("assistant", textContent.text);
+                }
+              }
+              break;
+
+            // Handle response.content_part.done for streaming
+            case "response.content_part.done":
+              if (data.part?.text) {
+                addLog(`✓ Content part text: "${data.part.text.substring(0, 50)}${data.part.text.length > 50 ? '...' : ''}"`);
+                setChatMessages(prev => {
+                  const lastMsg = prev[prev.length - 1];
+                  if (lastMsg && lastMsg.role === "assistant" &&
+                      new Date().getTime() - lastMsg.timestamp.getTime() < 5000) {
+                    // Update existing message
+                    return [
+                      ...prev.slice(0, -1),
+                      { ...lastMsg, content: data.part.text }
+                    ];
+                  } else {
+                    // Add as new message
+                    return [...prev, {
+                      role: "assistant",
+                      content: data.part.text,
+                      timestamp: new Date()
+                    }];
+                  }
+                });
+              }
+              break;
+
+            // Handle delta events for streaming text
+            case "response.content_part.delta":
+              if (data.delta?.text) {
+                addLog(`💬 Content delta: "${data.delta.text.substring(0, 50)}${data.delta.text.length > 50 ? '...' : ''}"`);
+                setChatMessages(prev => {
+                  const lastMsg = prev[prev.length - 1];
+                  if (lastMsg && lastMsg.role === "assistant" &&
+                      new Date().getTime() - lastMsg.timestamp.getTime() < 1000) {
+                    // Append to existing message
+                    return [
+                      ...prev.slice(0, -1),
+                      { ...lastMsg, content: lastMsg.content + data.delta.text }
+                    ];
+                  } else {
+                    // Create new message
+                    return [...prev, {
+                      role: "assistant",
+                      content: data.delta.text,
+                      timestamp: new Date()
+                    }];
+                  }
+                });
+              }
+              break;
+
+            // Handle response.output_text.delta (the actual event from OpenAI)
+            case "response.output_text.delta":
+              if (data.delta) {
+                const deltaText = data.delta;
+                addLog(`💬 Output text delta: "${deltaText.substring(0, 30)}${deltaText.length > 30 ? '...' : ''}"`);
+                setChatMessages(prev => {
+                  const lastMsg = prev[prev.length - 1];
+                  if (lastMsg && lastMsg.role === "assistant" &&
+                      new Date().getTime() - lastMsg.timestamp.getTime() < 5000) {
+                    // Append to existing message
+                    return [
+                      ...prev.slice(0, -1),
+                      { ...lastMsg, content: lastMsg.content + deltaText }
+                    ];
+                  } else {
+                    // Create new message
+                    return [...prev, {
+                      role: "assistant",
+                      content: deltaText,
+                      timestamp: new Date()
+                    }];
+                  }
+                });
+              }
+              break;
+
+            // Handle response.output_text.done (final text)
+            case "response.output_text.done":
+              if (data.text) {
+                addLog(`✓ Output text done: "${data.text.substring(0, 50)}${data.text.length > 50 ? '...' : ''}"`);
+                // Update the last assistant message with final text if available
+                setChatMessages(prev => {
+                  const lastMsg = prev[prev.length - 1];
+                  if (lastMsg && lastMsg.role === "assistant") {
+                    // Replace with final text if it's different
+                    if (lastMsg.content !== data.text) {
+                      return [
+                        ...prev.slice(0, -1),
+                        { ...lastMsg, content: data.text }
+                      ];
+                    }
+                  }
+                  return prev;
                 });
               }
               break;

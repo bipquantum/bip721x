@@ -90,8 +90,8 @@ module {
     // Takes an SDP (Session Description Protocol) string and returns an SDP response from OpenAI
     public func initSession(sdp: Text) : async* Result<Text, Text> {
 
-      // Build the session configuration JSON
-      let sessionConfig = "{\"type\":\"realtime\",\"model\":\"gpt-realtime\",\"audio\":{\"output\":{\"voice\":\"marin\"}}}";
+      // Build the session configuration JSON for text-only mode
+      let sessionConfig = "{\"type\":\"realtime\",\"model\":\"gpt-realtime\",\"output_modalities\":[\"text\"],\"instructions\": \"" # escapeJSON(CHAT_INSTRUCTIONS) # "\"}";
 
       // Build multipart/form-data body manually
       let boundary = "----WebKitFormBoundary" # "7MA4YWxkTrZu0gW";
