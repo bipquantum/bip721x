@@ -14,6 +14,7 @@ import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import Plans from "../pages/plans";
+import TestSession from "../pages/test-session";
 import { useAuth } from "@nfid/identitykit/react";
 import { useHotjarTracking } from "../hooks/useHotjarTracking";
 
@@ -80,6 +81,10 @@ const Router = () => {
       />
       <Route path={"/login"} element={<Login />} />
       <Route path="/bip/:intPropId/certificate" element={<CertificatePage />} />
+      <Route
+        path={"/test/session"}
+        element={<PrivateRoute element={<TestSession />} />}
+      />
     </Routes>
   );
 };
