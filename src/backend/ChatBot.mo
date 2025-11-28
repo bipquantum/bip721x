@@ -4,7 +4,6 @@ import Cycles          "mo:base/ExperimentalCycles";
 import Text            "mo:base/Text";
 import Iter            "mo:base/Iter";
 import Debug           "mo:base/Debug";
-import Map             "mo:map/Map";
 import Nat             "mo:base/Nat";
 import Result          "mo:base/Result";
 
@@ -85,6 +84,42 @@ module {
       subscriptionManager.consumeCredits(caller, tokens);
 
       #ok(content);
+    };
+
+    // Initialize a real-time chatbot session
+    // Takes an SDP (Session Description Protocol) string and returns an SDP response from OpenAI
+    public func initSession(sdp: Text) : async* Result<Text, Text> {
+
+      // Build the session configuration JSON
+      let sessionConfig = "{\"type\":\"realtime\",\"model\":\"gpt-realtime\",\"audio\":{\"output\":{\"voice\":\"marin\"}}}";
+
+      // Build multipart/form-data body manually
+      let boundary = "----WebKitFormBoundary" # "7MA4YWxkTrZu0gW";
+      let formData = buildMultipartFormData(boundary, sdp, sessionConfig);
+
+      Debug.print("Initiating realtime session with OpenAI");
+
+      Cycles.add<system>(1_000_000_000); // TODO: Find out precise cycles cost
+
+      let response = await IdempotentProxy.proxy_http_request({
+        url = "https://api.openai.com/v1/realtime/calls";
+        method = #post;
+        max_response_bytes = null;
+        body = ?formData;
+        transform = null;
+        headers = [
+          { name = "idempotency-key"; value = "idempotency_key_001"                       },
+          { name = "Authorization";   value = "Bearer " # chatbot_api_key                 },
+          { name = "Content-Type";    value = "multipart/form-data; boundary=" # boundary },
+        ];
+      });
+
+      // Decode the response (should be SDP text)
+      let ?responseText = Text.decodeUtf8(response.body) else return #err("Failed to decode API response");
+
+      Debug.print("Realtime session response: " # responseText);
+
+      #ok(responseText);
     };
 
     // Build history messages JSON from aiPrompts string
@@ -413,6 +448,32 @@ module {
 
     // Convert text to Nat
     Nat.fromText(numText);
+  };
+
+  // Build multipart/form-data body manually
+  // Format follows RFC 2388 (multipart/form-data)
+  func buildMultipartFormData(boundary: Text, sdp: Text, sessionConfig: Text) : Blob {
+    let crlf = "\r\n";
+    let dashes = "--";
+
+    var body = "";
+
+    // Add sdp field
+    body #= dashes # boundary # crlf;
+    body #= "Content-Disposition: form-data; name=\"sdp\"" # crlf;
+    body #= crlf;
+    body #= sdp # crlf;
+
+    // Add session field
+    body #= dashes # boundary # crlf;
+    body #= "Content-Disposition: form-data; name=\"session\"" # crlf;
+    body #= crlf;
+    body #= sessionConfig # crlf;
+
+    // Add closing boundary
+    body #= dashes # boundary # dashes # crlf;
+
+    Text.encodeUtf8(body);
   };
 
 }

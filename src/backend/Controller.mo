@@ -572,6 +572,10 @@ module {
       await* chatBot.getCompletion(caller, question, history.aiPrompts);
     };
 
+    public func initChatbotSession(sdp: Text) : async* Result<Text, Text> {
+      await* chatBot.initSession(sdp);
+    };
+
     // ================================ NOTIFICATIONS ================================
 
     public func createNotification(recipient: Principal, notificationType: NotificationType) {
