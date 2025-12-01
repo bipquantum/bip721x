@@ -100,11 +100,11 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
   };
 
   return (
-    <div className="relative flex w-full flex-grow flex-col justify-between overflow-y-auto">
-      <div className={`grid grid-cols-1 gap-4 ${showDebugPanel ? 'lg:grid-cols-2' : ''}`}>
-        <div className="flex flex-col">
+    <div className="relative flex w-full flex-grow flex-col overflow-hidden">
+      <div className={`grid grid-cols-1 gap-4 flex-grow overflow-hidden ${showDebugPanel ? 'lg:grid-cols-2' : ''}`}>
+        <div className="flex flex-col overflow-hidden">
           {/* Chat Messages */}
-          <div className="h-full w-full flex-grow overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed">
+          <div className="flex-grow overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed">
             {chatMessages.filter(msg => msg.role !== "system").map((msg, index) => {
               if (msg.role === "user") {
                 // User messages - right aligned with user image and colored background
@@ -156,8 +156,8 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
             <div ref={chatEndRef} />
           </div>
 
-          {/* Chat Input - Bottom */}
-          <div className="flex w-full flex-col gap-2 px-2 py-2">
+          {/* Chat Input - Sticky Bottom */}
+          <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t bg-white px-2 py-2 dark:bg-gray-800">
             <div className="relative flex w-full flex-row items-center gap-2">
               <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
                 <AutoResizeTextarea
