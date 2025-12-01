@@ -88,6 +88,7 @@ const TestSession = () => {
   const [logs, setLogs] = useState<string[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -108,6 +109,36 @@ const TestSession = () => {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
+
+  // Auto-connect on mount
+  useEffect(() => {
+    if (authenticated?.backend && connectionState.status === "idle") {
+      initSession();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+      }
+      if (dataChannelRef.current) {
+        dataChannelRef.current.close();
+      }
+    };
+  }, [authenticated?.backend]);
+
+  // Handle keyboard shortcut Ctrl+Alt+D to toggle debug panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.altKey && e.key === 'd') {
+        e.preventDefault();
+        setShowDebugPanel(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const sendTextMessage = (text: string) => {
     if (!dataChannelRef.current || dataChannelRef.current.readyState !== "open") {
@@ -476,9 +507,9 @@ const TestSession = () => {
         throw new Error("SDP offer is empty");
       }
 
-      // Call the backend's init_chatbot_session method
-      addLog("📡 Calling init_chatbot_session on backend...");
-      const result = await authenticated.backend.init_chatbot_session(offer.sdp);
+      // Call the backend's init_chatbot_rt_session method
+      addLog("📡 Calling init_chatbot_rt_session on backend...");
+      const result = await authenticated.backend.init_chatbot_rt_session(offer.sdp);
 
       if ('err' in result) {
         throw new Error(result.err);
@@ -590,54 +621,8 @@ const TestSession = () => {
         </p>
       </div>
 
-      {/* Status and Controls Row */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Status Card */}
-        <div className="rounded-lg border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
-            Connection Status
-          </h2>
-          <div className={`flex items-center gap-3 text-lg font-medium ${getStatusColor()}`}>
-            <span className="text-2xl">{getStatusIcon()}</span>
-            <span>{getStatusText()}</span>
-          </div>
-        </div>
-
-        {/* Controls Card */}
-        <div className="rounded-lg border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
-            Controls
-          </h2>
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={initSession}
-              disabled={connectionState.status === "connecting" || connectionState.status === "connected"}
-              className="rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-2 text-sm font-medium uppercase text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {connectionState.status === "connecting" ? "Connecting..." : "Connect"}
-            </button>
-
-            <button
-              onClick={disconnect}
-              disabled={connectionState.status === "idle"}
-              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium uppercase text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              Disconnect
-            </button>
-
-            <button
-              onClick={clearLogs}
-              disabled={logs.length === 0}
-              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium uppercase text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              Clear Logs
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Chat and Logs Row */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {/* Chat and Debug Panel Row */}
+      <div className={`grid grid-cols-1 gap-4 ${showDebugPanel ? 'lg:grid-cols-2' : ''}`}>
         {/* Chat Interface */}
         <div className="rounded-lg border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
@@ -646,22 +631,13 @@ const TestSession = () => {
 
           {/* Chat Messages */}
           <div className="mb-4 h-96 overflow-y-auto rounded bg-gray-50 p-4 text-sm leading-normal dark:bg-gray-900 sm:text-lg sm:leading-relaxed">
-            {chatMessages.length === 0 ? (
+            {chatMessages.filter(msg => msg.role !== "system").length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400">
                 Connect to start chatting with the AI...
               </p>
             ) : (
-              chatMessages.map((msg, index) => {
-                if (msg.role === "system") {
-                  // System messages centered
-                  return (
-                    <div key={index} className="mb-3 flex justify-center">
-                      <div className="rounded-xl bg-yellow-100 px-3 py-2 text-yellow-900 dark:bg-yellow-900 dark:text-yellow-100">
-                        <span className="font-semibold">System:</span> {msg.content}
-                      </div>
-                    </div>
-                  );
-                } else if (msg.role === "user") {
+              chatMessages.filter(msg => msg.role !== "system").map((msg, index) => {
+                if (msg.role === "user") {
                   // User messages - right aligned with user image and colored background
                   return (
                     <div key={index} className="mb-3 flex flex-row justify-end gap-2 py-2">
@@ -762,23 +738,75 @@ const TestSession = () => {
           </div>
         </div>
 
-        {/* Logs */}
-        <div className="rounded-lg border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
-            Connection Logs
-          </h2>
-          <div className="h-[500px] overflow-y-auto rounded bg-gray-50 p-4 font-mono text-sm dark:bg-gray-900">
-            {logs.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400">No logs yet. Click "Connect" to start.</p>
-            ) : (
-              logs.map((log, index) => (
-                <div key={index} className="mb-1 text-gray-800 dark:text-gray-200">
-                  {log}
-                </div>
-              ))
-            )}
+        {/* Debug Panel - Toggle with Ctrl+Alt+D */}
+        {showDebugPanel && (
+          <div className="rounded-lg border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+            <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
+              Debug Panel
+            </h2>
+
+          {/* Connection Status */}
+          <div className="mb-4">
+            <h3 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Connection Status
+            </h3>
+            <div className={`flex items-center gap-3 text-base font-medium ${getStatusColor()}`}>
+              <span className="text-xl">{getStatusIcon()}</span>
+              <span>{getStatusText()}</span>
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="mb-4">
+            <h3 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Controls
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={initSession}
+                disabled={connectionState.status === "connecting" || connectionState.status === "connected"}
+                className="rounded-full bg-gradient-to-t from-primary to-secondary px-3 py-1.5 text-xs font-medium uppercase text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {connectionState.status === "connecting" ? "Connecting..." : "Connect"}
+              </button>
+
+              <button
+                onClick={disconnect}
+                disabled={connectionState.status === "idle"}
+                className="rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium uppercase text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Disconnect
+              </button>
+
+              <button
+                onClick={clearLogs}
+                disabled={logs.length === 0}
+                className="rounded-full border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium uppercase text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Clear Logs
+              </button>
+            </div>
+          </div>
+
+          {/* Logs */}
+          <div>
+            <h3 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Logs
+            </h3>
+            <div className="h-[400px] overflow-y-auto rounded bg-gray-50 p-4 font-mono text-xs dark:bg-gray-900">
+              {logs.length === 0 ? (
+                <p className="text-gray-500 dark:text-gray-400">No logs yet.</p>
+              ) : (
+                logs.map((log, index) => (
+                  <div key={index} className="mb-1 text-gray-800 dark:text-gray-200">
+                    {log}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

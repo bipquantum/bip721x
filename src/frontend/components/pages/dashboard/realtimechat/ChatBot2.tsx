@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { ChatConnectionProvider } from "./ChatConnectionContext";
 import ChatWelcome from "./ChatWelcome";
-import ChatConversation from "./ChatConversation";
+import ChatConversation from "../ChatConversation";
 
 const ChatBot2 = () => {
   const { chatId } = useParams<{ chatId?: string }>();

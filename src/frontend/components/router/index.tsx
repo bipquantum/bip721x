@@ -15,7 +15,7 @@ import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import Plans from "../pages/plans";
 import TestSession from "../pages/test-session";
-import ChatBot2 from "../pages/dashboard/ChatBot2";
+import ChatBot2 from "../pages/dashboard/realtimechat/ChatBot2";
 import { useAuth } from "@nfid/identitykit/react";
 import { useHotjarTracking } from "../hooks/useHotjarTracking";
 

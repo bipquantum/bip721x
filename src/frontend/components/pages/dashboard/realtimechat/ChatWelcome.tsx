@@ -4,7 +4,7 @@ import { BiMicrophone } from "react-icons/bi";
 import { IoArrowUp } from "react-icons/io5";
 import AutoResizeTextarea, {
   AutoResizeTextareaHandle,
-} from "../../common/AutoResizeTextArea";
+} from "../../../common/AutoResizeTextArea";
 
 const ChatWelcome = () => {
   const [inputMessage, setInputMessage] = useState("");

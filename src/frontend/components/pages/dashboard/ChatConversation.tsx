@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@nfid/identitykit/react";
-import { useChatConnection } from "./ChatConnectionContext";
+import { useChatConnection } from "./realtimechat/ChatConnectionContext";
 import Markdown from "react-markdown";
 import UserImage from "../../common/UserImage";
 import CopyIcon from "../../common/CopyIcon";

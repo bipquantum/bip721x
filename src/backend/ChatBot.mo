@@ -6,6 +6,7 @@ import Iter            "mo:base/Iter";
 import Debug           "mo:base/Debug";
 import Nat             "mo:base/Nat";
 import Result          "mo:base/Result";
+import Principal       "mo:base/Principal";
 
 import Types                 "Types";
 import SubscriptionManager   "SubscriptionManager";
@@ -88,7 +89,7 @@ module {
 
     // Initialize a real-time chatbot session
     // Takes an SDP (Session Description Protocol) string and returns an SDP response from OpenAI
-    public func initSession(sdp: Text) : async* Result<Text, Text> {
+    public func initRtSession(sdp: Text) : async* Result<Text, Text> {
 
       // Build the session configuration JSON for text-only mode
       let sessionConfig = "{\"type\":\"realtime\",\"model\":\"gpt-realtime\",\"output_modalities\":[\"text\"],\"instructions\": \"" # escapeJSON(CHAT_INSTRUCTIONS) # "\"}";
@@ -121,6 +122,35 @@ module {
 
       #ok(responseText);
     };
+
+    public func getEphemeralToken(caller: Principal) : async* Result<Text, Text> {
+      let bodyJson = "{ \"model\": \"" # escapeJSON(CHAT_MODEL) # "\", }" 
+                   # "\"voice\": null,"
+                   # "\"metadata\": { \"user_id\": \"" # Principal.toText(caller) # "\" } }";
+      
+      let response = await IdempotentProxy.proxy_http_request({
+        url = "https://api.openai.com/v1/realtime/client_secrets";
+        method = #post;
+        max_response_bytes = null;
+        body = ?Text.encodeUtf8(bodyJson);
+        transform = null;
+        headers = [
+          { name = "idempotency-key"; value = "idempotency_key_001"       },
+          { name = "Authorization";   value = "Bearer " # chatbot_api_key },
+          { name = "Content-Type";    value = "application/json"          }
+        ];
+      });
+
+      let ?responseText = Text.decodeUtf8(response.body)
+        else return #err("Failed to decode API response");
+
+      Debug.print("Ephemeral token response: " # responseText);
+
+      // You can optionally parse JSON to extract client_secret before returning
+      // But simplest is to send the JSON string to frontend
+      #ok(responseText);
+    };
+
 
     // Build history messages JSON from aiPrompts string
     // Expected format: [[index, [{question: "q1", answer: "a1"}, ...]]]
