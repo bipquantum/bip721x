@@ -15,6 +15,7 @@ import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import Plans from "../pages/plans";
 import TestSession from "../pages/test-session";
+import ChatBot2 from "../pages/dashboard/ChatBot2";
 import { useAuth } from "@nfid/identitykit/react";
 import { useHotjarTracking } from "../hooks/useHotjarTracking";
 
@@ -34,14 +35,12 @@ const Router = () => {
         element={<PrivateRoute element={<Dashboard />} />}
       />
       <Route
+        path={"/chat"}
+        element={<PrivateRoute element={<ChatBot2 />} />}
+      />
+      <Route
         path={"/chat/:chatId"}
-        element={
-          <PrivateRoute
-            element={
-              <WithHistoryWrapper principal={user?.principal} />
-            }
-          />
-        }
+        element={<PrivateRoute element={<ChatBot2 />} />}
       />
       <Route
         path={"/marketplace"}

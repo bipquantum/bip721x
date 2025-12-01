@@ -1,15 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useChatHistory } from "../../layout/ChatHistoryContext";
 import { CALL_TO_ACTIONS } from "../../constants";
 
 const Dashboard = () => {
-  const { addChat } = useChatHistory();
-
   const navigate = useNavigate();
 
-  const newChat = (name: string) => {
-    const newChatId = addChat(name);
-    navigate(`/chat/${newChatId}`);
+  const newChat = () => {
+    navigate("/chat");
   };
 
   return (
@@ -23,28 +19,28 @@ const Dashboard = () => {
         <div className="mx-auto grid w-fit grid-cols-1 items-center gap-4 text-center text-white sm:grid-cols-3">
           <button
             className="w-fit text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-xs uppercase md:text-sm"
-            onClick={() => newChat(CALL_TO_ACTIONS[0])}
+            onClick={newChat}
           >
             {CALL_TO_ACTIONS[0]}
           </button>
 
           <button
             className="w-fit text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-xs uppercase md:text-sm"
-            onClick={() => newChat(CALL_TO_ACTIONS[1])}
+            onClick={newChat}
           >
             {CALL_TO_ACTIONS[1]}
           </button>
 
           <button
             className="w-fit text-nowrap rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-xs uppercase md:text-sm"
-            onClick={() => newChat(CALL_TO_ACTIONS[2])}
+            onClick={newChat}
           >
             {CALL_TO_ACTIONS[2]}
           </button>
 
           <button
             className="col-span-1 mx-auto w-fit rounded-full bg-gradient-to-t from-primary to-secondary px-4 py-3 text-xs uppercase md:col-span-3 md:text-nowrap md:text-sm"
-            onClick={() => newChat(CALL_TO_ACTIONS[3])}
+            onClick={newChat}
           >
             {CALL_TO_ACTIONS[3]}
           </button>
