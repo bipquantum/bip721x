@@ -572,12 +572,8 @@ module {
       await* chatBot.getCompletion(caller, question, history.aiPrompts);
     };
 
-    public func getChatbotEphemeralToken(caller: Principal) : async* Result<Text, Text> {
-      await* chatBot.getEphemeralToken(caller);
-    };
-
-    public func initChatbotRtSession(sdp: Text) : async* Result<Text, Text> {
-      await* chatBot.initRtSession(sdp);
+    public func initChatbotSession(sdp: Text) : async* Result<Text, Text> {
+      await* chatBot.initSession(sdp);
     };
 
     // ================================ NOTIFICATIONS ================================

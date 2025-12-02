@@ -312,9 +312,9 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
         throw new Error("SDP offer is empty");
       }
 
-      // Call the backend's init_chatbot_rt_session method
-      addLog("📡 Calling init_chatbot_rt_session on backend...");
-      const result = await authenticated.backend.init_chatbot_rt_session(offer.sdp);
+      // Call the backend's init_chatbot_session method
+      addLog("📡 Calling init_chatbot_session on backend...");
+      const result = await authenticated.backend.init_chatbot_session(offer.sdp);
 
       if ('err' in result) {
         throw new Error(result.err);
