@@ -239,22 +239,6 @@ const TestSession = () => {
 
       dc.onopen = () => {
         addLog("✓ Data channel opened");
-
-        // Configure session for text-only mode
-        // Note: Only include fields that should be updated, not the full session config
-        const sessionConfig = {
-          type: "session.update",
-          session: {
-            type: "realtime",
-            model: "gpt-realtime",
-            output_modalities: ["text"],
-            instructions: "You are an assistant designed to help the user answer questions on intellectual property (IP). Your are embedded in the BIPQuantum website, which is a platform that delivers digital certificate that leverages blockchain technology to provide secure and immutable proof of ownership and authenticity for intellectual properties. You will answer technical questions on IP and guide the user through the process of creating a new IP certificate. You won't answer questions that are not related to IP, blockchain, or the BIPQuantum platform.",
-          }
-        };
-
-        dc.send(JSON.stringify(sessionConfig));
-        addLog("📤 Sent session.update (text-only mode)");
-        addChatMessage("system", "Connection established. Text-only mode configured. You can now start chatting!");
       };
 
       dc.onclose = () => {

@@ -50,6 +50,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
     getStatusColor,
     getStatusIcon,
     getStatusText,
+    loadHistoryFromBackend,
   } = useChatConnection();
 
   const [inputMessage, setInputMessage] = useState("");
@@ -57,6 +58,21 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const initialQuestionSentRef = useRef(false);
+
+  // Load history and initialize session when component mounts
+  useEffect(() => {
+    const initialize = async () => {
+      // Load history from backend first
+      await loadHistoryFromBackend();
+
+      // Then initialize the session if not already connected
+      if (connectionState.status === "idle") {
+        await initSession();
+      }
+    };
+
+    initialize();
+  }, []); // Empty dependency array - only run once on mount
 
   // Auto-scroll chat to bottom
   useEffect(() => {
