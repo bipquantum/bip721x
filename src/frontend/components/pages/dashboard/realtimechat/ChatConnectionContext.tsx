@@ -240,6 +240,28 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
 
       dc.onopen = () => {
         addLog("✓ Data channel opened");
+
+        // Configure session for text-only mode
+        const sessionConfig = {
+          type: "session.update",
+          session: {
+            modalities: ["text"],
+            instructions: "You are an assistant designed to help the user answer questions on intellectual property (IP). Your are embedded in the BIPQuantum website, which is a platform that delivers digital certificate that leverages blockchain technology to provide secure and immutable proof of ownership and authenticity for intellectual properties. You will answer technical questions on IP and guide the user through the process of creating a new IP certificate. You won't answer questions that are not related to IP, blockchain, or the BIPQuantum platform.",
+            voice: "alloy",
+            input_audio_format: "pcm16",
+            output_audio_format: "pcm16",
+            input_audio_transcription: null,
+            turn_detection: null,
+            tools: [],
+            tool_choice: "auto",
+            temperature: 0.8,
+            max_response_output_tokens: "inf"
+          }
+        };
+
+        dc.send(JSON.stringify(sessionConfig));
+        addLog("📤 Sent session.update (text-only mode)");
+        addChatMessage("system", "Connection established. Text-only mode configured. You can now start chatting!");
       };
 
       dc.onclose = () => {
@@ -385,24 +407,61 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
         throw new Error("SDP offer is empty");
       }
 
-      // Call the backend's init_chatbot_session method
-      addLog("📡 Calling init_chatbot_session on backend...");
-      const result = await authenticated.backend.init_chatbot_session(offer.sdp);
+      const authTokenResult = await authenticated.backend.get_chatbot_ephemeral_token();
+      if ('err' in authTokenResult) {
+        throw new Error(`Failed to get auth token: ${authTokenResult.err}`);
+      }
+      addLog("✓ Obtained ephemeral auth token response");
+      addLog(`Raw token response: ${authTokenResult.ok.substring(0, 200)}...`);
 
-      if ('err' in result) {
-        addLog(`❌ Backend error: ${result.err}`);
-        throw new Error(result.err);
+      // Parse the JSON response to extract the token
+      let ephemeralToken: string;
+      try {
+        const tokenData = JSON.parse(authTokenResult.ok);
+
+        // Check if the response contains an error from OpenAI
+        if (tokenData.error) {
+          addLog(`❌ OpenAI API error: ${JSON.stringify(tokenData.error)}`);
+          throw new Error(`OpenAI API error: ${tokenData.error.message || JSON.stringify(tokenData.error)}`);
+        }
+
+        // Extract the token
+        if (!tokenData.client_secret || !tokenData.client_secret.value) {
+          addLog(`❌ Invalid token response structure: ${JSON.stringify(tokenData)}`);
+          throw new Error("Invalid token response: missing client_secret.value");
+        }
+
+        ephemeralToken = tokenData.client_secret.value;
+        addLog(`✓ Extracted ephemeral token: ${ephemeralToken.substring(0, 20)}...`);
+      } catch (parseError: any) {
+        addLog(`❌ Failed to parse token response: ${parseError.message}`);
+        addLog(`Full raw response: ${authTokenResult.ok}`);
+        throw new Error(`Failed to parse ephemeral token: ${parseError.message}`);
       }
 
-      addLog("✓ Received SDP answer from backend");
-      console.log("SDP answer:", result.ok.substring(0, 100));
+      addLog("📡 Calling OpenAI Realtime API...");
+      const sdpResponse = await fetch("https://api.openai.com/v1/realtime/calls", {
+        method: "POST",
+        body: offer.sdp,
+        headers: {
+            Authorization: `Bearer ${ephemeralToken}`,
+            "Content-Type": "application/sdp",
+        },
+      });
 
-      // Set remote description from the answer
-      const answer: RTCSessionDescriptionInit = {
-        type: "answer",
-        sdp: result.ok,
+      if (!sdpResponse.ok) {
+        const errorText = await sdpResponse.text();
+        addLog(`❌ OpenAI API error (${sdpResponse.status}): ${errorText}`);
+        throw new Error(`OpenAI API returned ${sdpResponse.status}: ${errorText}`);
+      }
+
+      const answerSdp = await sdpResponse.text();
+      addLog(`✓ Received SDP answer from OpenAI (${answerSdp.length} bytes)`);
+
+      const answer : RTCSessionDescriptionInit = {
+          type: "answer",
+          sdp: answerSdp,
       };
-
       await pc.setRemoteDescription(answer);
       addLog("✓ Remote description set");
       addLog("🎉 Session initialization complete!");

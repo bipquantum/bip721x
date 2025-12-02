@@ -19,7 +19,7 @@ const ChatBot2 = () => {
   }, [routeChatId, location.pathname]);
 
   return (
-    <ChatConnectionProvider key={chatId}>
+    <ChatConnectionProvider chatId={chatId} key={chatId}>
       {routeChatId ? <ChatConversation chatId={chatId} /> : <ChatWelcome chatId={chatId} />}
     </ChatConnectionProvider>
   );

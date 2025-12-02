@@ -106,7 +106,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
       addChatMessage("system", "Connecting...");
       // Wait for connection and then send
       const checkConnection = setInterval(() => {
-        if (connectionState.status === "connected" && dataChannelRef.current?.readyState === "open") {
+        if (dataChannelRef.current?.readyState === "open") {
           clearInterval(checkConnection);
           // Remove "Connecting..." message
           setChatMessages(prev => prev.filter(msg => msg.content !== "Connecting..."));

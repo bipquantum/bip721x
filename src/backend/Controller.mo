@@ -576,6 +576,10 @@ module {
       await* chatBot.initSession(sdp);
     };
 
+    public func getChatbotEphemeralToken() : async* Result<Text, Text> {
+      await* chatBot.getEphemeralToken();
+    };
+
     // ================================ NOTIFICATIONS ================================
 
     public func createNotification(recipient: Principal, notificationType: NotificationType) {

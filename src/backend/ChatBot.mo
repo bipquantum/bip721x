@@ -123,6 +123,48 @@ module {
       #ok(responseText);
     };
 
+    public func getEphemeralToken() : async* Result<Text, Text> {
+
+      let bodyJson = 
+        "{ " # 
+          "\"expires_after\":" #
+            "{ \"anchor\": \"created_at\"," #
+            " \"seconds\": 60 }," # 
+          " \"session\": { " # 
+            " \"type\": \"realtime\"," # 
+            " \"model\": \"gpt-realtime\"," #
+            "\"instructions\": \"" # escapeJSON(CHAT_INSTRUCTIONS) # "\" " #
+        " }";
+
+      Cycles.add<system>(1_000_000_000); // TODO: Find out precise cycles cost
+
+      let response = await IdempotentProxy.proxy_http_request({
+        url = "https://api.openai.com/v1/realtime/client_secrets";
+        method = #post;
+        max_response_bytes = null;
+        body = ?Text.encodeUtf8(bodyJson);
+        transform = null;
+        headers = [
+          { name = "idempotency-key"; value = "idempotency_key_001"       },
+          { name = "Authorization";   value = "Bearer " # chatbot_api_key },
+          { name = "Content-Type";    value = "application/json"          }
+        ];
+      });
+
+      let ?responseText = Text.decodeUtf8(response.body)
+        else return #err("Failed to decode API response");
+
+      Debug.print("Ephemeral token response status: " # debug_show(response.status));
+      Debug.print("Ephemeral token response: " # responseText);
+
+      // Check if the HTTP request was successful
+      if (response.status != 200) {
+        return #err("OpenAI API returned status " # debug_show(response.status) # ": " # responseText);
+      };
+
+      #ok(responseText);
+    };
+
 
     // Build history messages JSON from aiPrompts string
     // Expected format: [[index, [{question: "q1", answer: "a1"}, ...]]]

@@ -192,6 +192,10 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     await* getModel().controller.initChatbotSession(sdp);
   };
 
+  public shared func get_chatbot_ephemeral_token() : async Result<Text, Text> {
+    await* getModel().controller.getChatbotEphemeralToken();
+  };
+
   public query({caller}) func is_airdrop_available() : async Bool {
     getModel().controller.isAirdropAvailable(caller);
   };
