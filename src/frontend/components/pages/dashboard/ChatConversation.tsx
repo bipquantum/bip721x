@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@nfid/identitykit/react";
 import { useChatConnection } from "./realtimechat/ChatConnectionContext";
+import ConnectionStatusIndicator from "./realtimechat/ConnectionStatusIndicator";
 import Markdown from "react-markdown";
 import UserImage from "../../common/UserImage";
 import CopyIcon from "../../common/CopyIcon";
@@ -159,6 +160,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
           {/* Chat Input - Sticky Bottom */}
           <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t bg-white px-2 py-2 dark:bg-gray-800">
             <div className="relative flex w-full flex-row items-center gap-2">
+              <ConnectionStatusIndicator />
               <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
                 <AutoResizeTextarea
                   ref={inputRef}

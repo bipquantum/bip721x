@@ -317,10 +317,12 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
       const result = await authenticated.backend.init_chatbot_session(offer.sdp);
 
       if ('err' in result) {
+        addLog(`❌ Backend error: ${result.err}`);
         throw new Error(result.err);
       }
 
       addLog("✓ Received SDP answer from backend");
+      console.log("SDP answer:", result.ok.substring(0, 100));
 
       // Set remote description from the answer
       const answer: RTCSessionDescriptionInit = {
@@ -403,13 +405,8 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
     }
   };
 
-  // Auto-connect on mount
+  // Cleanup on unmount
   useEffect(() => {
-    if (authenticated?.backend && connectionState.status === "idle") {
-      initSession();
-    }
-
-    // Cleanup on unmount
     return () => {
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
@@ -418,7 +415,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
         dataChannelRef.current.close();
       }
     };
-  }, [authenticated?.backend]);
+  }, []);
 
   // Handle keyboard shortcut Ctrl+Alt+D to toggle debug panel
   useEffect(() => {

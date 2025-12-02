@@ -1,22 +1,37 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BiMicrophone } from "react-icons/bi";
 import { IoArrowUp } from "react-icons/io5";
 import AutoResizeTextarea, {
   AutoResizeTextareaHandle,
 } from "../../../common/AutoResizeTextArea";
+import { useChatConnection } from "./ChatConnectionContext";
+import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
 
-const ChatWelcome = () => {
+interface ChatWelcomeProps {
+  chatId: string;
+}
+
+const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const [inputMessage, setInputMessage] = useState("");
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const { initSession, connectionState } = useChatConnection();
+
+  // Initialize connection when component mounts
+  useEffect(() => {
+    if (connectionState.status === "idle") {
+      initSession();
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("ChatWelcome mounted");
+  }, []);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
-
-    // Generate a new UUID for the chat
-    const chatId = crypto.randomUUID();
 
     // Navigate to the chat conversation with the initial question
     navigate(`/chat/${chatId}`, {
@@ -35,6 +50,7 @@ const ChatWelcome = () => {
         <div className="w-full max-w-2xl">
           <div className="flex w-full flex-col gap-2">
             <div className="relative flex w-full flex-row items-center gap-2">
+              <ConnectionStatusIndicator />
               <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
                 <AutoResizeTextarea
                   ref={inputRef}

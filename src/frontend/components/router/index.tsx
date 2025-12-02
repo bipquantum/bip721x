@@ -10,7 +10,6 @@ import Main from "../pages/main";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
 import WhoAreYou from "../pages/poll";
-import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import Plans from "../pages/plans";
