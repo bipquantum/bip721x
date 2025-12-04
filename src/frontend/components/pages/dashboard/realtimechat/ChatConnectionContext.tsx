@@ -426,12 +426,12 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
         }
 
         // Extract the token
-        if (!tokenData.client_secret || !tokenData.client_secret.value) {
+        if (!tokenData.value) {
           addLog(`❌ Invalid token response structure: ${JSON.stringify(tokenData)}`);
-          throw new Error("Invalid token response: missing client_secret.value");
+          throw new Error("Invalid token response: missing client_secret value");
         }
 
-        ephemeralToken = tokenData.client_secret.value;
+        ephemeralToken = tokenData.value;
         addLog(`✓ Extracted ephemeral token: ${ephemeralToken.substring(0, 20)}...`);
       } catch (parseError: any) {
         addLog(`❌ Failed to parse token response: ${parseError.message}`);

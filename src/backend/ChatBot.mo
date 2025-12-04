@@ -5,8 +5,10 @@ import Text            "mo:base/Text";
 import Iter            "mo:base/Iter";
 import Debug           "mo:base/Debug";
 import Nat             "mo:base/Nat";
+import Int             "mo:base/Int";
 import Result          "mo:base/Result";
 import Principal       "mo:base/Principal";
+import Time            "mo:base/Time";
 
 import Types                 "Types";
 import SubscriptionManager   "SubscriptionManager";
@@ -49,6 +51,7 @@ module {
 
       Cycles.add<system>(1_000_000_000); // TODO: sardariuss 2024-09-26: Find out precise cycles cost
 
+      let idempotencyKey = "chat_completion_" # Nat.toText(Int.abs(Time.now())) # "_" # Principal.toText(caller);
       let response = await IdempotentProxy.proxy_http_request({
         url = "https://api.openai.com/v1/chat/completions";
         method = #post;
@@ -56,9 +59,9 @@ module {
         body = ?Text.encodeUtf8(requestBodyText);
         transform = null;
         headers= [
-          { name = "idempotency-key"; value = "idempotency_key_001"       },
-          { name = "content-type"   ; value = "application/json"          },
-          { name = "Authorization"  ; value = "Bearer " # chatbot_api_key },
+          { name = "idempotency-key"; value = idempotencyKey                      },
+          { name = "content-type"   ; value = "application/json"                  },
+          { name = "Authorization"  ; value = "Bearer " # chatbot_api_key         },
         ];
       });
 
@@ -102,6 +105,7 @@ module {
 
       Cycles.add<system>(1_000_000_000); // TODO: Find out precise cycles cost
 
+      let idempotencyKey = "realtime_session_" # Nat.toText(Int.abs(Time.now()));
       let response = await IdempotentProxy.proxy_http_request({
         url = "https://api.openai.com/v1/realtime/calls";
         method = #post;
@@ -109,7 +113,7 @@ module {
         body = ?formData;
         transform = null;
         headers = [
-          { name = "idempotency-key"; value = "idempotency_key_001"                       },
+          { name = "idempotency-key"; value = idempotencyKey                              },
           { name = "Authorization";   value = "Bearer " # chatbot_api_key                 },
           { name = "Content-Type";    value = "multipart/form-data; boundary=" # boundary },
         ];
@@ -125,19 +129,24 @@ module {
 
     public func getEphemeralToken() : async* Result<Text, Text> {
 
-      let bodyJson = 
-        "{ " # 
-          "\"expires_after\":" #
-            "{ \"anchor\": \"created_at\"," #
-            " \"seconds\": 60 }," # 
-          " \"session\": { " # 
-            " \"type\": \"realtime\"," # 
-            " \"model\": \"gpt-realtime\"," #
+      let bodyJson =
+        "{ " #
+          "\"expires_after\": " #
+            "{ \"anchor\": \"created_at\", " #
+            "\"seconds\": 60 }, " #
+          "\"session\": { " #
+            "\"type\": \"realtime\", " #
+            "\"model\": \"gpt-realtime\", " #
+            "\"output_modalities\": [\"text\"], " #
             "\"instructions\": \"" # escapeJSON(CHAT_INSTRUCTIONS) # "\" " #
-        " }";
+          "} " #
+        "}";
+
+      Debug.print("Ephemeral token request body: " # bodyJson);
 
       Cycles.add<system>(1_000_000_000); // TODO: Find out precise cycles cost
 
+      let idempotencyKey = "ephemeral_token_" # Nat.toText(Int.abs(Time.now()));
       let response = await IdempotentProxy.proxy_http_request({
         url = "https://api.openai.com/v1/realtime/client_secrets";
         method = #post;
@@ -145,7 +154,7 @@ module {
         body = ?Text.encodeUtf8(bodyJson);
         transform = null;
         headers = [
-          { name = "idempotency-key"; value = "idempotency_key_001"       },
+          { name = "idempotency-key"; value = idempotencyKey              },
           { name = "Authorization";   value = "Bearer " # chatbot_api_key },
           { name = "Content-Type";    value = "application/json"          }
         ];
