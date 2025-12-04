@@ -580,8 +580,6 @@ module {
       await* chatBot.getEphemeralToken();
     };
 
-    // ================================ NOTIFICATIONS ================================
-
     public func createNotification(recipient: Principal, notificationType: NotificationType) {
       let notification: Notification = {
         id = notifications.nextId;

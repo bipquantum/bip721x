@@ -14,8 +14,8 @@ const MobileNavBar = () => {
   const NavBarItems = [
     {
       icon: DashIcon,
-      label: "Dashboard",
-      link: "dashboard",
+      label: "Chatbot",
+      link: "chat",
     },
     {
       icon: NewIPIcon,
