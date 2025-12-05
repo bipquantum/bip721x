@@ -224,6 +224,20 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentChatId(null);
   }, []);
 
+  // Auto-save messages when they change (debounced to avoid excessive saves)
+  useEffect(() => {
+    // Only save if we have messages and none are currently streaming
+    const hasStreamingMessage = messages.some(msg => msg.isStreaming);
+    if (currentChatId && messages.length > 0 && !hasStreamingMessage && !isSavingRef.current) {
+      // Debounce the save to avoid excessive backend calls
+      const timeoutId = setTimeout(() => {
+        saveMessages();
+      }, 1000); // Wait 1 second after last message change
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [messages, currentChatId, saveMessages]);
+
   return (
     <ChatHistoryContext.Provider
       value={{

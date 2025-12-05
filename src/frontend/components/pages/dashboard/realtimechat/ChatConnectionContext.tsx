@@ -42,7 +42,7 @@ interface ChatConnectionProviderProps {
 
 export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ chatId, children }) => {
   const { authenticated } = useActors();
-  const { messages, addMessage, updateLastMessage, saveMessages, loadMessages, setCurrentChatId } = useChatHistory();
+  const { messages, addMessage, updateLastMessage, saveMessages } = useChatHistory();
   const [connectionState, setConnectionState] = useState<ConnectionState>({ status: "idle" });
   const [logs, setLogs] = useState<string[]>([]);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -50,16 +50,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const streamingContentRef = useRef<string>("");
-
-  // Load chat history on mount
-  useEffect(() => {
-    if (chatId) {
-      setCurrentChatId(chatId);
-      loadMessages(chatId).then(() => {
-        addLog(`📥 Loaded ${messages.length} messages from history`);
-      });
-    }
-  }, [chatId]);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -223,12 +213,10 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
             case "response.output_text.done":
               if (data.text) {
                 addLog(`✓ Text done: "${data.text.substring(0, 50)}${data.text.length > 50 ? '...' : ''}"`);
-                // Mark as done streaming
+                // Mark as done streaming (auto-save will trigger)
                 if (streamingContentRef.current !== "") {
                   updateLastMessage(streamingContentRef.current, false);
                   streamingContentRef.current = ""; // Reset for next message
-                  // Save history after assistant message is complete
-                  saveMessages();
                 }
               }
               break;

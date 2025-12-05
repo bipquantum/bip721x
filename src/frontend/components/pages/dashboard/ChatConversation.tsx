@@ -48,7 +48,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
     getStatusText,
   } = useChatConnection();
 
-  const { messages, addMessage, loadMessages } = useChatHistory();
+  const { messages, addMessage, loadMessages, setCurrentChatId } = useChatHistory();
 
   const [inputMessage, setInputMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -59,6 +59,9 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
   // Load history and initialize session when component mounts
   useEffect(() => {
     const initialize = async () => {
+      // Set the current chat ID in context
+      setCurrentChatId(chatId);
+
       // Load history from backend first
       await loadMessages(chatId);
 
@@ -86,7 +89,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
     }
   }, [connectionState.status, location.state]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
     // Add user message immediately to UI
@@ -100,9 +103,8 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
       sendTextMessage(messageToSend);
     } else {
       // If not connected, initialize session first
-      initSession().then(() => {
-        sendTextMessage(messageToSend);
-      });
+      await initSession();
+      sendTextMessage(messageToSend);
     }
   };
 
