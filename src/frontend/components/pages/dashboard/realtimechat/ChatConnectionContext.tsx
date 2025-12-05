@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
 import { useActors } from "../../../common/ActorsContext";
+import { useChatHistory } from "../../../layout/ChatHistoryContext";
 
 type ConnectionState =
   | { status: "idle" }
@@ -8,22 +9,12 @@ type ConnectionState =
   | { status: "failed"; error: string }
   | { status: "disconnected" };
 
-interface ChatMessage {
-  role: "user" | "assistant" | "system";
-  content: string;
-  timestamp: Date;
-  isStreaming?: boolean;
-}
-
 interface ChatConnectionContextType {
   connectionState: ConnectionState;
   logs: string[];
-  chatMessages: ChatMessage[];
   showDebugPanel: boolean;
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>;
   addLog: (message: string) => void;
-  addChatMessage: (role: "user" | "assistant" | "system", content: string) => void;
-  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   sendTextMessage: (text: string) => void;
   initSession: () => Promise<void>;
   disconnect: () => void;
@@ -32,7 +23,6 @@ interface ChatConnectionContextType {
   getStatusColor: () => string;
   getStatusIcon: () => string;
   getStatusText: () => string;
-  loadHistoryFromBackend: () => Promise<void>;
 }
 
 const ChatConnectionContext = createContext<ChatConnectionContextType | undefined>(undefined);
@@ -52,103 +42,28 @@ interface ChatConnectionProviderProps {
 
 export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ chatId, children }) => {
   const { authenticated } = useActors();
+  const { messages, addMessage, updateLastMessage, saveMessages, loadMessages, setCurrentChatId } = useChatHistory();
   const [connectionState, setConnectionState] = useState<ConnectionState>({ status: "idle" });
   const [logs, setLogs] = useState<string[]>([]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
-  const isSavingHistoryRef = useRef(false);
+  const streamingContentRef = useRef<string>("");
 
-  // Save chat history to backend
-  const saveHistoryToBackend = async (messages: ChatMessage[]) => {
-    if (!authenticated?.backend || isSavingHistoryRef.current) {
-      return;
-    }
-
-    try {
-      isSavingHistoryRef.current = true;
-
-      // Convert messages to JSON format (excluding system messages and streaming messages)
-      const messagesToSave = messages
-        .filter(msg => msg.role !== "system" && !msg.isStreaming)
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content,
-          timestamp: msg.timestamp.toISOString()
-        }));
-
-      const historyJson = JSON.stringify(messagesToSave);
-
-      const result = await authenticated.backend.update_chat_history({
-        id: chatId,
-        events: historyJson,
-        aiPrompts: "" // Empty for now, as we're not using the old state machine approach
+  // Load chat history on mount
+  useEffect(() => {
+    if (chatId) {
+      setCurrentChatId(chatId);
+      loadMessages(chatId).then(() => {
+        addLog(`📥 Loaded ${messages.length} messages from history`);
       });
-
-      if ('err' in result) {
-        addLog(`⚠️ Failed to save history: ${result.err}`);
-      } else {
-        addLog("💾 Chat history saved to backend");
-      }
-    } catch (error: any) {
-      addLog(`⚠️ Error saving history: ${error.message}`);
-    } finally {
-      isSavingHistoryRef.current = false;
     }
-  };
-
-  // Load chat history from backend
-  const loadHistoryFromBackend = async () => {
-    if (!authenticated?.backend) {
-      return;
-    }
-
-    try {
-      addLog("📥 Loading chat history from backend...");
-      const result = await authenticated.backend.get_chat_history({ id: chatId });
-
-      if ('ok' in result) {
-        const historyData = result.ok;
-        if (historyData.events) {
-          const savedMessages = JSON.parse(historyData.events);
-          // Convert saved messages back to ChatMessage format
-          const loadedMessages: ChatMessage[] = savedMessages.map((msg: any) => ({
-            role: msg.role,
-            content: msg.content,
-            timestamp: new Date(msg.timestamp),
-            isStreaming: false
-          }));
-          setChatMessages(loadedMessages);
-          addLog(`✓ Loaded ${loadedMessages.length} messages from history`);
-        } else {
-          addLog("ℹ️ No history found for this chat");
-        }
-      } else if ('err' in result) {
-        // Chat history doesn't exist yet - this is normal for new chats
-        addLog("ℹ️ No history found for this chat (new conversation)");
-      }
-    } catch (error: any) {
-      addLog(`⚠️ Error loading history: ${error.message}`);
-    }
-  };
+  }, [chatId]);
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs(prev => [...prev, `[${timestamp}] ${message}`]);
-  };
-
-  const addChatMessage = (role: "user" | "assistant" | "system", content: string) => {
-    setChatMessages(prev => {
-      const newMessages = [...prev, { role, content, timestamp: new Date() }];
-      // Save history after adding user message (but not system messages)
-      if (role === "user") {
-        // Use a small delay to ensure state is updated
-        setTimeout(() => saveHistoryToBackend(newMessages), 100);
-      }
-      return newMessages;
-    });
   };
 
   const sendTextMessage = (text: string) => {
@@ -261,7 +176,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
 
         dc.send(JSON.stringify(sessionConfig));
         addLog("📤 Sent session.update (text-only mode)");
-        addChatMessage("system", "Connection established. Text-only mode configured. You can now start chatting!");
+        addMessage("system", "Connection established. Text-only mode configured. You can now start chatting!");
       };
 
       dc.onclose = () => {
@@ -284,61 +199,37 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
 
           // Handle different event types
           switch (data.type) {
-            // Handle response.output_text.delta (the actual event from OpenAI)
+            // Handle response.output_text.delta (streaming text chunks)
             case "response.output_text.delta":
               if (data.delta) {
                 const deltaText = data.delta;
-                addLog(`💬 Output text delta: "${deltaText.substring(0, 30)}${deltaText.length > 30 ? '...' : ''}"`);
-                setChatMessages(prev => {
-                  const lastMsg = prev[prev.length - 1];
-                  if (lastMsg && lastMsg.role === "assistant" &&
-                      new Date().getTime() - lastMsg.timestamp.getTime() < 5000) {
-                    // Append to existing message
-                    return [
-                      ...prev.slice(0, -1),
-                      { ...lastMsg, content: lastMsg.content + deltaText, isStreaming: true }
-                    ];
-                  } else {
-                    // Create new message
-                    return [...prev, {
-                      role: "assistant",
-                      content: deltaText,
-                      timestamp: new Date(),
-                      isStreaming: true
-                    }];
-                  }
-                });
+                addLog(`💬 Text delta: "${deltaText.substring(0, 30)}${deltaText.length > 30 ? '...' : ''}"`);
+
+                if (streamingContentRef.current === "") {
+                  // First delta - create new message
+                  console.log('Creating new assistant message');
+                  streamingContentRef.current = deltaText;
+                  addMessage("assistant", deltaText, true);
+                } else {
+                  // Subsequent deltas - append to existing message
+                  console.log('Appending delta to message');
+                  streamingContentRef.current += deltaText;
+                  updateLastMessage(streamingContentRef.current, true);
+                }
               }
               break;
 
-            // Handle response.output_text.done (final text)
+            // Handle response.output_text.done (final complete text)
             case "response.output_text.done":
               if (data.text) {
-                addLog(`✓ Output text done: "${data.text.substring(0, 50)}${data.text.length > 50 ? '...' : ''}"`);
-                // Update the last assistant message with final text if available
-                setChatMessages(prev => {
-                  const lastMsg = prev[prev.length - 1];
-                  if (lastMsg && lastMsg.role === "assistant") {
-                    let updatedMessages;
-                    // Replace with final text and mark as not streaming
-                    if (lastMsg.content !== data.text) {
-                      updatedMessages = [
-                        ...prev.slice(0, -1),
-                        { ...lastMsg, content: data.text, isStreaming: false }
-                      ];
-                    } else {
-                      // Same content, just mark as done streaming
-                      updatedMessages = [
-                        ...prev.slice(0, -1),
-                        { ...lastMsg, isStreaming: false }
-                      ];
-                    }
-                    // Save history after assistant message is complete
-                    saveHistoryToBackend(updatedMessages);
-                    return updatedMessages;
-                  }
-                  return prev;
-                });
+                addLog(`✓ Text done: "${data.text.substring(0, 50)}${data.text.length > 50 ? '...' : ''}"`);
+                // Mark as done streaming
+                if (streamingContentRef.current !== "") {
+                  updateLastMessage(streamingContentRef.current, false);
+                  streamingContentRef.current = ""; // Reset for next message
+                  // Save history after assistant message is complete
+                  saveMessages();
+                }
               }
               break;
 
@@ -348,7 +239,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
 
             case "error":
               addLog(`❌ Error from server: ${data.error?.message || 'Unknown error'}`);
-              addChatMessage("system", `Error: ${data.error?.message || 'Unknown error'}`);
+              addMessage("system", `Error: ${data.error?.message || 'Unknown error'}`);
               break;
 
             case "session.created":
@@ -485,7 +376,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
       dataChannelRef.current = null;
     }
     setConnectionState({ status: "idle" });
-    setChatMessages([]);
+    // Note: We don't clear messages here - they're managed by ChatHistoryContext
   };
 
   const clearLogs = () => {
@@ -565,12 +456,9 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
   const value: ChatConnectionContextType = {
     connectionState,
     logs,
-    chatMessages,
     showDebugPanel,
     dataChannelRef,
     addLog,
-    addChatMessage,
-    setChatMessages,
     sendTextMessage,
     initSession,
     disconnect,
@@ -579,7 +467,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
     getStatusColor,
     getStatusIcon,
     getStatusText,
-    loadHistoryFromBackend,
   };
 
   return (

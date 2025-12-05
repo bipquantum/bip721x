@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@nfid/identitykit/react";
 import { useChatConnection } from "./realtimechat/ChatConnectionContext";
+import { useChatHistory } from "../../layout/ChatHistoryContext";
 import ConnectionStatusIndicator from "./realtimechat/ConnectionStatusIndicator";
 import Markdown from "react-markdown";
 import UserImage from "../../common/UserImage";
@@ -37,21 +38,17 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
   const {
     connectionState,
     logs,
-    chatMessages,
     showDebugPanel,
-    dataChannelRef,
-    addChatMessage,
-    setChatMessages,
     sendTextMessage,
     initSession,
     disconnect,
     clearLogs,
-    setShowDebugPanel,
     getStatusColor,
     getStatusIcon,
     getStatusText,
-    loadHistoryFromBackend,
   } = useChatConnection();
+
+  const { messages, addMessage, loadMessages } = useChatHistory();
 
   const [inputMessage, setInputMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -63,7 +60,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
   useEffect(() => {
     const initialize = async () => {
       // Load history from backend first
-      await loadHistoryFromBackend();
+      await loadMessages(chatId);
 
       // Then initialize the session if not already connected
       if (connectionState.status === "idle") {
@@ -72,19 +69,19 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
     };
 
     initialize();
-  }, []); // Empty dependency array - only run once on mount
+  }, [chatId]); // Depend on chatId
 
   // Auto-scroll chat to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+  }, [messages]);
 
   // Send initial question if provided via navigation state
   useEffect(() => {
     const initialQuestion = (location.state as any)?.initialQuestion;
     if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "connected") {
       initialQuestionSentRef.current = true;
-      addChatMessage("user", initialQuestion);
+      addMessage("user", initialQuestion);
       sendTextMessage(initialQuestion);
     }
   }, [connectionState.status, location.state]);
@@ -93,7 +90,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
     if (!inputMessage.trim()) return;
 
     // Add user message immediately to UI
-    addChatMessage("user", inputMessage);
+    addMessage("user", inputMessage);
     const messageToSend = inputMessage;
     inputRef.current?.clear();
     setInputMessage("");
@@ -102,17 +99,10 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
     if (connectionState.status === "connected") {
       sendTextMessage(messageToSend);
     } else {
-      // If not connected, show loading indicator and queue the message
-      addChatMessage("system", "Connecting...");
-      // Wait for connection and then send
-      const checkConnection = setInterval(() => {
-        if (dataChannelRef.current?.readyState === "open") {
-          clearInterval(checkConnection);
-          // Remove "Connecting..." message
-          setChatMessages(prev => prev.filter(msg => msg.content !== "Connecting..."));
-          sendTextMessage(messageToSend);
-        }
-      }, 100);
+      // If not connected, initialize session first
+      initSession().then(() => {
+        sendTextMessage(messageToSend);
+      });
     }
   };
 
@@ -122,7 +112,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
         <div className="flex flex-col overflow-hidden">
           {/* Chat Messages */}
           <div className="flex-grow overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed">
-            {chatMessages.filter(msg => msg.role !== "system").map((msg, index) => {
+            {messages.filter(msg => msg.role !== "system").map((msg, index) => {
               if (msg.role === "user") {
                 // User messages - right aligned with user image and colored background
                 return (
