@@ -22,9 +22,8 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   // Initialize chat history and connection when component mounts
   useEffect(() => {
     const initialize = async () => {
-
-      // Initialize connection
-      if (connectionState.status === "idle") {
+      // Initialize connection if not already connected or connecting
+      if (connectionState.status === "idle" || connectionState.status === "failed" || connectionState.status === "disconnected") {
         initSession();
       }
     };

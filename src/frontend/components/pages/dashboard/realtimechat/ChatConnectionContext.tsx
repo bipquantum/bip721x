@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
 import { useActors } from "../../../common/ActorsContext";
-import { ChatMessage } from "../../../layout/ChatHistoryContext";
 
 type ConnectionState =
   | { status: "idle" }

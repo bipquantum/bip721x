@@ -95,12 +95,9 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
 
   // Load history when chatId changes
   useEffect(() => {
-    const loadHistory = async () => {
-      if (loadedChatIdRef.current !== chatId) {
-        loadedChatIdRef.current = chatId;
-      }
-    };
-    loadHistory();
+    if (loadedChatIdRef.current !== chatId) {
+      loadedChatIdRef.current = chatId;
+    }
   }, [chatId]);
 
   // Auto-save messages when they change (debounced)
@@ -119,6 +116,18 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Initialize connection on mount
+  useEffect(() => {
+    const initialize = async () => {
+      // Initialize connection if not already connected or connecting
+      if (connectionState.status === "idle" || connectionState.status === "failed" || connectionState.status === "disconnected") {
+        initSession();
+      }
+    };
+
+    initialize();
+  }, [chatId]);
 
   // Send initial question if provided via navigation state
   useEffect(() => {
