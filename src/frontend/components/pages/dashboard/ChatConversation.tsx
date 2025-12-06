@@ -39,13 +39,19 @@ interface ChatConversationProps {
 const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, setMessages }) => {
   const { user } = useAuth();
   const location = useLocation();
+
+  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
+    functionName: "create_chat_history",
+  });
   
   backendActor.authenticated.useQueryCall({
     functionName: "get_chat_history",
     args: [{ id: chatId }],
     onSuccess: (data) => {
       const loadedMessages = extractChatHistory(data);
-      setMessages(loadedMessages);
+      if (loadedMessages.length > 0) {
+        setMessages(loadedMessages);
+      }
     },
     onError: (error) => {
       console.error("Error getting chat history:", error);
@@ -119,8 +125,17 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     const initialQuestion = (location.state as any)?.initialQuestion;
     if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "connected") {
       initialQuestionSentRef.current = true;
+      // Send initial question as user message
       addMessage("user", initialQuestion);
       sendTextMessage(initialQuestion);
+      // Create history entry for this chat
+      createChatHistory([{
+        id: chatId,
+        version: "1.0",
+        name: "New Chat"
+      }]).catch((error) => {
+        console.log("Chat history may already exist:", error);
+      });
     }
   }, [connectionState.status, location.state]);
 

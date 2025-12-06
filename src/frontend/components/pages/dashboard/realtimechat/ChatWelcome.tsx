@@ -7,7 +7,6 @@ import AutoResizeTextarea, {
 } from "../../../common/AutoResizeTextArea";
 import { useChatConnection } from "./ChatConnectionContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
-import { useActors } from "../../../common/ActorsContext";
 
 interface ChatWelcomeProps {
   chatId: string;
@@ -18,25 +17,11 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
-  const { authenticated } = useActors();
   const { initSession, connectionState } = useChatConnection();
 
   // Initialize chat history and connection when component mounts
   useEffect(() => {
     const initialize = async () => {
-      // Create chat history entry in backend if authenticated
-      if (authenticated?.backend) {
-        try {
-          await authenticated.backend.create_chat_history({
-            id: chatId,
-            version: "1.0", // Version for realtime API chat
-            name: "New Chat"
-          });
-        } catch (error) {
-          // Ignore error if chat history already exists
-          console.log("Chat history may already exist:", error);
-        }
-      }
 
       // Initialize connection
       if (connectionState.status === "idle") {
@@ -45,11 +30,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
     };
 
     initialize();
-  }, []);
-
-  useEffect(() => {
-    console.log("ChatWelcome mounted");
-  }, []);
+  }, [chatId]);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;

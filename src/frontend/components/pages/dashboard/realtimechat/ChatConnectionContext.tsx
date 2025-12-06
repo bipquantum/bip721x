@@ -182,11 +182,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
           const data = JSON.parse(event.data);
           addLog(`📩 Received event: ${data.type}`);
 
-          // Debug: Log the full event data for text responses
-          if (data.type?.includes('text') || data.type?.includes('content')) {
-            console.log('Text event data:', JSON.stringify(data, null, 2));
-          }
-
           // Handle different event types
           switch (data.type) {
             // Handle response.output_text.delta (streaming text chunks)
