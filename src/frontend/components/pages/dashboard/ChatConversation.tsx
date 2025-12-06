@@ -183,7 +183,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
   }, []);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || connectionState.status !== "ready") return;
 
     // Add user message immediately to UI
     addMessage("user", inputMessage);
@@ -191,14 +191,8 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     inputRef.current?.clear();
     setInputMessage("");
 
-    // If ready, send immediately
-    if (connectionState.status === "ready") {
-      sendTextMessage(messageToSend);
-    } else {
-      // If not ready, initialize session first
-      await initSession();
-      sendTextMessage(messageToSend);
-    }
+    // Send the message
+    sendTextMessage(messageToSend);
   };
 
   const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] => {
@@ -298,6 +292,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
                 <AutoResizeTextarea
                   ref={inputRef}
                   placeholder="What do you want to protect?"
+                  autoFocus={true}
                   onChange={(value) => {
                     if (bottomRef.current) {
                       bottomRef.current.scrollIntoView({ behavior: "instant" });
@@ -307,7 +302,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if (inputMessage.trim()) {
+                      if (inputMessage.trim() && connectionState.status === "ready") {
                         handleSendMessage();
                       }
                     }
@@ -324,7 +319,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
                 onClick={() => {
                   if (inputMessage) handleSendMessage();
                 }}
-                disabled={!inputMessage.trim()}
+                disabled={!inputMessage.trim() || connectionState.status !== "ready"}
                 className="flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 disabled:opacity-50"
               >
                 <IoArrowUp size={30} className="text-black" />

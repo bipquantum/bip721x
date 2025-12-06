@@ -5,6 +5,7 @@ export interface AutoResizeTextareaProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   onKeyDown?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  autoFocus?: boolean;
 }
 
 export interface AutoResizeTextareaHandle {
@@ -16,7 +17,7 @@ const AutoResizeTextarea = forwardRef<
   AutoResizeTextareaProps
 >(
   (
-    { placeholder = "Type your message here...", onChange, disabled = false, onKeyDown },
+    { placeholder = "Type your message here...", onChange, disabled = false, onKeyDown, autoFocus = false },
     ref,
   ) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -49,6 +50,7 @@ const AutoResizeTextarea = forwardRef<
         className="box-border w-full resize-none overflow-hidden border-none text-base leading-tight outline-none"
         placeholder={placeholder}
         disabled={disabled}
+        autoFocus={autoFocus}
       />
     );
   },

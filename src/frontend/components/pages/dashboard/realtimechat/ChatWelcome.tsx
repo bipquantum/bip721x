@@ -32,7 +32,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   }, [chatId]);
 
   const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || connectionState.status !== "ready") return;
 
     // Navigate to the chat conversation with the initial question
     navigate(`/chat/${chatId}`, {
@@ -56,6 +56,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
                 <AutoResizeTextarea
                   ref={inputRef}
                   placeholder="What do you want to protect?"
+                  autoFocus={true}
                   onChange={(value) => {
                     if (bottomRef.current) {
                       bottomRef.current.scrollIntoView({ behavior: "instant" });
@@ -65,7 +66,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if (inputMessage.trim()) {
+                      if (inputMessage.trim() && connectionState.status === "ready") {
                         handleSendMessage();
                       }
                     }
@@ -82,7 +83,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
                 onClick={() => {
                   if (inputMessage) handleSendMessage();
                 }}
-                disabled={!inputMessage.trim()}
+                disabled={!inputMessage.trim() || connectionState.status !== "ready"}
                 className="flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 disabled:opacity-50"
               >
                 <IoArrowUp size={30} className="text-black" />

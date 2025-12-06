@@ -427,7 +427,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       case "idle":
         return "⚪";
       case "connecting":
-        return "🔄";
+        return "🟡";
       case "connected":
         return "🔵";
       case "ready":
