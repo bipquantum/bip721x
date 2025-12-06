@@ -72,6 +72,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     connectionState,
     logs,
     sendTextMessage,
+    restoreConversationContext,
     initSession,
     disconnect,
     clearLogs,
@@ -87,6 +88,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const initialQuestionSentRef = useRef(false);
   const loadedChatIdRef = useRef<string | null>(null);
+  const contextRestoredRef = useRef(false);
 
   // Helper to add message
   const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {
@@ -97,6 +99,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
   useEffect(() => {
     if (loadedChatIdRef.current !== chatId) {
       loadedChatIdRef.current = chatId;
+      contextRestoredRef.current = false; // Reset context restoration flag for new chat
     }
   }, [chatId]);
 
@@ -129,10 +132,28 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     initialize();
   }, [chatId]);
 
+  // Restore conversation context to AI when connection is ready and we have messages
+  useEffect(() => {
+    if (connectionState.status === "ready" && messages.length > 0 && !contextRestoredRef.current) {
+      // Filter out system messages and only send user/assistant messages
+      const contextMessages = messages
+        .filter(msg => msg.role !== "system" && !msg.isStreaming)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+
+      if (contextMessages.length > 0) {
+        restoreConversationContext(contextMessages);
+        contextRestoredRef.current = true; // Mark as restored
+      }
+    }
+  }, [connectionState.status, messages.length]);
+
   // Send initial question if provided via navigation state
   useEffect(() => {
     const initialQuestion = (location.state as any)?.initialQuestion;
-    if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "connected") {
+    if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "ready") {
       initialQuestionSentRef.current = true;
       // Send initial question as user message
       addMessage("user", initialQuestion);
@@ -170,11 +191,11 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     inputRef.current?.clear();
     setInputMessage("");
 
-    // If connected, send immediately
-    if (connectionState.status === "connected") {
+    // If ready, send immediately
+    if (connectionState.status === "ready") {
       sendTextMessage(messageToSend);
     } else {
-      // If not connected, initialize session first
+      // If not ready, initialize session first
       await initSession();
       sendTextMessage(messageToSend);
     }

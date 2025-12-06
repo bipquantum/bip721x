@@ -5,6 +5,7 @@ type ConnectionState =
   | { status: "idle" }
   | { status: "connecting" }
   | { status: "connected" }
+  | { status: "ready" }
   | { status: "failed"; error: string }
   | { status: "disconnected" };
 
@@ -13,6 +14,7 @@ interface ChatConnectionContextType {
   logs: string[];
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>;
   sendTextMessage: (text: string) => void;
+  restoreConversationContext: (messages: Array<{ role: "user" | "assistant" | "system"; content: string }>) => void;
   initSession: () => Promise<void>;
   disconnect: () => void;
   clearLogs: () => void;
@@ -92,6 +94,40 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     }
   };
 
+  const restoreConversationContext = (messages: Array<{ role: "user" | "assistant" | "system"; content: string }>) => {
+    if (!dataChannelRef.current || dataChannelRef.current.readyState !== "open") {
+      addLog("❌ Data channel not ready for context restoration");
+      return;
+    }
+
+    try {
+      addLog(`🔄 Restoring conversation context with ${messages.length} messages...`);
+
+      // Send each message as a conversation item WITHOUT triggering responses
+      for (const msg of messages.filter(m => m.role === "user" || m.role === "assistant")) {
+        const event = {
+          type: "conversation.item.create",
+          item: {
+            type: "message",
+            role: msg.role,
+            content: [
+              {
+                type: msg.role === "user" ? "input_text" : "text",
+                text: msg.content
+              }
+            ]
+          }
+        };
+
+        dataChannelRef.current.send(JSON.stringify(event));
+      }
+
+      addLog(`✓ Context restored with ${messages.length} messages`);
+    } catch (error: any) {
+      addLog(`❌ Error restoring context: ${error.message}`);
+    }
+  };
+
   const initSession = async () => {
     if (!authenticated?.backend) {
       addLog("❌ Error: Not authenticated");
@@ -144,6 +180,9 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
 
       dc.onopen = () => {
         addLog("✓ Data channel opened");
+
+        // Update connection state to ready (connection established AND data channel open)
+        setConnectionState({ status: "ready" });
 
         // Configure session for text-only mode
         const sessionConfig = {
@@ -250,6 +289,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
 
         switch (pc.connectionState) {
           case "connected":
+            // Peer connection established - data channel onopen will set status to "ready"
             setConnectionState({ status: "connected" });
             break;
           case "disconnected":
@@ -372,6 +412,8 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       case "connecting":
         return "text-yellow-600 dark:text-yellow-400";
       case "connected":
+        return "text-blue-600 dark:text-blue-400";
+      case "ready":
         return "text-green-600 dark:text-green-400";
       case "failed":
         return "text-red-600 dark:text-red-400";
@@ -387,6 +429,8 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       case "connecting":
         return "🔄";
       case "connected":
+        return "🔵";
+      case "ready":
         return "🟢";
       case "failed":
         return "🔴";
@@ -402,7 +446,9 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       case "connecting":
         return "Connecting...";
       case "connected":
-        return "Connected";
+        return "Connected (preparing...)";
+      case "ready":
+        return "Ready";
       case "failed":
         return `Failed: ${connectionState.error}`;
       case "disconnected":
@@ -427,6 +473,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     logs,
     dataChannelRef,
     sendTextMessage,
+    restoreConversationContext,
     initSession,
     disconnect,
     clearLogs,
