@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
 import { useActors } from "../../../common/ActorsContext";
-import { useChatHistory } from "../../../layout/ChatHistoryContext";
+import { ChatMessage } from "../../../layout/ChatHistoryContext";
 
 type ConnectionState =
   | { status: "idle" }
@@ -12,14 +12,11 @@ type ConnectionState =
 interface ChatConnectionContextType {
   connectionState: ConnectionState;
   logs: string[];
-  showDebugPanel: boolean;
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>;
-  addLog: (message: string) => void;
   sendTextMessage: (text: string) => void;
   initSession: () => Promise<void>;
   disconnect: () => void;
   clearLogs: () => void;
-  setShowDebugPanel: React.Dispatch<React.SetStateAction<boolean>>;
   getStatusColor: () => string;
   getStatusIcon: () => string;
   getStatusText: () => string;
@@ -36,16 +33,19 @@ export const useChatConnection = () => {
 };
 
 interface ChatConnectionProviderProps {
-  chatId: string;
   children: ReactNode;
+  addMessage: (role: "user" | "assistant" | "system", content: string, isStreaming?: boolean) => void;
+  updateLastMessage: (content: string, isStreaming?: boolean) => void;
 }
 
-export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ chatId, children }) => {
+export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
+  children,
+  addMessage,
+  updateLastMessage,
+}) => {
   const { authenticated } = useActors();
-  const { messages, addMessage, updateLastMessage, saveMessages } = useChatHistory();
   const [connectionState, setConnectionState] = useState<ConnectionState>({ status: "idle" });
   const [logs, setLogs] = useState<string[]>([]);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -428,30 +428,14 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({ 
     };
   }, []);
 
-  // Handle keyboard shortcut Ctrl+Alt+D to toggle debug panel
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.altKey && e.key === 'd') {
-        e.preventDefault();
-        setShowDebugPanel(prev => !prev);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
   const value: ChatConnectionContextType = {
     connectionState,
     logs,
-    showDebugPanel,
     dataChannelRef,
-    addLog,
     sendTextMessage,
     initSession,
     disconnect,
     clearLogs,
-    setShowDebugPanel,
     getStatusColor,
     getStatusIcon,
     getStatusText,

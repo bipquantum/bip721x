@@ -1,6 +1,7 @@
 import { useParams, useLocation } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { ChatConnectionProvider } from "./ChatConnectionContext";
+import { ChatMessage } from "../../../layout/ChatHistoryContext";
 import ChatWelcome from "./ChatWelcome";
 import ChatConversation from "../ChatConversation";
 
@@ -18,9 +19,35 @@ const ChatBot2 = () => {
     return crypto.randomUUID();
   }, [routeChatId, location.pathname]);
 
+  // Local message state that persists when navigating from Welcome -> Conversation
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {
+    setMessages(prev => [...prev, { role, content, timestamp: new Date(), isStreaming }]);
+  }, []);
+
+  const updateLastMessage = useCallback((content: string, isStreaming: boolean = false) => {
+    setMessages(prev => {
+      if (prev.length === 0) return prev;
+      const lastMsg = prev[prev.length - 1];
+      return [
+        ...prev.slice(0, -1),
+        { ...lastMsg, content, isStreaming }
+      ];
+    });
+  }, []);
+
   return (
-    <ChatConnectionProvider chatId={chatId} key={chatId}>
-      {routeChatId ? <ChatConversation chatId={chatId} /> : <ChatWelcome chatId={chatId} />}
+    <ChatConnectionProvider
+      key={chatId}  // New provider instance per chatId
+      addMessage={addMessage}
+      updateLastMessage={updateLastMessage}
+    >
+      {routeChatId ? (
+        <ChatConversation chatId={chatId} messages={messages} setMessages={setMessages} />
+      ) : (
+        <ChatWelcome chatId={chatId} />
+      )}
     </ChatConnectionProvider>
   );
 };

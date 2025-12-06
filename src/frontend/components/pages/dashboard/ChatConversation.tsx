@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@nfid/identitykit/react";
 import { useChatConnection } from "./realtimechat/ChatConnectionContext";
-import { useChatHistory } from "../../layout/ChatHistoryContext";
+import { ChatMessage } from "../../layout/ChatHistoryContext";
 import ConnectionStatusIndicator from "./realtimechat/ConnectionStatusIndicator";
 import Markdown from "react-markdown";
 import UserImage from "../../common/UserImage";
@@ -14,6 +14,8 @@ import { IoArrowUp } from "react-icons/io5";
 import AutoResizeTextarea, {
   AutoResizeTextareaHandle,
 } from "../../common/AutoResizeTextArea";
+import { backendActor } from "../../actors/BackendActor";
+import { Result_4 } from "../../../../declarations/backend/backend.did";
 
 // Markdown components for consistent styling
 const MARKDOWN_COMPONENTS = {
@@ -30,15 +32,39 @@ const MARKDOWN_COMPONENTS = {
 
 interface ChatConversationProps {
   chatId: string;
+  messages: ChatMessage[];
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
-const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
+const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, setMessages }) => {
   const { user } = useAuth();
   const location = useLocation();
+  
+  backendActor.authenticated.useQueryCall({
+    functionName: "get_chat_history",
+    args: [{ id: chatId }],
+    onSuccess: (data) => {
+      const loadedMessages = extractChatHistory(data);
+      setMessages(loadedMessages);
+    },
+    onError: (error) => {
+      console.error("Error getting chat history:", error);
+    },
+  });
+
+  const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
+    functionName: "update_chat_history",
+    onSuccess: () => {
+      console.log("Chat history saved successfully");
+    },
+    onError: (error) => {
+      console.error("Error saving chat history:", error);
+    },
+  });
+
   const {
     connectionState,
     logs,
-    showDebugPanel,
     sendTextMessage,
     initSession,
     disconnect,
@@ -48,31 +74,40 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
     getStatusText,
   } = useChatConnection();
 
-  const { messages, addMessage, loadMessages, setCurrentChatId } = useChatHistory();
-
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const initialQuestionSentRef = useRef(false);
+  const loadedChatIdRef = useRef<string | null>(null);
 
-  // Load history and initialize session when component mounts
+  // Helper to add message
+  const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {
+    setMessages(prev => [...prev, { role, content, timestamp: new Date(), isStreaming }]);
+  }, [setMessages]);
+
+  // Load history when chatId changes
   useEffect(() => {
-    const initialize = async () => {
-      // Set the current chat ID in context
-      setCurrentChatId(chatId);
-
-      // Load history from backend first
-      await loadMessages(chatId);
-
-      // Then initialize the session if not already connected
-      if (connectionState.status === "idle") {
-        await initSession();
+    const loadHistory = async () => {
+      if (loadedChatIdRef.current !== chatId) {
+        loadedChatIdRef.current = chatId;
       }
     };
+    loadHistory();
+  }, [chatId]);
 
-    initialize();
-  }, [chatId]); // Depend on chatId
+  // Auto-save messages when they change (debounced)
+  useEffect(() => {
+    const hasStreamingMessage = messages.some(msg => msg.isStreaming);
+    if (chatId && messages.length > 0 && !hasStreamingMessage) {
+      const timeoutId = setTimeout(() => {
+        const historyJson = toHistory(messages);
+        saveMessages([{ id: chatId, events: historyJson, aiPrompts: "" }]);
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [messages, chatId]);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -88,6 +123,19 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
       sendTextMessage(initialQuestion);
     }
   }, [connectionState.status, location.state]);
+
+  // Handle keyboard shortcut Ctrl+Alt+D to toggle debug panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.altKey && e.key === 'd') {
+        e.preventDefault();
+        setShowDebugPanel(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -107,6 +155,38 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId }) => {
       sendTextMessage(messageToSend);
     }
   };
+
+  const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] => {
+    if (!result || 'err' in result) {
+      console.log("No chat history found or error occurred");
+      return [];
+    }
+    try {
+      const messages = JSON.parse(result.ok.events);
+      return messages.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(msg.timestamp),
+        isStreaming: false
+      }));
+    } catch (error) {
+      console.error("Error parsing historyData events:", error);
+      return [];
+    }
+  }
+
+  const toHistory = (messages: ChatMessage[]): string => {
+    // Filter out system messages and streaming messages
+    const messagesToSave = messages
+      .filter(msg => msg.role !== "system" && !msg.isStreaming)
+      .map(msg => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp.toISOString()
+      }));
+
+    return JSON.stringify(messagesToSave);
+  }
 
   return (
     <div className="relative flex w-full flex-grow flex-col overflow-hidden">
