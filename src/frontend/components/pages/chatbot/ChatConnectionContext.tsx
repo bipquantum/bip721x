@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
 import { backendActor } from "../../actors/BackendActor";
+import { useAuth } from "@nfid/identitykit/react";
+import { useAuthToken } from "./AuthTokenContext";
+import { showCreditsDepletedToast } from "./CreditsDepletedToast";
 
 type ConnectionState =
   | { status: "idle" }
@@ -45,6 +48,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
   updateLastMessage,
 }) => {
   
+  const { invalidateToken } = useAuthToken();
   const [connectionState, setConnectionState] = useState<ConnectionState>({ status: "idle" });
   const [logs, setLogs] = useState<string[]>([]);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
@@ -52,11 +56,8 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const streamingContentRef = useRef<string>("");
 
-  const { call: getEphemeralToken } = backendActor.authenticated.useQueryCall({
-    functionName: "get_chatbot_ephemeral_token",
-    onError: (error) => {
-      console.error("Error getting ephemeral token:", error);
-    },
+  const { call: consumeAiCredits } = backendActor.authenticated.useUpdateCall({
+    functionName: "consume_ai_credits",
   });
 
   const addLog = (message: string) => {
@@ -258,6 +259,55 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
 
             case "response.done":
               addLog("✓ Response complete");
+
+              // Capture token usage from the response
+              if (data.response?.usage) {
+                const usage = data.response.usage;
+                const totalTokens = usage.total_tokens || 0;
+                const inputTokens = usage.input_tokens || 0;
+                const outputTokens = usage.output_tokens || 0;
+
+                addLog(`📊 Token usage - Total: ${totalTokens}, Input: ${inputTokens}, Output: ${outputTokens}`);
+                console.log("Token usage:", { totalTokens, inputTokens, outputTokens });
+
+                // Consume AI credits based on token usage
+                if (totalTokens > 0) {
+                  consumeAiCredits([{ tokens: totalTokens }])
+                    .then((result) => {
+                      if (result && 'ok' in result) {
+                        const remainingCredits = result.ok;
+                        addLog(`💳 Consumed ${totalTokens} credits (${remainingCredits} remaining)`);
+
+                        // Check if credits are depleted
+                        if (remainingCredits <= 0n) {
+                          const errorMsg = "You've used all your AI credits for this period.";
+                          addLog(`⚠️ ${errorMsg}`);
+
+                          // Show credits depleted toast
+                          showCreditsDepletedToast();
+
+                          // Disconnect the session
+                          if (peerConnectionRef.current) {
+                            peerConnectionRef.current.close();
+                            peerConnectionRef.current = null;
+                          }
+                          if (dataChannelRef.current) {
+                            dataChannelRef.current.close();
+                            dataChannelRef.current = null;
+                          }
+                          setConnectionState({ status: "failed", error: errorMsg });
+                          invalidateToken();
+                          addMessage("system", `${errorMsg} Please upgrade your plan to continue.`);
+                        }
+                      } else if (result && 'Err' in result) {
+                        addLog(`⚠️ Failed to consume credits: ${result.Err}`);
+                      }
+                    })
+                    .catch((error) => {
+                      addLog(`⚠️ Failed to consume credits: ${error}`);
+                    });
+                }
+              }
               break;
 
             case "error":
@@ -368,7 +418,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       dataChannelRef.current = null;
     }
     setConnectionState({ status: "idle" });
-    // Note: We don't clear messages here - they're managed by ChatHistoryContext
   };
 
   const clearLogs = () => {

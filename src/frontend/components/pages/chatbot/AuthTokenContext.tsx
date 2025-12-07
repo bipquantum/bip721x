@@ -1,8 +1,10 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { backendActor } from "../../actors/BackendActor";
+import { showCreditsDepletedToast } from "./CreditsDepletedToast";
 
 interface AuthTokenContextType {
   authToken: string | undefined;
+  invalidateToken: () => void;
 }
 
 const AuthTokenContext = createContext<AuthTokenContextType | undefined>(undefined);
@@ -33,6 +35,11 @@ export const AuthTokenProvider: React.FC<AuthTokenProviderProps> = ({
         return;
       } else if ('err' in data) {
         console.error(`Failed to get auth token: ${data.err}`);
+
+        // Check if this is a rate limit / credits exceeded error
+        if (data.err.includes("Rate limit exceeded") || data.err.includes("Insufficient credits")) {
+          showCreditsDepletedToast();
+        }
         return;
       }
       console.log("✓ Obtained ephemeral auth token response");
@@ -65,12 +72,17 @@ export const AuthTokenProvider: React.FC<AuthTokenProviderProps> = ({
     },
   });
 
+  const invalidateToken = () => {
+    setAuthToken(undefined);
+  };
+
   useEffect(() => {
     refreshAuthToken();
   }, []);
   
   const value: AuthTokenContextType = {
     authToken,
+    invalidateToken,
   };
 
   return (

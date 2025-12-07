@@ -561,23 +561,8 @@ module {
       Set.toArray(accessControl.moderators);
     };
 
-    public func chatbotCompletion({caller: Principal; question: Text; id: Text; }) : async* Result<Text, Text> {
-      // Get or create the chat history
-      let history = switch(chatBotHistory.getChatHistory({caller; id})){
-        case(#err(err)){ return #err(err); };
-        case(#ok(history)){ history; };
-      };
-
-      // Get completion with history
-      await* chatBot.getCompletion(caller, question, history.aiPrompts);
-    };
-
-    public func initChatbotSession(sdp: Text) : async* Result<Text, Text> {
-      await* chatBot.initSession(sdp);
-    };
-
-    public func getChatbotEphemeralToken() : async* Result<Text, Text> {
-      await* chatBot.getEphemeralToken();
+    public func getChatbotEphemeralToken({ caller: Principal }) : async* Result<Text, Text> {
+      await* chatBot.getEphemeralToken({ caller });
     };
 
     public func createNotification(recipient: Principal, notificationType: NotificationType) {

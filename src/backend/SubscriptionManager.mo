@@ -214,8 +214,32 @@ module {
     // Consume credits without checking (assumes check was already called)
     public func consumeCredits(user: Principal, credits: Nat) {
       let subscription = getSubscription(user);
-      subscription.availableCredits -= credits;
+      subscription.availableCredits -= Nat.min(credits, subscription.availableCredits);
       subscription.totalCreditsUsed += credits;
+    };
+
+    // Consume AI credits with validation and return remaining credits
+    public func consumeAiCredits(user: Principal, tokens: Nat): Result.Result<Nat, Text> {
+      if (Principal.isAnonymous(user)) {
+        return #err("Anonymous users cannot consume credits");
+      };
+
+      // Consume the credits
+      consumeCredits(user, tokens);
+
+      // Return remaining credits
+      let subscription = getSubscription(user);
+      #ok(subscription.availableCredits);
+    };
+
+    // Get available credits for a user
+    public func getAvailableCredits(user: Principal): Nat {
+      if (Principal.isAnonymous(user)) {
+        return 0;
+      };
+
+      let subscription = getSubscription(user);
+      subscription.availableCredits;
     };
 
     public func getSubscription(user: Principal): Subscription {

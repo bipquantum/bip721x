@@ -184,16 +184,16 @@ shared({ caller = admin; }) actor class Backend(args: MigrationTypes.Args) = thi
     Cycles.balance();
   };
 
-  public shared({caller}) func chatbot_completion({question: Text; id: Text; }) : async Result<Text, Text> {
-    await* getModel().controller.chatbotCompletion({caller; question; id; });
+  public shared({caller}) func get_chatbot_ephemeral_token() : async Result<Text, Text> {
+    await* getModel().controller.getChatbotEphemeralToken({ caller });
   };
 
-  public shared func init_chatbot_session(sdp: Text) : async Result<Text, Text> {
-    await* getModel().controller.initChatbotSession(sdp);
+  public shared({caller}) func consume_ai_credits({tokens: Nat}) : async Result<Nat, Text> {
+    getModel().subscriptionManager.consumeAiCredits(caller, tokens);
   };
 
-  public shared func get_chatbot_ephemeral_token() : async Result<Text, Text> {
-    await* getModel().controller.getChatbotEphemeralToken();
+  public query({caller}) func get_available_credits() : async Nat {
+    getModel().subscriptionManager.getAvailableCredits(caller);
   };
 
   public query({caller}) func is_airdrop_available() : async Bool {

@@ -173,7 +173,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
           )}
           {actionCandidate?.action === ChatAction.DELETE && (
             <div>
-              <p className="pb-5">Remove chatbot history?</p>
+              <p className="pb-5 dark:text-white">Remove chatbot history?</p>
             </div>
           )}
           <div className="flex w-full justify-center gap-4">
