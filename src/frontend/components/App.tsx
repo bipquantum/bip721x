@@ -10,7 +10,6 @@ import MobileNavBar from "./layout/MobileNavBar";
 import { ChatHistoryProvider } from "./layout/ChatHistoryContext";
 import CookieBanner, { CookieBannerProvider } from "./common/CookieBanner";
 import TopBar from "./layout/TopBar";
-import ChatHistory from "./layout/ChatHistory";
 import { SearchProvider } from "./common/SearchContext";
 import { NotificationProvider } from "./common/NotificationContext";
 
@@ -105,6 +104,9 @@ function App() {
   const signerClientOptions = {
     targets,
     derivationOrigin: isLocal ? undefined: `https://${frontendId}.icp0.io`,
+    // Session duration: 30 days (in nanoseconds)
+    // Default is 30 minutes, extending to 30 days for better UX
+    maxTimeToLive: BigInt(30 * 24 * 60 * 60 * 1000 * 1000 * 1000),
   };
 
   return (
@@ -172,10 +174,7 @@ function AppContent() {
           {!(
             pathname.includes("login") || pathname.includes("certificate")
           ) && <TopBar />}
-          <div className="flex w-full flex-grow flex-row justify-between">
-            <ChatHistory />
-            <Router />
-          </div>
+          <Router />
           {!(
             pathname.includes("login") || pathname.includes("certificate")
           ) && <MobileNavBar />}

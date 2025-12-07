@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "@nfid/identitykit/react";
 import { backendActor } from "../actors/BackendActor";
 import { ChatHistory } from "../../../declarations/backend/backend.did";
-import { machine } from "../pages/dashboard/botStateMachine";
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -79,10 +78,7 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
   });
 
   const addChat = ({id, name}: {id: string, name: string}) => {
-    if (machine.version === undefined) {
-      throw new Error("Machine version not found");
-    }
-    createChatHistory([{ id, version: machine.version, name }]).then(
+    createChatHistory([{ id, version: "0.0.0", name }]).then(
       () => {
         fetchChatHistories();
       },

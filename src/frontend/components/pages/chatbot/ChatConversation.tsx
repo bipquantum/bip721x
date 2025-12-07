@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@nfid/identitykit/react";
-import { useChatConnection } from "./realtimechat/ChatConnectionContext";
+import { useChatConnection } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
-import ConnectionStatusIndicator from "./realtimechat/ConnectionStatusIndicator";
+import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
 import Markdown from "react-markdown";
 import UserImage from "../../common/UserImage";
 import CopyIcon from "../../common/CopyIcon";
@@ -16,7 +16,7 @@ import AutoResizeTextarea, {
 } from "../../common/AutoResizeTextArea";
 import { backendActor } from "../../actors/BackendActor";
 import { Result_4 } from "../../../../declarations/backend/backend.did";
-import { useAuthToken } from "./realtimechat/AuthTokenContext";
+import { useAuthToken } from "./AuthTokenContext";
 
 // Markdown components for consistent styling
 const MARKDOWN_COMPONENTS = {

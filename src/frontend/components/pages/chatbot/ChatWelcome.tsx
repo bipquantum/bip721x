@@ -4,11 +4,11 @@ import { BiMicrophone } from "react-icons/bi";
 import { IoArrowUp } from "react-icons/io5";
 import AutoResizeTextarea, {
   AutoResizeTextareaHandle,
-} from "../../../common/AutoResizeTextArea";
+} from "../../common/AutoResizeTextArea";
 import { useChatConnection } from "./ChatConnectionContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
 import { useAuthToken } from "./AuthTokenContext";
-import { useChatHistory } from "../../../layout/ChatHistoryContext";
+import { useChatHistory } from "../../layout/ChatHistoryContext";
 
 interface ChatWelcomeProps {
   chatId: string;

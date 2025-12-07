@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
-import { backendActor } from "../../../actors/BackendActor";
+import { backendActor } from "../../actors/BackendActor";
 
 interface AuthTokenContextType {
   authToken: string | undefined;

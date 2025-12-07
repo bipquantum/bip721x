@@ -1,13 +1,14 @@
 import { useParams, useLocation } from "react-router-dom";
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { ChatConnectionProvider } from "./ChatConnectionContext";
-import { ChatMessage } from "../../../layout/ChatHistoryContext";
+import { ChatMessage } from "../../layout/ChatHistoryContext";
 import ChatWelcome from "./ChatWelcome";
-import ChatConversation from "../ChatConversation";
+import ChatConversation from "./ChatConversation";
 import { AuthTokenProvider } from "./AuthTokenContext";
 import { v4 as uuidv4 } from "uuid";
+import ChatHistoryBar from "../../layout/ChatHistoryBar";
 
-const ChatBot2 = () => {
+const ChatBot = () => {
   const { chatId: routeChatId } = useParams<{ chatId?: string }>();
   const location = useLocation();
 
@@ -42,20 +43,25 @@ const ChatBot2 = () => {
   }, []);
 
   return (
-    <AuthTokenProvider>
-      <ChatConnectionProvider
-        key={chatId}  // New provider instance per chatId
-        addMessage={addMessage}
-        updateLastMessage={updateLastMessage}
-      >
-        {routeChatId ? (
-          <ChatConversation chatId={chatId} messages={messages} setMessages={setMessages} />
-        ) : (
-          <ChatWelcome chatId={chatId} />
-        )}
-      </ChatConnectionProvider>
-    </AuthTokenProvider>
+    <div className="flex w-full flex-grow flex-row justify-between">
+      <div className={`mx-[20px] hidden sm:block h-[80dvh] w-80 overflow-auto rounded-[40px] bg-white text-black transition-all duration-200 dark:bg-background-dark dark:text-white`}>
+        <ChatHistoryBar onChatSelected={() => {}} />
+      </div>
+      <AuthTokenProvider>
+        <ChatConnectionProvider
+          key={chatId}  // New provider instance per chatId
+          addMessage={addMessage}
+          updateLastMessage={updateLastMessage}
+        >
+          {routeChatId ? (
+            <ChatConversation chatId={chatId} messages={messages} setMessages={setMessages} />
+          ) : (
+            <ChatWelcome chatId={chatId} />
+          )}
+        </ChatConnectionProvider>
+      </AuthTokenProvider>
+    </div>
   );
 };
 
-export default ChatBot2;
+export default ChatBot;

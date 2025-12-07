@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
-import { backendActor } from "../../../actors/BackendActor";
+import { backendActor } from "../../actors/BackendActor";
 
 type ConnectionState =
   | { status: "idle" }

@@ -59,7 +59,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
 
   const newChat = () => {
     const chatId = uuidv4();
-    addChat({id: chatId, name: "New Chat"});
+    addChat({id: chatId, name: new Date().toLocaleString()});
     navigate(`/chat/${chatId}`);
     onChatSelected(chatId);
   };

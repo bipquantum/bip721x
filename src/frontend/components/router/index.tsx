@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
 import PrivateRoute from "./PrivateRoute";
-import Dashboard from "../pages/dashboard";
 import NewIP from "../pages/new-ip";
 import Profile from "../pages/profile";
 import Bips from "../pages/bips";
@@ -12,7 +11,7 @@ import Copyright from "../pages/copyright";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import Plans from "../pages/plans";
-import ChatBot2 from "../pages/dashboard/realtimechat/ChatBot2";
+import ChatBot from "../pages/chatbot";
 import { useAuth } from "@nfid/identitykit/react";
 import { useHotjarTracking } from "../hooks/useHotjarTracking";
 
@@ -25,11 +24,11 @@ const Router = () => {
       <Route path={"/"} element={<PrivateRoute element={<Main />} />} />
       <Route
         path={"/chat"}
-        element={<PrivateRoute element={<ChatBot2 />} />}
+        element={<PrivateRoute element={<ChatBot />} />}
       />
       <Route
         path={"/chat/:chatId"}
-        element={<PrivateRoute element={<ChatBot2 />} />}
+        element={<PrivateRoute element={<ChatBot />} />}
       />
       <Route
         path={"/marketplace"}
