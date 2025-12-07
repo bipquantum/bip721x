@@ -28,7 +28,6 @@ module {
         });
         let controller = Controller.Controller({
           state with
-          chatBotHistory;
           tradeManager = TradeManager.TradeManager({
             stage_account = { owner = backendId; subaccount = null; };
             fee = state.e6sTransferFee;

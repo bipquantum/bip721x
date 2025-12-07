@@ -76,35 +76,13 @@ dfx deploy faucet --argument '( record {
     bqc_ledger = principal "'${BQC_LEDGER_CANISTER}'";
     ckusdt_ledger = principal "'${CKUSDT_LEDGER_CANISTER}'";
   };
-})' & 
-dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
-  record {
-    ecdsa_key_name = \"dfx_test_key\";
-    proxy_token_refresh_interval = 3600;
-    subnet_size = 13;
-    service_fee = 10_000_000;
-  }
-})" &
+})' &
 # Exchange rate canister initialization
 dfx deploy exchange_rate --argument '( record {
   ckusdt_usd_price = '${CKUSDT_USD_PRICE}' : nat64;
   ckusdt_decimals = '${CKUSDT_DECIMALS}' : nat32;
 })' &
 wait
-
-# Idempotent proxy
-dfx canister call idempotent_proxy_canister admin_set_agents '
-  (vec {
-    record {
-      name = "bIPQuantumWorker";
-      endpoint = "https://idempotent-proxy-cf-worker.bipquantum.workers.dev";
-      max_cycles = 30000000000;
-      proxy_token = null;
-    };
-  })
-'
-dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal "'${BACKEND_CANISTER}'"})'
-dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})'
 
 # Internet identity
 dfx deps pull

@@ -28,9 +28,6 @@ npm run start
 mops test
 ```
 
-## Credits
-- Idempotent proxy canister: https://github.com/ldclabs/idempotent-proxy/tree/main/src/idempotent_proxy_canister
-
 ## MVP Requirements
 
 ### IP transfer

@@ -1,4 +1,3 @@
-import IdempotentProxy "canister:idempotent_proxy_canister";
 import IC              "ic:aaaaa-aa";
 
 import Cycles          "mo:base/ExperimentalCycles";
@@ -62,12 +61,12 @@ module {
       // 1.4 Define the HTTP request
       let http_request : IC.http_request_args = {
         url;
-        max_response_bytes = null; // TODO: set a limit?
+        max_response_bytes = null;
         is_replicated = ?false; // single replica is fine
         headers;
         body;
         method = #post;
-        transform = null; // TODO: check if we need a transform function
+        transform = null;
       };
 
       // 2. Add cycles to pay for the HTTP request

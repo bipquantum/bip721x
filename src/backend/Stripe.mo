@@ -5,23 +5,23 @@ import Text "mo:base/Text";
 import Iter "mo:base/Iter";
 import Int "mo:base/Int";
 
-import IdempotentProxy "canister:idempotent_proxy_canister";
+import IC "ic:aaaaa-aa";
 
 module {
 
   // Verify Stripe subscription status
   // Returns #ok if subscription is active and paid, #err otherwise
   public func verifySubscriptionPayment(subscriptionId: Text, secretKey: Text) : async Result.Result<(), Text> {
-    Cycles.add<system>(1_000_000_000);
+    Cycles.add<system>(20_854_438_800);
 
-    let response = await IdempotentProxy.proxy_http_request({
+    let response = await IC.http_request({
       url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId;
       method = #get;
       max_response_bytes = null;
+      is_replicated = ?false; // single replica is fine
       body = null;
       transform = null;
       headers = [
-        { name = "idempotency-key"; value = "idempotency_key_001"  },
         { name = "content-type"   ; value = "application/json"     },
         { name = "Authorization"  ; value = "Bearer " # secretKey  },
       ];
@@ -58,18 +58,18 @@ module {
 
   // Cancel a Stripe subscription at the end of the current billing period
   public func cancelSubscription(subscriptionId: Text, secretKey: Text) : async Result.Result<(), Text> {
-    Cycles.add<system>(1_000_000_000);
+    Cycles.add<system>(20_854_438_800);
 
     // Use POST to /v1/subscriptions/{id} with cancel_at_period_end=true
     let body = "cancel_at_period_end=true";
-    let response = await IdempotentProxy.proxy_http_request({
+    let response = await IC.http_request({
       url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId;
       method = #post;
       max_response_bytes = null;
+      is_replicated = ?false; // single replica is fine
       body = ?Text.encodeUtf8(body);
       transform = null;
       headers = [
-        { name = "idempotency-key"; value = "idempotency_key_001"               },
         { name = "content-type"   ; value = "application/x-www-form-urlencoded" },
         { name = "Authorization"  ; value = "Bearer " # secretKey               },
       ];
@@ -91,18 +91,18 @@ module {
   // Set a scheduled cancellation date on a Stripe subscription
   // cancelAt is a Unix timestamp in seconds
   public func setCancelAt(subscriptionId: Text, cancelAtSeconds: Int, secretKey: Text) : async Result.Result<(), Text> {
-    Cycles.add<system>(1_000_000_000);
+    Cycles.add<system>(20_854_438_800);
 
     // POST to /v1/subscriptions/{id} with cancel_at parameter
     let body = "cancel_at=" # Int.toText(cancelAtSeconds);
-    let response = await IdempotentProxy.proxy_http_request({
+    let response = await IC.http_request({
       url = "https://api.stripe.com/v1/subscriptions/" # subscriptionId;
       method = #post;
       max_response_bytes = null;
+      is_replicated = ?false; // single replica is fine
       body = ?Text.encodeUtf8(body);
       transform = null;
       headers = [
-        { name = "idempotency-key"; value = "idempotency_key_001"               },
         { name = "content-type"   ; value = "application/x-www-form-urlencoded" },
         { name = "Authorization"  ; value = "Bearer " # secretKey               },
       ];
@@ -164,16 +164,16 @@ module {
 
   // Verify event with Stripe API - returns the full event data if valid
   public func verifyStripeEvent(eventId: Text, secretKey: Text) : async Result.Result<Text, Text> {
-    Cycles.add<system>(1_000_000_000);
+    Cycles.add<system>(20_854_438_800);
 
-    let response = await IdempotentProxy.proxy_http_request({
+    let response = await IC.http_request({
       url = "https://api.stripe.com/v1/events/" # eventId;
       method = #get;
       max_response_bytes = null;
+      is_replicated = ?false; // single replica is fine
       body = null;
       transform = null;
       headers = [
-        { name = "idempotency-key"; value = "idempotency_key_001" },
         { name = "content-type"   ; value = "application/json"    },
         { name = "Authorization"  ; value = "Bearer " # secretKey },
       ];

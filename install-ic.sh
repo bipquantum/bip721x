@@ -28,30 +28,6 @@ dfx deploy icrc7 --ic --argument 'record {
   icrc3_args = null;
 }'
 
-dfx deploy idempotent_proxy_canister --argument "(opt variant {Init =
-  record {
-    ecdsa_key_name = \"key_1\";
-    proxy_token_refresh_interval = 86_400;
-    subnet_size = 13;
-    service_fee = 10_000_000;
-  }
-})" --ic --mode=reinstall
-
-dfx canister call idempotent_proxy_canister admin_set_agents '
-  (vec {
-    record {
-      name = "bIPQuantumWorker";
-      endpoint = "https://idempotent-proxy-cf-worker.bipquantum.workers.dev";
-      max_cycles = 30000000000;
-      proxy_token = null;
-    };
-  })
-' --ic
-
-dfx canister call idempotent_proxy_canister admin_add_managers '(vec {principal "'${BACKEND_CANISTER}'"})' --ic
-
-dfx canister call idempotent_proxy_canister admin_add_callers '(vec {principal "'${BACKEND_CANISTER}'"})' --ic
-
 # Backend
 STRIPE_PREMIUM_MONTHLY_LINK="plink_1SXSclFdNkpYWKD6M7LBCrGb"
 

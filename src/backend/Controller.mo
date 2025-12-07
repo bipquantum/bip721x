@@ -58,7 +58,6 @@ module {
     accessControl: AccessControl;
     users: Map.Map<Principal, User>;
     intProps: IntPropRegister;
-    chatBotHistory: ChatBotHistory.ChatBotHistory;
     tradeManager: TradeManager.TradeManager;
     airdrop: Airdrop;
     chatBot: ChatBot.ChatBot;
