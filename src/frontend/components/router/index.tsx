@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
 import PrivateRoute from "./PrivateRoute";
-import Dashboard from "../pages/dashboard";
 import NewIP from "../pages/new-ip";
 import Profile from "../pages/profile";
 import Bips from "../pages/bips";
@@ -9,11 +8,10 @@ import Login from "../pages/login";
 import Main from "../pages/main";
 import BipDetails from "../pages/bips/BipDetails";
 import Copyright from "../pages/copyright";
-import WhoAreYou from "../pages/poll";
-import WithHistoryWrapper from "../pages/dashboard/WithHistoryWrapper";
 import Wallet from "../pages/wallet";
 import CertificatePage from "../pages/bips/CertificatePage";
 import Plans from "../pages/plans";
+import ChatBot from "../pages/chatbot";
 import { useAuth } from "@nfid/identitykit/react";
 import { useHotjarTracking } from "../hooks/useHotjarTracking";
 
@@ -25,22 +23,12 @@ const Router = () => {
     <Routes>
       <Route path={"/"} element={<PrivateRoute element={<Main />} />} />
       <Route
-        path={"/poll"}
-        element={<PrivateRoute element={<WhoAreYou />} />}
-      />
-      <Route
-        path={"/dashboard"}
-        element={<PrivateRoute element={<Dashboard />} />}
+        path={"/chat"}
+        element={<PrivateRoute element={<ChatBot />} />}
       />
       <Route
         path={"/chat/:chatId"}
-        element={
-          <PrivateRoute
-            element={
-              <WithHistoryWrapper principal={user?.principal} />
-            }
-          />
-        }
+        element={<PrivateRoute element={<ChatBot />} />}
       />
       <Route
         path={"/marketplace"}

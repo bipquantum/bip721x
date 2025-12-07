@@ -3,6 +3,7 @@ import AddPlusSvg from "../../assets/add-plus.svg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
 import { useChatHistory } from "./ChatHistoryContext";
+import { v4 as uuidv4 } from "uuid";
 
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbPencil } from "react-icons/tb";
@@ -39,6 +40,10 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
   >();
   const [chatName, setChatName] = useState<string>("");
 
+  useEffect(() => {
+    console.log("Chat histories updated:", chatHistories.length);
+  }, [chatHistories]);
+
   const runAction = () => {
     if (actionCandidate === undefined) return;
     switch (actionCandidate.action) {
@@ -53,7 +58,8 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
   };
 
   const newChat = () => {
-    let chatId = addChat("New chat");
+    const chatId = uuidv4();
+    addChat({id: chatId, name: new Date().toLocaleString()});
     navigate(`/chat/${chatId}`);
     onChatSelected(chatId);
   };
@@ -99,7 +105,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
           <p className="text-xl font-bold">Chat History</p>
         </div>
         <div className="pt-4">
-          {chatHistories.map((chat) => (
+          {[...chatHistories].reverse().map((chat) => (
             <div
               className={`flex w-full flex-row items-center justify-between ${isCurrentChat(chat.id) ? "font-bold" : ""}`}
               key={chat.id}
@@ -167,7 +173,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
           )}
           {actionCandidate?.action === ChatAction.DELETE && (
             <div>
-              <p className="pb-5">Remove chatbot history?</p>
+              <p className="pb-5 dark:text-white">Remove chatbot history?</p>
             </div>
           )}
           <div className="flex w-full justify-center gap-4">

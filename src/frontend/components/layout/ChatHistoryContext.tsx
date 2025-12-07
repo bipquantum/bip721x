@@ -1,13 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "@nfid/identitykit/react";
 import { backendActor } from "../actors/BackendActor";
 import { ChatHistory } from "../../../declarations/backend/backend.did";
-import { machine } from "../pages/dashboard/botStateMachine";
+
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+  timestamp: Date;
+  isStreaming?: boolean;
+}
 
 interface ChatHistoryContextType {
   chatHistories: ChatHistory[];
-  addChat: (name: string) => string;
+  addChat: ({id, name}: {id: string, name: string}) => void;
   renameChat: (chatId: string, name: string) => void;
   deleteChat: (chatId: string) => void;
 }
@@ -24,8 +29,10 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { call: fetchChatHistories } = backendActor.authenticated.useQueryCall({
     functionName: "get_chat_histories",
+    args: [],
     onSuccess: (data) => {
       if (data !== undefined) {
+        console.log("Fetched chat histories:", data.length);
         setChatHistories(data);
       } else {
         console.error("No chat histories returned");
@@ -70,18 +77,12 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   });
 
-  const addChat = (name: string): string => {
-    if (machine.version === undefined) {
-      throw new Error("Machine version not found");
-    }
-
-    const newChatId = uuidv4();
-    createChatHistory([{ id: newChatId, version: machine.version, name }]).then(
+  const addChat = ({id, name}: {id: string, name: string}) => {
+    createChatHistory([{ id, version: "0.0.0", name }]).then(
       () => {
         fetchChatHistories();
       },
     );
-    return newChatId;
   };
 
   const deleteChat = (chatId: string) => {
@@ -98,7 +99,12 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <ChatHistoryContext.Provider
-      value={{ chatHistories, addChat, deleteChat, renameChat }}
+      value={{
+        chatHistories,
+        addChat,
+        deleteChat,
+        renameChat,
+      }}
     >
       {children}
     </ChatHistoryContext.Provider>

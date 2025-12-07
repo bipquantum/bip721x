@@ -28,11 +28,6 @@
       "main": "src/stubs/faucet/main.mo",
       "type": "motoko"
     },
-    "idempotent_proxy_canister": {
-      "candid": "src/idempotent_proxy_canister/idempotent_proxy_canister.did",
-      "package": "idempotent_proxy_canister",
-      "type": "rust"
-    },
     "backend": {
       "main": "src/backend/main.mo",
       "type": "motoko"

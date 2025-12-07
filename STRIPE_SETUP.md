@@ -217,7 +217,6 @@ Each webhook verification makes an HTTPS outcall to Stripe API:
 
 1. Verify environment variables `STRIPE_TEST_SECRET_KEY` or `STRIPE_LIVE_SECRET_KEY` are set correctly in `~/.bashrc`
 2. Check canister logs: `dfx canister logs backend`
-3. Ensure idempotent_proxy_canister is deployed and funded with cycles
 
 ### Subscription not activating
 

@@ -13,8 +13,5 @@
   },
   "ckusdt_ledger": {
     "ic": "cngnf-vqaaa-aaaar-qag4q-cai"
-  },
-  "idempotent_proxy_canister": {
-    "ic": "cx35w-2iaaa-aaaap-akikq-cai"
   }
 }
