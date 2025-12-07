@@ -289,7 +289,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
           </div>
 
           {/* Chat Input - Sticky Bottom */}
-          <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t bg-white px-2 py-2 dark:bg-gray-800">
+          <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t-[0.25px] dark:border-gray-800 px-2 py-2">
             <div className="relative flex w-full flex-row items-center gap-2">
               <ConnectionStatusIndicator />
               <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
