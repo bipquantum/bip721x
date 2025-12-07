@@ -4,6 +4,7 @@ import { ChatConnectionProvider } from "./ChatConnectionContext";
 import { ChatMessage } from "../../../layout/ChatHistoryContext";
 import ChatWelcome from "./ChatWelcome";
 import ChatConversation from "../ChatConversation";
+import { AuthTokenProvider } from "./AuthTokenContext";
 
 const ChatBot2 = () => {
   const { chatId: routeChatId } = useParams<{ chatId?: string }>();
@@ -40,17 +41,19 @@ const ChatBot2 = () => {
   }, []);
 
   return (
-    <ChatConnectionProvider
-      key={chatId}  // New provider instance per chatId
-      addMessage={addMessage}
-      updateLastMessage={updateLastMessage}
-    >
-      {routeChatId ? (
-        <ChatConversation chatId={chatId} messages={messages} setMessages={setMessages} />
-      ) : (
-        <ChatWelcome chatId={chatId} />
-      )}
-    </ChatConnectionProvider>
+    <AuthTokenProvider>
+      <ChatConnectionProvider
+        key={chatId}  // New provider instance per chatId
+        addMessage={addMessage}
+        updateLastMessage={updateLastMessage}
+      >
+        {routeChatId ? (
+          <ChatConversation chatId={chatId} messages={messages} setMessages={setMessages} />
+        ) : (
+          <ChatWelcome chatId={chatId} />
+        )}
+      </ChatConnectionProvider>
+    </AuthTokenProvider>
   );
 };
 

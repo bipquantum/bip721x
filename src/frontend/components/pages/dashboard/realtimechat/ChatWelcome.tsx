@@ -7,6 +7,7 @@ import AutoResizeTextarea, {
 } from "../../../common/AutoResizeTextArea";
 import { useChatConnection } from "./ChatConnectionContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
+import { useAuthToken } from "./AuthTokenContext";
 
 interface ChatWelcomeProps {
   chatId: string;
@@ -17,6 +18,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const { authToken } = useAuthToken();
   const { initSession, connectionState } = useChatConnection();
 
   // Initialize chat history and connection when component mounts
@@ -24,12 +26,14 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
     const initialize = async () => {
       // Initialize connection if not already connected or connecting
       if (connectionState.status === "idle" || connectionState.status === "failed" || connectionState.status === "disconnected") {
-        initSession();
+        if (authToken) {
+          initSession(authToken);
+        }
       }
     };
 
     initialize();
-  }, [chatId]);
+  }, [chatId, authToken]);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim() || connectionState.status !== "ready") return;

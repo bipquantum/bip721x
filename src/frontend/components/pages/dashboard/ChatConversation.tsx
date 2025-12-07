@@ -16,6 +16,7 @@ import AutoResizeTextarea, {
 } from "../../common/AutoResizeTextArea";
 import { backendActor } from "../../actors/BackendActor";
 import { Result_4 } from "../../../../declarations/backend/backend.did";
+import { useAuthToken } from "./realtimechat/AuthTokenContext";
 
 // Markdown components for consistent styling
 const MARKDOWN_COMPONENTS = {
@@ -68,6 +69,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     },
   });
 
+  const { authToken } = useAuthToken();
   const {
     connectionState,
     logs,
@@ -125,12 +127,14 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     const initialize = async () => {
       // Initialize connection if not already connected or connecting
       if (connectionState.status === "idle" || connectionState.status === "failed" || connectionState.status === "disconnected") {
-        initSession();
+        if (authToken) {
+          initSession(authToken);
+        }
       }
     };
 
     initialize();
-  }, [chatId]);
+  }, [chatId, authToken]);
 
   // Restore conversation context to AI when connection is ready and we have messages
   useEffect(() => {
@@ -356,7 +360,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
               </h3>
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={initSession}
+                  onClick={() => { if (authToken) { initSession(authToken); } }}
                   disabled={connectionState.status === "connecting" || connectionState.status === "connected"}
                   className="rounded-full bg-gradient-to-t from-primary to-secondary px-3 py-1.5 text-xs font-medium uppercase text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

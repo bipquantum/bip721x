@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
-import { useActors } from "../../../common/ActorsContext";
+import { backendActor } from "../../../actors/BackendActor";
 
 type ConnectionState =
   | { status: "idle" }
@@ -15,7 +15,7 @@ interface ChatConnectionContextType {
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>;
   sendTextMessage: (text: string) => void;
   restoreConversationContext: (messages: Array<{ role: "user" | "assistant" | "system"; content: string }>) => void;
-  initSession: () => Promise<void>;
+  initSession: (authToken: string) => Promise<void>;
   disconnect: () => void;
   clearLogs: () => void;
   getStatusColor: () => string;
@@ -44,13 +44,20 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
   addMessage,
   updateLastMessage,
 }) => {
-  const { authenticated } = useActors();
+  
   const [connectionState, setConnectionState] = useState<ConnectionState>({ status: "idle" });
   const [logs, setLogs] = useState<string[]>([]);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const streamingContentRef = useRef<string>("");
+
+  const { call: getEphemeralToken } = backendActor.authenticated.useQueryCall({
+    functionName: "get_chatbot_ephemeral_token",
+    onError: (error) => {
+      console.error("Error getting ephemeral token:", error);
+    },
+  });
 
   const addLog = (message: string) => {
     const timestamp = new Date().toLocaleTimeString();
@@ -128,12 +135,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     }
   };
 
-  const initSession = async () => {
-    if (!authenticated?.backend) {
-      addLog("❌ Error: Not authenticated");
-      setConnectionState({ status: "failed", error: "Not authenticated" });
-      return;
-    }
+  const initSession = async (authToken: string) => {
 
     try {
       setConnectionState({ status: "connecting" });
@@ -320,45 +322,13 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
         throw new Error("SDP offer is empty");
       }
 
-      const authTokenResult = await authenticated.backend.get_chatbot_ephemeral_token();
-      if ('err' in authTokenResult) {
-        throw new Error(`Failed to get auth token: ${authTokenResult.err}`);
-      }
-      addLog("✓ Obtained ephemeral auth token response");
-      addLog(`Raw token response: ${authTokenResult.ok.substring(0, 200)}...`);
-
-      // Parse the JSON response to extract the token
-      let ephemeralToken: string;
-      try {
-        const tokenData = JSON.parse(authTokenResult.ok);
-
-        // Check if the response contains an error from OpenAI
-        if (tokenData.error) {
-          addLog(`❌ OpenAI API error: ${JSON.stringify(tokenData.error)}`);
-          throw new Error(`OpenAI API error: ${tokenData.error.message || JSON.stringify(tokenData.error)}`);
-        }
-
-        // Extract the token
-        if (!tokenData.value) {
-          addLog(`❌ Invalid token response structure: ${JSON.stringify(tokenData)}`);
-          throw new Error("Invalid token response: missing client_secret value");
-        }
-
-        ephemeralToken = tokenData.value;
-        addLog(`✓ Extracted ephemeral token: ${ephemeralToken.substring(0, 20)}...`);
-      } catch (parseError: any) {
-        addLog(`❌ Failed to parse token response: ${parseError.message}`);
-        addLog(`Full raw response: ${authTokenResult.ok}`);
-        throw new Error(`Failed to parse ephemeral token: ${parseError.message}`);
-      }
-
       addLog("📡 Calling OpenAI Realtime API...");
       const sdpResponse = await fetch("https://api.openai.com/v1/realtime/calls", {
         method: "POST",
         body: offer.sdp,
         headers: {
-            Authorization: `Bearer ${ephemeralToken}`,
-            "Content-Type": "application/sdp",
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/sdp",
         },
       });
 

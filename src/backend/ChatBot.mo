@@ -1,4 +1,5 @@
 import IdempotentProxy "canister:idempotent_proxy_canister";
+import IC              "ic:aaaaa-aa";
 
 import Cycles          "mo:base/ExperimentalCycles";
 import Text            "mo:base/Text";
@@ -127,8 +128,31 @@ module {
       #ok(responseText);
     };
 
+//    public func transform({
+//      context : Blob;
+//      response : IC.http_request_result;
+//    }) : async IC.http_request_result {
+//      {
+//        response with headers = []; // not intersted in the headers
+//      };
+//    };
+//
+//    type TransformFunction = shared query {context : Blob; response : IC.http_request_result} -> async IC.http_request_result;
+
     public func getEphemeralToken() : async* Result<Text, Text> {
 
+      // 1.1 Setup the URL
+      let url = "https://api.openai.com/v1/realtime/client_secrets";
+
+      // 1.2 Prepare headers
+      let idempotencyKey = "ephemeral_token_" # Nat.toText(Int.abs(Time.now()));
+      let headers = [
+          { name = "idempotency-key"; value = idempotencyKey              },
+          { name = "Authorization";   value = "Bearer " # chatbot_api_key },
+          { name = "Content-Type";    value = "application/json"          }
+        ];
+
+      // 1.3 Prepare body
       let bodyJson =
         "{ " #
           "\"expires_after\": " #
@@ -141,37 +165,41 @@ module {
             "\"instructions\": \"" # escapeJSON(CHAT_INSTRUCTIONS) # "\" " #
           "} " #
         "}";
-
       Debug.print("Ephemeral token request body: " # bodyJson);
+      let body = ?Text.encodeUtf8(bodyJson);
 
-      Cycles.add<system>(1_000_000_000); // TODO: Find out precise cycles cost
-
-      let idempotencyKey = "ephemeral_token_" # Nat.toText(Int.abs(Time.now()));
-      let response = await IdempotentProxy.proxy_http_request({
-        url = "https://api.openai.com/v1/realtime/client_secrets";
+      // 1.4 Define the HTTP request
+      let http_request : IC.http_request_args = {
+        url;
+        max_response_bytes = null; // TODO: set a limit?
+        is_replicated = ?false; // single replica is fine
+        headers;
+        body;
         method = #post;
-        max_response_bytes = null;
-        body = ?Text.encodeUtf8(bodyJson);
-        transform = null;
-        headers = [
-          { name = "idempotency-key"; value = idempotencyKey              },
-          { name = "Authorization";   value = "Bearer " # chatbot_api_key },
-          { name = "Content-Type";    value = "application/json"          }
-        ];
-      });
-
-      let ?responseText = Text.decodeUtf8(response.body)
-        else return #err("Failed to decode API response");
-
-      Debug.print("Ephemeral token response status: " # debug_show(response.status));
-      Debug.print("Ephemeral token response: " # responseText);
-
-      // Check if the HTTP request was successful
-      if (response.status != 200) {
-        return #err("OpenAI API returned status " # debug_show(response.status) # ": " # responseText);
+        transform = null; // TODO: check if we need a transform function
       };
 
-      #ok(responseText);
+      // 2. Add cycles to pay for the HTTP request
+      Cycles.add<system>(20_854_438_800);
+
+      //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
+      let http_response : IC.http_request_result = await IC.http_request(http_request);
+
+      //4. DECODE THE RESPONSE BODY
+      let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {
+        case (null) { return #err("Failed to decode API response"); };
+        case (?y) { y; };
+      };
+
+      //5. CHECK RESPONSE STATUS
+      if (http_response.status != 200) {
+        return #err("OpenAI API returned status " # debug_show(http_response.status) # ": " # decoded_text);
+      };
+
+      Debug.print("Ephemeral token response status: " # debug_show(http_response.status));
+      Debug.print("Ephemeral token response: " # decoded_text);
+
+      #ok(decoded_text);
     };
 
 
