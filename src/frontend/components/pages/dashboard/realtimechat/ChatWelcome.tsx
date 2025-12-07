@@ -8,6 +8,7 @@ import AutoResizeTextarea, {
 import { useChatConnection } from "./ChatConnectionContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
 import { useAuthToken } from "./AuthTokenContext";
+import { useChatHistory } from "../../../layout/ChatHistoryContext";
 
 interface ChatWelcomeProps {
   chatId: string;
@@ -20,6 +21,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const navigate = useNavigate();
   const { authToken } = useAuthToken();
   const { initSession, connectionState } = useChatConnection();
+  const { addChat } = useChatHistory();
 
   // Initialize chat history and connection when component mounts
   useEffect(() => {
@@ -37,6 +39,8 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
 
   const handleSendMessage = () => {
     if (!inputMessage.trim() || connectionState.status !== "ready") return;
+
+    addChat({id: chatId, name: new Date().toLocaleString()});
 
     // Navigate to the chat conversation with the initial question
     navigate(`/chat/${chatId}`, {

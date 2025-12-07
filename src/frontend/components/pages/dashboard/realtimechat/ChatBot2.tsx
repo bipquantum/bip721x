@@ -5,6 +5,7 @@ import { ChatMessage } from "../../../layout/ChatHistoryContext";
 import ChatWelcome from "./ChatWelcome";
 import ChatConversation from "../ChatConversation";
 import { AuthTokenProvider } from "./AuthTokenContext";
+import { v4 as uuidv4 } from "uuid";
 
 const ChatBot2 = () => {
   const { chatId: routeChatId } = useParams<{ chatId?: string }>();
@@ -22,7 +23,7 @@ const ChatBot2 = () => {
     // Reset messages when navigating to welcome page
     setMessages([]);
     // Generate new UUID for welcome page - changes on every navigation to /chat
-    return crypto.randomUUID();
+    return uuidv4();
   }, [routeChatId, location.pathname]);
 
   const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {

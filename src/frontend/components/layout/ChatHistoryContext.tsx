@@ -1,9 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
-import { v4 as uuidv4 } from "uuid";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "@nfid/identitykit/react";
 import { backendActor } from "../actors/BackendActor";
-import { useActors } from "../common/ActorsContext";
-import { ChatHistory, Result_4 } from "../../../declarations/backend/backend.did";
+import { ChatHistory } from "../../../declarations/backend/backend.did";
 import { machine } from "../pages/dashboard/botStateMachine";
 
 export interface ChatMessage {
@@ -15,7 +13,7 @@ export interface ChatMessage {
 
 interface ChatHistoryContextType {
   chatHistories: ChatHistory[];
-  addChat: (name: string) => string;
+  addChat: ({id, name}: {id: string, name: string}) => void;
   renameChat: (chatId: string, name: string) => void;
   deleteChat: (chatId: string) => void;
 }
@@ -32,8 +30,10 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const { call: fetchChatHistories } = backendActor.authenticated.useQueryCall({
     functionName: "get_chat_histories",
+    args: [],
     onSuccess: (data) => {
       if (data !== undefined) {
+        console.log("Fetched chat histories:", data.length);
         setChatHistories(data);
       } else {
         console.error("No chat histories returned");
@@ -78,18 +78,15 @@ export const ChatHistoryProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   });
 
-  const addChat = (name: string): string => {
+  const addChat = ({id, name}: {id: string, name: string}) => {
     if (machine.version === undefined) {
       throw new Error("Machine version not found");
     }
-
-    const newChatId = uuidv4();
-    createChatHistory([{ id: newChatId, version: machine.version, name }]).then(
+    createChatHistory([{ id, version: machine.version, name }]).then(
       () => {
         fetchChatHistories();
       },
     );
-    return newChatId;
   };
 
   const deleteChat = (chatId: string) => {
