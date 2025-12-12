@@ -160,19 +160,24 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
         }
       };
 
-      // For text-only mode, we still need a media track for WebRTC
+      // Text-only mode - create silent audio track without microphone permission
       addLog("🔇 Creating silent audio track (text-only mode)...");
       try {
-        const ms = await navigator.mediaDevices.getUserMedia({
-          audio: true,
+        // Create a silent audio track using AudioContext
+        const audioContext = new AudioContext();
+        const oscillator = audioContext.createOscillator();
+        const destination = audioContext.createMediaStreamDestination();
+        oscillator.connect(destination);
+        oscillator.start();
+
+        const silentStream = destination.stream;
+        silentStream.getAudioTracks().forEach((track: MediaStreamTrack) => {
+          pc.addTrack(track, silentStream);
         });
-        addLog("✓ Microphone access granted (will be muted for text-only)");
-        pc.addTrack(ms.getTracks()[0]);
-        // Mute the track since we're in text-only mode
-        ms.getTracks()[0].enabled = false;
-        addLog("✓ Audio track added (muted for text-only mode)");
+
+        addLog("✓ Silent audio track added (no microphone needed)");
       } catch (error: any) {
-        addLog(`⚠️ Could not get microphone: ${error.message}`);
+        addLog(`⚠️ Could not create silent audio track: ${error.message}`);
         addLog("ℹ️ Continuing without audio track...");
       }
 
