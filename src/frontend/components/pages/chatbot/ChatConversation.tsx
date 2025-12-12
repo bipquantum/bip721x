@@ -166,7 +166,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
       createChatHistory([{
         id: chatId,
         version: "1.0",
-        name: "New Chat"
+        name: new Date().toLocaleString()
       }]).catch((error) => {
         console.log("Chat history may already exist:", error);
       });

@@ -1,5 +1,5 @@
 import { useParams, useLocation } from "react-router-dom";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { ChatConnectionProvider } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
 import ChatWelcome from "./ChatWelcome";
@@ -26,6 +26,11 @@ const ChatBot = () => {
     // Generate new UUID for welcome page - changes on every navigation to /chat
     return uuidv4();
   }, [routeChatId, location.pathname]);
+
+  // Clear messages when chatId changes (switching between different chats)
+  useEffect(() => {
+    setMessages([]);
+  }, [chatId]);
 
   const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {
     setMessages(prev => [...prev, { role, content, timestamp: new Date(), isStreaming }]);
