@@ -44,10 +44,10 @@ const ChatBot = () => {
 
   return (
     <div className="flex w-full flex-grow flex-row justify-between">
+      <AuthTokenProvider>
       <div className={`mx-[20px] hidden sm:block h-[80dvh] w-80 overflow-auto rounded-[40px] bg-white text-black transition-all duration-200 dark:bg-background-dark dark:text-white`}>
         <ChatHistoryBar onChatSelected={() => {}} />
       </div>
-      <AuthTokenProvider>
         <ChatConnectionProvider
           key={chatId}  // New provider instance per chatId
           addMessage={addMessage}

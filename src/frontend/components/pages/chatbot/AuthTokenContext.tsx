@@ -1,9 +1,11 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { backendActor } from "../../actors/BackendActor";
 import { showCreditsDepletedToast } from "./CreditsDepletedToast";
+import { Result_3 } from "../../../../declarations/backend/backend.did";
 
 interface AuthTokenContextType {
   authToken: string | undefined;
+  refreshAuthToken: (args?: []) => Promise<Result_3 | undefined>;
   invalidateToken: () => void;
 }
 
@@ -27,7 +29,7 @@ export const AuthTokenProvider: React.FC<AuthTokenProviderProps> = ({
 
   const [authToken, setAuthToken] = useState<string | undefined>(undefined);
 
-  const { call: refreshAuthToken } = backendActor.authenticated.useQueryCall({
+  const { call: refreshAuthToken, ready: backendReady } = backendActor.authenticated.useUpdateCall({
     functionName: "get_chatbot_ephemeral_token",
     onSuccess: (data) => {
       if (data === undefined){
@@ -77,11 +79,33 @@ export const AuthTokenProvider: React.FC<AuthTokenProviderProps> = ({
   };
 
   useEffect(() => {
-    refreshAuthToken();
-  }, []);
-  
+    console.log("AuthTokenProvider detected backend ready:", backendReady);
+    if (backendReady && !authToken) {
+      console.log("Refreshing auth token on mount");
+      refreshAuthToken();
+    };
+  }, [backendReady]);
+
+  // Auto-invalidate token after 55 seconds
+  useEffect(() => {
+    if (!authToken) {
+      return;
+    }
+
+    // TODO: do not use hardcoded timeout, instead parse expiry from token response
+    const timerId = setTimeout(() => {
+      console.log("Auth token expired after 55 seconds");
+      setAuthToken(undefined);
+    }, 55000);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [authToken]);
+
   const value: AuthTokenContextType = {
     authToken,
+    refreshAuthToken,
     invalidateToken,
   };
 

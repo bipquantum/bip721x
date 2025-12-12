@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { HiOutlineTrash } from "react-icons/hi2";
 import { TbPencil } from "react-icons/tb";
 import { TbDots } from "react-icons/tb";
+import { useAuthToken } from "../pages/chatbot/AuthTokenContext";
 
 enum ChatAction {
   DELETE,
@@ -30,14 +31,13 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
 }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { authToken, refreshAuthToken } = useAuthToken();
 
   const [settingOpen, setSettingOpen] = useState<string | undefined>();
   const settingsRef = useRef<HTMLDivElement>(null);
 
   const { chatHistories, addChat, deleteChat, renameChat } = useChatHistory();
-  const [actionCandidate, setActionCandidate] = useState<
-    ActionCandidate | undefined
-  >();
+  const [actionCandidate, setActionCandidate] = useState<ActionCandidate | undefined>();
   const [chatName, setChatName] = useState<string>("");
 
   useEffect(() => {
@@ -61,8 +61,15 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
     const chatId = uuidv4();
     addChat({id: chatId, name: new Date().toLocaleString()});
     navigate(`/chat/${chatId}`);
-    onChatSelected(chatId);
+    onChatSelectedExtended(chatId);
   };
+
+  const onChatSelectedExtended = (chatId: string) => {
+    if (authToken === undefined) {
+      refreshAuthToken();
+    };
+    onChatSelected(chatId);
+  }
 
   const isCurrentChat = (chatId: string) => {
     return pathname.includes("/chat/" + chatId);
@@ -113,7 +120,9 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
               <Link
                 className="col-span-4 text-wrap break-words text-[16px]"
                 to={"/chat/" + chat.id}
-                onClick={(e) => onChatSelected(chat.id)}
+                onClick={
+                  (e) => onChatSelectedExtended(chat.id)
+                }
               >
                 {chat.name}
               </Link>

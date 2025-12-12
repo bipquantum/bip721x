@@ -160,26 +160,8 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
         }
       };
 
-      // Text-only mode - create silent audio track without microphone permission
-      addLog("🔇 Creating silent audio track (text-only mode)...");
-      try {
-        // Create a silent audio track using AudioContext
-        const audioContext = new AudioContext();
-        const oscillator = audioContext.createOscillator();
-        const destination = audioContext.createMediaStreamDestination();
-        oscillator.connect(destination);
-        oscillator.start();
-
-        const silentStream = destination.stream;
-        silentStream.getAudioTracks().forEach((track: MediaStreamTrack) => {
-          pc.addTrack(track, silentStream);
-        });
-
-        addLog("✓ Silent audio track added (no microphone needed)");
-      } catch (error: any) {
-        addLog(`⚠️ Could not create silent audio track: ${error.message}`);
-        addLog("ℹ️ Continuing without audio track...");
-      }
+      // Start with text-only mode
+      pc.addTransceiver("audio", { direction: "recvonly" });
 
       // Set up data channel for sending and receiving events
       const dc = pc.createDataChannel("oai-events");
