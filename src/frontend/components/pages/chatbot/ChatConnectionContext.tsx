@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useRef, useEffect, ReactNode, useCallback } from "react";
 import { backendActor } from "../../actors/BackendActor";
 import { useAuth } from "@nfid/identitykit/react";
 import { useAuthToken } from "./AuthTokenContext";
@@ -71,6 +71,8 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       return;
     }
 
+    console.log("SEND TEXT MESSAGE:", text);
+
     try {
       // Create a conversation.item.create event with text content
       const event = {
@@ -109,6 +111,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     }
 
     try {
+      console.log("RESTORE CONTEXT WITH MESSAGES:", messages);
       addLog(`🔄 Restoring conversation context with ${messages.length} messages...`);
 
       // Send each message as a conversation item WITHOUT triggering responses
@@ -205,7 +208,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
         addLog(`❌ Data channel error: ${error}`);
       };
 
-      dc.onmessage = (event) => {
+      dc.onmessage = (event : MessageEvent) => {
         try {
           const data = JSON.parse(event.data);
           addLog(`📩 Received event: ${data.type}`);
@@ -310,7 +313,12 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
               addLog("✓ Session updated");
               break;
 
-            case "conversation.item.created":
+            case "conversation.item.added":
+              const item = data.item;
+              if (item.role === "user" && item.content.length > 0 && item.content?.[0]?.type === "input_text") {
+                addMessage("user", item.content[0].text);
+                console.log("CONVERSATION ITEM ADDED:", data.item.content);
+              }
               addLog(`✓ Conversation item created: ${data.item?.id || 'unknown'}`);
               break;
 

@@ -34,40 +34,11 @@ const MARKDOWN_COMPONENTS = {
 interface ChatConversationProps {
   chatId: string;
   messages: ChatMessage[];
-  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
-const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, setMessages }) => {
+const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages }) => {
   const { user } = useAuth();
   const location = useLocation();
-
-  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
-    functionName: "create_chat_history",
-  });
-  
-  backendActor.authenticated.useQueryCall({
-    functionName: "get_chat_history",
-    args: [{ id: chatId }],
-    onSuccess: (data) => {
-      const loadedMessages = extractChatHistory(data);
-      if (loadedMessages.length > 0) {
-        setMessages(loadedMessages);
-      }
-    },
-    onError: (error) => {
-      console.error("Error getting chat history:", error);
-    },
-  });
-
-  const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
-    functionName: "update_chat_history",
-    onSuccess: () => {
-      console.log("Chat history saved successfully");
-    },
-    onError: (error) => {
-      console.error("Error saving chat history:", error);
-    },
-  });
 
   const { authToken } = useAuthToken();
   const {
@@ -83,6 +54,28 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     getStatusText,
   } = useChatConnection();
 
+  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
+    functionName: "create_chat_history",
+  });
+  
+  const { data: chatHistory } = backendActor.authenticated.useQueryCall({
+    functionName: "get_chat_history",
+    args: [{ id: chatId }],
+    onError: (error) => {
+      console.error("Error getting chat history:", error);
+    },
+  });
+
+  const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
+    functionName: "update_chat_history",
+    onSuccess: () => {
+      console.log("Chat history saved successfully");
+    },
+    onError: (error) => {
+      console.error("Error saving chat history:", error);
+    },
+  });
+
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -91,11 +84,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
   const initialQuestionSentRef = useRef(false);
   const loadedChatIdRef = useRef<string | null>(null);
   const contextRestoredRef = useRef(false);
-
-  // Helper to add message
-  const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {
-    setMessages(prev => [...prev, { role, content, timestamp: new Date(), isStreaming }]);
-  }, [setMessages]);
 
   // Load history when chatId changes
   useEffect(() => {
@@ -111,6 +99,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     if (chatId && messages.length > 0 && !hasStreamingMessage) {
       const timeoutId = setTimeout(() => {
         const historyJson = toHistory(messages);
+        console.log("MESSAGE HISTORY:", historyJson);
         saveMessages([{ id: chatId, events: historyJson, aiPrompts: "" }]);
       }, 1000);
       return () => clearTimeout(timeoutId);
@@ -138,9 +127,12 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
 
   // Restore conversation context to AI when connection is ready and we have messages
   useEffect(() => {
-    if (connectionState.status === "ready" && messages.length > 0 && !contextRestoredRef.current) {
+    if (connectionState.status === "ready" && chatHistory !== undefined && !contextRestoredRef.current) {
+
+      let historyMessages = extractChatHistory(chatHistory);
+
       // Filter out system messages and only send user/assistant messages
-      const contextMessages = messages
+      const contextMessages = historyMessages
         .filter(msg => msg.role !== "system" && !msg.isStreaming)
         .map(msg => ({
           role: msg.role,
@@ -152,7 +144,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
         contextRestoredRef.current = true; // Mark as restored
       }
     }
-  }, [connectionState.status, messages.length]);
+  }, [connectionState.status, chatHistory]);
 
   // Send initial question if provided via navigation state
   useEffect(() => {
@@ -160,7 +152,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "ready") {
       initialQuestionSentRef.current = true;
       // Send initial question as user message
-      addMessage("user", initialQuestion);
       sendTextMessage(initialQuestion);
       // Create history entry for this chat
       createChatHistory([{
@@ -190,7 +181,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     if (!inputMessage.trim() || connectionState.status !== "ready") return;
 
     // Add user message immediately to UI
-    addMessage("user", inputMessage);
     const messageToSend = inputMessage;
     inputRef.current?.clear();
     setInputMessage("");
@@ -289,7 +279,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
           </div>
 
           {/* Chat Input - Sticky Bottom */}
-          <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t-[0.25px] dark:border-gray-800 px-2 py-2">
+          <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t-[0.25px] dark:border-gray-800 px-2 py-2 items-center">
             <div className="relative flex w-full flex-row items-center gap-2">
               <ConnectionStatusIndicator />
               <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
@@ -329,7 +319,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
                 <IoArrowUp size={30} className="text-black" />
               </button>
             </div>
-            <p ref={bottomRef} className="text-sm text-gray-500">
+            <p ref={bottomRef} className="text-sm text-gray-500 items-center">
               BIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.
             </p>
           </div>

@@ -59,7 +59,7 @@ const ChatBot = () => {
           updateLastMessage={updateLastMessage}
         >
           {routeChatId ? (
-            <ChatConversation chatId={chatId} messages={messages} setMessages={setMessages} />
+            <ChatConversation chatId={chatId} messages={messages} />
           ) : (
             <ChatWelcome chatId={chatId} />
           )}
