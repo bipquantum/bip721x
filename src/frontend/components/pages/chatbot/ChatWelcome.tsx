@@ -9,6 +9,7 @@ import { useChatConnection } from "./ChatConnectionContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
 import { useAuthToken } from "./AuthTokenContext";
 import { useChatHistory } from "../../layout/ChatHistoryContext";
+import { backendActor } from "../../actors/BackendActor";
 
 interface ChatWelcomeProps {
   chatId: string;
@@ -20,8 +21,12 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { authToken } = useAuthToken();
-  const { initSession, connectionState } = useChatConnection();
+  const { initSession, sendTextMessage, connectionState } = useChatConnection();
   const { addChat } = useChatHistory();
+
+  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
+    functionName: "create_chat_history",
+  });
 
   // Initialize chat history and connection when component mounts
   useEffect(() => {
@@ -40,12 +45,21 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const handleSendMessage = () => {
     if (!inputMessage.trim() || connectionState.status !== "ready") return;
 
+    // Create history entry for this chat
+    createChatHistory([{
+      id: chatId,
+      version: "1.0",
+      name: new Date().toLocaleString()
+    }]).catch((error) => {
+      console.log("Chat history may already exist:", error);
+    });
+
     addChat({id: chatId, name: new Date().toLocaleString()});
 
+    sendTextMessage(undefined, inputMessage);
+    
     // Navigate to the chat conversation with the initial question
-    navigate(`/chat/${chatId}`, {
-      state: { initialQuestion: inputMessage }
-    });
+    navigate(`/chat/${chatId}`);
   };
 
   return (
@@ -74,9 +88,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if (inputMessage.trim() && connectionState.status === "ready") {
-                        handleSendMessage();
-                      }
+                      handleSendMessage();
                     }
                   }}
                 />
@@ -88,9 +100,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
                 </span>
               </div>
               <button
-                onClick={() => {
-                  if (inputMessage) handleSendMessage();
-                }}
+                onClick={() => { handleSendMessage(); }}
                 disabled={!inputMessage.trim() || connectionState.status !== "ready"}
                 className="flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 disabled:opacity-50"
               >

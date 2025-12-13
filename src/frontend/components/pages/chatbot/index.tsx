@@ -89,8 +89,8 @@ export const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] 
   }
   try {
     const messages = JSON.parse(result.ok.events);
-    return messages.map((msg: any) => ({
-      id: msg.id || uuidv4(),
+    return messages.map((msg: any, index: number) => ({
+      id: msg.id || "msg-" + index,
       role: msg.role,
       content: msg.content,
       timestamp: new Date(msg.timestamp),

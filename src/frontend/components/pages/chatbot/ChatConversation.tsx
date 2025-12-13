@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@nfid/identitykit/react";
 import { useChatConnection } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
@@ -40,7 +39,6 @@ interface ChatConversationProps {
 
 const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory, messages }) => {
   const { user } = useAuth();
-  const location = useLocation();
 
   const { authToken } = useAuthToken();
   const {
@@ -55,10 +53,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
     getStatusIcon,
     getStatusText,
   } = useChatConnection();
-
-  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
-    functionName: "create_chat_history",
-  });
 
   const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
     functionName: "update_chat_history",
@@ -75,7 +69,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const initialQuestionSentRef = useRef(false);
   const loadedChatIdRef = useRef<string | null>(null);
   const contextRestoredRef = useRef(false);
 
@@ -140,24 +133,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
       }
     }
   }, [connectionState.status, chatHistory]);
-
-  // Send initial question if provided via navigation state
-  useEffect(() => {
-    const initialQuestion = (location.state as any)?.initialQuestion;
-    if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "ready") {
-      initialQuestionSentRef.current = true;
-      // Send initial question as user message
-      sendTextMessage(undefined, initialQuestion);
-      // Create history entry for this chat
-      createChatHistory([{
-        id: chatId,
-        version: "1.0",
-        name: new Date().toLocaleString()
-      }]).catch((error) => {
-        console.log("Chat history may already exist:", error);
-      });
-    }
-  }, [connectionState.status, location.state]);
 
   // Handle keyboard shortcut Ctrl+Alt+D to toggle debug panel
   useEffect(() => {
