@@ -16,8 +16,8 @@ interface ChatConnectionContextType {
   connectionState: ConnectionState;
   logs: string[];
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>;
-  sendTextMessage: (text: string) => void;
-  restoreConversationContext: (messages: Array<{ role: "user" | "assistant" | "system"; content: string }>) => void;
+  sendTextMessage: (id: string | undefined, text: string) => void;
+  restoreConversationContext: (messages: Array<{ id: string, role: "user" | "assistant" | "system"; content: string }>) => void;
   initSession: (authToken: string) => Promise<void>;
   disconnect: () => void;
   clearLogs: () => void;
@@ -38,14 +38,12 @@ export const useChatConnection = () => {
 
 interface ChatConnectionProviderProps {
   children: ReactNode;
-  addMessage: (role: "user" | "assistant" | "system", content: string, isStreaming?: boolean) => void;
-  updateLastMessage: (content: string, isStreaming?: boolean) => void;
+  setMessage: (id: string, role: "user" | "assistant" | "system", content: string) => void;
 }
 
 export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
   children,
-  addMessage,
-  updateLastMessage,
+  setMessage,
 }) => {
   
   const { invalidateToken } = useAuthToken();
@@ -65,7 +63,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     setLogs(prev => [...prev, `[${timestamp}] ${message}`]);
   };
 
-  const sendTextMessage = (text: string) => {
+  const sendTextMessage = (id: string | undefined, text: string) => {
     if (!dataChannelRef.current || dataChannelRef.current.readyState !== "open") {
       addLog("❌ Data channel not ready");
       return;
@@ -74,10 +72,10 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     console.log("SEND TEXT MESSAGE:", text);
 
     try {
-      // Create a conversation.item.create event with text content
       const event = {
         type: "conversation.item.create",
         item: {
+          id: id,
           type: "message",
           role: "user",
           content: [
@@ -104,7 +102,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     }
   };
 
-  const restoreConversationContext = (messages: Array<{ role: "user" | "assistant" | "system"; content: string }>) => {
+  const restoreConversationContext = (messages: Array<{ id: string, role: "user" | "assistant" | "system"; content: string }>) => {
     if (!dataChannelRef.current || dataChannelRef.current.readyState !== "open") {
       addLog("❌ Data channel not ready for context restoration");
       return;
@@ -116,14 +114,16 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
 
       // Send each message as a conversation item WITHOUT triggering responses
       for (const msg of messages.filter(m => m.role === "user" || m.role === "assistant")) {
+        console.log("RESTORING MESSAGE:", msg);
         const event = {
           type: "conversation.item.create",
           item: {
+            id: msg.id,
             type: "message",
             role: msg.role,
             content: [
               {
-                type: msg.role === "user" ? "input_text" : "text",
+                type: msg.role === "user" ? "input_text" : "output_text",
                 text: msg.content
               }
             ]
@@ -197,7 +197,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
 
         dc.send(JSON.stringify(sessionConfig));
         addLog("📤 Sent session.update (text-only mode)");
-        addMessage("system", "Connection established. Text-only mode configured. You can now start chatting!");
       };
 
       dc.onclose = () => {
@@ -225,12 +224,12 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
                   // First delta - create new message
                   console.log('Creating new assistant message');
                   streamingContentRef.current = deltaText;
-                  addMessage("assistant", deltaText, true);
+                  setMessage(data.item_id, "assistant", deltaText);
                 } else {
                   // Subsequent deltas - append to existing message
                   console.log('Appending delta to message');
                   streamingContentRef.current += deltaText;
-                  updateLastMessage(streamingContentRef.current, true);
+                  setMessage(data.item_id, "assistant", streamingContentRef.current);
                 }
               }
               break;
@@ -241,7 +240,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
                 addLog(`✓ Text done: "${data.text.substring(0, 50)}${data.text.length > 50 ? '...' : ''}"`);
                 // Mark as done streaming (auto-save will trigger)
                 if (streamingContentRef.current !== "") {
-                  updateLastMessage(streamingContentRef.current, false);
                   streamingContentRef.current = ""; // Reset for next message
                 }
               }
@@ -287,7 +285,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
                           }
                           setConnectionState({ status: "failed", error: errorMsg });
                           invalidateToken();
-                          addMessage("system", `${errorMsg} Please upgrade your plan to continue.`);
                         }
                       } else if (result && 'Err' in result) {
                         addLog(`⚠️ Failed to consume credits: ${result.Err}`);
@@ -302,7 +299,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
 
             case "error":
               addLog(`❌ Error from server: ${data.error?.message || 'Unknown error'}`);
-              addMessage("system", `Error: ${data.error?.message || 'Unknown error'}`);
               break;
 
             case "session.created":
@@ -314,9 +310,12 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
               break;
 
             case "conversation.item.added":
+              console.log("CONVERSATION ITEM ADDED EVENT", data);
               const item = data.item;
-              if (item.role === "user" && item.content.length > 0 && item.content?.[0]?.type === "input_text") {
-                addMessage("user", item.content[0].text);
+              const matchingRole = (item.role === "user" || item.role === "assistant");
+              const matchingContent = (item.content.length > 0 && (item.content?.[0]?.type === "input_text" || item.content?.[0]?.type === "output_text"));
+              if (matchingRole && matchingContent) {
+                setMessage(item.id, item.role, item.content[0].text);
                 console.log("CONVERSATION ITEM ADDED:", data.item.content);
               }
               addLog(`✓ Conversation item created: ${data.item?.id || 'unknown'}`);

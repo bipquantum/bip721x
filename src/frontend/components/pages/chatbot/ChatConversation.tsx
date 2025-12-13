@@ -17,6 +17,7 @@ import AutoResizeTextarea, {
 import { backendActor } from "../../actors/BackendActor";
 import { Result_4 } from "../../../../declarations/backend/backend.did";
 import { useAuthToken } from "./AuthTokenContext";
+import { extractChatHistory } from ".";
 
 // Markdown components for consistent styling
 const MARKDOWN_COMPONENTS = {
@@ -33,10 +34,11 @@ const MARKDOWN_COMPONENTS = {
 
 interface ChatConversationProps {
   chatId: string;
+  chatHistory?: Result_4;
   messages: ChatMessage[];
 }
 
-const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages }) => {
+const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory, messages }) => {
   const { user } = useAuth();
   const location = useLocation();
 
@@ -56,14 +58,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages })
 
   const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
     functionName: "create_chat_history",
-  });
-  
-  const { data: chatHistory } = backendActor.authenticated.useQueryCall({
-    functionName: "get_chat_history",
-    args: [{ id: chatId }],
-    onError: (error) => {
-      console.error("Error getting chat history:", error);
-    },
   });
 
   const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
@@ -135,6 +129,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages })
       const contextMessages = historyMessages
         .filter(msg => msg.role !== "system" && !msg.isStreaming)
         .map(msg => ({
+          id: msg.id,
           role: msg.role,
           content: msg.content
         }));
@@ -152,7 +147,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages })
     if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "ready") {
       initialQuestionSentRef.current = true;
       // Send initial question as user message
-      sendTextMessage(initialQuestion);
+      sendTextMessage(undefined, initialQuestion);
       // Create history entry for this chat
       createChatHistory([{
         id: chatId,
@@ -186,33 +181,15 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages })
     setInputMessage("");
 
     // Send the message
-    sendTextMessage(messageToSend);
+    sendTextMessage(undefined, messageToSend);
   };
-
-  const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] => {
-    if (!result || 'err' in result) {
-      console.log("No chat history found or error occurred");
-      return [];
-    }
-    try {
-      const messages = JSON.parse(result.ok.events);
-      return messages.map((msg: any) => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: new Date(msg.timestamp),
-        isStreaming: false
-      }));
-    } catch (error) {
-      console.error("Error parsing historyData events:", error);
-      return [];
-    }
-  }
 
   const toHistory = (messages: ChatMessage[]): string => {
     // Filter out system messages and streaming messages
     const messagesToSave = messages
       .filter(msg => msg.role !== "system" && !msg.isStreaming)
       .map(msg => ({
+        id: msg.id,
         role: msg.role,
         content: msg.content,
         timestamp: msg.timestamp.toISOString()

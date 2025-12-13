@@ -7,13 +7,15 @@ import ChatConversation from "./ChatConversation";
 import { AuthTokenProvider } from "./AuthTokenContext";
 import { v4 as uuidv4 } from "uuid";
 import ChatHistoryBar from "../../layout/ChatHistoryBar";
+import { backendActor } from "../../actors/BackendActor";
+import { Result_4 } from "../../../../declarations/backend/backend.did";
 
 const ChatBot = () => {
   const { chatId: routeChatId } = useParams<{ chatId?: string }>();
   const location = useLocation();
 
   // Local message state that persists when navigating from Welcome -> Conversation
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<Map<string, ChatMessage>>(new Map());
 
   // Generate a NEW UUID each time we're on the welcome page (no routeChatId)
   // This ensures each visit to /chat generates a fresh connection
@@ -22,30 +24,42 @@ const ChatBot = () => {
       return routeChatId;
     }
     // Reset messages when navigating to welcome page
-    setMessages([]);
+    setMessages(new Map());
     // Generate new UUID for welcome page - changes on every navigation to /chat
     return uuidv4();
   }, [routeChatId, location.pathname]);
 
   // Clear messages when chatId changes (switching between different chats)
   useEffect(() => {
-    setMessages([]);
+    setMessages(new Map());
   }, [chatId]);
 
-  const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {
-    setMessages(prev => [...prev, { role, content, timestamp: new Date(), isStreaming }]);
+  const setMessage = useCallback((id: string, role: "user" | "assistant" | "system", content: string) => {
+    setMessages(prev => { const map = new Map(prev); map.set(id, { id, role, content, timestamp: new Date() }); return map; });
   }, []);
 
-  const updateLastMessage = useCallback((content: string, isStreaming: boolean = false) => {
-    setMessages(prev => {
-      if (prev.length === 0) return prev;
-      const lastMsg = prev[prev.length - 1];
-      return [
-        ...prev.slice(0, -1),
-        { ...lastMsg, content, isStreaming }
-      ];
-    });
-  }, []);
+  const messageList = useMemo(
+    () => Array.from(messages.values()),
+    [messages]
+  );
+
+  const { data: chatHistory } = backendActor.authenticated.useQueryCall({
+    functionName: "get_chat_history",
+    args: [{ id: chatId }],
+    onSuccess: (data) => {
+      const loadedMessages = extractChatHistory(data);
+      if (loadedMessages.length > 0) {
+        setMessages(prev => {
+          const map = new Map();
+          loadedMessages.forEach(msg => map.set(msg.id, msg));
+          return map;
+        });
+      }
+    },
+    onError: (error) => {
+      console.error("Error getting chat history:", error);
+    },
+  });
 
   return (
     <div className="flex w-full flex-grow flex-row justify-between">
@@ -55,11 +69,10 @@ const ChatBot = () => {
       </div>
         <ChatConnectionProvider
           key={chatId}  // New provider instance per chatId
-          addMessage={addMessage}
-          updateLastMessage={updateLastMessage}
+          setMessage={setMessage}
         >
           {routeChatId ? (
-            <ChatConversation chatId={chatId} messages={messages} />
+            <ChatConversation chatId={chatId} messages={messageList} chatHistory={chatHistory}/>
           ) : (
             <ChatWelcome chatId={chatId} />
           )}
@@ -68,5 +81,25 @@ const ChatBot = () => {
     </div>
   );
 };
+
+export const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] => {
+  if (!result || 'err' in result) {
+    console.log("No chat history found or error occurred");
+    return [];
+  }
+  try {
+    const messages = JSON.parse(result.ok.events);
+    return messages.map((msg: any) => ({
+      id: msg.id || uuidv4(),
+      role: msg.role,
+      content: msg.content,
+      timestamp: new Date(msg.timestamp),
+      isStreaming: false
+    }));
+  } catch (error) {
+    console.error("Error parsing historyData events:", error);
+    return [];
+  }
+}
 
 export default ChatBot;

@@ -4,6 +4,7 @@ import { backendActor } from "../actors/BackendActor";
 import { ChatHistory } from "../../../declarations/backend/backend.did";
 
 export interface ChatMessage {
+  id: string;
   role: "user" | "assistant" | "system";
   content: string;
   timestamp: Date;
