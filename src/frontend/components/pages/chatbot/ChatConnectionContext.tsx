@@ -58,7 +58,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
   const audioTransceiverRef = useRef<RTCRtpTransceiver | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
-  const streamingContentRef = useRef<string>("");
 
   const { call: consumeAiCredits } = backendActor.authenticated.useUpdateCall({
     functionName: "consume_ai_credits",
@@ -327,18 +326,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
               if (data.delta) {
                 const deltaText = data.delta;
                 addLog(`💬 Text delta: "${deltaText.substring(0, 30)}${deltaText.length > 30 ? '...' : ''}"`);
-
-                if (streamingContentRef.current === "") {
-                  // First delta - create new message
-                  console.log('Creating new assistant message');
-                  streamingContentRef.current = deltaText;
-                  setMessage(data.item_id, "assistant", deltaText);
-                } else {
-                  // Subsequent deltas - append to existing message
-                  console.log('Appending delta to message');
-                  streamingContentRef.current += deltaText;
-                  setMessage(data.item_id, "assistant", streamingContentRef.current);
-                }
+                upsertMessage(data.item_id, "assistant", deltaText);
               }
               break;
 
@@ -346,10 +334,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
             case "response.output_text.done":
               if (data.text) {
                 addLog(`✓ Text done: "${data.text.substring(0, 50)}${data.text.length > 50 ? '...' : ''}"`);
-                // Mark as done streaming (auto-save will trigger)
-                if (streamingContentRef.current !== "") {
-                  streamingContentRef.current = ""; // Reset for next message
-                }
               }
               break;
 
@@ -430,35 +414,23 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
               break;
 
             case "response.output_audio_transcript.delta":
-              if (streamingContentRef.current === "") {
-                setMessage(data.item_id, "assistant", data.delta);
-                streamingContentRef.current = data.delta;
-              } else {
-                streamingContentRef.current += data.delta;
-                setMessage(data.item_id, "assistant", streamingContentRef.current);
-              }
+              upsertMessage(data.item_id, "assistant", data.delta);
               break;
 
             case "response.output_audio_transcript.done":
-              addLog(`🎤 Assistant said (audio transcription): "${data.transcript.substring(0, 50)}${data.transcript.length > 50 ? '...' : ''}"`);
-              streamingContentRef.current = "";
-              break;
-
-            case "conversation.item.input_audio_transcription.delta":
-              // Handle voice input transcription (shows what user said)
-              console.log("USER AUDIO TRANSCRIPTION DELTA:", data);
-              if (streamingContentRef.current === "") {
-                setMessage(data.item_id, "user", data.delta);
-                streamingContentRef.current = data.delta;
-              } else {
-                streamingContentRef.current += data.delta;
-                setMessage(data.item_id, "user", streamingContentRef.current);
+              if (data.transcript) {
+                addLog(`🎤 Assistant said (audio transcription): "${data.transcript.substring(0, 50)}${data.transcript.length > 50 ? '...' : ''}"`);
               }
               break;
 
+            case "conversation.item.input_audio_transcription.delta":
+              upsertMessage(data.item_id, "user", data.delta);
+              break;
+
             case "conversation.item.input_audio_transcription.completed":
-              addLog(`🎤 User said: "${data.transcript.substring(0, 50)}${data.transcript.length > 50 ? '...' : ''}"`);
-              streamingContentRef.current = "";
+              if (data.transcript) {
+                addLog(`🎤 User said: "${data.transcript.substring(0, 50)}${data.transcript.length > 50 ? '...' : ''}"`);
+              }
               break;
 
             case "input_audio_buffer.speech_started":

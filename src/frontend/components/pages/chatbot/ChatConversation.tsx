@@ -286,7 +286,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
         </div>
 
         {/* Debug Panel - Toggle with Ctrl+Alt+D */}
-        { (
+        {showDebugPanel && (
           <div className="rounded-lg border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
               Debug Panel
