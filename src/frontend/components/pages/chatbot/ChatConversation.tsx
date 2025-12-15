@@ -44,6 +44,8 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
   const {
     connectionState,
     logs,
+    isVoiceMode,
+    toggleVoiceMode,
     sendTextMessage,
     restoreConversationContext,
     initSession,
@@ -255,12 +257,18 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
                   }}
                 />
               </div>
-              <div className="group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 px-1 text-black">
-                <BiMicrophone size={35} color="gray" />
-                <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex">
-                  Coming Soon!
-                </span>
-              </div>
+              <button
+                onClick={toggleVoiceMode}
+                disabled={connectionState.status !== "ready"}
+                className={`group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full px-1 transition-all ${
+                  isVoiceMode
+                    ? "bg-gradient-to-t from-primary to-secondary text-white"
+                    : "bg-gray-200 text-black"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                title={isVoiceMode ? "Switch to text mode" : "Switch to voice mode"}
+              >
+                <BiMicrophone size={35} color={isVoiceMode ? "white" : "gray"} />
+              </button>
               <button
                 onClick={() => {
                   if (inputMessage) handleSendMessage();
@@ -278,7 +286,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
         </div>
 
         {/* Debug Panel - Toggle with Ctrl+Alt+D */}
-        {showDebugPanel && (
+        { (
           <div className="rounded-lg border border-gray-300 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
               Debug Panel

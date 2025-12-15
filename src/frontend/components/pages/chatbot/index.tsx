@@ -38,6 +38,25 @@ const ChatBot = () => {
     setMessages(prev => { const map = new Map(prev); map.set(id, { id, role, content, timestamp: new Date() }); return map; });
   }, []);
 
+  const upsertMessage = useCallback((id: string, role: "user" | "assistant" | "system", delta: string) => {
+    setMessages(prev => {
+      const map = new Map(prev);
+      const existing = map.get(id);
+      if (existing) {
+        // Append delta to existing content
+        const updatedMessage = {
+          ...existing,
+          content: existing.content + delta,
+        };
+        map.set(id, updatedMessage);
+      } else {
+        // If message doesn't exist, create a new one with the delta as content
+        map.set(id, { id, role: role, content: delta, timestamp: new Date() });
+      }
+      return map;
+    });
+  }, []);
+
   const messageList = useMemo(
     () => Array.from(messages.values()),
     [messages]
@@ -70,6 +89,7 @@ const ChatBot = () => {
         <ChatConnectionProvider
           key={chatId}  // New provider instance per chatId
           setMessage={setMessage}
+          upsertMessage={upsertMessage}
         >
           {routeChatId ? (
             <ChatConversation chatId={chatId} messages={messageList} chatHistory={chatHistory}/>

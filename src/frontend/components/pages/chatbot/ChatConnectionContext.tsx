@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode, useCallback } from "react";
 import { backendActor } from "../../actors/BackendActor";
-import { useAuth } from "@nfid/identitykit/react";
 import { useAuthToken } from "./AuthTokenContext";
 import { showCreditsDepletedToast } from "./CreditsDepletedToast";
 
@@ -16,6 +15,8 @@ interface ChatConnectionContextType {
   connectionState: ConnectionState;
   logs: string[];
   dataChannelRef: React.MutableRefObject<RTCDataChannel | null>;
+  isVoiceMode: boolean;
+  toggleVoiceMode: () => Promise<void>;
   sendTextMessage: (id: string | undefined, text: string) => void;
   restoreConversationContext: (messages: Array<{ id: string, role: "user" | "assistant" | "system"; content: string }>) => void;
   initSession: (authToken: string) => Promise<void>;
@@ -39,19 +40,24 @@ export const useChatConnection = () => {
 interface ChatConnectionProviderProps {
   children: ReactNode;
   setMessage: (id: string, role: "user" | "assistant" | "system", content: string) => void;
+  upsertMessage: (id: string, role: "user" | "assistant" | "system", delta: string) => void;
 }
 
 export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
   children,
   setMessage,
+  upsertMessage,
 }) => {
-  
+
   const { invalidateToken } = useAuthToken();
   const [connectionState, setConnectionState] = useState<ConnectionState>({ status: "idle" });
   const [logs, setLogs] = useState<string[]>([]);
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+  const audioTransceiverRef = useRef<RTCRtpTransceiver | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
   const streamingContentRef = useRef<string>("");
 
   const { call: consumeAiCredits } = backendActor.authenticated.useUpdateCall({
@@ -139,6 +145,105 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     }
   };
 
+  const toggleVoiceMode = async () => {
+    if (!peerConnectionRef.current || !dataChannelRef.current) {
+      addLog("❌ Cannot toggle voice mode: no active connection");
+      return;
+    }
+
+    const newVoiceMode = !isVoiceMode;
+
+    try {
+      if (newVoiceMode) {
+        // Switching TO voice mode
+        addLog("🎤 Requesting microphone access...");
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        micStreamRef.current = stream;
+
+        addLog("✓ Microphone access granted");
+
+        // Add microphone track to peer connection
+        const audioTrack = stream.getAudioTracks()[0];
+        console.log("MICK TRACK:", {
+          enabled: audioTrack.enabled,
+          muted: audioTrack.muted,
+          readyState: audioTrack.readyState,
+          label: audioTrack.label
+        });
+
+        const sender = audioTransceiverRef.current?.sender;
+        if (!sender) {
+          throw("❌ Audio transceiver sender missing");
+        } else {
+          await sender.replaceTrack(audioTrack);
+          addLog("✓ Microphone track attached");
+        }
+
+        const senders = peerConnectionRef.current.getSenders();
+        console.log(
+          senders.map(s => ({
+            kind: s.track?.kind,
+            enabled: s.track?.enabled,
+            muted: s.track?.muted
+          }))
+        );
+
+        // Update session to voice mode with turn detection
+        const sessionUpdate = {
+          type: "session.update",
+          session: {
+            type: "realtime",
+            output_modalities: ["audio"],
+            audio: {
+              input: {
+                turn_detection: {
+                  type: "server_vad",
+                  threshold: 0.5,
+                  prefix_padding_ms: 300,
+                  silence_duration_ms: 500
+                },
+                transcription: {
+                  model: "gpt-4o-transcribe"
+                }
+              }
+            }
+          }
+        };
+        dataChannelRef.current.send(JSON.stringify(sessionUpdate));
+        addLog("📤 Updated session to voice mode with turn detection");
+
+      } else {
+        // Switching TO text mode
+        addLog("⌨️ Switching to text mode...");
+
+        // Stop microphone
+        if (micStreamRef.current) {
+          micStreamRef.current.getTracks().forEach(track => track.stop());
+          micStreamRef.current = null;
+          addLog("✓ Microphone stopped");
+        }
+
+        // Update session to text-only mode
+        const sessionUpdate = {
+          type: "session.update",
+          session: {
+            type: "realtime",
+            output_modalities: ["text"],
+          }
+        };
+        dataChannelRef.current.send(JSON.stringify(sessionUpdate));
+        addLog("📤 Updated session to text mode");
+      }
+
+      setIsVoiceMode(newVoiceMode);
+      addLog(`✓ Switched to ${newVoiceMode ? 'voice' : 'text'} mode`);
+
+    } catch (error: any) {
+      addLog(`❌ Failed to toggle voice mode: ${error.message}`);
+      console.error("Voice mode toggle error:", error);
+    }
+  };
+
   const initSession = async (authToken: string) => {
 
     try {
@@ -163,8 +268,9 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
         }
       };
 
-      // Start with text-only mode
-      pc.addTransceiver("audio", { direction: "recvonly" });
+      // Add audio transceiver - sendrecv to support both listening and speaking
+      const audioTransceiver = pc.addTransceiver("audio", { direction: "sendrecv" });
+      audioTransceiverRef.current = audioTransceiver;
 
       // Set up data channel for sending and receiving events
       const dc = pc.createDataChannel("oai-events");
@@ -177,7 +283,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
         // Update connection state to ready (connection established AND data channel open)
         setConnectionState({ status: "ready" });
 
-        // Configure session for text-only mode
+        // Configure session - start in text mode, but with transcription enabled for when voice is activated
         const sessionConfig = {
           type: "session.update",
           session: {
@@ -186,7 +292,9 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
             voice: "alloy",
             input_audio_format: "pcm16",
             output_audio_format: "pcm16",
-            input_audio_transcription: null,
+            input_audio_transcription: {
+              model: "whisper-1"
+            },
             turn_detection: null,
             tools: [],
             tool_choice: "auto",
@@ -306,7 +414,7 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
               break;
 
             case "session.updated":
-              addLog("✓ Session updated");
+              addLog("✓ Session updated: " + JSON.stringify(data));
               break;
 
             case "conversation.item.added":
@@ -318,7 +426,52 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
                 setMessage(item.id, item.role, item.content[0].text);
                 console.log("CONVERSATION ITEM ADDED:", data.item.content);
               }
-              addLog(`✓ Conversation item created: ${data.item?.id || 'unknown'}`);
+              addLog(`✓ Conversation item created: ${item?.id || 'unknown'}`);
+              break;
+
+            case "response.output_audio_transcript.delta":
+              if (streamingContentRef.current === "") {
+                setMessage(data.item_id, "assistant", data.delta);
+                streamingContentRef.current = data.delta;
+              } else {
+                streamingContentRef.current += data.delta;
+                setMessage(data.item_id, "assistant", streamingContentRef.current);
+              }
+              break;
+
+            case "response.output_audio_transcript.done":
+              addLog(`🎤 Assistant said (audio transcription): "${data.transcript.substring(0, 50)}${data.transcript.length > 50 ? '...' : ''}"`);
+              streamingContentRef.current = "";
+              break;
+
+            case "conversation.item.input_audio_transcription.delta":
+              // Handle voice input transcription (shows what user said)
+              console.log("USER AUDIO TRANSCRIPTION DELTA:", data);
+              if (streamingContentRef.current === "") {
+                setMessage(data.item_id, "user", data.delta);
+                streamingContentRef.current = data.delta;
+              } else {
+                streamingContentRef.current += data.delta;
+                setMessage(data.item_id, "user", streamingContentRef.current);
+              }
+              break;
+
+            case "conversation.item.input_audio_transcription.completed":
+              addLog(`🎤 User said: "${data.transcript.substring(0, 50)}${data.transcript.length > 50 ? '...' : ''}"`);
+              streamingContentRef.current = "";
+              break;
+
+            case "input_audio_buffer.speech_started":
+              addLog("🎤 User started speaking");
+              break;
+
+            case "conversation.input_text.delta":
+            case "response.output_text.delta":
+              addLog(`IT WORKS! Text delta: "${data.delta}"`);
+              break;
+
+            case "input_audio_buffer.speech_stopped":
+              addLog("🎤 User stopped speaking");
               break;
 
             default:
@@ -411,7 +564,13 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       dataChannelRef.current.close();
       dataChannelRef.current = null;
     }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach(track => track.stop());
+      micStreamRef.current = null;
+      addLog("🎤 Microphone stopped");
+    }
     setConnectionState({ status: "idle" });
+    setIsVoiceMode(false);
   };
 
   const clearLogs = () => {
@@ -478,6 +637,9 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       if (dataChannelRef.current) {
         dataChannelRef.current.close();
       }
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach(track => track.stop());
+      }
     };
   }, []);
 
@@ -485,6 +647,8 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     connectionState,
     logs,
     dataChannelRef,
+    isVoiceMode,
+    toggleVoiceMode,
     sendTextMessage,
     restoreConversationContext,
     initSession,
