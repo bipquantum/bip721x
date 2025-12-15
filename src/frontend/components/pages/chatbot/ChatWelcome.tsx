@@ -21,7 +21,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { authToken } = useAuthToken();
-  const { initSession, sendTextMessage, connectionState } = useChatConnection();
+  const { initSession, sendTextMessage, connectionState, isVoiceMode, toggleVoiceMode } = useChatConnection();
   const { addChat } = useChatHistory();
 
   const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
@@ -51,7 +51,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
       version: "1.0",
       name: new Date().toLocaleString()
     }]).catch((error) => {
-      console.log("Chat history may already exist:", error);
+      console.error("Chat history may already exist:", error);
     });
 
     addChat({id: chatId, name: new Date().toLocaleString()});
@@ -92,12 +92,6 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
                     }
                   }}
                 />
-              </div>
-              <div className="group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 px-1 text-black">
-                <BiMicrophone size={35} color="gray" />
-                <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex">
-                  Coming Soon!
-                </span>
               </div>
               <button
                 onClick={() => { handleSendMessage(); }}

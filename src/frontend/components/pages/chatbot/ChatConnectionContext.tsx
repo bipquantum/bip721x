@@ -74,8 +74,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
       return;
     }
 
-    console.log("SEND TEXT MESSAGE:", text);
-
     try {
       const event = {
         type: "conversation.item.create",
@@ -114,12 +112,10 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
     }
 
     try {
-      console.log("RESTORE CONTEXT WITH MESSAGES:", messages);
       addLog(`🔄 Restoring conversation context with ${messages.length} messages...`);
 
       // Send each message as a conversation item WITHOUT triggering responses
       for (const msg of messages.filter(m => m.role === "user" || m.role === "assistant")) {
-        console.log("RESTORING MESSAGE:", msg);
         const event = {
           type: "conversation.item.create",
           item: {
@@ -163,12 +159,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
 
         // Add microphone track to peer connection
         const audioTrack = stream.getAudioTracks()[0];
-        console.log("MICK TRACK:", {
-          enabled: audioTrack.enabled,
-          muted: audioTrack.muted,
-          readyState: audioTrack.readyState,
-          label: audioTrack.label
-        });
 
         const sender = audioTransceiverRef.current?.sender;
         if (!sender) {
@@ -177,15 +167,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
           await sender.replaceTrack(audioTrack);
           addLog("✓ Microphone track attached");
         }
-
-        const senders = peerConnectionRef.current.getSenders();
-        console.log(
-          senders.map(s => ({
-            kind: s.track?.kind,
-            enabled: s.track?.enabled,
-            muted: s.track?.muted
-          }))
-        );
 
         // Update session to voice mode with turn detection
         const sessionUpdate = {
@@ -348,7 +329,6 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
                 const outputTokens = usage.output_tokens || 0;
 
                 addLog(`📊 Token usage - Total: ${totalTokens}, Input: ${inputTokens}, Output: ${outputTokens}`);
-                console.log("Token usage:", { totalTokens, inputTokens, outputTokens });
 
                 // Consume AI credits based on token usage
                 if (totalTokens > 0) {
@@ -402,13 +382,11 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
               break;
 
             case "conversation.item.added":
-              console.log("CONVERSATION ITEM ADDED EVENT", data);
               const item = data.item;
               const matchingRole = (item.role === "user" || item.role === "assistant");
               const matchingContent = (item.content.length > 0 && (item.content?.[0]?.type === "input_text" || item.content?.[0]?.type === "output_text"));
               if (matchingRole && matchingContent) {
                 setMessage(item.id, item.role, item.content[0].text);
-                console.log("CONVERSATION ITEM ADDED:", data.item.content);
               }
               addLog(`✓ Conversation item created: ${item?.id || 'unknown'}`);
               break;

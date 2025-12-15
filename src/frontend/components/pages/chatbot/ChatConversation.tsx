@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useAuth } from "@nfid/identitykit/react";
 import { useChatConnection } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
@@ -56,6 +56,11 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
     getStatusText,
   } = useChatConnection();
 
+  const { data: subscription } = backendActor.authenticated.useQueryCall({
+    functionName: "get_subscription",
+    args: [],
+  });
+
   const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
     functionName: "update_chat_history",
     onSuccess: () => {
@@ -73,6 +78,9 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const loadedChatIdRef = useRef<string | null>(null);
   const contextRestoredRef = useRef(false);
+  const voiceEnabled = useMemo<boolean>(() => {
+    return subscription?.planId !== "free";
+  }, [subscription]);
 
   // Load history when chatId changes
   useEffect(() => {
@@ -259,14 +267,18 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
               </div>
               <button
                 onClick={toggleVoiceMode}
-                disabled={connectionState.status !== "ready"}
+                disabled={connectionState.status !== "ready" || !voiceEnabled}
                 className={`group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full px-1 transition-all ${
                   isVoiceMode
                     ? "bg-gradient-to-t from-primary to-secondary text-white"
                     : "bg-gray-200 text-black"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                } 
+                disabled:opacity-50 disabled:cursor-not-allowed`}
                 title={isVoiceMode ? "Switch to text mode" : "Switch to voice mode"}
               >
+                { !voiceEnabled && <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white group-hover:flex">
+                  Require premium plan
+                </span>}
                 <BiMicrophone size={35} color={isVoiceMode ? "white" : "gray"} />
               </button>
               <button
