@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useAuth } from "@nfid/identitykit/react";
 import { useChatConnection } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
@@ -37,8 +36,6 @@ interface ChatConversationProps {
 }
 
 const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistoryMessages, messages }) => {
-  const { user } = useAuth();
-
   const { authToken } = useAuthToken();
   const {
     connectionState,
@@ -161,7 +158,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
                     <div className="markdown-link flex items-center rounded-xl bg-gradient-to-t from-primary to-secondary px-3 py-0 text-white sm:px-4 sm:py-2">
                       {msg.content}
                     </div>
-                    <UserImage principal={user?.principal} />
+                    <UserImage />
                   </li>
                 );
               } else {
