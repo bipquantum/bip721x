@@ -15,6 +15,7 @@ import AutoResizeTextarea, {
 } from "../../common/AutoResizeTextArea";
 import { backendActor } from "../../actors/BackendActor";
 import { useAuthToken } from "./AuthTokenContext";
+import { Messages } from ".";
 
 // Markdown components for consistent styling
 const MARKDOWN_COMPONENTS = {
@@ -32,7 +33,7 @@ const MARKDOWN_COMPONENTS = {
 interface ChatConversationProps {
   chatId: string;
   chatHistoryMessages: ChatMessage[];
-  messages: ChatMessage[];
+  messages: Messages;
 }
 
 const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistoryMessages, messages }) => {
@@ -148,23 +149,25 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
       <div className={`grid grid-cols-1 gap-4 flex-grow overflow-hidden ${showDebugPanel ? 'lg:grid-cols-2' : ''}`}>
         <div className="flex flex-col overflow-hidden">
           {/* Chat Messages */}
-          <div className="flex-grow overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed">
-            {messages.filter(msg => msg.role !== "system").map((msg, index) => {
+          <ul className="flex-grow overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed">
+            {messages.order.map(id => {
+              const msg = messages.messages.get(id);
+              if (!msg || msg.role === "system") return null;
               if (msg.role === "user") {
                 // User messages - right aligned with user image and colored background
                 return (
-                  <div key={index} className="mb-3 flex flex-row justify-end gap-2 py-2">
+                  <li key={id} className="mb-3 flex flex-row justify-end gap-2 py-2">
                     <span className="flex flex-col px-5"></span>
                     <div className="markdown-link flex items-center rounded-xl bg-gradient-to-t from-primary to-secondary px-3 py-0 text-white sm:px-4 sm:py-2">
                       {msg.content}
                     </div>
                     <UserImage principal={user?.principal} />
-                  </div>
+                  </li>
                 );
               } else {
                 // Assistant messages - left aligned with AI image and light background
                 return (
-                  <div key={index} className="mb-3 flex flex-row gap-2 py-2">
+                  <li key={id} className="mb-3 flex flex-row gap-2 py-2">
                     <img src={AiBot} className="h-10 rounded-full" alt="AI" />
                     <div className="markdown-link flex flex-col gap-3 rounded-xl bg-gray-200 px-3 py-2 text-gray-900 dark:bg-gray-700 dark:text-gray-100 sm:px-4 sm:py-2">
                       {msg.isStreaming ? (
@@ -193,12 +196,12 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
                       )}
                     </div>
                     <span className="flex flex-col px-5"></span>
-                  </div>
+                  </li>
                 );
               }
             })}
             <div ref={chatEndRef} />
-          </div>
+          </ul>
 
           {/* Chat Input - Sticky Bottom */}
           <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t-[0.25px] dark:border-gray-800 px-2 py-2 items-center">

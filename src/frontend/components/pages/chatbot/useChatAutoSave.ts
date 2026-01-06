@@ -9,9 +9,6 @@ export function useChatAutoSave(
 ) {
   const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
     functionName: "update_chat_history",
-    onSuccess: () => {
-      console.log("Chat history saved successfully");
-    },
     onError: (error) => {
       console.error("Error saving chat history:", error);
     },
@@ -28,7 +25,6 @@ export function useChatAutoSave(
     // If switching from isHistory: false -> true, record the timestamp
     if (!messagesRef.current.isHistory && messages.isHistory) {
       historyLoadedAtRef.current = Date.now();
-      console.log("History loaded, blocking auto-save for 3 seconds");
     }
     messagesRef.current = messages;
   }, [messages]);
@@ -57,14 +53,12 @@ export function useChatAutoSave(
   const debouncedSave = useCallback(() => {
     // Skip saving if we're loading from history
     if (messagesRef.current.isHistory || messagesRef.current.messages.size === 0) {
-      console.log("Skipping auto-save: loading from history");
       return;
     }
 
     // Skip saving if history was loaded within the last 3 seconds
     const timeSinceHistoryLoad = Date.now() - historyLoadedAtRef.current;
     if (historyLoadedAtRef.current > 0 && timeSinceHistoryLoad < 3000) {
-      console.log(`Skipping auto-save: history loaded ${timeSinceHistoryLoad}ms ago`);
       return;
     }
 
@@ -77,14 +71,12 @@ export function useChatAutoSave(
     saveTimeoutRef.current = setTimeout(() => {
       // Double-check we're not loading from history
       if (messagesRef.current.isHistory || messagesRef.current.messages.size === 0) {
-        console.log("Skipping auto-save in timeout: loading from history");
         return;
       }
 
       // Double-check time since history load
       const timeSinceHistoryLoad = Date.now() - historyLoadedAtRef.current;
       if (historyLoadedAtRef.current > 0 && timeSinceHistoryLoad < 3000) {
-        console.log(`Skipping auto-save in timeout: history loaded ${timeSinceHistoryLoad}ms ago`);
         return;
       }
 
@@ -93,14 +85,8 @@ export function useChatAutoSave(
 
       // Check if there are any streaming messages
       const hasStreamingMessage = Array.from(currentMessages.values()).some(msg => msg.isStreaming);
-      console.log("Checking conditions for auto-save:", {
-        chatId,
-        messageCount: currentMessages.size,
-        hasStreamingMessage
-      });
 
       if (chatId && currentMessages.size > 0 && !hasStreamingMessage) {
-        console.log("Auto-saving chat history for chatId:", chatId);
         const historyJson = toHistory(currentMessages);
         saveMessages([{ id: chatId, events: historyJson, aiPrompts: "" }]);
       }

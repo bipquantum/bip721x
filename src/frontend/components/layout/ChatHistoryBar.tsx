@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import AddPlusSvg from "../../assets/add-plus.svg";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
 import { useChatHistory } from "./ChatHistoryContext";
-import { v4 as uuidv4 } from "uuid";
 
-import { HiOutlineTrash } from "react-icons/hi2";
+import { HiMiniPencilSquare, HiOutlineTrash } from "react-icons/hi2";
 import { TbPencil } from "react-icons/tb";
 import { TbDots } from "react-icons/tb";
 import { useAuthToken } from "../pages/chatbot/AuthTokenContext";
@@ -92,13 +90,6 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
         break;
     }
     setActionCandidate(undefined);
-  };
-
-  const newChat = () => {
-    const chatId = uuidv4();
-    addChat({id: chatId, name: new Date().toLocaleString()});
-    navigate(`/chat/${chatId}`);
-    onChatSelectedExtended(chatId);
   };
 
   const onChatSelectedExtended = (chatId: string) => {
@@ -239,14 +230,10 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
       </div>
       <button
         className="flex h-[10dvh] w-full cursor-pointer flex-row items-center justify-center gap-2 text-black dark:text-white"
-        onClick={newChat}
+        onClick={() => navigate(`/chat`)}
       >
-        <img
-          src={AddPlusSvg}
-          className="h-5 cursor-pointer dark:invert"
-          alt="Add new chat"
-        />
-        <span>Add new</span>
+        <HiMiniPencilSquare className="h-5 w-5" />
+        <span>New chat</span>
       </button>
     </div>
   );

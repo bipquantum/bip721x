@@ -62,7 +62,7 @@ export const AuthTokenProvider: React.FC<AuthTokenProviderProps> = ({
         }
 
         setAuthToken(tokenData.value);
-        console.log(`✓ Extracted ephemeral token: ${tokenData.value.substring(0, 20)}...`);
+        console.log(`✓ Extracted ephemeral token: ${tokenData.value.substring(0, 10)}...`);
       } catch (parseError: any) {
         console.error(`❌ Failed to parse token response: ${parseError.message}`);
         console.error(`Full raw response: ${data.ok}`);

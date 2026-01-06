@@ -14,6 +14,7 @@ import { backendActor } from "../../actors/BackendActor";
 
 export type Messages = {
   isHistory: boolean;
+  order: string[];
   messages: Map<string, ChatMessage>;
 }
 
@@ -24,7 +25,7 @@ const ChatBot = () => {
   const { addChat } = useChatHistoryContext();
 
   // Local message state that persists when navigating from Welcome -> Conversation
-  const [messages, setMessages] = useState<Messages>({ isHistory: false, messages: new Map() });
+  const [messages, setMessages] = useState<Messages>({ isHistory: false, order: [], messages: new Map() });
 
   // Generate a NEW UUID each time we're on the welcome page (no routeChatId)
   // This ensures each visit to /chat generates a fresh connection
@@ -32,15 +33,13 @@ const ChatBot = () => {
     if (routeChatId) {
       return routeChatId;
     }
-    // Reset messages when navigating to welcome page
-    setMessages({ isHistory: false, messages: new Map() });
     // Generate new UUID for welcome page - changes on every navigation to /chat
     return uuidv4();
   }, [routeChatId, location.pathname]);
 
   // Clear messages when chatId changes (switching between different chats)
   useEffect(() => {
-    setMessages({ isHistory: false, messages: new Map() });
+    setMessages({ isHistory: false, order: [], messages: new Map() });
   }, [chatId]);
 
   // Auto-save hook
@@ -50,42 +49,41 @@ const ChatBot = () => {
     setMessages(prev => {
       const map = new Map(prev.messages);
       map.set(id, { id, role, content, timestamp: new Date() });
-      return { isHistory: false, messages: map };
+      const order = prev.order.includes(id) ? prev.order : [...prev.order, id];
+      return { isHistory: false, order, messages: map };
     });
-    debouncedSave();
-  }, [debouncedSave]);
+  }, []);
 
   const upsertMessage = useCallback((id: string, role: "user" | "assistant" | "system", delta: string) => {
     setMessages(prev => {
       const map = new Map(prev.messages);
       const existing = map.get(id);
-      if (existing) {
-        // Append delta to existing content
-        const updatedMessage = {
-          ...existing,
-          content: existing.content + delta,
-        };
-        map.set(id, updatedMessage);
-      } else {
-        // If message doesn't exist, create a new one with the delta as content
-        map.set(id, { id, role: role, content: delta, timestamp: new Date() });
-      }
-      return { isHistory: false, messages: map };
-    });
-    debouncedSave();
-  }, [debouncedSave]);
 
-  const messageList = useMemo(
-    () => Array.from(messages.messages.values()),
-    [messages]
-  );
+      map.set(id, {
+        id,
+        role,
+        content: existing ? existing.content + delta : delta,
+        timestamp: existing?.timestamp ?? new Date(),
+      });
+
+      const order = prev.order.filter(k => k !== id);
+      order.push(id);
+
+      return { isHistory: false, order, messages: map };
+    });
+  }, []);
+
+  useEffect(() => {
+  debouncedSave();
+}, [messages]);
 
   // Load chat history and populate messages
   const chatHistoryMessages = useChatHistory(chatId, (loadedMessages) => {
     setMessages(() => {
       const map = new Map();
       loadedMessages.forEach(msg => map.set(msg.id, msg));
-      return { isHistory: true, messages: map };
+      const order = loadedMessages.map(msg => msg.id);
+      return { isHistory: true, order, messages: map };
     });
   });
 
@@ -123,7 +121,7 @@ const ChatBot = () => {
           onVoiceTranscriptionComplete={!routeChatId ? handleVoiceTranscriptionComplete : undefined}
         >
           {routeChatId ? (
-            <ChatConversation chatId={chatId} messages={messageList} chatHistoryMessages={chatHistoryMessages}/>
+            <ChatConversation chatId={chatId} messages={messages} chatHistoryMessages={chatHistoryMessages}/>
           ) : (
             <ChatWelcome chatId={chatId} />
           )}
