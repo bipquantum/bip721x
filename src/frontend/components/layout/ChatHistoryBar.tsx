@@ -12,7 +12,6 @@ import { useAuthToken } from "../pages/chatbot/AuthTokenContext";
 
 enum ChatAction {
   DELETE,
-  RENAME,
 }
 
 type ActionCandidate = {
@@ -38,20 +37,58 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
 
   const { chatHistories, addChat, deleteChat, renameChat } = useChatHistory();
   const [actionCandidate, setActionCandidate] = useState<ActionCandidate | undefined>();
-  const [chatName, setChatName] = useState<string>("");
+
+  // State for inline editing
+  const [editingChatId, setEditingChatId] = useState<string | undefined>();
+  const [editingChatName, setEditingChatName] = useState<string>("");
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     console.log("Chat histories updated:", chatHistories.length);
   }, [chatHistories]);
+
+  // Auto-focus and select text when editing starts
+  useEffect(() => {
+    if (editingChatId && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingChatId]);
+
+  const startEditing = (chatId: string, currentName: string) => {
+    setEditingChatId(chatId);
+    setEditingChatName(currentName);
+    setSettingOpen(undefined);
+  };
+
+  const saveEdit = () => {
+    if (editingChatId && editingChatName.trim()) {
+      renameChat(editingChatId, editingChatName.trim());
+    }
+    setEditingChatId(undefined);
+    setEditingChatName("");
+  };
+
+  const cancelEdit = () => {
+    setEditingChatId(undefined);
+    setEditingChatName("");
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveEdit();
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cancelEdit();
+    }
+  };
 
   const runAction = () => {
     if (actionCandidate === undefined) return;
     switch (actionCandidate.action) {
       case ChatAction.DELETE:
         deleteChat(actionCandidate.chatId);
-        break;
-      case ChatAction.RENAME:
-        renameChat(actionCandidate.chatId, chatName);
         break;
     }
     setActionCandidate(undefined);
@@ -117,15 +154,27 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
               className={`flex w-full flex-row items-center justify-between ${isCurrentChat(chat.id) ? "font-bold" : ""}`}
               key={chat.id}
             >
-              <Link
-                className="col-span-4 text-wrap break-words text-[16px]"
-                to={"/chat/" + chat.id}
-                onClick={
-                  (e) => onChatSelectedExtended(chat.id)
-                }
-              >
-                {chat.name}
-              </Link>
+              {editingChatId === chat.id ? (
+                <input
+                  ref={editInputRef}
+                  type="text"
+                  value={editingChatName}
+                  onChange={(e) => setEditingChatName(e.target.value)}
+                  onBlur={saveEdit}
+                  onKeyDown={handleEditKeyDown}
+                  className="col-span-4 flex-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-[16px] text-black focus:border-secondary focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                />
+              ) : (
+                <Link
+                  className="col-span-4 text-wrap break-words text-[16px]"
+                  to={"/chat/" + chat.id}
+                  onClick={
+                    (e) => onChatSelectedExtended(chat.id)
+                  }
+                >
+                  {chat.name}
+                </Link>
+              )}
               <div className="relative flex h-fit w-fit items-center justify-center" ref={settingOpen === chat.id ? settingsRef : null}>
                 <button onClick={(e) => handleSetting(chat.id)}>
                   <TbDots className="h-fit w-fit p-1" />
@@ -135,11 +184,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
                 >
                   <div
                     onClick={(e) => {
-                      setChatName(chat.name);
-                      setActionCandidate({
-                        chatId: chat.id,
-                        action: ChatAction.RENAME,
-                      });
+                      startEditing(chat.id, chat.name);
                     }}
                     className="flex cursor-pointer flex-row items-center gap-2 px-5 text-black dark:text-white"
                   >
@@ -169,17 +214,6 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
             setActionCandidate(undefined);
           }}
         >
-          {actionCandidate?.action === ChatAction.RENAME && (
-            <div>
-              <p className="pb-5 dark:text-white">Rename chatbot history?</p>
-              <textarea
-                className="w-full rounded-xl bg-gray-200 p-2"
-                onMouseDown={(e) => e.stopPropagation()}
-                value={chatName}
-                onChange={(e) => setChatName(e.target.value)}
-              />
-            </div>
-          )}
           {actionCandidate?.action === ChatAction.DELETE && (
             <div>
               <p className="pb-5 dark:text-white">Remove chatbot history?</p>

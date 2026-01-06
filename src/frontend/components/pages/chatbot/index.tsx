@@ -1,5 +1,5 @@
 import { useParams, useLocation } from "react-router-dom";
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { ChatConnectionProvider } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
 import ChatWelcome from "./ChatWelcome";
@@ -7,15 +7,20 @@ import ChatConversation from "./ChatConversation";
 import { AuthTokenProvider } from "./AuthTokenContext";
 import { v4 as uuidv4 } from "uuid";
 import ChatHistoryBar from "../../layout/ChatHistoryBar";
-import { backendActor } from "../../actors/BackendActor";
-import { Result_4 } from "../../../../declarations/backend/backend.did";
+import { useChatAutoSave } from "./useChatAutoSave";
+import { useChatHistory } from "./useChatHistory";
+
+export type Messages = {
+  isHistory: boolean;
+  messages: Map<string, ChatMessage>;
+}
 
 const ChatBot = () => {
   const { chatId: routeChatId } = useParams<{ chatId?: string }>();
   const location = useLocation();
 
   // Local message state that persists when navigating from Welcome -> Conversation
-  const [messages, setMessages] = useState<Map<string, ChatMessage>>(new Map());
+  const [messages, setMessages] = useState<Messages>({ isHistory: false, messages: new Map() });
 
   // Generate a NEW UUID each time we're on the welcome page (no routeChatId)
   // This ensures each visit to /chat generates a fresh connection
@@ -24,23 +29,31 @@ const ChatBot = () => {
       return routeChatId;
     }
     // Reset messages when navigating to welcome page
-    setMessages(new Map());
+    setMessages({ isHistory: false, messages: new Map() });
     // Generate new UUID for welcome page - changes on every navigation to /chat
     return uuidv4();
   }, [routeChatId, location.pathname]);
 
   // Clear messages when chatId changes (switching between different chats)
   useEffect(() => {
-    setMessages(new Map());
+    setMessages({ isHistory: false, messages: new Map() });
   }, [chatId]);
 
+  // Auto-save hook
+  const debouncedSave = useChatAutoSave(chatId, messages);
+
   const setMessage = useCallback((id: string, role: "user" | "assistant" | "system", content: string) => {
-    setMessages(prev => { const map = new Map(prev); map.set(id, { id, role, content, timestamp: new Date() }); return map; });
-  }, []);
+    setMessages(prev => {
+      const map = new Map(prev.messages);
+      map.set(id, { id, role, content, timestamp: new Date() });
+      return { isHistory: false, messages: map };
+    });
+    debouncedSave();
+  }, [debouncedSave]);
 
   const upsertMessage = useCallback((id: string, role: "user" | "assistant" | "system", delta: string) => {
     setMessages(prev => {
-      const map = new Map(prev);
+      const map = new Map(prev.messages);
       const existing = map.get(id);
       if (existing) {
         // Append delta to existing content
@@ -53,31 +66,23 @@ const ChatBot = () => {
         // If message doesn't exist, create a new one with the delta as content
         map.set(id, { id, role: role, content: delta, timestamp: new Date() });
       }
-      return map;
+      return { isHistory: false, messages: map };
     });
-  }, []);
+    debouncedSave();
+  }, [debouncedSave]);
 
   const messageList = useMemo(
-    () => Array.from(messages.values()),
+    () => Array.from(messages.messages.values()),
     [messages]
   );
 
-  const { data: chatHistory } = backendActor.authenticated.useQueryCall({
-    functionName: "get_chat_history",
-    args: [{ id: chatId }],
-    onSuccess: (data) => {
-      const loadedMessages = extractChatHistory(data);
-      if (loadedMessages.length > 0) {
-        setMessages(prev => {
-          const map = new Map();
-          loadedMessages.forEach(msg => map.set(msg.id, msg));
-          return map;
-        });
-      }
-    },
-    onError: (error) => {
-      console.error("Error getting chat history:", error);
-    },
+  // Load chat history and populate messages
+  const chatHistoryMessages = useChatHistory(chatId, (loadedMessages) => {
+    setMessages(() => {
+      const map = new Map();
+      loadedMessages.forEach(msg => map.set(msg.id, msg));
+      return { isHistory: true, messages: map };
+    });
   });
 
   return (
@@ -92,7 +97,7 @@ const ChatBot = () => {
           upsertMessage={upsertMessage}
         >
           {routeChatId ? (
-            <ChatConversation chatId={chatId} messages={messageList} chatHistory={chatHistory}/>
+            <ChatConversation chatId={chatId} messages={messageList} chatHistoryMessages={chatHistoryMessages}/>
           ) : (
             <ChatWelcome chatId={chatId} />
           )}
@@ -101,25 +106,5 @@ const ChatBot = () => {
     </div>
   );
 };
-
-export const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] => {
-  if (!result || 'err' in result) {
-    console.log("No chat history found or error occurred");
-    return [];
-  }
-  try {
-    const messages = JSON.parse(result.ok.events);
-    return messages.map((msg: any, index: number) => ({
-      id: msg.id || "msg-" + index,
-      role: msg.role,
-      content: msg.content,
-      timestamp: new Date(msg.timestamp),
-      isStreaming: false
-    }));
-  } catch (error) {
-    console.error("Error parsing historyData events:", error);
-    return [];
-  }
-}
 
 export default ChatBot;

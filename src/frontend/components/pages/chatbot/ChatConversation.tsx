@@ -14,9 +14,7 @@ import AutoResizeTextarea, {
   AutoResizeTextareaHandle,
 } from "../../common/AutoResizeTextArea";
 import { backendActor } from "../../actors/BackendActor";
-import { Result_4 } from "../../../../declarations/backend/backend.did";
 import { useAuthToken } from "./AuthTokenContext";
-import { extractChatHistory } from ".";
 
 // Markdown components for consistent styling
 const MARKDOWN_COMPONENTS = {
@@ -33,11 +31,11 @@ const MARKDOWN_COMPONENTS = {
 
 interface ChatConversationProps {
   chatId: string;
-  chatHistory?: Result_4;
+  chatHistoryMessages: ChatMessage[];
   messages: ChatMessage[];
 }
 
-const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory, messages }) => {
+const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistoryMessages, messages }) => {
   const { user } = useAuth();
 
   const { authToken } = useAuthToken();
@@ -61,16 +59,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
     args: [],
   });
 
-  const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
-    functionName: "update_chat_history",
-    onSuccess: () => {
-      console.log("Chat history saved successfully");
-    },
-    onError: (error) => {
-      console.error("Error saving chat history:", error);
-    },
-  });
-
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
@@ -89,19 +77,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
       contextRestoredRef.current = false; // Reset context restoration flag for new chat
     }
   }, [chatId]);
-
-  // Auto-save messages when they change (debounced)
-  useEffect(() => {
-    const hasStreamingMessage = messages.some(msg => msg.isStreaming);
-    if (chatId && messages.length > 0 && !hasStreamingMessage) {
-      const timeoutId = setTimeout(() => {
-        const historyJson = toHistory(messages);
-        console.log("MESSAGE HISTORY:", historyJson);
-        saveMessages([{ id: chatId, events: historyJson, aiPrompts: "" }]);
-      }, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [messages, chatId]);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -124,12 +99,9 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
 
   // Restore conversation context to AI when connection is ready and we have messages
   useEffect(() => {
-    if (connectionState.status === "ready" && chatHistory !== undefined && !contextRestoredRef.current) {
-
-      let historyMessages = extractChatHistory(chatHistory);
-
+    if (connectionState.status === "ready" && chatHistoryMessages.length > 0 && !contextRestoredRef.current) {
       // Filter out system messages and only send user/assistant messages
-      const contextMessages = historyMessages
+      const contextMessages = chatHistoryMessages
         .filter(msg => msg.role !== "system" && !msg.isStreaming)
         .map(msg => ({
           id: msg.id,
@@ -142,7 +114,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
         contextRestoredRef.current = true; // Mark as restored
       }
     }
-  }, [connectionState.status, chatHistory]);
+  }, [connectionState.status, chatHistoryMessages, restoreConversationContext]);
 
   // Handle keyboard shortcut Ctrl+Alt+D to toggle debug panel
   useEffect(() => {
@@ -168,20 +140,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
     // Send the message
     sendTextMessage(undefined, messageToSend);
   };
-
-  const toHistory = (messages: ChatMessage[]): string => {
-    // Filter out system messages and streaming messages
-    const messagesToSave = messages
-      .filter(msg => msg.role !== "system" && !msg.isStreaming)
-      .map(msg => ({
-        id: msg.id,
-        role: msg.role,
-        content: msg.content,
-        timestamp: msg.timestamp.toISOString()
-      }));
-
-    return JSON.stringify(messagesToSave);
-  }
 
   return (
     <div className="relative flex w-full flex-grow flex-col overflow-hidden">
