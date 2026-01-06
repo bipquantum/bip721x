@@ -9,9 +9,13 @@ const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] => {
     return [];
   }
   try {
-    console.log("Parsing historyData events:", result.ok.events);
     const messages = JSON.parse(result.ok.events);
-    return messages.map((msg: any, index: number) => {
+    if (messages.length === 0) {
+      console.log("No messages in chat history");
+      return [];
+    }
+    return messages.filter((msg: any) => msg.content !== undefined && msg.content.length > 0)
+                   .map((msg: any, index: number) => {
       // Parse timestamp safely, fallback to null if invalid
       let validDate: Date | null = null;
       if (msg.timestamp) {

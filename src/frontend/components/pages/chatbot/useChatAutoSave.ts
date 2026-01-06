@@ -20,11 +20,23 @@ export function useChatAutoSave(
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // Ref to always have the latest messages value (avoids stale closure)
   const messagesRef = useRef<Messages>(messages);
+  // Track when history was last loaded to prevent immediate save
+  const historyLoadedAtRef = useRef<number>(0);
 
   // Keep ref in sync with messages
   useEffect(() => {
+    // If switching from isHistory: false -> true, record the timestamp
+    if (!messagesRef.current.isHistory && messages.isHistory) {
+      historyLoadedAtRef.current = Date.now();
+      console.log("History loaded, blocking auto-save for 3 seconds");
+    }
     messagesRef.current = messages;
   }, [messages]);
+
+  // Reset the history loaded timestamp when chatId changes
+  useEffect(() => {
+    historyLoadedAtRef.current = 0;
+  }, [chatId]);
 
   const toHistory = useCallback((messages: Map<string, ChatMessage>): string => {
     // Filter out system messages and streaming messages
@@ -49,6 +61,13 @@ export function useChatAutoSave(
       return;
     }
 
+    // Skip saving if history was loaded within the last 3 seconds
+    const timeSinceHistoryLoad = Date.now() - historyLoadedAtRef.current;
+    if (historyLoadedAtRef.current > 0 && timeSinceHistoryLoad < 3000) {
+      console.log(`Skipping auto-save: history loaded ${timeSinceHistoryLoad}ms ago`);
+      return;
+    }
+
     // Clear existing timeout
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
@@ -59,6 +78,13 @@ export function useChatAutoSave(
       // Double-check we're not loading from history
       if (messagesRef.current.isHistory || messagesRef.current.messages.size === 0) {
         console.log("Skipping auto-save in timeout: loading from history");
+        return;
+      }
+
+      // Double-check time since history load
+      const timeSinceHistoryLoad = Date.now() - historyLoadedAtRef.current;
+      if (historyLoadedAtRef.current > 0 && timeSinceHistoryLoad < 3000) {
+        console.log(`Skipping auto-save in timeout: history loaded ${timeSinceHistoryLoad}ms ago`);
         return;
       }
 

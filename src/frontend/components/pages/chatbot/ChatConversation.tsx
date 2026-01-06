@@ -67,7 +67,9 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
   const loadedChatIdRef = useRef<string | null>(null);
   const contextRestoredRef = useRef(false);
   const voiceEnabled = useMemo<boolean>(() => {
-    return subscription?.planId !== "free";
+    //return subscription?.planId !== "free";
+    // @todo
+    return true; 
   }, [subscription]);
 
   // Load history when chatId changes
@@ -237,7 +239,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
                 { !voiceEnabled && <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white group-hover:flex">
                   Require premium plan
                 </span>}
-                <BiMicrophone size={35} color={isVoiceMode ? "white" : "gray"} />
+                <BiMicrophone size={35} className={isVoiceMode ? "text-white" : "text-black"} />
               </button>
               <button
                 onClick={() => {
