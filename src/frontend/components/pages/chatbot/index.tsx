@@ -1,4 +1,4 @@
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { ChatConnectionProvider } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 import ChatHistoryBar from "../../layout/ChatHistoryBar";
 import { useChatAutoSave } from "./useChatAutoSave";
 import { useChatHistory } from "./useChatHistory";
+import { useChatHistory as useChatHistoryContext } from "../../layout/ChatHistoryContext";
+import { backendActor } from "../../actors/BackendActor";
 
 export type Messages = {
   isHistory: boolean;
@@ -18,6 +20,8 @@ export type Messages = {
 const ChatBot = () => {
   const { chatId: routeChatId } = useParams<{ chatId?: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { addChat } = useChatHistoryContext();
 
   // Local message state that persists when navigating from Welcome -> Conversation
   const [messages, setMessages] = useState<Messages>({ isHistory: false, messages: new Map() });
@@ -85,6 +89,27 @@ const ChatBot = () => {
     });
   });
 
+  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
+    functionName: "create_chat_history",
+  });
+
+  // Callback for when voice transcription completes on welcome page
+  const handleVoiceTranscriptionComplete = useCallback(() => {
+    if (!routeChatId) {
+      // We're on the welcome page, so create history and navigate
+      createChatHistory([{
+        id: chatId,
+        version: "1.0",
+        name: new Date().toLocaleString()
+      }]).catch((error) => {
+        console.error("Chat history may already exist:", error);
+      });
+
+      addChat({ id: chatId, name: new Date().toLocaleString() });
+      navigate(`/chat/${chatId}`);
+    }
+  }, [routeChatId, chatId, createChatHistory, addChat, navigate]);
+
   return (
     <div className="flex w-full flex-grow flex-row justify-between">
       <AuthTokenProvider>
@@ -95,6 +120,7 @@ const ChatBot = () => {
           key={chatId}  // New provider instance per chatId
           setMessage={setMessage}
           upsertMessage={upsertMessage}
+          onVoiceTranscriptionComplete={!routeChatId ? handleVoiceTranscriptionComplete : undefined}
         >
           {routeChatId ? (
             <ChatConversation chatId={chatId} messages={messageList} chatHistoryMessages={chatHistoryMessages}/>

@@ -41,12 +41,14 @@ interface ChatConnectionProviderProps {
   children: ReactNode;
   setMessage: (id: string, role: "user" | "assistant" | "system", content: string) => void;
   upsertMessage: (id: string, role: "user" | "assistant" | "system", delta: string) => void;
+  onVoiceTranscriptionComplete?: () => void;
 }
 
 export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
   children,
   setMessage,
   upsertMessage,
+  onVoiceTranscriptionComplete,
 }) => {
 
   const { invalidateToken } = useAuthToken();
@@ -408,6 +410,10 @@ export const ChatConnectionProvider: React.FC<ChatConnectionProviderProps> = ({
             case "conversation.item.input_audio_transcription.completed":
               if (data.transcript) {
                 addLog(`🎤 User said: "${data.transcript.substring(0, 50)}${data.transcript.length > 50 ? '...' : ''}"`);
+              }
+              // Trigger callback for voice transcription complete (used for navigation in ChatWelcome)
+              if (onVoiceTranscriptionComplete) {
+                onVoiceTranscriptionComplete();
               }
               break;
 

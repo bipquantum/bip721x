@@ -1,5 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
+import { CREDITS_DEPLETED_TOAST_ID } from "../../constants";
 
 export const CreditsDepletedToast: React.FC = () => {
   return (
@@ -18,7 +19,13 @@ export const CreditsDepletedToast: React.FC = () => {
 };
 
 export const showCreditsDepletedToast = () => {
+  // Check if toast is already active, if so, don't show another one
+  if (toast.isActive(CREDITS_DEPLETED_TOAST_ID)) {
+    return;
+  }
+
   toast.info(<CreditsDepletedToast />, {
+    toastId: CREDITS_DEPLETED_TOAST_ID,
     autoClose: false,
     closeButton: true,
   });
