@@ -24,7 +24,7 @@ const Plans = () => {
     onSuccess: () => {
       setSelectedPlan(null);
       // Navigate to profile subscription tab
-      navigate("/profile", { state: { tab: "subscription" } });
+      navigate("/profile/subscription");
     },
   });
 

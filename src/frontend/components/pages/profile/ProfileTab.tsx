@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { DEFAULT_COUNTRY_CODE } from "../../constants";
 import FileUploader from "../../common/FileUploader";
 import FilePreview from "../../common/FilePreview";
-import { FiUserPlus, FiLogOut } from "react-icons/fi";
+import { FiUserPlus } from "react-icons/fi";
 import { useAuth } from "@nfid/identitykit/react";
 import WalletButton from "../../common/WalletButton";
 import { useUser } from "../../common/UserContext";
@@ -36,7 +36,7 @@ const ProfileFields: {
 
 const ProfileTab = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user: authUser, disconnect } = useAuth();
+  const { user: authUser } = useAuth();
   const { user: userData, refetchUser } = useUser();
   const { trackProfileCreated, trackProfileUpdated } = useMixpanelTracking();
   const [focusedFields, setFocusedFields] = useState<{
@@ -134,16 +134,6 @@ const ProfileTab = () => {
           </FileUploader>
           <div className="flex flex-row items-center gap-2 sm:gap-3">
             <WalletButton />
-            <button
-              className="flex items-center justify-center rounded-full p-3 text-black dark:text-white"
-              onClick={() => {
-                disconnect();
-                navigate("/");
-              }}
-              title="Disconnect"
-            >
-              <FiLogOut size={20} color="currentColor" />
-            </button>
           </div>
         </div>
       </div>
@@ -197,7 +187,7 @@ const ProfileTab = () => {
         onClick={() => onUpdateBtnClicked()}
         disabled={isLoading}
       >
-        {isLoading ? <img src={SpinnerSvg} alt="" /> : "Add/Update User"}
+        {isLoading ? <img src={SpinnerSvg} alt="" /> : userData ? "Update User" : "Create User"}
       </button>
     </div>
   );

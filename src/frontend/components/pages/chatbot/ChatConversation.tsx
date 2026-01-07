@@ -65,9 +65,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistory
   const loadedChatIdRef = useRef<string | null>(null);
   const contextRestoredRef = useRef(false);
   const voiceEnabled = useMemo<boolean>(() => {
-    //return subscription?.planId !== "free";
-    // @todo
-    return true; 
+    return subscription?.planId !== "free";
   }, [subscription]);
 
   // Load history when chatId changes

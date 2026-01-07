@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@nfid/identitykit/react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ProfileTab from "./ProfileTab";
 import SubscriptionTab from "./SubscriptionTab";
 
@@ -12,27 +12,21 @@ enum Tab {
 const Profile = () => {
   const { user } = useAuth();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<Tab>(Tab.Profile);
+  const navigate = useNavigate();
+  const { tab } = useParams<{ tab?: string }>();
 
-  // Check if we should open subscription tab from navigation state or query params
+  // Determine active tab from URL parameter
+  const activeTab = tab === "subscription" ? Tab.Subscription : Tab.Profile;
+
+  // Check query parameters for Stripe redirect
   useEffect(() => {
-    // Check location state (from navigate())
-    if (location.state?.tab === "subscription") {
-      setActiveTab(Tab.Subscription);
-    }
-
-    // Check query parameters (from Stripe redirect)
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get("tab") === "subscription") {
-      setActiveTab(Tab.Subscription);
-    }
 
     // Optional: Show success message if coming from Stripe
     if (searchParams.get("payment") === "success") {
-      // You could show a toast notification here
       console.log("Payment successful! Subscription will be activated via webhook.");
     }
-  }, [location.state, location.search]);
+  }, [location.search]);
 
   if (!user) {
     return <></>;
@@ -46,7 +40,7 @@ const Profile = () => {
       {/* Tab Headers */}
       <div className="mb-6 flex w-full max-w-4xl gap-2 border-b border-gray-300 dark:border-gray-600">
         <button
-          onClick={() => setActiveTab(Tab.Profile)}
+          onClick={() => navigate("/profile")}
           className={`px-6 py-3 font-bold transition-colors ${
             activeTab === Tab.Profile
               ? "border-b-2 border-primary text-primary dark:border-secondary dark:text-secondary"
@@ -56,7 +50,7 @@ const Profile = () => {
           Profile
         </button>
         <button
-          onClick={() => setActiveTab(Tab.Subscription)}
+          onClick={() => navigate("/profile/subscription")}
           className={`px-6 py-3 font-bold transition-colors ${
             activeTab === Tab.Subscription
               ? "border-b-2 border-primary text-primary dark:border-secondary dark:text-secondary"

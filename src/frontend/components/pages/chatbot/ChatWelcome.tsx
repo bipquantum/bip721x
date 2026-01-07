@@ -30,9 +30,7 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   });
 
   const voiceEnabled = useMemo<boolean>(() => {
-    //return subscription?.planId !== "free";
-    // @todo
-    return true;
+    return subscription?.planId !== "free";
   }, [subscription]);
 
   const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({

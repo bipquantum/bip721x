@@ -51,6 +51,10 @@ const Router = () => {
         element={<PrivateRoute element={<Profile />} />}
       />
       <Route
+        path={"/profile/:tab"}
+        element={<PrivateRoute element={<Profile />} />}
+      />
+      <Route
         path={"/plans"}
         element={<PrivateRoute element={<Plans />} />}
       />

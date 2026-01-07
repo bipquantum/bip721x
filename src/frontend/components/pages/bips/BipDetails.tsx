@@ -25,6 +25,7 @@ import { IoEyeOutline } from "react-icons/io5";
 import UserImage from "../../common/UserImage";
 import BanAuthor from "../../common/BanAuthor";
 import FundIcon from "../../icons/FundIcon";
+import { useIntProp } from "./useIntProp";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -46,10 +47,7 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
     args: [{ id: BigInt(intPropId) }],
   });
 
-  const { data: intProp } = backendActor.authenticated.useQueryCall({
-    functionName: "get_int_prop",
-    args: [{ token_id: BigInt(intPropId) }],
-  });
+  const intProp = useIntProp(BigInt(intPropId));
 
   backendActor.unauthenticated.useQueryCall({
     functionName: "owner_of",
