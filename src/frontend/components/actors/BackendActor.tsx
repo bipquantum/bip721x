@@ -20,6 +20,7 @@ const useQueryCall = <T extends BackendMethods>(options: UseQueryCallOptions<T>,
   const [data, setData] = useState<ExtractReturn<Backend[T]> | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
+  const ready = !!actor;
 
   const call = useCallback(
     async (callArgs?: ExtractArgs<Backend[T]>): Promise<ExtractReturn<Backend[T]> | undefined> => {
@@ -67,7 +68,7 @@ const useQueryCall = <T extends BackendMethods>(options: UseQueryCallOptions<T>,
     }
   }, [actor, options.functionName, serializeArgs(options.args)]);
 
-  return { data, loading, error, call };
+  return { data, loading, ready, error, call };
 };
 
 interface UseUpdateCallOptions<T extends BackendMethods> {
@@ -79,6 +80,7 @@ interface UseUpdateCallOptions<T extends BackendMethods> {
 export const useUpdateCall = <T extends BackendMethods>(options: UseUpdateCallOptions<T>, actor: ActorSubclass<Backend> | undefined) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
+  const ready = !!actor;
 
   const call = useCallback(
     async (args: ExtractArgs<Backend[T]> = [] as any): Promise<ExtractReturn<Backend[T]> | undefined> => {
@@ -103,7 +105,7 @@ export const useUpdateCall = <T extends BackendMethods>(options: UseUpdateCallOp
     [actor, options.functionName, options.onSuccess, options.onError]
   );
 
-  return { call, loading, error };
+  return { call, loading, ready, error };
 };
 
 export type { Backend };

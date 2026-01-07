@@ -24,7 +24,7 @@ const Plans = () => {
     onSuccess: () => {
       setSelectedPlan(null);
       // Navigate to profile subscription tab
-      navigate("/profile", { state: { tab: "subscription" } });
+      navigate("/profile/subscription");
     },
   });
 
@@ -166,6 +166,15 @@ const Plans = () => {
                   </span>
                 </div>
 
+                {plan.id !== "free" && (
+                  <div className="mb-3 flex items-center gap-2">
+                    <FiCheck className="text-green-500" size={20} />
+                    <span className="text-gray-700 dark:text-gray-300">
+                      Access to voice AI
+                    </span>
+                  </div>
+                )}
+
                 <div className="mb-3 flex items-center gap-2">
                   <FiCheck className="text-green-500" size={20} />
                   <span className="text-gray-700 dark:text-gray-300">
@@ -245,6 +254,14 @@ const Plans = () => {
                     {formatCredits(selectedPlan.intervalCredits)} credits per {formatInterval(selectedPlan.renewalInterval)}
                   </span>
                 </div>
+                {selectedPlan.id !== "free" && (
+                  <div className="flex items-center gap-2">
+                    <FiCheck className="text-green-500" size={18} />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Access to voice AI
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <FiCheck className="text-green-500" size={18} />
                   <span className="text-sm text-gray-700 dark:text-gray-300">

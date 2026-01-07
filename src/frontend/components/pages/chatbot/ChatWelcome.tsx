@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { BiMicrophone } from "react-icons/bi";
 import { IoArrowUp } from "react-icons/io5";
@@ -9,6 +9,7 @@ import { useChatConnection } from "./ChatConnectionContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
 import { useAuthToken } from "./AuthTokenContext";
 import { useChatHistory } from "../../layout/ChatHistoryContext";
+import { backendActor } from "../../actors/BackendActor";
 
 interface ChatWelcomeProps {
   chatId: string;
@@ -20,8 +21,21 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { authToken } = useAuthToken();
-  const { initSession, connectionState } = useChatConnection();
+  const { initSession, sendTextMessage, connectionState, isVoiceMode, toggleVoiceMode } = useChatConnection();
   const { addChat } = useChatHistory();
+
+  const { data: subscription } = backendActor.authenticated.useQueryCall({
+    functionName: "get_subscription",
+    args: [],
+  });
+
+  const voiceEnabled = useMemo<boolean>(() => {
+    return subscription?.planId !== "free";
+  }, [subscription]);
+
+  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
+    functionName: "create_chat_history",
+  });
 
   // Initialize chat history and connection when component mounts
   useEffect(() => {
@@ -40,12 +54,21 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
   const handleSendMessage = () => {
     if (!inputMessage.trim() || connectionState.status !== "ready") return;
 
+    // Create history entry for this chat
+    createChatHistory([{
+      id: chatId,
+      version: "1.0",
+      name: new Date().toLocaleString()
+    }]).catch((error) => {
+      console.error("Chat history may already exist:", error);
+    });
+
     addChat({id: chatId, name: new Date().toLocaleString()});
 
+    sendTextMessage(undefined, inputMessage);
+    
     // Navigate to the chat conversation with the initial question
-    navigate(`/chat/${chatId}`, {
-      state: { initialQuestion: inputMessage }
-    });
+    navigate(`/chat/${chatId}`);
   };
 
   return (
@@ -74,23 +97,29 @@ const ChatWelcome: React.FC<ChatWelcomeProps> = ({ chatId }) => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
-                      if (inputMessage.trim() && connectionState.status === "ready") {
-                        handleSendMessage();
-                      }
+                      handleSendMessage();
                     }
                   }}
                 />
               </div>
-              <div className="group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 px-1 text-black">
-                <BiMicrophone size={35} color="gray" />
-                <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex">
-                  Coming Soon!
-                </span>
-              </div>
               <button
-                onClick={() => {
-                  if (inputMessage) handleSendMessage();
-                }}
+                onClick={toggleVoiceMode}
+                disabled={connectionState.status !== "ready" || !voiceEnabled}
+                className={`group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full px-1 transition-all ${
+                  isVoiceMode
+                    ? "bg-gradient-to-t from-primary to-secondary text-white"
+                    : "bg-gray-200 text-black"
+                }
+                disabled:opacity-50 disabled:cursor-not-allowed`}
+                title={isVoiceMode ? "Switch to text mode" : "Switch to voice mode"}
+              >
+                { !voiceEnabled && <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white group-hover:flex">
+                  Require premium plan
+                </span>}
+                <BiMicrophone size={35} className={isVoiceMode ? "text-white" : "text-black"} />
+              </button>
+              <button
+                onClick={() => { handleSendMessage(); }}
                 disabled={!inputMessage.trim() || connectionState.status !== "ready"}
                 className="flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 disabled:opacity-50"
               >

@@ -1,6 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import { useAuth } from "@nfid/identitykit/react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useChatConnection } from "./ChatConnectionContext";
 import { ChatMessage } from "../../layout/ChatHistoryContext";
 import ConnectionStatusIndicator from "./ConnectionStatusIndicator";
@@ -15,8 +13,8 @@ import AutoResizeTextarea, {
   AutoResizeTextareaHandle,
 } from "../../common/AutoResizeTextArea";
 import { backendActor } from "../../actors/BackendActor";
-import { Result_4 } from "../../../../declarations/backend/backend.did";
 import { useAuthToken } from "./AuthTokenContext";
+import { Messages } from ".";
 
 // Markdown components for consistent styling
 const MARKDOWN_COMPONENTS = {
@@ -33,46 +31,17 @@ const MARKDOWN_COMPONENTS = {
 
 interface ChatConversationProps {
   chatId: string;
-  messages: ChatMessage[];
-  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  chatHistoryMessages: ChatMessage[];
+  messages: Messages;
 }
 
-const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, setMessages }) => {
-  const { user } = useAuth();
-  const location = useLocation();
-
-  const { call: createChatHistory } = backendActor.authenticated.useUpdateCall({
-    functionName: "create_chat_history",
-  });
-  
-  backendActor.authenticated.useQueryCall({
-    functionName: "get_chat_history",
-    args: [{ id: chatId }],
-    onSuccess: (data) => {
-      const loadedMessages = extractChatHistory(data);
-      if (loadedMessages.length > 0) {
-        setMessages(loadedMessages);
-      }
-    },
-    onError: (error) => {
-      console.error("Error getting chat history:", error);
-    },
-  });
-
-  const { call: saveMessages } = backendActor.authenticated.useUpdateCall({
-    functionName: "update_chat_history",
-    onSuccess: () => {
-      console.log("Chat history saved successfully");
-    },
-    onError: (error) => {
-      console.error("Error saving chat history:", error);
-    },
-  });
-
+const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, chatHistoryMessages, messages }) => {
   const { authToken } = useAuthToken();
   const {
     connectionState,
     logs,
+    isVoiceMode,
+    toggleVoiceMode,
     sendTextMessage,
     restoreConversationContext,
     initSession,
@@ -83,19 +52,21 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     getStatusText,
   } = useChatConnection();
 
+  const { data: subscription } = backendActor.authenticated.useQueryCall({
+    functionName: "get_subscription",
+    args: [],
+  });
+
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<AutoResizeTextareaHandle>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const initialQuestionSentRef = useRef(false);
   const loadedChatIdRef = useRef<string | null>(null);
   const contextRestoredRef = useRef(false);
-
-  // Helper to add message
-  const addMessage = useCallback((role: "user" | "assistant" | "system", content: string, isStreaming: boolean = false) => {
-    setMessages(prev => [...prev, { role, content, timestamp: new Date(), isStreaming }]);
-  }, [setMessages]);
+  const voiceEnabled = useMemo<boolean>(() => {
+    return subscription?.planId !== "free";
+  }, [subscription]);
 
   // Load history when chatId changes
   useEffect(() => {
@@ -104,18 +75,6 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
       contextRestoredRef.current = false; // Reset context restoration flag for new chat
     }
   }, [chatId]);
-
-  // Auto-save messages when they change (debounced)
-  useEffect(() => {
-    const hasStreamingMessage = messages.some(msg => msg.isStreaming);
-    if (chatId && messages.length > 0 && !hasStreamingMessage) {
-      const timeoutId = setTimeout(() => {
-        const historyJson = toHistory(messages);
-        saveMessages([{ id: chatId, events: historyJson, aiPrompts: "" }]);
-      }, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [messages, chatId]);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -138,11 +97,12 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
 
   // Restore conversation context to AI when connection is ready and we have messages
   useEffect(() => {
-    if (connectionState.status === "ready" && messages.length > 0 && !contextRestoredRef.current) {
+    if (connectionState.status === "ready" && chatHistoryMessages.length > 0 && !contextRestoredRef.current) {
       // Filter out system messages and only send user/assistant messages
-      const contextMessages = messages
+      const contextMessages = chatHistoryMessages
         .filter(msg => msg.role !== "system" && !msg.isStreaming)
         .map(msg => ({
+          id: msg.id,
           role: msg.role,
           content: msg.content
         }));
@@ -152,26 +112,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
         contextRestoredRef.current = true; // Mark as restored
       }
     }
-  }, [connectionState.status, messages.length]);
-
-  // Send initial question if provided via navigation state
-  useEffect(() => {
-    const initialQuestion = (location.state as any)?.initialQuestion;
-    if (initialQuestion && !initialQuestionSentRef.current && connectionState.status === "ready") {
-      initialQuestionSentRef.current = true;
-      // Send initial question as user message
-      addMessage("user", initialQuestion);
-      sendTextMessage(initialQuestion);
-      // Create history entry for this chat
-      createChatHistory([{
-        id: chatId,
-        version: "1.0",
-        name: "New Chat"
-      }]).catch((error) => {
-        console.log("Chat history may already exist:", error);
-      });
-    }
-  }, [connectionState.status, location.state]);
+  }, [connectionState.status, chatHistoryMessages, restoreConversationContext]);
 
   // Handle keyboard shortcut Ctrl+Alt+D to toggle debug panel
   useEffect(() => {
@@ -190,69 +131,38 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
     if (!inputMessage.trim() || connectionState.status !== "ready") return;
 
     // Add user message immediately to UI
-    addMessage("user", inputMessage);
     const messageToSend = inputMessage;
     inputRef.current?.clear();
     setInputMessage("");
 
     // Send the message
-    sendTextMessage(messageToSend);
+    sendTextMessage(undefined, messageToSend);
   };
-
-  const extractChatHistory = (result: Result_4 | undefined): ChatMessage[] => {
-    if (!result || 'err' in result) {
-      console.log("No chat history found or error occurred");
-      return [];
-    }
-    try {
-      const messages = JSON.parse(result.ok.events);
-      return messages.map((msg: any) => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: new Date(msg.timestamp),
-        isStreaming: false
-      }));
-    } catch (error) {
-      console.error("Error parsing historyData events:", error);
-      return [];
-    }
-  }
-
-  const toHistory = (messages: ChatMessage[]): string => {
-    // Filter out system messages and streaming messages
-    const messagesToSave = messages
-      .filter(msg => msg.role !== "system" && !msg.isStreaming)
-      .map(msg => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: msg.timestamp.toISOString()
-      }));
-
-    return JSON.stringify(messagesToSave);
-  }
 
   return (
     <div className="relative flex w-full flex-grow flex-col overflow-hidden">
       <div className={`grid grid-cols-1 gap-4 flex-grow overflow-hidden ${showDebugPanel ? 'lg:grid-cols-2' : ''}`}>
         <div className="flex flex-col overflow-hidden">
           {/* Chat Messages */}
-          <div className="flex-grow overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed">
-            {messages.filter(msg => msg.role !== "system").map((msg, index) => {
+          <ul className="flex-grow overflow-y-auto px-4 py-2 text-sm leading-normal sm:text-lg sm:leading-relaxed">
+            {messages.order.map(id => {
+              const msg = messages.messages.get(id);
+              if (!msg || msg.role === "system") return null;
               if (msg.role === "user") {
                 // User messages - right aligned with user image and colored background
                 return (
-                  <div key={index} className="mb-3 flex flex-row justify-end gap-2 py-2">
+                  <li key={id} className="mb-3 flex flex-row justify-end gap-2 py-2">
                     <span className="flex flex-col px-5"></span>
                     <div className="markdown-link flex items-center rounded-xl bg-gradient-to-t from-primary to-secondary px-3 py-0 text-white sm:px-4 sm:py-2">
                       {msg.content}
                     </div>
-                    <UserImage principal={user?.principal} />
-                  </div>
+                    <UserImage />
+                  </li>
                 );
               } else {
                 // Assistant messages - left aligned with AI image and light background
                 return (
-                  <div key={index} className="mb-3 flex flex-row gap-2 py-2">
+                  <li key={id} className="mb-3 flex flex-row gap-2 py-2">
                     <img src={AiBot} className="h-10 rounded-full" alt="AI" />
                     <div className="markdown-link flex flex-col gap-3 rounded-xl bg-gray-200 px-3 py-2 text-gray-900 dark:bg-gray-700 dark:text-gray-100 sm:px-4 sm:py-2">
                       {msg.isStreaming ? (
@@ -281,15 +191,15 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
                       )}
                     </div>
                     <span className="flex flex-col px-5"></span>
-                  </div>
+                  </li>
                 );
               }
             })}
             <div ref={chatEndRef} />
-          </div>
+          </ul>
 
           {/* Chat Input - Sticky Bottom */}
-          <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t-[0.25px] dark:border-gray-800 px-2 py-2">
+          <div className="flex w-full flex-shrink-0 flex-col gap-2 border-t-[0.25px] dark:border-gray-800 px-2 py-2 items-center">
             <div className="relative flex w-full flex-row items-center gap-2">
               <ConnectionStatusIndicator />
               <div className="flex flex-1 items-center justify-between gap-2 rounded-2xl border bg-white px-3 py-[6px]">
@@ -313,12 +223,22 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
                   }}
                 />
               </div>
-              <div className="group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full bg-gray-200 px-1 text-black">
-                <BiMicrophone size={35} color="gray" />
-                <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white opacity-75 group-hover:flex">
-                  Coming Soon!
-                </span>
-              </div>
+              <button
+                onClick={toggleVoiceMode}
+                disabled={connectionState.status !== "ready" || !voiceEnabled}
+                className={`group flex h-[36px] w-[36px] items-center justify-center self-end rounded-full px-1 transition-all ${
+                  isVoiceMode
+                    ? "bg-gradient-to-t from-primary to-secondary text-white"
+                    : "bg-gray-200 text-black"
+                } 
+                disabled:opacity-50 disabled:cursor-not-allowed`}
+                title={isVoiceMode ? "Switch to text mode" : "Switch to voice mode"}
+              >
+                { !voiceEnabled && <span className="absolute z-50 hidden w-max items-center rounded bg-black px-2 py-1 text-sm text-white group-hover:flex">
+                  Require premium plan
+                </span>}
+                <BiMicrophone size={35} className={isVoiceMode ? "text-white" : "text-black"} />
+              </button>
               <button
                 onClick={() => {
                   if (inputMessage) handleSendMessage();
@@ -329,7 +249,7 @@ const ChatConversation: React.FC<ChatConversationProps> = ({ chatId, messages, s
                 <IoArrowUp size={30} className="text-black" />
               </button>
             </div>
-            <p ref={bottomRef} className="text-sm text-gray-500">
+            <p ref={bottomRef} className="text-sm text-gray-500 items-center">
               BIPQuantum AI is here to assist, but always consult an IP lawyer to ensure accuracy.
             </p>
           </div>

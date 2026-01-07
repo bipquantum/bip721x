@@ -5,7 +5,6 @@
 - npm: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
 - dfx: https://internetcomputer.org/docs/current/developer-docs/getting-started/install/#installing-dfx-via-dfxvm
 - mops: https://docs.mops.one/quick-start
-- cargo: https://doc.rust-lang.org/cargo/
 
 ## Install
 ```bash
@@ -45,11 +44,8 @@ mops test
 - once created, IP shall not be listed on the marketplace yet, but only in the user's owned IP
 
 ## TODOs
-- Verify the idempotent proxy cycles consomption has been reduced by putting the timer every day
-- Inject the chatgpt API key instead of hardcoding it
 - Fix Conversions.intPropToMetadata to be able to use it
 - Harmonize the error messages returned by the backend canister
 - Be able to add a subaccount when creating IPs
 - Code review of implementation of ICRC-7/ICRC-37/ICRC-3, ideally have them audited
-- Have a proper approve flow (comes with NFID)
 - Misc frontend todos, nothing blocking or critical

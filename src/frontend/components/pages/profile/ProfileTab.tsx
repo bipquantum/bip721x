@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { fromNullable } from "@dfinity/utils";
 import { CreateUserArgs } from "../../../../declarations/backend/backend.did";
 import { backendActor } from "../../actors/BackendActor";
 import SpinnerSvg from "../../../assets/spinner.svg";
@@ -9,13 +8,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { DEFAULT_COUNTRY_CODE } from "../../constants";
 import FileUploader from "../../common/FileUploader";
 import FilePreview from "../../common/FilePreview";
-import { FiUserPlus, FiLogOut } from "react-icons/fi";
+import { FiUserPlus } from "react-icons/fi";
 import { useAuth } from "@nfid/identitykit/react";
 import WalletButton from "../../common/WalletButton";
-import { invalidateUserCache } from "../../common/UserImage";
+import { useUser } from "../../common/UserContext";
 import { useMixpanelTracking } from "../../hooks/useMixpanelTracking";
 
-const DEFAULT_ARGS = {
+const DEFAULT_ARGS : CreateUserArgs = {
   firstName: "",
   lastName: "",
   nickName: "",
@@ -37,7 +36,8 @@ const ProfileFields: {
 
 const ProfileTab = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, disconnect } = useAuth();
+  const { user: authUser } = useAuth();
+  const { user: userData, refetchUser } = useUser();
   const { trackProfileCreated, trackProfileUpdated } = useMixpanelTracking();
   const [focusedFields, setFocusedFields] = useState<{
     [key: string]: boolean;
@@ -55,44 +55,16 @@ const ProfileTab = () => {
   const navigate = useNavigate();
 
   const [userArgs, setUserArgs] = useState<CreateUserArgs>(DEFAULT_ARGS);
-  const [userKey, setUserKey] = useState<string>("");
-
-  const { data: queriedUser, call: queryUser } = backendActor.unauthenticated.useQueryCall({
-    functionName: "get_user",
-    args: user ? [user.principal] : undefined,
-  });
 
   const { call: updateUser } = backendActor.authenticated.useUpdateCall({
     functionName: "set_user",
   });
 
+  // Update form when user data changes
   useEffect(() => {
-    if (user) {
-      const newUserKey = user.principal.toText();
-      if (userKey !== newUserKey) {
-        setUserArgs(DEFAULT_ARGS);
-        setFocusedFields({});
-        setUserKey(newUserKey);
-        setTimeout(() => {
-          queryUser();
-        }, 100);
-      }
-    }
-  }, [user?.principal.toText(), userKey, queryUser]);
 
-  useEffect(() => {
-    var args: CreateUserArgs = DEFAULT_ARGS;
-    const userData = fromNullable(queriedUser || []);
-
-    if (userData) {
-      args.firstName = userData.firstName;
-      args.lastName = userData.lastName;
-      args.nickName = userData.nickName;
-      args.specialty = userData.specialty;
-      args.countryCode = userData.countryCode;
-      args.imageUri = userData.imageUri;
-    }
-
+    // create a new object every time
+    const args = { ...DEFAULT_ARGS, ...userData };
     setUserArgs(args);
 
     // Set focused fields for non-empty values
@@ -103,19 +75,17 @@ const ProfileTab = () => {
       specialty: !!args.specialty,
       countryCode: !!args.countryCode,
     });
-  }, [queriedUser]);
+  }, [userData]);
 
   const onUpdateBtnClicked = async () => {
     setIsLoading(true);
-    const isNewUser = !fromNullable(queriedUser || []);
+    const isNewUser = !userData;
 
     await updateUser([userArgs]);
-    await queryUser();
-
-    invalidateUserCache();
+    refetchUser();
 
     // Track profile creation or update
-    if (user) {
+    if (authUser) {
       const trackingData = {
         firstName: userArgs.firstName,
         lastName: userArgs.lastName,
@@ -126,9 +96,9 @@ const ProfileTab = () => {
       };
 
       if (isNewUser) {
-        trackProfileCreated(user.principal, trackingData);
+        trackProfileCreated(authUser.principal, trackingData);
       } else {
-        trackProfileUpdated(user.principal, trackingData);
+        trackProfileUpdated(authUser.principal, trackingData);
       }
     }
 
@@ -164,16 +134,6 @@ const ProfileTab = () => {
           </FileUploader>
           <div className="flex flex-row items-center gap-2 sm:gap-3">
             <WalletButton />
-            <button
-              className="flex items-center justify-center rounded-full p-3 text-black dark:text-white"
-              onClick={() => {
-                disconnect();
-                navigate("/");
-              }}
-              title="Disconnect"
-            >
-              <FiLogOut size={20} color="currentColor" />
-            </button>
           </div>
         </div>
       </div>
@@ -214,6 +174,7 @@ const ProfileTab = () => {
                 }}
                 onFocus={() => handleFocus(field.name)}
                 onBlur={(e) => handleBlur(field.name, e.target.value)}
+                disabled={isLoading}
               />
             ) : (
               <></>
@@ -226,7 +187,7 @@ const ProfileTab = () => {
         onClick={() => onUpdateBtnClicked()}
         disabled={isLoading}
       >
-        {isLoading ? <img src={SpinnerSvg} alt="" /> : "Add/Update User"}
+        {isLoading ? <img src={SpinnerSvg} alt="" /> : userData ? "Update User" : "Create User"}
       </button>
     </div>
   );

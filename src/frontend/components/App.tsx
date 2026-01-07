@@ -12,6 +12,7 @@ import CookieBanner, { CookieBannerProvider } from "./common/CookieBanner";
 import TopBar from "./layout/TopBar";
 import { SearchProvider } from "./common/SearchContext";
 import { NotificationProvider } from "./common/NotificationContext";
+import { UserProvider } from "./common/UserContext";
 
 import "@nfid/identitykit/react/styles.css"
 import { IdentityKitProvider } from "@nfid/identitykit/react"
@@ -127,17 +128,19 @@ function App() {
             authType={IdentityKitAuthType.DELEGATION}
           >
             <ActorsProvider>
-              <ChatHistoryProvider>
-                <CookieBannerProvider>
-                  <SearchProvider>
-                    <NotificationProvider>
-                      <FungibleLedgerProvider>
-                        <AppContent />
-                      </FungibleLedgerProvider>
-                    </NotificationProvider>
-                  </SearchProvider>
-                </CookieBannerProvider>
-              </ChatHistoryProvider>
+              <UserProvider>
+                <ChatHistoryProvider>
+                  <CookieBannerProvider>
+                    <SearchProvider>
+                      <NotificationProvider>
+                        <FungibleLedgerProvider>
+                          <AppContent />
+                        </FungibleLedgerProvider>
+                      </NotificationProvider>
+                    </SearchProvider>
+                  </CookieBannerProvider>
+                </ChatHistoryProvider>
+              </UserProvider>
             </ActorsProvider>
           </IdentityKitProvider>
         </BrowserRouter>

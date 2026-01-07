@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
@@ -22,6 +22,7 @@ import { fromNullable } from "@dfinity/utils";
 import { getName } from "country-list";
 import { Principal } from "@dfinity/principal";
 import { toast } from "react-toastify";
+import { useIntProp } from "./useIntProp";
 
 const getAssetAsArrayBuffer = async (
   assetUrl: string,
@@ -139,12 +140,11 @@ const CertificatePage = () => {
   const { intPropId } = useParams();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  const { data: intPropResult } = backendActor.authenticated.useQueryCall({
-    functionName: "get_int_prop",
-    args: intPropId ? [{ token_id: BigInt(intPropId) }] : undefined,
-  });
+  const intPropResult = useIntProp(intPropId ? BigInt(intPropId) : undefined);
 
-  const intProp = intPropResult && "ok" in intPropResult ? intPropResult.ok.intProp.V1 : undefined;
+  const intProp = useMemo(() => {
+    return intPropResult && "ok" in intPropResult ? intPropResult.ok.intProp.V1 : undefined;
+  }, [intPropResult]);
 
   const { data: authorResult } = backendActor.unauthenticated.useQueryCall({
     functionName: "get_user",

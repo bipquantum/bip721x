@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { ThemeContext } from "../App";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MdOutlineDarkMode } from "react-icons/md";
 import { MdOutlineLightMode } from "react-icons/md";
 import { MdChat } from "react-icons/md";
 import { MdOutlineAccountBalanceWallet } from "react-icons/md";
+import { FiUser, FiCreditCard, FiLogIn, FiLogOut } from "react-icons/fi";
 import LogoDark from "../../assets/logoDark.png";
 import LogoLight from "../../assets/logoLight.png";
 import UserImage from "../common/UserImage";
@@ -15,17 +16,20 @@ import Wallet from "../common/Wallet";
 import { useAuth } from "@nfid/identitykit/react";
 import BipquantumBetaWhite from "../../assets/bipquantum_beta_white.png";
 import BipquantumBetaBlack from "../../assets/bipquantum_beta_black.png";
-import { FiLogIn } from "react-icons/fi";
 
 const TopBar = () => {
   const { theme, setTheme } = useContext(ThemeContext);
   const location = useLocation();
   const { pathname } = location;
-  const { connect, user } = useAuth();
+  const { connect, user, disconnect } = useAuth();
+  const navigate = useNavigate();
 
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,6 +38,23 @@ const TopBar = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Handle click outside profile menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    if (showProfileMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showProfileMenu]);
 
   if (isLoading || !user) {
     return (
@@ -139,12 +160,55 @@ const TopBar = () => {
         >
           <MdOutlineAccountBalanceWallet size={22} />
         </button>
-        <Link to="/profile" className="h-10 w-10">
-          <UserImage
-            principal={user.principal}
-            className="h-10 w-10 rounded-full border-2 border-gray-300 object-cover dark:border-gray-700"
-          />
-        </Link>
+        <div className="relative flex items-center" ref={profileMenuRef}>
+          <button
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="flex h-10 w-10 items-center justify-center focus:outline-none"
+          >
+            <UserImage
+              className="h-10 w-10 rounded-full border-2 border-gray-300 object-cover dark:border-gray-700"
+            />
+          </button>
+
+          {showProfileMenu && (
+            <div className="absolute right-0 top-12 z-50 w-48 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-background-dark">
+              <div className="py-2">
+                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setShowProfileMenu(false);
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <FiUser size={18} />
+                  <span>Profile</span>
+                </button>
+                <button
+                  onClick={() => {
+                    navigate("/profile/subscription");
+                    setShowProfileMenu(false);
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                >
+                  <FiCreditCard size={18} />
+                  <span>Subscription</span>
+                </button>
+                <div className="my-1 border-t border-gray-200 dark:border-gray-700"></div>
+                <button
+                  onClick={() => {
+                    disconnect();
+                    setShowProfileMenu(false);
+                    navigate("/");
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-gray-700"
+                >
+                  <FiLogOut size={18} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       <Modal
         isVisible={showChatHistory}
