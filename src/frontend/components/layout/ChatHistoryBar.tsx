@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
 import { useChatHistory } from "./ChatHistoryContext";
+import { v4 as uuidv4 } from "uuid";
 
 import { HiMiniPencilSquare, HiOutlineTrash } from "react-icons/hi2";
 import { TbPencil } from "react-icons/tb";
@@ -81,6 +82,10 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
       cancelEdit();
     }
   };
+
+  useEffect(() => {
+    console.log("Chat histories updated:", chatHistories.length);
+  }, [chatHistories]);
 
   const runAction = () => {
     if (actionCandidate === undefined) return;
