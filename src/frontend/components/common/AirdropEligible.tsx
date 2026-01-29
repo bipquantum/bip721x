@@ -17,7 +17,7 @@ const AirdropEligible: React.FC<AirdropEligibleProps> = ({
     <span>♛</span>
   ) : (
     <div className="flex flex-row items-center space-x-1 text-sm">
-      <span className="italic text-blue-200">
+      <span className="italic text-blue-600 dark:text-blue-200">
         Qualified for the BIPQuantum Token Airdrop
       </span>
       <span>♛</span>

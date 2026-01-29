@@ -163,7 +163,7 @@ const ProfileTab = () => {
               />
             ) : field.name !== "imageUri" ? (
               <input
-                className="w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-base text-gray-400 placeholder-transparent outline-none"
+                className="w-full rounded-lg bg-transparent px-4 pb-2 pt-5 text-base text-gray-900 placeholder-transparent outline-none dark:text-white"
                 placeholder={field.label}
                 defaultValue={userArgs[field.name]}
                 onChange={(e) => {

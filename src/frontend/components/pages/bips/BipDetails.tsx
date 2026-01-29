@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Principal } from "@dfinity/principal";
 import { useParams } from "react-router-dom";
 import { fromNullable } from "@dfinity/utils";
+import { toast } from "react-toastify";
 
 import { backendActor } from "../../actors/BackendActor";
 import {
@@ -11,6 +12,7 @@ import {
   intPropTypeToString,
   timeToDate,
 } from "../../../utils/conversions";
+import { generateCertificatePdf, downloadCertificatePdf } from "../../../utils/certificatePdf";
 import FilePreview from "../../common/FilePreview";
 import ListingDetails from "../../common/ListingDetails";
 
@@ -26,6 +28,7 @@ import UserImage from "../../common/UserImage";
 import BanAuthor from "../../common/BanAuthor";
 import FundIcon from "../../icons/FundIcon";
 import { useIntProp } from "./useIntProp";
+import { useActors } from "../../common/ActorsContext";
 
 interface IPItemProps {
   principal: Principal | undefined;
@@ -33,13 +36,43 @@ interface IPItemProps {
 
 const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
   const [owner, setOwner] = useState<Principal | undefined>(undefined);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { unauthenticated } = useActors();
 
   const { ipId: intPropId } = useParams();
   if (!intPropId) return <></>;
 
-  const openCertificateInNewTab = () => {
-    const certUrl = `/bip/${intPropId}/certificate`;
-    window.open(certUrl, "_blank");
+  const handleDownloadCertificate = async () => {
+    if (!intProp || !("ok" in intProp) || !owner || !unauthenticated) {
+      toast.error("Cannot download certificate: missing data");
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      // Fetch author data
+      const authorResult = await unauthenticated.backend.get_user(intProp.ok.intProp.V1.author);
+      const author = fromNullable(authorResult);
+      if (!author) {
+        toast.error("Could not fetch author information");
+        return;
+      }
+
+      // Generate and download PDF
+      const pdfBytes = await generateCertificatePdf(
+        intPropId,
+        intProp.ok.intProp.V1,
+        author,
+        owner
+      );
+      downloadCertificatePdf(pdfBytes, intPropId);
+      toast.success("Certificate downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading certificate:", error);
+      toast.error("Failed to download certificate");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const { data: isBanned } = backendActor.unauthenticated.useQueryCall({
@@ -118,10 +151,11 @@ const BipDetails: React.FC<IPItemProps> = ({ principal }) => {
                       )}
                     </div>
                     <button
-                      onClick={() => openCertificateInNewTab()}
-                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white"
+                      onClick={handleDownloadCertificate}
+                      disabled={isDownloading}
+                      className="flex w-full flex-row items-center justify-center gap-2 rounded-[10px] border border-primary bg-primary py-[6px] text-center text-[16px] uppercase text-white disabled:opacity-50"
                     >
-                      View Certificate
+                      {isDownloading ? "Downloading..." : "Download Certificate"}
                     </button>
                   </div>
                 </div>
