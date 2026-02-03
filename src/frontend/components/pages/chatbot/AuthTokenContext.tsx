@@ -88,6 +88,7 @@ export const AuthTokenProvider: React.FC<AuthTokenProviderProps> = ({
 
   // Auto-invalidate token after 55 seconds
   useEffect(() => {
+    console.log("AuthTokenProvider detected authToken change:", authToken);
     if (!authToken) {
       return;
     }

@@ -85,9 +85,7 @@ dfx deploy exchange_rate --argument '( record {
 wait
 
 # Internet identity
-dfx deps pull
-dfx deps init
-dfx deps deploy internet_identity
+dfx deploy internet_identity
 
 # Backend
 STRIPE_PREMIUM_MONTHLY_LINK="plink_1SUqfIEq6YsoiR2BzqKaTpQB"

@@ -2,12 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Modal from "../common/Modal";
 import { useChatHistory } from "./ChatHistoryContext";
-import { v4 as uuidv4 } from "uuid";
 
 import { HiMiniPencilSquare, HiOutlineTrash } from "react-icons/hi2";
 import { TbPencil } from "react-icons/tb";
 import { TbDots } from "react-icons/tb";
-import { useAuthToken } from "../pages/chatbot/AuthTokenContext";
 
 enum ChatAction {
   DELETE,
@@ -29,22 +27,17 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
 }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { authToken, refreshAuthToken } = useAuthToken();
 
   const [settingOpen, setSettingOpen] = useState<string | undefined>();
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  const { chatHistories, addChat, deleteChat, renameChat } = useChatHistory();
+  const { chatHistories, deleteChat, renameChat } = useChatHistory();
   const [actionCandidate, setActionCandidate] = useState<ActionCandidate | undefined>();
 
   // State for inline editing
   const [editingChatId, setEditingChatId] = useState<string | undefined>();
   const [editingChatName, setEditingChatName] = useState<string>("");
   const editInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    console.log("Chat histories updated:", chatHistories.length);
-  }, [chatHistories]);
 
   // Auto-focus and select text when editing starts
   useEffect(() => {
@@ -83,10 +76,6 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
     }
   };
 
-  useEffect(() => {
-    console.log("Chat histories updated:", chatHistories.length);
-  }, [chatHistories]);
-
   const runAction = () => {
     if (actionCandidate === undefined) return;
     switch (actionCandidate.action) {
@@ -96,13 +85,6 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
     }
     setActionCandidate(undefined);
   };
-
-  const onChatSelectedExtended = (chatId: string) => {
-    if (authToken === undefined) {
-      refreshAuthToken();
-    };
-    onChatSelected(chatId);
-  }
 
   const isCurrentChat = (chatId: string) => {
     return pathname.includes("/chat/" + chatId);
@@ -165,7 +147,7 @@ const ChatHistoryBar: React.FC<ChatHistoryBarProps> = ({
                   className="col-span-4 text-wrap break-words text-[16px]"
                   to={"/chat/" + chat.id}
                   onClick={
-                    (e) => onChatSelectedExtended(chat.id)
+                    (e) => onChatSelected(chat.id)
                   }
                 >
                   {chat.name}
